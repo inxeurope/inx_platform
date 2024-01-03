@@ -2,6 +2,8 @@ from dotenv import load_dotenv
 import os
 from pathlib import Path
 
+print("This is the correct settings.py")
+
 # Load environment variables from .env
 load_dotenv()
 
