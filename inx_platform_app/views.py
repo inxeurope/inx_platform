@@ -101,7 +101,7 @@ def import_from_SQL(table_tuples):
 
     host = os.getenv("DB_SERVER", default=None)
     if  host == None: host = 'localhost'
-    database = os.getenv("ORIGINAL_DB_USERNAME", default=None)
+    database = os.getenv("ORIGINAL_DB_NAME", default=None)
     if database == None: database = 'INXD_Database'
     username = os.getenv("ORIGINAL_DB_USERNAME", default=None)
     if  username == None: username = 'sa'
