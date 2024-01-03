@@ -144,7 +144,7 @@ LOGIN_REDIRECT_URL = "/"
 DATA_UPLOAD_MAX_NUMBER_FIELDS  = 25000
 
 STATICFILES_DIRS = [
-    BASE_DIR / "inx_platform_app/media"
+    BASE_DIR / "inx_platform_app/static_files"
     ]
 STATIC_ROOT = BASE_DIR / "static_files"
 MEDIA_URL = "/media/"
