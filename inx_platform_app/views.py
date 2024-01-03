@@ -101,10 +101,11 @@ def import_from_SQL(table_tuples):
 
     host = os.getenv("DB_SERVER", default=None)
     if  host == None: host = 'localhost'
-    database = 'INXD_Database'
-    username = os.getenv("DB_USERNAME", default=None)
+    database = os.getenv("ORIGINAL_DB_USERNAME", default=None)
+    if database == None: database = 'INXD_Database'
+    username = os.getenv("ORIGINAL_DB_USERNAME", default=None)
     if  username == None: username = 'sa'
-    password = os.getenv("DB_PASSWORD", default=None)
+    password = os.getenv("ORIGINAL_DB_PASSWORD", default=None)
     if password == None: password = "dellaBiella2!"
     driver = os.getenv("DB_DRIVER", None)
     if driver == None: driver = '{ODBC Driver 18 for SQL Server}'
@@ -129,6 +130,7 @@ def import_from_SQL(table_tuples):
     for table_name, field_name, model_class, mapping in table_tuples:
         # Query to get all records of the table
         query = f"SELECt * FROM {table_name}"
+        print(query)
         cursor.execute(query)
         records = cursor.fetchall()
         if not records: continue # Skip empty tables
