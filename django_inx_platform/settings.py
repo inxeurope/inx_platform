@@ -24,7 +24,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "django_htmx",
     "inx_platform_app.apps.InxPlatformAppConfig",
     "inx_platform_members.apps.InxPlatformMembersConfig",
 ]
