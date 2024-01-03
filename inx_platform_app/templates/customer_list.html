@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class="h4">Customers</div>
+<div class="row">
+    <div class="col-auto">
+        {% include 'pagination.html' %}
+    </div>
+    <div class="col-auto d-flex align-items-center">
+        {% include 'pagination_counter.html' %}
+    </div>
+    <div class="col-auto d-flex justify-content-end">
+        <!-- Search Form -->
+        <form class="row g-3" id="searchForm" method="get" action="{% url 'customers' %}">
+            <div class="col-auto">
+              <input type="text" class="form-control" value="{{ request.GET.search }}" name="search" placeholder="Search...">
+            </div>
+            <div class="col-auto">
+              <button type="submit" class="btn btn-primary mb-3">Search</button>
+              <button type="reset" class="btn btn-primary mb-3" onclick="resetSearch()">Reset</button>
+            </div>
+        </form>
+        {% if reset_pressed %}
+            <!-- Display a message or take any other action when the reset button is pressed -->
+            <p>The reset button was pressed.</p>
+        {% endif %}
+        <script>
+            function resetSearch() {
+                document.getElementById('searchForm').elements['search'].value='';
+                document.getElementById('searchForm').submit();
+            }
+        </script>
+    </div>
+</div>
+<!-- Output of Customers -->
+<div class="row">
+    {% for customer in customers %}
+    <div class="col-3 mb-2">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-building me-3"></i>{{ customer.number }}
+            </div>
+            <div class="card-body">
+                <p class="h5 mb-2">
+                    {{ customer.name }}
+                </p>
+                {% if customer.vat != '' %}
+                <p>
+                    VAT: {{ customer.vat}}
+                </p>
+                {% endif %}
+                <p>
+                    <img class="border rounded p-1" src="{% static 'flags/' %}{{ customer.country.iso3166_1_alpha_2 }}.svg" alt="{{ customer.country.iso3166_1_alpha_2 }} Flag" width="40" height="30">
+                - {{ customer.country.iso3166_1_alpha_2 }} <br>
+                    {{ customer.country.official_name_en }}
+                </p>
+                
+            </div>
+            <div class="card-footer d-flex flex-row-reverse">
+                <form action="{% url 'customer-edit' id=customer.id %}" method="get" style="display: inline;">
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-pencil-fill"></i></button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+<div class="row">
+    <div class="col-auto">
+        {% include 'pagination.html' %}
+    </div>
+</div>
+
+{% endblock %}

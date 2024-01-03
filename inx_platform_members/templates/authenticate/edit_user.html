@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container mt-4">
+    <h2>Edit User</h2>
+    <form method="post" action="">
+      {% csrf_token %}
+      
+      <div class="mb-3">
+        {{ form.email.label_tag }}
+        {{ form.email }}
+        {{ form.email.errors }}
+      </div>
+
+      <div class="mb-3">
+        {{ form.first_name.label_tag }}
+        {{ form.first_name }}
+        {{ form.first_name.errors }}
+      </div>
+
+      <div class="mb-3">
+        {{ form.last_name.label_tag }}
+        {{ form.last_name }}
+        {{ form.last_name.errors }}
+      </div>
+
+      <div class="mb-3">
+        {{ form.password1.label_tag }}
+        {{ form.password1 }}
+        {{ form.password1.errors }}
+      </div>
+
+      <div class="mb-3">
+        {{ form.password2.label_tag }}
+        {{ form.password2 }}
+        {{ form.password2.errors }}
+      </div>
+
+      <div class="mb-3">
+        {{ form.sqlapp_id.label_tag }}
+        {{ form.sqlapp_id }}
+        {{ form.sqlapp_id.errors }}
+      </div>
+
+      <div class="form-check mb-3">
+        {{ form.is_active }}
+        {{ form.is_active.label_tag }}
+      </div>
+
+      <div class="form-check mb-3">
+        {{ form.is_staff }}
+        {{ form.is_staff.label_tag }}
+      </div>
+
+      <div class="form-check mb-3">
+        {{ form.is_superuser }}
+        {{ form.is_superuser.label_tag }}
+      </div>
+
+      <button type="submit" class="btn btn-primary">Update User</button>
+    </form>
+  </div>
+{% endblock %}

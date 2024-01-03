@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid mx-auto">
+  <div class="container mt-4"><h1>Login page</h1></div>
+  <form action="" method="post">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="login_username">Email</label>
+      <input type="text" class="form-control" id="login_username" name="login_email" placeholder="Enter email ...">
+    </div>
+    <div class="form-group mt-4">
+      <label for="login_password">Password</label>
+      <input type="password" class="form-control" id="login_password" name="login_password" placeholder="Enter password ...">
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-4">Login</button>
+  </form>
+</div>
+
+{% endblock %}

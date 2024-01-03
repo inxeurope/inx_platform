@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th scope="col">id</th>
+            <th scope="col">proc. name</th>
+            <th scope="col">proc. script</th>
+            <th scope="col"></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for procedure in procedures %}
+            <tr>
+                <th scope="row">{{ procedure.id }}</th>
+                <td>{{ procedure.name }}</td>
+                <td>{{ procedure.script }}</td>
+                <td>
+                    <a class="btn btn-primary" href="{% url 'procedure_update' pk=procedure.pk %}">Edit</a>
+                    <form method="post" action="{% url 'push_and_execute' pk=procedure.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary">Push and Execute</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

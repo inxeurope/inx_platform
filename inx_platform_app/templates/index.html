@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+  <div class="row p-2">
+    <div class="col-2 text-start"><a class="btn btn-primary" href="{% url 'customers' %}"><i class="me-2 bi bi-person"></i>Customers</a></div>
+    <div class="col-2 text-start"><a class="btn btn-primary" href="{% url 'products' %}"><i class="me-2 bi bi-box"></i>Products</a></div>
+    <div class="col-2 text-start"><a class="btn btn-primary" href="{% url 'brands' %}"><i class="me-2 bi bi-box"></i>Brands</a></div>
+    <div class="col-2 text-start"><a class="btn btn-primary" href="{% url 'major' %}"><i class="me-2 bi bi-box"></i>Major Labels</a></div>
+  </div>
+  {% if user.is_authenticated and user.is_superuser %}
+  <div class="row p-2 border m-1">
+    <div class="col-2"><a class="btn btn-danger" href="{% url 'clean_db' %}"><i class="me-2 bi bi-bucket"></i>Clean DB</a></div>
+    <div class="col-2"><a class="btn btn-secondary" href="{% url 'import_data' %}"><i class="me-2 bi bi-truck"></i>Import DB data</a></div>
+  </div>
+  <div class="row p-2 border m-1">
+    <div class="col-2"><a class="btn btn-danger" href="{% url 'clean_single' %}"><i class="me-2 bi bi-bucket"></i>Clean single</a></div>
+    <div class="col-2"><a class="btn btn-secondary" href="{% url 'import_single' %}"><i class="me-2 bi bi-truck"></i>Import single</a></div>
+  </div>
+  <div class="row p-2">
+    <div class="col-2 text-start">
+      <a class="btn btn-warning" href="{% url 'admin:index' %}"><i class="me-2 bi bi-cpu-fill"></i>Admin</a>
+    </div>
+    <div class="col-2 text-start">
+      <a class="btn btn-secondary" href="{% url 'display_files' %}"><i class="me-2 bi bi-cpu-fill"></i>Display Files</a>
+    </div>
+    <div class="col-2 text-start">
+      <a class="btn btn-info" href="{% url 'list_users' %}"><i class="me-2 bi bi-people-fill"></i>List Users</a>
+    </div>
+    <div class="col-2 text-start">
+      <a class="btn btn-info" href="{% url 'procedure_list' %}"><i class="me-2 bi bi-people-fill"></i>Procedures</a>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

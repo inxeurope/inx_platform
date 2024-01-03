@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="h4">MajorLabels</div>
+
+<div class="row">
+  {% for major_label in major_labels %}
+  <div class="col-3 mb-2">
+      <div class="card">
+        <div class="card-header">
+            <i class="bi bi-building me-3"></i>{{ major_label.name }}
+        </div>
+        <div class="card-body">
+            {{ major_label.svg_logo|safe }}
+        </div>
+        <div class="card-footer d-flex flex-row-reverse">
+            <!-- For and button to edit a Major Label -->
+            <form action="{% url 'major-edit' id=major_label.id %}" method="get" style="display: inline;">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-pencil-fill"></i></button>
+            </form>
+        </div>
+      </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

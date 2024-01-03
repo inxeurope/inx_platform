@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid mx-auto">
+  <div class="container mt-4 text-left"><h1>Load data</h1></div>
+</div>
+<form action="" method="post" enctype="multipart/form-data" accept=".xlsx, .XLSX">
+    {% csrf_token %}
+    <div class="input-group mb-3">
+        <label class="input-group-text" for="inputGroupFileKE30">KE30</label>
+        <input type="file" class="form-control" id="inputGroupFileKE30" name="ke30_file">
+    </div>
+    <div class="input-group mb-3">
+        <label class="input-group-text" for="inputGroupFileKE24">KE24</label>
+        <input type="file" class="form-control" id="inputGroupFileKE24" name="ke24_file">
+    </div>
+    <div class="input-group mb-3">
+        <label class="input-group-text" for="inputGroupFileZAQ">ZAQ</label>
+        <input type="file" class="form-control" id="inputGroupFileZAQ" name="zaq_file">
+    </div>
+    <div class="input-group mb-3">
+        <label class="input-group-text" for="inputGroupFilOO">open Orders</label>
+        <input type="file" class="form-control" id="inputGroupFileOO" name="oo_file">
+    </div>
+    <!--
+    <div class="input-group mb-3">
+        <label class="input-group-text" for="inputGroupFileOH">Open History</label>
+        <input type="file" class="form-control" id="inputGroupFileOH" name="oh_file">
+    </div>
+    -->
+    <div class="input-group mb-3">
+        <label class="input-group-text" for="inputGroupFileOI">Open Items</label>
+        <input type="file" class="form-control" id="inputGroupFileOI" name="oi_file">
+    </div>
+    <div class="input-group mb-3">
+        <label class="input-group-text" for="inputGroupFileARR">Payment Arrears</label>
+        <input type="file" class="form-control" id="inputGroupFileARR" name="arr_file">
+    </div>
+    <div class="input-group mb-3">
+        <label class="input-group-text" for="inputGroupFilePR">Prices</label>
+        <input type="file" class="form-control" id="inputGroupFilePR" name="pr_file">
+    </div>
+    <div class="input-group mb-3">
+        <label class="input-group-text" for="inputGroupFileBOMS">Products and BOMs</label>
+        <input type="file" class="form-control" id="inputGroupFileBOMS" name="boms_file">
+    </div>
+    <button type="submit" class="btn btn-primary">Upload data</button>
+</form>
+<div class="container-fluid mx-auto">
+    <div class="container mt-4 text-left">
+        <div class="col"><a class="btn btn-primary" href="{% url 'display_files' %}"><i class="me-2 bi bi-box"></i>Display Files</a></div>
+    </div>
+</div>
+{% endblock %}
