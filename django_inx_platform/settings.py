@@ -21,6 +21,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '159.223.26.141', 'azsql.inxeurope.dev']
+print(ALLOWED_HOSTS)
 
 # Application definition
 
