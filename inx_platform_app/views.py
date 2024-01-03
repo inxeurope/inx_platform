@@ -101,8 +101,7 @@ def import_from_SQL(table_tuples):
 
     host = os.getenv("DB_SERVER", default=None)
     if  host == None: host = 'localhost'
-    database = os.getenv("DB_NAME", default=None)
-    if  database == None: database = 'INXD_Database'
+    database = 'INXD_Database'
     username = os.getenv("DB_USERNAME", default=None)
     if  username == None: username = 'sa'
     password = os.getenv("DB_PASSWORD", default=None)
@@ -299,7 +298,7 @@ def save_model(the_class, the_data, counter, all_records, logs=None):
         length_of_message = len(message)
         if all_records < 100: soglia = 100
         if all_records >= 100 and all_records <= 1000: soglia = 100
-        if all_records >= 100 and all_records > 1000: soglia = 1000
+        if all_records >= 100 and all_records > 1000: soglia = 100
         if all_records < soglia:
             print(" " * length_of_message, end="\r")
             print(message, end="\r")
