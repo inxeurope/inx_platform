@@ -129,7 +129,7 @@ def import_from_SQL(table_tuples):
     # Working to import
     for table_name, field_name, model_class, mapping in table_tuples:
         # Query to get all records of the table
-        query = f"SELECt * FROM {table_name}"
+        query = f"SELECT * FROM {table_name}"
         print(query)
         cursor.execute(query)
         records = cursor.fetchall()
