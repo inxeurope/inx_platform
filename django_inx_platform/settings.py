@@ -1,4 +1,9 @@
+from dotenv import load_dotenv
+import os
 from pathlib import Path
+
+# Load environment variables from .env
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -8,7 +13,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-c9iqoy6(cv*fhc5-s4$a!=wip^v*@s-#f_5$0460mw519n#gu$"
+# Changing the secret key will log out all users
+# No impact on teh databse data
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -67,12 +74,12 @@ WSGI_APPLICATION = "django_inx_platform.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "mssql",
-        "NAME": "inx_platform",
-        "HOST": "localhost",
-        "PORT": "1433",
-        "USER": "sa",
-        "PASSWORD": "dellaBiella2!",
-        
+        "NAME": os.getenv("DB_NAME", default="inx_platform"),
+        "HOST": os.getenv("DB_SERVER", default="inx-eugwc-inxdigital-svr.database.windows.net"),
+        "PORT": os.getenv("DB_PORT", default="1433"),
+        "USER": os.getenv("DB_USER", default="sa"),
+        "PASSWORD": os.getenv("DB_PASSWORD", default="dellaBiella2!"),
+         
         # "HOST": "inxeu.database.windows.net",
         # "PORT": "1433",
         # "USER": "inxeu_admin ",
@@ -86,8 +93,8 @@ DATABASES = {
         # }
 
         "OPTIONS": {
-            "driver": "ODBC Driver 18 for SQL Server",
-            "extra_params": "TrustServerCertificate=yes; Connection Timout=10;"
+            "driver": os.getenv("DB_DRIVER", default="ODBC Driver 18 for SQL Server"),
+            "extra_params": f"TrustServerCertificate=yes; Connection Timout={os.getenv('DB_CONNECTION_TIMEOUT', default=10)};"
         }
     },
 }

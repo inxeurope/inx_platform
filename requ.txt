@@ -1,0 +1,4 @@
+pandas
+openpyxl
+mssql-django
+django
