@@ -25,4 +25,5 @@ activate virtual environment
 
 pip install -r requirements.txt
 
-to run
+to run with gunicorn
+gunicorn django_inx_platform:application
