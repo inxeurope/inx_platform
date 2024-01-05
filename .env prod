@@ -1,0 +1,17 @@
+# Enviroment file for DEVELOPMENT
+
+SECRET_KEY="b4cl6rs83p@yybj9d74x+kht#6*0ri&lz=289r_9cat^3!os+%"
+
+# Database configuration
+DB_SERVER=inx-eugwc-inxdigital-svr.database.windows.net
+DB_NAME=INXD_Platform
+DB_PORT=1433
+DB_USER=INXD_Database_admin
+DB_PASSWORD=NX{Pbv2AF
+DB_DRIVER="ODBC Driver 18 for SQL Server"
+DB_CONNECTION_TIMEOUT=10
+
+# Original SQL - from where data are initially copied
+ORIGINAL_DB_NAME=INXD_Database
+ORIGINAL_DB_USERNAME=INXD_Database_admin
+ORIGINAL_DB_PASSWORD=NX{Pbv2AF
