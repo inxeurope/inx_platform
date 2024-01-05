@@ -7,3 +7,4 @@ env/
 .vscode
 sample_files
 .env
+static_files

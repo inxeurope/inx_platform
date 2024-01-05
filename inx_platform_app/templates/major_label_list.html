@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-<div class="h4">MajorLabels</div>
+<div class="h4">Major Labels</div>
 
 <div class="row">
   {% for major_label in major_labels %}
@@ -11,7 +11,8 @@
             <i class="bi bi-building me-3"></i>{{ major_label.name }}
         </div>
         <div class="card-body">
-            {{ major_label.svg_logo|safe }}
+            <!--{{ major_label.svg_logo|safe }} -->
+            <img class="" src="{% static 'images/major_label_logos/' %}{{ major_label.name|slugify }}.svg" alt="{{ major_label.name }} Flag" width="60" height="60">
         </div>
         <div class="card-footer d-flex flex-row-reverse">
             <!-- For and button to edit a Major Label -->
