@@ -22,7 +22,7 @@
         </form>
         {% if reset_pressed %}
             <!-- Display a message or take any other action when the reset button is pressed -->
-            <p>The reset button was pressed.</p>
+            <!-- <p>The reset button was pressed.</p> -->
         {% endif %}
         <script>
             function resetSearch() {
@@ -50,7 +50,7 @@
                 </p>
                 {% endif %}
                 <p>
-                    <img class="border rounded p-1" src="{% static 'flags/' %}{{ customer.country.iso3166_1_alpha_2 }}.svg" alt="{{ customer.country.iso3166_1_alpha_2 }} Flag" width="40" height="30">
+                    <img class="border rounded p-1" src="{% static 'images/flags/' %}{{ customer.country.iso3166_1_alpha_2 }}.svg" alt="{{ customer.country.iso3166_1_alpha_2 }} Flag" width="40" height="30">
                 - {{ customer.country.iso3166_1_alpha_2 }} <br>
                     {{ customer.country.official_name_en }}
                 </p>

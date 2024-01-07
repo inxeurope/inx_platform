@@ -21,6 +21,9 @@ echo 'export PATH="$PATH:/opt/mssql-tools18/bin"' >> ~/.bashrc
 source ~/.bashrc
 sudo apt-get install -y unixodbc-dev
 
+test connection with
+
+
 install pyenv
 sudo apt install -y make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev python-openssl git
 echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
@@ -48,9 +51,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 
 Prepare the .env for production
-
-
-
+mv '.env prod' .env
 
 to run with gunicorn
 gunicorn -b 0.0.0.0:8000 django_inx_platform.wsgi:application
