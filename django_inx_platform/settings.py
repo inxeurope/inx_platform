@@ -38,8 +38,9 @@ INSTALLED_APPS = [
 AUTH_USER_MODEL = 'inx_platform_members.User'
 
 MIDDLEWARE = [
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    
     "django.middleware.security.SecurityMiddleware",
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -155,3 +156,5 @@ DATA_UPLOAD_MAX_NUMBER_FIELDS  = 25000
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media_root"
+
+WHITENOISE_DEBUG = True
