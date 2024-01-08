@@ -52,7 +52,7 @@
                 <p>
                     <img class="border rounded p-1" src="{% static 'images/flags/' %}{{ customer.country.iso3166_1_alpha_2 }}.svg" alt="{{ customer.country.iso3166_1_alpha_2 }} Flag" width="40" height="30">
                 - {{ customer.country.iso3166_1_alpha_2 }} <br>
-                    {{ customer.country.official_name_en }}
+                {{ customer.country.iso3166_1_alpha_2 }}.svg <br>{{ customer.country.official_name_en }}
                 </p>
                 
             </div>
