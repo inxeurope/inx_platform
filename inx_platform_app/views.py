@@ -87,10 +87,15 @@ def import_single(request):
     context = {'options': dictionaries.tables_list}
     if request.method == 'POST':
         selected_table = request.POST.get('selected_option', None)
+        submit_action = request.POST.get('submit')
         if selected_table:
             # filter the list of tuples and leave only the selected one
             filtered_tuple_list = [(t1, t2, t3, t4) for t1, t2, t3, t4 in dictionaries.tables_list if t1 == selected_table]
-            import_from_SQL(filtered_tuple_list)
+            if submit_action == 'Submit':
+                import_from_SQL(filtered_tuple_list)
+            elif submit_action == "Submit Multiprocess":
+                # Multiprocess import
+                pass
             return render(request, "import_single.html", context)
     else:
         return render(request, "import_single.html", context)
@@ -130,20 +135,20 @@ def import_from_SQL(table_tuples):
     for table_name, field_name, model_class, mapping in table_tuples:
         # Query to get all records of the table
         query = f"SELECT * FROM {table_name}"
-        print(query)
         cursor.execute(query)
         records = cursor.fetchall()
         if not records: continue # Skip empty tables
         how_many_records = len(records)
         print(' '*80,'\n','-'*80)
         print('SQL table name:', table_name, '-', how_many_records, "records")
+        print(' '*80,'\n','-'*80)
         # Get column names, in a list
         column_names = [column[0] for column in cursor.description]
         
         # This is the field that must me used for sqlapp_id
         # field_index = column_names.index(field_name)
         if field_name == None:
-            print('table with no index:', table_name)
+            # print('table with no index:', table_name)
             model_class.objects.all().delete()
             log_messages.append(f"All records from {model_class.__name__} have been deleted")
 
@@ -153,20 +158,20 @@ def import_from_SQL(table_tuples):
         # The innner list is built as follows
         # (app_db_column_name, Model)
         # --------------------------------------------------
-        model_fks = []
-        print('model_class', model_class.__name__)
-        for field in model_class._meta.get_fields():
-            if isinstance(field, models.ForeignKey):
-                app_db_column_name = field.db_column
-                if not app_db_column_name: app_db_column_name = field.name + '_id'
-                model_referenced = [app_db_column_name, field.related_model]
-                model_fks.append(model_referenced)
+        # model_fks = []
+        # print('model_class', model_class.__name__)
+        # for field in model_class._meta.get_fields():
+        #     if isinstance(field, models.ForeignKey):
+        #         app_db_column_name = field.db_column
+        #         if not app_db_column_name: app_db_column_name = field.name + '_id'
+        #         model_referenced = [app_db_column_name, field.related_model]
+        #         model_fks.append(model_referenced)
 
-        if model_fks:
-            print(f"Foreign keys in {model_class.__name__} before modifications")
-            for item in model_fks:
-                print('\t', item[0], end=', ')
-            print(' ')
+        # if model_fks:
+        #     print(f"Foreign keys in {model_class.__name__} before modifications")
+        #     for item in model_fks:
+        #         print(item[0], end=', ')
+        #     print(' ')
 
         # Building model_fks_dict
         # This is a dictionary key: value pairs
@@ -181,11 +186,11 @@ def import_from_SQL(table_tuples):
 
         # Looping through all table's records
         record_counter = 0
-        # pp.pprint(f'Looping records of {table_name}')
         for record in records:
             sqlapp_id = None
+            # Off the record, we make a dictionary
+            # field_name: field_value
             record_dict = dict(zip(column_names, record))
-            # pp.pprint(record_dict)
             # Here we get the value of what should be the index
             if not field_name == None:
                 sqlapp_id = record_dict[field_name]
@@ -206,6 +211,7 @@ def import_from_SQL(table_tuples):
 
             # --------------------------------------------------
             # Now there is dict that I could save in the app db
+            # becasue there are django field names,
             # but I need first to adapt reference ids
             # --------------------------------------------------
             # For those fields that are foreign keys, I need to search in the
@@ -218,11 +224,20 @@ def import_from_SQL(table_tuples):
             # and make a list out of it
             # Ths list contains the name of the fields that are FKsu                
             for sql_table_field in single_record_dict_fields:
-                if model_fks_dict and sql_table_field in model_fks_dict:
+                # if model_fks_dict and sql_table_field in model_fks_dict:
+                if sql_table_field in model_fks_dict:
                     # get 'value' from the dictionary
                     related_model = model_fks_dict[sql_table_field]
                     record_found = related_model.objects.filter(sqlapp_id=single_record_dict_fields[sql_table_field]).first()
+                    if record_found == None:
+                        print(f'related_model: {related_model.__name__}')
+                        print('single_record_dict_fields')
+                        for key, value in single_record_dict_fields.items():
+                            print(f'{key}: {value}')
+                        
+                    # print(f'record_found.id: {record_found.id}')
                     single_record_dict_fields[sql_table_field] = record_found.id
+                    record_found = None
             
             if field_name != None:
                 single_record_dict_fields['sqlapp_id'] = sqlapp_id
@@ -283,7 +298,7 @@ def save_model(the_class, the_data, counter, all_records, logs=None):
                 the_data['email'] = "new_business@inxeurope.com"
                 the_data['first_name'] = "New"
                 the_data['last_name'] = "Business"
-        
+
     if 'sqlapp_id' in the_data:
         sql_app_to_find = the_data.get('sqlapp_id')
         rec_exists = the_class.objects.filter(sqlapp_id=sql_app_to_find)
@@ -302,14 +317,17 @@ def save_model(the_class, the_data, counter, all_records, logs=None):
         if all_records >= 100 and all_records <= 1000: soglia = 100
         if all_records >= 100 and all_records > 1000: soglia = 100
         if all_records < soglia:
-            print(" " * length_of_message, end="\r")
+            # print(" " * length_of_message, end="\r")
             print(message, end="\r")
+            # print(message)
         if counter % soglia == 0:
-            print(" " * length_of_message, end="\r")
+            # print(" " * length_of_message, end="\r")
             print(message, end="\r")
+            # print(message)
         if counter == all_records:
-            print(" " * length_of_message, end="\r")
+            # print(" " * length_of_message, end="\r")
             print(message, end="\r")
+            # print(message)
 
         logs.append(f"Imported {the_class.__name__} - {counter}/{all_records}")
     else:

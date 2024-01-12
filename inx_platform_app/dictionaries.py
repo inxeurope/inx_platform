@@ -666,15 +666,11 @@ tables_list = [
     ("Country_Codes", "Country-ID", models.CountryCode, mapping_Country_codes),
     ("CustomerTypes", "CustomerTypeID", models.CustomerType, mapping_CustomerTypes),
     
-    # ("FBL5N_arr_import", None, models.Fbl5nArrImport, mapping_Fbl5nArrImport),
-    # ("FBL5N_open_import", None, models.Fbl5nOpenImport, mapping_Fbl5nOpenImport),
-    # ("KE24_import", None, models.Ke24ImportLine, mapping_Ke24ImportLine),
-    # ("ZAQCODMI9_import", None, models.ZACODMI9_import_line, mapping_ZACODMI9_import_line),
-    # ("KE30_import", None, models.Ke30ImportLine, mapping_Ke30ImportLine),
-    
-    ("Sales.KE24", None, models.Ke24Line, mapping_Ke24Line),
-    ("Sales.ZAQCODMI9", None, models.ZACODMI9_line, mapping_ZACODMI9_line),
-    ("Sales.Ke30", None, models.Ke30Line, mapping_Ke30Line),
+    ("FBL5N_arr_import", None, models.Fbl5nArrImport, mapping_Fbl5nArrImport),
+    ("FBL5N_open_import", None, models.Fbl5nOpenImport, mapping_Fbl5nOpenImport),
+    ("KE24_import", None, models.Ke24ImportLine, mapping_Ke24ImportLine),
+    ("ZAQCODMI9_import", None, models.ZACODMI9_import_line, mapping_ZACODMI9_import_line),
+    ("KE30_import", None, models.Ke30ImportLine, mapping_Ke30ImportLine),
     
     ("Colors", "ColorID", models.Color, mapping_Color),
     ("Brands", "BrandID", models.Brand, mapping_Brand),
@@ -685,4 +681,8 @@ tables_list = [
     
     ("_BudFor", 'ID', models.BudForLine, mapping_BudFor),
     ("_BudForDetails", "ID", models.BudForDetailLine, mapping_BudForDetails),
+
+    ("Sales.KE24", None, models.Ke24Line, mapping_Ke24Line),
+    ("Sales.ZAQCODMI9", None, models.ZACODMI9_line, mapping_ZACODMI9_line),
+    ("Sales.Ke30", None, models.Ke30Line, mapping_Ke30Line),
 ]
