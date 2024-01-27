@@ -8,7 +8,7 @@ from django.http import JsonResponse, HttpResponse
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from django.db import models
+from django.db import models, transaction
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.generic.list import ListView
 from django.views.generic.edit import UpdateView, CreateView
@@ -20,7 +20,9 @@ from .models import BudForLine, BudForDetailLine
 from .models import UploadedFile, StoredProcedure
 from .forms import EditMajorLabelForm, EditBrandForm, EditCustomerForm, EditProductForm, EditProcedureForm
 from . import dictionaries
+from concurrent.futures import ProcessPoolExecutor
 import pyodbc
+import pandas as pd
 import os
 import json
 from datetime import datetime
@@ -83,23 +85,24 @@ def import_data(request):
     import_from_SQL(dictionaries.tables_list)
     return render(request, "index.html")
 
+@login_required
+def import_data_improved(request):
+    import_from_SQL_improved(dictionaries.tables_list)
+    return render(request, "index.html")
+
 def import_single(request):
     context = {'options': dictionaries.tables_list}
     if request.method == 'POST':
         selected_table = request.POST.get('selected_option', None)
-        submit_action = request.POST.get('submit')
+        submit_action = request.POST.get('submit_type')
         if selected_table:
             # filter the list of tuples and leave only the selected one
             filtered_tuple_list = [(t1, t2, t3, t4) for t1, t2, t3, t4 in dictionaries.tables_list if t1 == selected_table]
             if submit_action == 'Submit':
                 import_from_SQL(filtered_tuple_list)
-            elif submit_action == "Submit Multiprocess":
-                # Multiprocess import
-                pass
             return render(request, "import_single.html", context)
     else:
         return render(request, "import_single.html", context)
-
 
 def import_from_SQL(table_tuples):
     log_messages = []
@@ -123,14 +126,13 @@ def import_from_SQL(table_tuples):
     print(f'driver  :{driver}')
     print('-'*50)
     print()
-    try:
-        connection_string = f"DRIVER={driver};SERVER={host};DATABASE={database};UID={username};PWD={password};TrustServerCertificate=yes;Connection Timeout=30;"
-        print(connection_string)        
+    connection_string = f"DRIVER={driver};SERVER={host};DATABASE={database};UID={username};PWD={password};TrustServerCertificate=yes;Connection Timeout=30;"
+    print(connection_string)
+    try:        
         conn = pyodbc.connect(connection_string)
         cursor = conn.cursor()
     except Exception as e:
-        log_messages.append(f"Error: {str(e)}")
-        print(log_messages)
+        print(f"Connection Error: {str(e)}")
     # Working to import
     for table_name, field_name, model_class, mapping in table_tuples:
         # Query to get all records of the table
@@ -147,10 +149,11 @@ def import_from_SQL(table_tuples):
         
         # This is the field that must me used for sqlapp_id
         # field_index = column_names.index(field_name)
+        
+        # When the tables have no index, the table will be truncated
         if field_name == None:
-            # print('table with no index:', table_name)
             model_class.objects.all().delete()
-            log_messages.append(f"All records from {model_class.__name__} have been deleted")
+            print(f"All records from {model_class.__name__} have been deleted")
 
         # --------------------------------------------------
         # FOREIGN KEYS JOB
@@ -174,14 +177,16 @@ def import_from_SQL(table_tuples):
         #     print(' ')
 
         # Building model_fks_dict
-        # This is a dictionary key: value pairs
+        # This is a dictionary of foreign keys
         # key: name of the field
         # value: model_class referenced
         model_fks_dict = {}
         for field in model_class._meta.get_fields():
             if isinstance(field, models.ForeignKey):
                 app_db_column_name = field.db_column
-                if not app_db_column_name: app_db_column_name = field.name + '_id'
+                # Perchè questo if qui sotto?
+                if not app_db_column_name:
+                    app_db_column_name = field.name + '_id'
                 model_fks_dict.update({app_db_column_name: field.related_model})
 
         # Looping through all table's records
@@ -252,6 +257,116 @@ def import_from_SQL(table_tuples):
     # Close the database connection
     conn.close()
 
+def insert_records(records):
+    with transaction.atomic():
+        Ke30ImportLine.objects.bulk_create(records)
+
+def process_dataframe_slice(df, field_mapping):
+    records = []
+    for _, row in df.iterrows():
+        record = Ke30ImportLine()
+        for pandas_field, model_field in field_mapping.items():
+            setattr(record, model_field, row[pandas_field])
+        records.append(record)
+    insert_records(records)
+
+def get_pk_from_sqlapp_id(model_class, sqlapp_id_value):
+    # print("model_class:", model_class.__name__, "\n input sqlapp_id_value:", sqlapp_id_value, end='')
+    try:
+        instance = model_class.objects.get(sqlapp_id=sqlapp_id_value)
+        # print("\t returned pk value:", instance.pk)
+        return instance.pk
+    except model_class.DoesNotExist:
+        # Handle the case where the instance is not found
+        # print("instance not found")
+        return None
+
+def import_from_SQL_improved(table_tuples):
+    # Import from SQL Azure to a dataframe
+    # Connect to database
+    host = os.getenv("DB_SERVER", default=None)
+    if  host == None: host = 'localhost'
+    database = os.getenv("ORIGINAL_DB_NAME", default=None)
+    if database == None: database = 'INXD_Database'
+    username = os.getenv("ORIGINAL_DB_USERNAME", default=None)
+    if  username == None: username = 'sa'
+    password = os.getenv("ORIGINAL_DB_PASSWORD", default=None)
+    if password == None: password = "dellaBiella2!"
+    driver = os.getenv("DB_DRIVER", None)
+    if driver == None: driver = '{ODBC Driver 18 for SQL Server}'
+
+    try:
+        connection_string = f"DRIVER={driver};SERVER={host};DATABASE={database};UID={username};PWD={password};TrustServerCertificate=yes;Connection Timeout=30;"
+        print(connection_string)        
+        conn = pyodbc.connect(connection_string)
+        cursor = conn.cursor()
+    except Exception as e:
+        print("SQL database connection failed", e)
+
+    mapping = dictionaries.mapping_Ke30ImportLine
+
+    for table_name, index_field_name, model_class, mapping in table_tuples:
+        print("\ntable_name:", table_name)
+        query = f"SELECT * FROM {table_name}"
+        df = pd.read_sql(query, conn)
+        # remove unwanted columns
+        df = df.filter(items=mapping.keys())
+        # rename columns
+        df.rename(columns=mapping, inplace=True)
+        # remove nan
+        df.fillna(0, inplace=True)
+        # Make date timezone aware
+        for column in df.columns:
+            # Check if the column contains datetime values
+            if pd.api.types.is_datetime64_any_dtype(df[column]):
+                # Make datetime values timezone aware (assuming UTC)
+                df[column] = df[column].apply(lambda x: timezone.make_aware(x) if pd.notnull(x) else x)
+                # df[column] = df[column].apply(lambda x: x.tz_localize(pytz.UTC) if pd.notnull(x) else x)
+                
+        # Making the sqlapp_id column, if there is index_field_name
+        if not index_field_name == None:
+            df['sqlapp_id'] = df[index_field_name].copy()
+            df.drop(columns=index_field_name, inplace=True)
+        
+        if index_field_name == None:
+            model_class.objects.all().delete()
+            print(f"All records from {model_class.__name__} have been deleted")
+        
+        # Getting all Foreign keys in a dictionary with their models
+        model_fks_dict = {}
+        for field in model_class._meta.get_fields():
+            if isinstance(field, models.ForeignKey):
+                app_db_column_name = field.db_column
+                # Perchè questo if qui sotto?
+                if not app_db_column_name:
+                    app_db_column_name = field.name + '_id'
+                model_fks_dict.update({app_db_column_name: field.related_model})
+
+        if not index_field_name == None:
+            for column_name, fk_model_class in model_fks_dict.items():
+                if column_name in df.columns:
+                    df[column_name] = df.apply(lambda row: get_pk_from_sqlapp_id(fk_model_class, row[column_name]), axis=1)
+              
+        model_instances = []
+        print("len df:", len(df))
+        counter = 0
+        for _, row in df.iterrows():
+            if 'sqlapp_id' in df.columns:
+                index_value = row['sqlapp_id']
+                # the table has an index, if said index was already inserted, skip
+                if not model_class.objects.filter(**{'sqlapp_id': index_value}).exists():
+                    # Protecting the superuser
+                    if 'email' in row and str(row['email']).lower() == 'marco.zanella@inxeurope.com':
+                        row['email'] = str(row['email']).lower() + '.sql'
+                    model_instance = model_class(**row.to_dict())
+                    model_instances.append(model_instance)
+            if index_field_name == None:
+                model_instance = model_class(**row.to_dict())
+                model_instances.append(model_instance)
+            counter += 1
+            print("\rcounter", counter, "/", len(df), end='')
+        model_class.objects.bulk_create(model_instances)
+        
 @login_required
 def clean_single(request):
     context = {'options': dictionaries.tables_list}

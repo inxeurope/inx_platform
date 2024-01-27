@@ -43,6 +43,8 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     sqlapp_id = models.IntegerField(default=0, null=True)
 
+    photo = models.CharField(default='', max_length=255, blank=True, null=True)
+
     objects = CustomUserManager()
 
     USERNAME_FIELD = 'email'

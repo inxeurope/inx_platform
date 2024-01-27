@@ -113,6 +113,7 @@ class ProductStatus(models.Model):
     color_r = models.IntegerField(null=True)
     color_g = models.IntegerField(null=True)
     color_b = models.IntegerField(null=True)
+    color_a = models.IntegerField(null=True)
     sqlapp_id = models.IntegerField(default=0, null=True)
 
     def __str__(self):
@@ -527,6 +528,7 @@ class ZACODMI9_import_line(models.Model):
     dv = models.CharField(max_length=5)
     shpt = models.FloatField() 
     sales_doc = models.CharField(max_length=20)
+    import_date = models.DateTimeField(auto_now_add=True, null=True)
     import_timestamp = models.DateTimeField(auto_now_add=True, null=True)
     owner = models.ForeignKey(User, on_delete=models.PROTECT, blank=True, null=True)
 
@@ -773,14 +775,15 @@ class Customer(models.Model):
     vat = models.CharField(max_length=30, blank=True)
     email = models.CharField(max_length=255, blank=True)
     country = models.ForeignKey(CountryCode, on_delete=models.PROTECT)
+    approved_by_old = models.CharField(max_length=255, null=True, blank=True)
     approved_by =  models.ForeignKey(User, on_delete=models.PROTECT, related_name='approved_by', blank=True, null=True)
     approved_on =  models.DateTimeField(auto_now_add=True, null=True)
     import_note = models.CharField(max_length=255, blank=True)
     import_status = models.CharField(max_length=255, blank = True)
-    sqlapp_id = models.IntegerField(default=0)
+    sqlapp_id = models.IntegerField(default=0, null=True)
 
     def __str__(self):
-        return_value = f"ID: {self.id}, Customer number: {self.number}, Customer name: {self.name}"
+        return_value = f"Customer number: {self.number}, Customer name: {self.name}"
         return return_value
 
 class BudForLine(models.Model):
@@ -948,26 +951,26 @@ class UploadedFile(models.Model):
                 model = Price
                 field_mapping = import_dictionaries.pr_mapping_dict
 
-        start_time = time.time()
+        start_time = time.perf_counter()
         model.objects.all().delete()
-        end_time = time.time()
+        end_time = time.perf_counter()
         elapsed_time = end_time - start_time
-        print(f"deletion on {model._meta.model_name} took {elapsed_time} seconds")
+        print(f"deletion {model._meta.model_name} took {elapsed_time} seconds")
 
         # check how long is the dataframe
         df_length = len(df)
         chunk_size = 2000
-        chunks = [df.iloc[i:i + chunk_size] for i in range(0, len(df), chunk_size)]
+        # chunks = [df.iloc[i:i + chunk_size] for i in range(0, len(df), chunk_size)]
+        chunks = [df[i:i + chunk_size] for i in range(0, len(df), chunk_size)]
 
         # if the df is shorter than the chunk size; we will do everything in one operation
         # otherwise we will launch several processes each doing a chunk
 
         try:
-            start_time = time.time()
+            start_time = time.perf_counter()
             with transaction.atomic():
                 df = df.replace(np.nan, '')
-                df_length = len(df)
-                print(f"Length of dataframe: {len(df)}")
+                print(f"Length of dataframe: {df_length}")
                 c = 0
                 for index, row in df.iterrows():
                     # Import in the model
@@ -977,7 +980,7 @@ class UploadedFile(models.Model):
                     instance.save()
                     c += 1
                     print (f"{c}/{df_length}", end="\r")
-            end_time = time.time()
+            end_time = time.perf_counter()
             elapsed_time = end_time - start_time
             print(f"work on {self.file_type} took {elapsed_time} seconds")
             self.is_processed = True

@@ -3,6 +3,13 @@ from . import models
 from inx_platform_members.models import User
 
 # Table with index column
+mapping_Users = {
+    'ID_SalesManager': 'ID_SalesManager',
+    'FirstName': 'first_name',
+    'LastName': 'last_name',
+    'email': 'email',
+}
+
 mapping_ColorGroups = {
     'ColorGroupID': 'ColorGroupID',
     'ColorGroup': 'name'
@@ -37,22 +44,30 @@ mapping_NSFDivisions = {
 
 mapping_MarketSegments = {
     'ID': 'ID',
-    'MarketSegment': 'name'
+    'MarketSegment': 'name',
+    'SAP_ID': 'sap_id'
 }
 
 mapping_MaterialGroups = {
     'ID': 'ID',
-    'MaterialGroup': 'name'
+    'MaterialGroup': 'name',
+    'SAP_ID': 'sap_id'
 }
 
 mapping_PackagingTypes = {
     'PackagingTypeID': 'PackagingTypeID',
-    'Packaging': 'name'
+    'Packaging': 'name',
+    'RateToLT': 'rate_to_lt',
+    'SAP_ID': 'sap_id'
 }
 
 mapping_ProductStatuses = {
     'ProductStatusID': 'ProductStatusID',
-    'ProductStatus': 'name'
+    'ProductStatus': 'name',
+    'ColorR': 'color_r',
+    'ColorG': 'color_g',
+    'ColorB': 'color_b',
+    'ColorA': 'color_a',
 }
 
 mapping_UoM = {
@@ -73,10 +88,10 @@ mapping_Scenarios = {
 }
 
 mapping_Country_codes = {
-    'Country-ID': 'Country-ID',
+    'CountryID': 'CountryID',
     'ISO3166-1-Alpha-2': 'iso3166_1_alpha_3',
     'ISO3166-1-Alpha-2': 'iso3166_1_alpha_2',
-    'Intermediate Region Code': 'intermediate_region_code',
+    # 'Intermediate Region Code': 'intermediate_region_code',
     'Intermediate Region Name': 'intermediate_region_name',
     'ISO4217-currency_name': 'iso4217_currency_name',
     'ISO4217-currency_numeric_code': 'iso4217_currency_numeric_code',
@@ -556,13 +571,6 @@ mapping_Ke30Line = {
 }
 
 # Tables with ForeignKeys
-mapping_Users = {
-    'ID_SalesManager': 'ID_SalesManager',
-    'FirstName': 'first_name',
-    'LastName': 'last_name',
-    'email': 'email',
-
-}
 
 mapping_Color = {
     'ColorID': 'ColorID',
@@ -611,7 +619,7 @@ mapping_Customers = {
     'CountryID': 'country_id',
     'CustomerTypeID': 'customer_type_id',
     'Currency': 'currency',
-    'ApprovedBy': 'approved_by',
+    'ApprovedBy': 'approved_by_old',
     'ApprovedOn': 'approved_on',
     'email': 'email',
     'SalesEmployeeID': 'sales_employee_id'
@@ -663,24 +671,24 @@ tables_list = [
     ("UoM", "ID", models.UnitOfMeasure, mapping_UoM),
     ("ExchangeRates", "ID", models.ExchangeRate, mapping_ExchangeRates),
     ("Scenarios", "ID", models.Scenario, mapping_Scenarios),
-    ("Country_Codes", "Country-ID", models.CountryCode, mapping_Country_codes),
+    ("Country_Codes", "CountryID", models.CountryCode, mapping_Country_codes),
     ("CustomerTypes", "CustomerTypeID", models.CustomerType, mapping_CustomerTypes),
     
-    ("FBL5N_arr_import", None, models.Fbl5nArrImport, mapping_Fbl5nArrImport),
-    ("FBL5N_open_import", None, models.Fbl5nOpenImport, mapping_Fbl5nOpenImport),
-    ("KE24_import", None, models.Ke24ImportLine, mapping_Ke24ImportLine),
-    ("ZAQCODMI9_import", None, models.ZACODMI9_import_line, mapping_ZACODMI9_import_line),
-    ("KE30_import", None, models.Ke30ImportLine, mapping_Ke30ImportLine),
+    # ("FBL5N_arr_import", None, models.Fbl5nArrImport, mapping_Fbl5nArrImport),
+    # ("FBL5N_open_import", None, models.Fbl5nOpenImport, mapping_Fbl5nOpenImport),
+    # ("KE24_import", None, models.Ke24ImportLine, mapping_Ke24ImportLine),
+    # ("ZAQCODMI9_import", None, models.ZACODMI9_import_line, mapping_ZACODMI9_import_line),
+    # ("KE30_import", None, models.Ke30ImportLine, mapping_Ke30ImportLine),
     
     ("Colors", "ColorID", models.Color, mapping_Color),
     ("Brands", "BrandID", models.Brand, mapping_Brand),
     ("RateToLT", "ID", models.RateToLT, mapping_Rate_to_LT),
 
     ("Products", "ProductID", models.Product, mapping_Product),
-    ("Customers", "CustomerID", models.Customer, mapping_Customers),
+    # ("Customers", "CustomerID", models.Customer, mapping_Customers),
     
-    ("_BudFor", 'ID', models.BudForLine, mapping_BudFor),
-    ("_BudForDetails", "ID", models.BudForDetailLine, mapping_BudForDetails),
+    # ("_BudFor", 'ID', models.BudForLine, mapping_BudFor),
+    # ("_BudForDetails", "ID", models.BudForDetailLine, mapping_BudForDetails),
 
     ("Sales.KE24", None, models.Ke24Line, mapping_Ke24Line),
     ("Sales.ZAQCODMI9", None, models.ZACODMI9_line, mapping_ZACODMI9_line),

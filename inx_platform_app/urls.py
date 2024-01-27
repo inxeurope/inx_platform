@@ -7,6 +7,8 @@ urlpatterns = [
     
     path("import_data/", views.import_data, name='import_data'),
     path("import_single/", views.import_single, name='import_single'),
+    path("import_test/", views.import_from_SQL_improved, name='import_test'),
+    path("import_data_improved/", views.import_data_improved, name='import_data_improved'),
     
     path("clean_db/", views.clean_db, name='clean_db'),
     path("clean_single/", views.clean_single, name='clean_single'),
