@@ -2,7 +2,7 @@
 {% block content %}
 <div class="row mb-2 mt-3">
     <div class="col-auto">
-        <p class="h4">Import single table</p>
+        <p class="h4">Single table operation</p>
     </div>
 </div>
 <div class="row">
@@ -17,11 +17,9 @@
                 {% endfor %}
             </select>
             
-            <input class="btn btn-primary" type="submit" name="submit_type" value="Submit">
+            <input class="btn btn-primary" type="submit" name="submit_type" value="Import">
+            <input class="btn btn-primary" type="submit" name="submit_type" value="Clean">
         </form>
-    </div>
-    <div class="col-auto text-start">
-        <a class="btn btn-secondary" href="{% url 'import_test' %}"><i class="me-2 bi bi-cpu-fill"></i>Import test</a>
     </div>
 </div>
 {% endblock %}

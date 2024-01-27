@@ -9,13 +9,15 @@
   </div>
   {% if user.is_authenticated and user.is_superuser %}
   <div class="row p-2 border m-1">
-    <div class="col-2"><a class="btn btn-danger" href="{% url 'clean_db' %}"><i class="me-2 bi bi-bucket"></i>Clean DB</a></div>
-    <div class="col-2"><a class="btn btn-secondary" href="{% url 'import_data' %}"><i class="me-2 bi bi-truck"></i>Import DB data</a></div>
+    <div class="col-2"><a class="btn btn-danger" href="{% url 'clean_db' %}"><i class="me-2 bi bi-bucket"></i>Clean full DB</a></div>
+    <div class="col-2"><a class="btn btn-secondary" href="{% url 'import_data' %}"><i class="me-2 bi bi-truck"></i>Import full DB</a></div>
+    <div class="col-3"><a class="btn btn-primary" href="{% url 'import_data_improved' %}"><i class="me-2 bi bi-truck"></i>Import All Improved</a></div>
   </div>
   <div class="row p-2 border m-1">
+    <div class="col-3"><a class="btn btn-danger" href="{% url 'import_single' %}"><i class="me-2 bi bi-bucket"></i>Single table DB op.</a></div>
     <div class="col-2"><a class="btn btn-danger" href="{% url 'clean_single' %}"><i class="me-2 bi bi-bucket"></i>Clean single</a></div>
     <div class="col-2"><a class="btn btn-secondary" href="{% url 'import_single' %}"><i class="me-2 bi bi-truck"></i>Import single</a></div>
-    <div class="col-2"><a class="btn btn-primary" href="{% url 'import_data_improved' %}"><i class="me-2 bi bi-truck"></i>Import All Improved</a></div>
+
   </div>
   <div class="row p-2">
     <div class="col-2 text-start">

@@ -685,7 +685,7 @@ tables_list = [
     ("RateToLT", "ID", models.RateToLT, mapping_Rate_to_LT),
 
     ("Products", "ProductID", models.Product, mapping_Product),
-    # ("Customers", "CustomerID", models.Customer, mapping_Customers),
+    ("Customers", "CustomerID", models.Customer, mapping_Customers),
     
     # ("_BudFor", 'ID', models.BudForLine, mapping_BudFor),
     # ("_BudForDetails", "ID", models.BudForDetailLine, mapping_BudForDetails),

@@ -9,7 +9,6 @@
     <div class="col-auto">
         <form method="post" action="{% url 'clean_single' %}">
             {% csrf_token %}
-            
             <label for="selected_option">Select a table:</label>
             <select name="selected_option" id="selected_option">
                 {% for table_name, field_name_id, model, mapping_dict in options %}

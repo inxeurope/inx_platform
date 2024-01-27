@@ -98,8 +98,10 @@ def import_single(request):
         if selected_table:
             # filter the list of tuples and leave only the selected one
             filtered_tuple_list = [(t1, t2, t3, t4) for t1, t2, t3, t4 in dictionaries.tables_list if t1 == selected_table]
-            if submit_action == 'Submit':
+            if submit_action == 'Import':
                 import_from_SQL(filtered_tuple_list)
+            if submit_action == 'Clean':
+                clean_the_table(filtered_tuple_list)
             return render(request, "import_single.html", context)
     else:
         return render(request, "import_single.html", context)
