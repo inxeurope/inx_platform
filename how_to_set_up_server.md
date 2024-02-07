@@ -1,17 +1,20 @@
-1. create the server with ubuntu 22.04 LTS
+# create the server with ubuntu 22.04 LTS
 
-2. create a non-root user as marco
+## create a non-root user as marco
+```
 useradd -m -d /home/marco -U -r -s /bin/bash marco
 also add user marco is possible
 usermod -aG sudo marco
 passwd marco
 sudo rsync --archive --chown=marco:marco ~/.ssh /home/marco
-
+```
 log in as root
+```
 curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
 curl https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/prod.list > /etc/apt/sources.list.d/mssql-release.list
 apt-get update
 apt-get -y upgrade
+```
 log out
 
 log in as marco

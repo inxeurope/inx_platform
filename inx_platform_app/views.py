@@ -978,6 +978,15 @@ def tables(request):
     }
     return render(request, 'app_pages/tables.html', context)
 
+def inxd_customers(request):
+    customers = Customer.objects.all()
+    context = {
+        'parent': 'interface',
+        'segment': 'inxd_customers',
+        'customers': customers
+    }
+    return render(request, 'app_pages/inxd_customers.html', context)
+
 def carousel(request):
     context = {
         'parent': 'interface',
