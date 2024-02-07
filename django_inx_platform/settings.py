@@ -25,6 +25,7 @@ ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '159.223.26.141', 'azsql.inxeurope.de
 # Application definition
 
 INSTALLED_APPS = [
+    'admin_tabler.apps.AdminTablerConfig',
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -32,10 +33,10 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "inx_platform_app.apps.InxPlatformAppConfig",
-    "inx_platform_members.apps.InxPlatformMembersConfig",
+    # "inx_platform_members.apps.InxPlatformMembersConfig",
 ]
 
-AUTH_USER_MODEL = 'inx_platform_members.User'
+AUTH_USER_MODEL = 'inx_platform_app.User'
 
 MIDDLEWARE = [
     
@@ -158,3 +159,22 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media_root"
 
 WHITENOISE_DEBUG = True
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'level': 'INFO',  # Adjust log level as needed
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django.db.backends': {
+            'handlers': ['console'],  # Add handlers as needed
+            'level': 'INFO',  # Adjust log level as needed
+            'propagate': False,
+        },
+    },
+}
+

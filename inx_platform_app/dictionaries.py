@@ -1,6 +1,6 @@
 # dictionaries used in the views.py import_data function
 from . import models
-from inx_platform_members.models import User
+from inx_platform_app.models import User
 
 # Table with index column
 mapping_Users = {
@@ -687,8 +687,8 @@ tables_list = [
     ("Products", "ProductID", models.Product, mapping_Product),
     ("Customers", "CustomerID", models.Customer, mapping_Customers),
     
-    # ("_BudFor", 'ID', models.BudForLine, mapping_BudFor),
-    # ("_BudForDetails", "ID", models.BudForDetailLine, mapping_BudForDetails),
+    ("_BudFor", 'ID', models.BudForLine, mapping_BudFor),
+    ("_BudForDetails", "ID", models.BudForDetailLine, mapping_BudForDetails),
 
     ("Sales.KE24", None, models.Ke24Line, mapping_Ke24Line),
     ("Sales.ZAQCODMI9", None, models.ZACODMI9_line, mapping_ZACODMI9_line),

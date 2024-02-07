@@ -5,7 +5,8 @@
         <p class="h4">Single table operation</p>
     </div>
 </div>
-<div class="row">
+<!--
+<div class="row p-1 mb-3">
     <div class="col-auto">
         <form method="post" action="{% url 'import_single' %}">
             {% csrf_token %}
@@ -17,9 +18,27 @@
                 {% endfor %}
             </select>
             
-            <input class="btn btn-primary" type="submit" name="submit_type" value="Import">
-            <input class="btn btn-primary" type="submit" name="submit_type" value="Clean">
-        </form>
+            <input class="btn btn-success" type="submit" name="submit_type" value="Import">
+            <input class="btn btn-danger" type="submit" name="submit_type" value="Clean">
+            
+        </form> 
     </div>
 </div>
+-->
+{% for table_name, field_name_id, model, mapping_dict in options %}
+<div class="row p-1 mb-3 align-items-center border">
+    <form method="post" action="{% url 'import_single' %}">
+        {% csrf_token %}
+        <div class="d-flex flex-row justify-content-between align-items-center w-100">
+            <input type="hidden" name="table_name" value="{{ table_name }}">
+            <div class="col">{{table_name}}</div>
+            <div class="col-auto">
+                <input class="btn btn-success" type="submit" name="submit_type" value="Import">
+                <input class="btn btn-danger" type="submit" name="submit_type" value="Clean">
+            </div>
+        </div>
+    </form>
+</div>
+{% endfor %}
+
 {% endblock %}

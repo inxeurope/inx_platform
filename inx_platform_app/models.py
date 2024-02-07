@@ -1,16 +1,85 @@
 import os
 import time
 from datetime import datetime
+import pandas as pd
+import numpy as np
 import django
 from django.apps import apps
 from django.db import models, transaction
 from django.conf import settings
-from django.utils import timezone
-from inx_platform_members.models import User
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, UserManager
+# from inx_platform_members.models import User
 from . import import_dictionaries
-import concurrent.futures
-import pandas as pd
-import numpy as np
+
+# -------------------------------------------
+# Following model to manage custom User model
+# -------------------------------------------
+
+class CustomUserManager(UserManager):
+    def _create_user(self, email, password, **extra_fields):
+        if not email:
+            raise ValueError("You have not provided a valid email address")
+
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+
+        return user
+    
+    def create_user(self, email=None, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', False)
+        extra_fields.setdefault('is_superuser', False)
+        return self._create_user(email, password, **extra_fields)
+
+    def create_superuser(self, email=None, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        return self._create_user(email, password, **extra_fields)
+    
+    def get_all_users(self):
+        return self.get_queryset().all()
+
+class User(AbstractBaseUser, PermissionsMixin):
+    email = models.EmailField(blank=True, default='', unique=True)
+    first_name = models.CharField(max_length=100, blank=True, default='')
+    last_name = models.CharField(max_length=100, blank=True, default='')
+
+    is_active = models.BooleanField(default=True)
+    is_superuser = models.BooleanField(default=False)
+    is_staff = models.BooleanField(default=False)
+
+    date_joined = models.DateTimeField(auto_now_add=True)
+    last_login = models.DateTimeField(blank=True, null=True)
+
+    sqlapp_id = models.IntegerField(default=0, null=True)
+
+    photo = models.CharField(default='', max_length=255, blank=True, null=True)
+
+    objects = CustomUserManager()
+
+    USERNAME_FIELD = 'email'
+    EMAIL_FIELD = 'email'
+    REQUIRED_FIELDS = []
+
+    class Meta:
+        verbose_name = 'User'
+        verbose_name_plural = 'Users'
+
+    def get_full_name(self):
+        strings =[self.first_name, self.last_name]
+        return ' '.join(strings)
+    
+    def get_short_name(self):
+        return self.first_name or self.email
+    
+    def get_snakecase_name(self):
+        strings =[self.first_name.lower(), self.last_name.lower()]
+        return '_'.join(strings)
+    
+    @classmethod
+    def get_all_users(cls):
+        return cls.objects.all()
 
 # -----------------------------------------------------
 # Models with no Foreign Keys
@@ -432,7 +501,8 @@ class Ke24Line(models.Model):
     canceled_document = models.CharField(max_length=10, null=True) 
     canceled_document_item = models.CharField(max_length=5, null=True) 
     time_created = models.CharField(max_length=20, null=True) 
-    date = models.DateTimeField(null=True) 
+    # date = models.DateTimeField(null=True)
+    date = models.DateField(null=True)
     time = models.TimeField(null=True)
     version = models.CharField(max_length=5, null=True) 
     sales_org = models.CharField(max_length=4, null=True) 
@@ -710,7 +780,7 @@ class Color(models.Model):
     color_weight = models.IntegerField(default=0, null=True)
     hex_value = models.CharField(max_length=7, null=True)
     name_short = models.CharField(max_length=3, null=True)
-    color_number = models.IntegerField(null=True)
+    color_number = models.CharField(max_length=10, null=True)
     color_group = models.ForeignKey(ColorGroup, on_delete=models.PROTECT) # PROTECT avoid deletion if there are refrenced object
     sqlapp_id = models.IntegerField(default=0, null=True)
 
@@ -749,7 +819,7 @@ class Product(models.Model):
     sqlapp_id = models.IntegerField(default=0, null=True)
 
     def __str__(self):
-        return_value = f"ID:{self.id}({self.sqlapp_id}), Product number:{self.number}, Product name:{self.name}"
+        return_value = f"sqlapp_id:{self.id}({self.sqlapp_id}), Product number:{self.number}, Product name:{self.name}"
         return return_value
     
 class RateToLT(models.Model):
@@ -765,22 +835,22 @@ class Customer(models.Model):
     number = models.CharField(max_length=100)
     name = models.CharField(max_length=255)
     currency = models.CharField(max_length=10, blank=True)
-    sales_employee = models.ForeignKey(User, on_delete=models.PROTECT, related_name='sales_manager')
-    customer_type = models.ForeignKey(CustomerType, on_delete=models.PROTECT, blank=True, null=True)
-    industry = models.ForeignKey(Industry, on_delete=models.PROTECT, blank=True, null=True)
-    active = models.BooleanField(default=False)
+    active = models.BooleanField(default=False, null=True)
     insurance = models.BooleanField(default=False, null=True)
-    insurance_value = models.IntegerField(null=True, blank=True)
+    insurance_value = models.IntegerField(null=True, blank=True, default=0)
     credit_limit = models.IntegerField(default=0)
     vat = models.CharField(max_length=30, blank=True)
     email = models.CharField(max_length=255, blank=True)
-    country = models.ForeignKey(CountryCode, on_delete=models.PROTECT)
     approved_by_old = models.CharField(max_length=255, null=True, blank=True)
-    approved_by =  models.ForeignKey(User, on_delete=models.PROTECT, related_name='approved_by', blank=True, null=True)
     approved_on =  models.DateTimeField(auto_now_add=True, null=True)
     import_note = models.CharField(max_length=255, blank=True)
     import_status = models.CharField(max_length=255, blank = True)
     sqlapp_id = models.IntegerField(default=0, null=True)
+    sales_employee = models.ForeignKey(User, on_delete=models.PROTECT, related_name='sales_manager')
+    customer_type = models.ForeignKey(CustomerType, on_delete=models.PROTECT, blank=True, null=True)
+    industry = models.ForeignKey(Industry, on_delete=models.PROTECT, blank=True, null=True)
+    country = models.ForeignKey(CountryCode, on_delete=models.PROTECT)
+    approved_by =  models.ForeignKey(User, on_delete=models.PROTECT, related_name='approved_by', blank=True, null=True)
 
     def __str__(self):
         return_value = f"Customer number: {self.number}, Customer name: {self.name}"
@@ -1006,8 +1076,12 @@ class UploadedFile(models.Model):
         return df
     
 class StoredProcedure(models.Model):
+
     name = models.CharField(max_length=255)
     script = models.TextField()
 
     def __str__(self) -> str:
-        return self.name    
+        return self.name 
+
+        
+   

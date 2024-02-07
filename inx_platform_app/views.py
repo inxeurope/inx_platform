@@ -6,30 +6,50 @@ from django.urls import reverse_lazy
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse, HttpResponse
 from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.views import LoginView, PasswordResetView, PasswordChangeView, PasswordResetConfirmView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.db import models, transaction
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.generic.list import ListView
 from django.views.generic.edit import UpdateView, CreateView
-from inx_platform_members.models import User
 from .models import ColorGroup, Division, MadeIn, MajorLabel, InkTechnology, NSFDivision, MarketSegment, MaterialGroup, Packaging, ProductStatus, UnitOfMeasure, ExchangeRate, Scenario, CountryCode, CustomerType
 from .models import Fbl5nArrImport, Fbl5nOpenImport, Ke24ImportLine, Ke24Line, ZACODMI9_line, ZACODMI9_import_line, Ke30ImportLine, Ke30Line
-from .models import Color, Brand, Product, RateToLT, Customer
+from .models import Color, Brand, Product, RateToLT, Customer, User
 from .models import BudForLine, BudForDetailLine
 from .models import UploadedFile, StoredProcedure
-from .forms import EditMajorLabelForm, EditBrandForm, EditCustomerForm, EditProductForm, EditProcedureForm
+from .forms import EditMajorLabelForm, EditBrandForm, EditCustomerForm, EditProductForm, EditProcedureForm, CustomUserCreationForm, UserPasswordChangeForm, RegistrationForm, LoginForm, UserPasswordResetForm, UserSetPasswordForm
 from . import dictionaries
-from concurrent.futures import ProcessPoolExecutor
 import pyodbc
 import pandas as pd
+import numpy as np
 import os
 import json
 from datetime import datetime
+from time import perf_counter
+import multiprocessing
+from sqlalchemy import create_engine
 
 def index(request):
+    return render(request, "app_pages/index.html", {})
 
-    return render(request, "index.html", {})
+def index_original(request):
+    return render(request, "app_pages/index_original.html", {})
+
+def profile(request):
+    return render(request, "app_pages/profile.html", {})
+
+def index_inx(request):
+    return render(request, "index-inx.html")
+
+def account_settings(request):
+    context = {
+        'parent': 'extra',
+        'segment': 'settings',
+    }
+    return render(request, 'app_pages/settings.html', context)
 
 @login_required
 def loader(request):
@@ -87,28 +107,26 @@ def import_data(request):
 
 @login_required
 def import_data_improved(request):
-    import_from_SQL_improved(dictionaries.tables_list)
+    import_from_SQL_improved_2(dictionaries.tables_list)
     return render(request, "index.html")
 
 def import_single(request):
     context = {'options': dictionaries.tables_list}
     if request.method == 'POST':
-        selected_table = request.POST.get('selected_option', None)
         submit_action = request.POST.get('submit_type')
-        if selected_table:
-            # filter the list of tuples and leave only the selected one
-            filtered_tuple_list = [(t1, t2, t3, t4) for t1, t2, t3, t4 in dictionaries.tables_list if t1 == selected_table]
-            if submit_action == 'Import':
-                import_from_SQL(filtered_tuple_list)
-            if submit_action == 'Clean':
-                clean_the_table(filtered_tuple_list)
-            return render(request, "import_single.html", context)
+        table_name = request.POST.get('table_name')
+        filtered_tuple = [(t1, t2, t3, t4) for t1, t2, t3, t4 in dictionaries.tables_list if t1 == table_name]
+        if submit_action == 'Import':
+            import_from_SQL(filtered_tuple)
+            messages.success(request, f"Import done on {table_name}")
+        if submit_action == 'Clean':
+            clean_the_table(filtered_tuple)
+            messages.success(request, f"Clean done on {table_name}")
+        return render(request, "import_single.html", context)
     else:
         return render(request, "import_single.html", context)
 
 def import_from_SQL(table_tuples):
-    log_messages = []
-
     host = os.getenv("DB_SERVER", default=None)
     if  host == None: host = 'localhost'
     database = os.getenv("ORIGINAL_DB_NAME", default=None)
@@ -119,17 +137,9 @@ def import_from_SQL(table_tuples):
     if password == None: password = "dellaBiella2!"
     driver = os.getenv("DB_DRIVER", None)
     if driver == None: driver = '{ODBC Driver 18 for SQL Server}'
-    print()
-    print('-'*50)
-    print(f'host    :{host}')
-    print(f'database:{database}')
-    print(f'username:{username}')
-    print(f'password:{password}')
-    print(f'driver  :{driver}')
-    print('-'*50)
-    print()
+   
     connection_string = f"DRIVER={driver};SERVER={host};DATABASE={database};UID={username};PWD={password};TrustServerCertificate=yes;Connection Timeout=30;"
-    print(connection_string)
+    # print(connection_string)
     try:        
         conn = pyodbc.connect(connection_string)
         cursor = conn.cursor()
@@ -145,17 +155,64 @@ def import_from_SQL(table_tuples):
         how_many_records = len(records)
         print(' '*80,'\n','-'*80)
         print('SQL table name:', table_name, '-', how_many_records, "records")
-        print(' '*80,'\n','-'*80)
+        print('-'*80)
         # Get column names, in a list
         column_names = [column[0] for column in cursor.description]
         
-        # This is the field that must me used for sqlapp_id
-        # field_index = column_names.index(field_name)
+        # Making a Dataframe
+        data_dicts = [dict(zip(row.cursor_description, row)) for row in records]
+        df = pd.DataFrame(data_dicts)
+        df.columns = column_names
+        
+        if table_name == 'Users':
+            for index, row in df.iterrows():
+                if row['email'] == 'marco.zanella@inxeurope.com':
+                    df.at[index, 'email'] = 'marco.zanella.sql@inxeurope.com'
+
+        # For testing
+        # df = df.head(1)
+
+        # Prune unnecessary columns
+        columns_to_keep = [column for column in df.columns if column in mapping]
+        df = df[columns_to_keep]
+
+        # creating a copy of the index column, if there is one
+        if not field_name == None:
+            df['sqlapp_id'] = df[field_name]
+            df.drop(columns=[field_name], inplace=True)
         
         # When the tables have no index, the table will be truncated
         if field_name == None:
             model_class.objects.all().delete()
             print(f"All records from {model_class.__name__} have been deleted")
+
+        # Changing column names
+        for sql_column, django_field in mapping.items():
+            # Rename the column using the mapping
+            if sql_column in df.columns:
+                df.rename(columns={sql_column: django_field}, inplace=True)
+
+        # Remove np.nan
+        df = df.replace(np.nan, None)
+
+        # Iterate through the model_class fields and detect data types
+        for field in model_class._meta.get_fields():
+            field_name = field.name
+            if field_name in model_class._meta.fields_map: continue
+            if field_name in df.columns:
+                if isinstance(field, models.IntegerField):
+                    df[field_name] = df[field_name].fillna(0)
+                    df[field_name] = df[field_name].astype(int)
+                elif isinstance(field, models.FloatField):
+                    df[field_name] = df[field_name].fillna(0)
+                    df[field_name] = df[field_name].astype(float)
+                elif isinstance(field, models.DateTimeField):
+                    df[field_name] = pd.to_datetime(df[field_name], errors='coerce')
+                elif isinstance(field, models.CharField):
+                    df[field_name] = df[field_name].fillna('')
+                    df[field_name] = df[field_name].astype(str)
+
+        df.to_excel("customers_beforeFK.xlsx")
 
         # --------------------------------------------------
         # FOREIGN KEYS JOB
@@ -163,36 +220,118 @@ def import_from_SQL(table_tuples):
         # The innner list is built as follows
         # (app_db_column_name, Model)
         # --------------------------------------------------
-        # model_fks = []
-        # print('model_class', model_class.__name__)
-        # for field in model_class._meta.get_fields():
-        #     if isinstance(field, models.ForeignKey):
-        #         app_db_column_name = field.db_column
-        #         if not app_db_column_name: app_db_column_name = field.name + '_id'
-        #         model_referenced = [app_db_column_name, field.related_model]
-        #         model_fks.append(model_referenced)
-
-        # if model_fks:
-        #     print(f"Foreign keys in {model_class.__name__} before modifications")
-        #     for item in model_fks:
-        #         print(item[0], end=', ')
-        #     print(' ')
 
         # Building model_fks_dict
         # This is a dictionary of foreign keys
         # key: name of the field
         # value: model_class referenced
         model_fks_dict = {}
+        other_model_fks_dict = {}
+        t_start = perf_counter()
         for field in model_class._meta.get_fields():
             if isinstance(field, models.ForeignKey):
                 app_db_column_name = field.db_column
                 # Perchè questo if qui sotto?
                 if not app_db_column_name:
                     app_db_column_name = field.name + '_id'
-                model_fks_dict.update({app_db_column_name: field.related_model})
+                # model_fks_dict.update({app_db_column_name: field.related_model})
+                #----------
+                related_model = field.related_model
+                related_objects = related_model.objects.all()
+                related_df = pd.DataFrame(list(related_objects.values()))
+                # Store the DataFrame in model_fks_dict
+                other_model_fks_dict[app_db_column_name] = (related_model, related_df)
+                # ------------
 
+        if model_fks_dict: pass
+        if other_model_fks_dict:
+            print(f"FK fields of table {table_name}")
+            # for fk in other_model_fks_dict.items():
+            #     print(f"-{fk}")
+        print(f"created model FKs dictionary in {round(perf_counter()-t_start, 2):.2f} seconds")
+
+        # Iterating to update FKs IDs
+        # Iterate through the DataFrame
+        t_start = perf_counter()
+        for index, row in df.iterrows():
+            print (f"row {index+1}/{len(df)}", end="\r")
+            for sql_column, django_field in mapping.items():
+                if (sql_column == 'ID' and django_field == 'ID') or sql_column == django_field:
+                    continue
+                # --------------
+                if django_field in other_model_fks_dict:
+                    related_model, related_df = other_model_fks_dict[django_field]
+                    # Get the SQL column value
+                    sql_column_value = row[django_field]
+
+                    # Look up the related model instance by sqlapp_id in the DataFrame
+                    matching_rows = related_df.loc[related_df['sqlapp_id'] == sql_column_value]
+
+                    if not matching_rows.empty:
+                        # Get the first matching instance (if there is one)
+                        found_results = True
+                        related_instance = matching_rows.iloc[0]
+                    else:
+                        found_results = False
+
+                    if found_results:
+                        if not related_instance.empty:
+                            # Update the DataFrame column with the related model's ID
+                            df.at[index, django_field] = related_instance.id
+                    else:
+                        df.at[index, django_field] = None
+                    # -------------
+                '''
+                # Check if the column is in the model_fks_dict
+                if django_field in model_fks_dict:
+                    # Get the related model
+                    related_model = model_fks_dict[django_field]
+                    
+                    # Check if the SQL column has a corresponding value in the DataFrame row
+                    if django_field in row.index and not pd.isnull(row[django_field]):
+                        # Get the SQL column value (names are already changed to django, so use django names)
+                        sql_column_value = row[django_field] 
+                        # Look up the related model instance by sqlapp_id
+                        related_instance = related_model.objects.filter(sqlapp_id=sql_column_value).first()
+                        if related_instance:
+                            # Update the DataFrame column with the related model's ID
+                            df.at[index, django_field] = related_instance.id
+                        else:
+                            # Handle cases where there is no related instance found
+                            pass
+                        '''
+        print(f"Update of FKs done in {round(perf_counter()-t_start, 2):.2f} seconds")
+        df.to_excel("customers_afterFK.xlsx")
+        try:
+            with transaction.atomic():
+                print("start atomic transaction")
+                instances_to_create = []
+                problematic_rows = []
+                # df.to_excel("customers.xlsx")
+                for row in df.to_dict(orient='records'):
+                    try:
+                        instances_to_create.append(model_class(**row))
+                    except Exception as ex:
+                        problematic_rows.append((row, str(ex)))
+                if problematic_rows:
+                    print("Problematic Rows:")
+                    for idx, (row_data, error_msg) in enumerate(problematic_rows):
+                        print(f"Row {idx + 1}: {error_msg}\n{row_data}\n")
+                else:
+                    print("no problematic rows")
+                # instances_to_create = [model_class(**row) for row in df.to_dict(orient='records')]
+                print(f"insances_to_create - model {model_class.__name__}")
+                model_class.objects.bulk_create(instances_to_create)
+                print(f"SUCCESS importing {table_name}")                 
+        except Exception as e:
+            print(e)
+        conn.close()
+        # Dataframe ---------------   
+
+        """
         # Looping through all table's records
         record_counter = 0
+        records_to_insert = [] # List to collect all records to be insterted
         for record in records:
             sqlapp_id = None
             # Off the record, we make a dictionary
@@ -249,28 +388,26 @@ def import_from_SQL(table_tuples):
             if field_name != None:
                 single_record_dict_fields['sqlapp_id'] = sqlapp_id
                 single_record_dict_fields.pop(field_name)
-            try:                     
-                record_counter, log_messages = save_model(the_class=model_class, the_data=single_record_dict_fields, counter=record_counter, all_records=how_many_records, logs=log_messages)
-            except Exception as e:
-                print(log_messages)
-                print(e)
-                    
-        print()
+            
+            # Prepping for bulk_create
+            model_instance = model_class(**single_record_dict_fields)
+            records_to_insert.append(model_instance)
+            record_counter += 1
+            if record_counter % 1000 == 0:
+                print(f"{record_counter}/{how_many_records}")
+
+        try:
+            with transaction.atomic():
+                model_class.objects.bulk_create(records_to_insert)                     
+            # record_counter, log_messages = save_model(the_class=model_class, the_data=single_record_dict_fields, counter=record_counter, all_records=how_many_records, logs=log_messages)
+        except Exception as e:
+            print(e)
+           
     # Close the database connection
     conn.close()
+    """ 
 
-def insert_records(records):
-    with transaction.atomic():
-        Ke30ImportLine.objects.bulk_create(records)
 
-def process_dataframe_slice(df, field_mapping):
-    records = []
-    for _, row in df.iterrows():
-        record = Ke30ImportLine()
-        for pandas_field, model_field in field_mapping.items():
-            setattr(record, model_field, row[pandas_field])
-        records.append(record)
-    insert_records(records)
 
 def get_pk_from_sqlapp_id(model_class, sqlapp_id_value):
     # print("model_class:", model_class.__name__, "\n input sqlapp_id_value:", sqlapp_id_value, end='')
@@ -283,92 +420,7 @@ def get_pk_from_sqlapp_id(model_class, sqlapp_id_value):
         # print("instance not found")
         return None
 
-def import_from_SQL_improved(table_tuples):
-    # Import from SQL Azure to a dataframe
-    # Connect to database
-    host = os.getenv("DB_SERVER", default=None)
-    if  host == None: host = 'localhost'
-    database = os.getenv("ORIGINAL_DB_NAME", default=None)
-    if database == None: database = 'INXD_Database'
-    username = os.getenv("ORIGINAL_DB_USERNAME", default=None)
-    if  username == None: username = 'sa'
-    password = os.getenv("ORIGINAL_DB_PASSWORD", default=None)
-    if password == None: password = "dellaBiella2!"
-    driver = os.getenv("DB_DRIVER", None)
-    if driver == None: driver = '{ODBC Driver 18 for SQL Server}'
 
-    try:
-        connection_string = f"DRIVER={driver};SERVER={host};DATABASE={database};UID={username};PWD={password};TrustServerCertificate=yes;Connection Timeout=30;"
-        print(connection_string)        
-        conn = pyodbc.connect(connection_string)
-        cursor = conn.cursor()
-    except Exception as e:
-        print("SQL database connection failed", e)
-
-    mapping = dictionaries.mapping_Ke30ImportLine
-
-    for table_name, index_field_name, model_class, mapping in table_tuples:
-        print("\ntable_name:", table_name)
-        query = f"SELECT * FROM {table_name}"
-        df = pd.read_sql(query, conn)
-        # remove unwanted columns
-        df = df.filter(items=mapping.keys())
-        # rename columns
-        df.rename(columns=mapping, inplace=True)
-        # remove nan
-        df.fillna(0, inplace=True)
-        # Make date timezone aware
-        for column in df.columns:
-            # Check if the column contains datetime values
-            if pd.api.types.is_datetime64_any_dtype(df[column]):
-                # Make datetime values timezone aware (assuming UTC)
-                df[column] = df[column].apply(lambda x: timezone.make_aware(x) if pd.notnull(x) else x)
-                # df[column] = df[column].apply(lambda x: x.tz_localize(pytz.UTC) if pd.notnull(x) else x)
-                
-        # Making the sqlapp_id column, if there is index_field_name
-        if not index_field_name == None:
-            df['sqlapp_id'] = df[index_field_name].copy()
-            df.drop(columns=index_field_name, inplace=True)
-        
-        if index_field_name == None:
-            model_class.objects.all().delete()
-            print(f"All records from {model_class.__name__} have been deleted")
-        
-        # Getting all Foreign keys in a dictionary with their models
-        model_fks_dict = {}
-        for field in model_class._meta.get_fields():
-            if isinstance(field, models.ForeignKey):
-                app_db_column_name = field.db_column
-                # Perchè questo if qui sotto?
-                if not app_db_column_name:
-                    app_db_column_name = field.name + '_id'
-                model_fks_dict.update({app_db_column_name: field.related_model})
-
-        if not index_field_name == None:
-            for column_name, fk_model_class in model_fks_dict.items():
-                if column_name in df.columns:
-                    df[column_name] = df.apply(lambda row: get_pk_from_sqlapp_id(fk_model_class, row[column_name]), axis=1)
-              
-        model_instances = []
-        print("len df:", len(df))
-        counter = 0
-        for _, row in df.iterrows():
-            if 'sqlapp_id' in df.columns:
-                index_value = row['sqlapp_id']
-                # the table has an index, if said index was already inserted, skip
-                if not model_class.objects.filter(**{'sqlapp_id': index_value}).exists():
-                    # Protecting the superuser
-                    if 'email' in row and str(row['email']).lower() == 'marco.zanella@inxeurope.com':
-                        row['email'] = str(row['email']).lower() + '.sql'
-                    model_instance = model_class(**row.to_dict())
-                    model_instances.append(model_instance)
-            if index_field_name == None:
-                model_instance = model_class(**row.to_dict())
-                model_instances.append(model_instance)
-            counter += 1
-            print("\rcounter", counter, "/", len(df), end='')
-        model_class.objects.bulk_create(model_instances)
-        
 @login_required
 def clean_single(request):
     context = {'options': dictionaries.tables_list}
@@ -382,11 +434,13 @@ def clean_single(request):
     else:
         return render(request, "clean_single.html", context)
 
+
 def clean_the_table(tuple_list):
     # Take the name of the model from the tuple passed as argument
     model_to_clean = tuple_list[0][2]
     model_to_clean.objects.all().delete()
-    
+
+
 @login_required
 def clean_db(request):
 
@@ -402,7 +456,8 @@ def clean_db(request):
         if not model == User:
             model.objects.all().delete()
     
-    return render(request, 'index.html', {})
+    return render(request, 'index-inx.html', {})
+
 
 def save_model(the_class, the_data, counter, all_records, logs=None):
     if the_class.__name__ == 'User':
@@ -429,10 +484,7 @@ def save_model(the_class, the_data, counter, all_records, logs=None):
         model_item.save()
         counter += 1
         message = f"saved ... {str(counter).zfill(6)} / {str(all_records).zfill(6)}"
-        length_of_message = len(message)
-        if all_records < 100: soglia = 100
-        if all_records >= 100 and all_records <= 1000: soglia = 100
-        if all_records >= 100 and all_records > 1000: soglia = 100
+        soglia =100
         if all_records < soglia:
             # print(" " * length_of_message, end="\r")
             print(message, end="\r")
@@ -588,6 +640,7 @@ class CustomerListView(ListView):
         if query and not reset_pressed:
             return Customer.objects.filter(
                 models.Q(name__icontains=query) |
+                models.Q(number__icontains=query) |
                 models.Q(country__iso3166_1_alpha_2__icontains=query) |
                 models.Q(country__official_name_en__icontains=query) |
                 models.Q(sales_employee__first_name__icontains=query) |
@@ -707,3 +760,616 @@ def push_and_execute(request, pk):
 
     return redirect('procedure_list')
     
+
+# For User Management
+def create_user(request):
+    if request.method == 'POST':
+        form = CustomUserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            # Redirect to a success page or any other desired page after successful user creation
+            return redirect('index')
+    else:
+        form = CustomUserCreationForm()
+
+    return render(request, 'authenticate/create_user.html', {'form': form})
+
+def login_user(request):
+    if request.method == "POST":
+        email = request.POST["login_email"]
+        password = request.POST["login_password"]
+        user = authenticate(request, email=email, password=password)
+        if user is not None:
+            login(request, user)
+            messages.success(request, ('You were successfully logged in'))
+            # Check if there is a 'next' parameter in the URL
+            next_url = request.GET.get('next')
+            if next_url:
+                return redirect(next_url)
+            else:
+                return redirect('index')
+        else:
+            messages.success(request, ("There was an error loggin in ..."))
+            return redirect('login')
+    else:
+        return render (request, 'authenticate/login.html', {})
+
+def logout_user(request):
+    logout(request)
+    messages.success(request, ("You were logged out"))
+    return redirect('index')
+
+class UserListView(ListView):
+    model = User
+    template_name = "list_users.html"
+    context_object_name = "users"
+
+class UserUpdateView(UpdateView):
+    model = User
+    form_class = CustomUserCreationForm
+    template_name = 'edit_user.html'
+    success_url = reverse_lazy('list_users')
+
+class UserPasswordChangeView(PasswordChangeView):
+  template_name = 'app_pages/password-change.html'
+  form_class = UserPasswordChangeForm
+
+
+# Interface
+def accordion(request):
+    context = {
+        'parent': 'interface',
+        'segment': 'accordion',
+    }
+    return render(request, 'app_pages/accordion.html', context)
+
+def blank_page(request):
+    context = {
+        'parent': 'interface',
+        'segment': 'blank_page',
+    }
+    return render(request, 'app_pages/blank.html', context)
+
+def badges(request):
+    context = {
+        'parent': 'interface',
+        'segment': 'badges',
+    }
+    return render(request, 'app_pages/badges.html', context)
+
+def buttons(request):
+    context = {
+        'parent': 'interface',
+        'segment': 'buttons',
+    }
+    return render(request, 'app_pages/buttons.html', context)
+
+# Cards
+def sample_cards(request):
+    context = {
+        'parent': 'interface',
+        'segment': 'sample_cards',
+    }
+    return render(request, 'app_pages/cards.html', context)
+
+def card_actions(request):
+    context = {
+        'parent': 'interface',
+        'segment': 'card_actions',
+    }
+    return render(request, 'app_pages/card-actions.html', context)
+
+def cards_masonry(request):
+    context = {
+        'parent': 'interface',
+        'segment': 'cards_masonry',
+    }
+    return render(request, 'app_pages/cards-masonry.html', context)
+
+def colors(request):
+    context = {
+        'parent': 'interface',
+        'segment': 'colors',
+    }
+    return render(request, 'app_pages/colors.html', context)
+
+def data_grid(request):
+    context = {
+        'parent': 'interface',
+        'segment': 'data_grid',
+    }
+    return render(request, 'app_pages/datagrid.html', context)
+
+def datatables(request):
+    context = {
+        'parent': 'interface',
+        'segment': 'datatables',
+    }
+    return render(request, 'app_pages/datatables.html', context)
+
+def dropdowns(request):
+    context = {
+        'parent': 'interface',
+        'segment': 'dropdowns',
+    }
+    return render(request, 'app_pages/dropdowns.html', context)
+
+def modals(request):
+    context = {
+        'parent': 'interface',
+        'segment': 'modals',
+    }
+    return render(request, 'app_pages/modals.html', context)
+
+def maps(request):
+    context = {
+        'parent': 'interface',
+        'segment': 'maps',
+    }
+    return render(request, 'app_pages/maps.html', context)
+
+def map_fullsize(request):
+    context = {
+        'parent': 'interface',
+        'segment': 'map_fullsize',
+    }
+    return render(request, 'app_pages/map-fullsize.html', context)
+
+def vector_maps(request):
+    context = {
+        'parent': 'interface',
+        'segment': 'vector_maps',
+    }
+    return render(request, 'app_pages/maps-vector.html', context)
+
+def navigation(request):
+    context = {
+        'parent': 'interface',
+        'segment': 'navigation',
+    }
+    return render(request, 'app_pages/navigation.html', context)
+
+def charts(request):
+    context = {
+        'parent': 'interface',
+        'segment': 'charts',
+    }
+    return render(request, 'app_pages/charts.html', context)
+
+def pagination(request):
+    context = {
+        'parent': 'interface',
+        'segment': 'pagination',
+    }
+    return render(request, 'app_pages/pagination.html', context)
+
+def placeholder(request):
+    context = {
+        'parent': 'interface',
+        'segment': 'placeholder',
+    }
+    return render(request, 'app_pages/placeholder.html', context)
+
+def steps(request):
+    context = {
+        'parent': 'interface',
+        'segment': 'steps',
+    }
+    return render(request, 'app_pages/steps.html', context)
+
+def stars_rating(request):
+    context = {
+        'parent': 'interface',
+        'segment': 'stars_rating',
+    }
+    return render(request, 'app_pages/stars-rating.html', context)
+
+def tabs(request):
+    context = {
+        'parent': 'interface',
+        'segment': 'tabs',
+    }
+    return render(request, 'app_pages/tabs.html', context)
+
+def tables(request):
+    context = {
+        'parent': 'interface',
+        'segment': 'tables',
+    }
+    return render(request, 'app_pages/tables.html', context)
+
+def carousel(request):
+    context = {
+        'parent': 'interface',
+        'segment': 'carousel',
+    }
+    return render(request, 'app_pages/carousel.html', context)
+
+def lists(request):
+    context = {
+        'parent': 'interface',
+        'segment': 'lists',
+    }
+    return render(request, 'app_pages/lists.html', context)
+
+def typography(request):
+    context = {
+        'parent': 'interface',
+        'segment': 'typography',
+    }
+    return render(request, 'app_pages/typography.html', context)
+
+def offcanvas(request):
+    context = {
+        'parent': 'interface',
+        'segment': 'offcanvas',
+    }
+    return render(request, 'app_pages/offcanvas.html', context)
+
+def markdown(request):
+    context = {
+        'parent': 'interface',
+        'segment': 'markdown',
+    }
+    return render(request, 'app_pages/markdown.html', context)
+
+def dropzone(request):
+    context = {
+        'parent': 'interface',
+        'segment': 'dropzone',
+    }
+    return render(request, 'app_pages/dropzone.html', context)
+
+def lightbox(request):
+    context = {
+        'parent': 'interface',
+        'segment': 'lightbox',
+    }
+    return render(request, 'app_pages/lightbox.html', context)
+
+def tinymce(request):
+    context = {
+        'parent': 'interface',
+        'segment': 'tinymce',
+    }
+    return render(request, 'app_pages/tinymce.html', context)
+
+def inline_player(request):
+    context = {
+        'parent': 'interface',
+        'segment': 'inline_player',
+    }
+    return render(request, 'app_pages/inline-player.html', context)
+
+
+# Authentication
+class RegistrationView(CreateView):
+  template_name = 'app_pages/sign-up.html'
+  form_class = RegistrationForm
+  success_url = '/accounts/login/'
+
+class LoginView(LoginView):
+  template_name = 'app_pages/sign-in.html'
+  form_class = LoginForm
+
+class LoginViewIllustrator(LoginView):
+  template_name = 'app_pages/sign-in-illustration.html'
+  form_class = LoginForm
+
+class LoginViewCover(LoginView):
+  template_name = 'app_pages/sign-in-cover.html'
+  form_class = LoginForm
+
+def logout_view(request):
+    logout(request)
+    return redirect('/accounts/login/')
+
+def login_link(request):
+    return render(request, 'app_pages/sign-in-link.html')
+
+class PasswordReset(PasswordResetView):
+  template_name = 'app_pages/forgot-password.html'
+  form_class = UserPasswordResetForm
+
+class UserPasswordResetConfirmView(PasswordResetConfirmView):
+  template_name = 'app_pages/password-reset-confirm.html'
+  form_class = UserSetPasswordForm
+
+class UserPasswordChangeView(PasswordChangeView):
+  template_name = 'app_pages/password-change.html'
+  form_class = UserPasswordChangeForm
+
+def terms_service(request):
+    return render(request, 'app_pages/terms-of-service.html')
+
+def lock_screen(request):
+    return render(request, 'app_pages/auth-lock.html')
+
+# Error and maintenance
+def error_404(request):
+    return render(request, 'app_pages/error-404.html')
+
+def error_500(request):
+    return render(request, 'app_pages/error-500.html')
+
+def maintenance(request):
+    return render(request, 'app_pages/error-maintenance.html')
+
+
+def form_elements(request):
+    context = {
+        'parent': '',
+        'segment': 'form_elements',
+    }
+    return render(request, 'app_pages/form-elements.html', context)
+
+# Extra
+def empty_page(request):
+    context = {
+        'parent': 'extra',
+        'segment': 'empty_page',
+    }
+    return render(request, 'app_pages/empty.html', context)
+
+def cookie_banner(request):
+    context = {
+        'parent': 'extra',
+        'segment': 'cookie_banner',
+    }
+    return render(request, 'app_pages/cookie-banner.html', context)
+
+def activity(request):
+    context = {
+        'parent': 'extra',
+        'segment': 'activity',
+    }
+    return render(request, 'app_pages/activity.html', context)
+
+def gallery(request):
+    context = {
+        'parent': 'extra',
+        'segment': 'gallery',
+    }
+    return render(request, 'app_pages/gallery.html', context)
+
+def invoice(request):
+    context = {
+        'parent': 'extra',
+        'segment': 'invoice',
+    }
+    return render(request, 'app_pages/invoice.html', context)
+
+def search_results(request):
+    context = {
+        'parent': 'extra',
+        'segment': 'search_results',
+    }
+    return render(request, 'app_pages/search-results.html', context)
+
+def pricing_cards(request):
+    context = {
+        'parent': 'extra',
+        'segment': 'pricing_cards',
+    }
+    return render(request, 'app_pages/pricing.html', context)
+
+def pricing_table(request):
+    context = {
+        'parent': 'extra',
+        'segment': 'pricing_table',
+    }
+    return render(request, 'app_pages/pricing-table.html', context)
+
+def faq(request):
+    context = {
+        'parent': 'extra',
+        'segment': 'faq',
+    }
+    return render(request, 'app_pages/faq.html', context)
+
+def users(request):
+    context = {
+        'parent': 'extra',
+        'segment': 'users',
+    }
+    return render(request, 'app_pages/users.html', context)
+
+def license(request):
+    context = {
+        'parent': 'extra',
+        'segment': 'license',
+    }
+    return render(request, 'app_pages/license.html', context)
+
+def logs(request):
+    context = {
+        'parent': 'extra',
+        'segment': 'logs',
+    }
+    return render(request, 'app_pages/logs.html', context)
+
+def music(request):
+    context = {
+        'parent': 'extra',
+        'segment': 'music',
+    }
+    return render(request, 'app_pages/music.html', context)
+
+def photogrid(request):
+    context = {
+        'parent': 'extra',
+        'segment': 'photogrid',
+    }
+    return render(request, 'app_pages/photogrid.html', context)
+
+def tasks(request):
+    context = {
+        'parent': 'extra',
+        'segment': 'tasks',
+    }
+    return render(request, 'app_pages/tasks.html', context)
+
+def uptime(request):
+    context = {
+        'parent': 'extra',
+        'segment': 'uptime',
+    }
+    return render(request, 'app_pages/uptime.html', context)
+
+def widgets(request):
+    context = {
+        'parent': 'extra',
+        'segment': 'widgets',
+    }
+    return render(request, 'app_pages/widgets.html', context)
+
+def wizard(request):
+    context = {
+        'parent': 'extra',
+        'segment': 'widgets',
+    }
+    return render(request, 'app_pages/wizard.html', context)
+
+def settings(request):
+    context = {
+        'parent': 'extra',
+        'segment': 'settings',
+    }
+    return render(request, 'app_pages/settings.html', context)
+
+def settings_plan(request):
+    context = {
+        'parent': 'extra',
+        'segment': 'settings',
+    }
+    return render(request, 'app_pages/settings-plan.html', context)
+
+def trial_ended(request):
+    context = {
+        'parent': 'extra',
+        'segment': 'trial_ended',
+    }
+    return render(request, 'app_pages/trial-ended.html', context)
+
+def job_listing(request):
+    context = {
+        'parent': 'extra',
+        'segment': 'job_listing',
+    }
+    return render(request, 'app_pages/job-listing.html', context)
+
+def page_loader(request):
+    context = {
+        'parent': 'extra',
+        'segment': 'page_loader',
+    }
+    return render(request, 'app_pages/page-loader.html', context)
+
+# Layout
+def layout_horizontal(request):
+    context = {
+        'parent': 'layout',
+        'segment': 'layout_horizontal',
+    }
+    return render(request, 'app_pages/layout-horizontal.html', context)
+
+def layout_boxed(request):
+    context = {
+        'parent': 'layout',
+        'segment': 'layout_boxed',
+    }
+    return render(request, 'app_pages/layout-boxed.html', context)
+
+def layout_vertical(request):
+    context = {
+        'parent': 'layout',
+        'segment': 'layout_vertical',
+    }
+    return render(request, 'app_pages/layout-vertical.html', context)
+
+def layout_vertical_transparent(request):
+    context = {
+        'parent': 'layout',
+        'segment': 'layout_vertical_transparent',
+    }
+    return render(request, 'app_pages/layout-vertical-transparent.html', context)
+
+def layout_vertical_right(request):
+    context = {
+        'parent': 'layout',
+        'segment': 'layout_vertical_right',
+    }
+    return render(request, 'app_pages/layout-vertical-right.html', context)
+
+def layout_condensed(request):
+    context = {
+        'parent': 'layout',
+        'segment': 'layout_condensed',
+    }
+    return render(request, 'app_pages/layout-condensed.html', context)
+
+def layout_combined(request):
+    context = {
+        'parent': 'layout',
+        'segment': 'layout_combined',
+    }
+    return render(request, 'app_pages/layout-combo.html', context)
+
+def layout_navbar_dark(request):
+    context = {
+        'parent': 'layout',
+        'segment': 'layout_navbar_dark',
+    }
+    return render(request, 'app_pages/layout-navbar-dark.html', context)
+
+def layout_navbar_sticky(request):
+    context = {
+        'parent': 'layout',
+        'segment': 'layout_navbar_sticky',
+    }
+    return render(request, 'app_pages/layout-navbar-sticky.html', context)
+
+def layout_navbar_overlap(request):
+    context = {
+        'parent': 'layout',
+        'segment': 'layout_navbar_overlap',
+    }
+    return render(request, 'app_pages/layout-navbar-overlap.html', context)
+
+def layout_rtl(request):
+    context = {
+        'parent': 'layout',
+        'segment': 'layout_rtl',
+    }
+    return render(request, 'app_pages/layout-rtl.html', context)
+
+def layout_fluid(request):
+    context = {
+        'parent': 'layout',
+        'segment': 'layout_fluid',
+    }
+    return render(request, 'app_pages/layout-fluid.html', context)
+
+def layout_fluid_vertical(request):
+    context = {
+        'parent': 'layout',
+        'segment': 'layout_fluid_vertical',
+    }
+    return render(request, 'app_pages/layout-fluid-vertical.html', context)
+
+def changelog(request):
+    return render(request, 'app_pages/changelog.html')
+
+def profile(request):
+    return render(request, 'app_pages/profile.html')
+
+def icons(request):
+
+    context = {
+        'parent': '',
+        'segment': 'icons',
+    }
+    return render(request, 'app_pages/icons.html', context)
+
+
+

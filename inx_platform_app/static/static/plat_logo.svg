@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 232 68">
+    <polygon points="60.7 55.9 2.7 55.9 2.7 1.9 60.7 1.9 60.7 55.9" style="fill:#0071ce; fill-rule:evenodd; stroke-width:0px;"/>
+    <polygon points="20.7 31.9 12.7 31.9 12.7 24.9 20.7 24.9 20.7 31.9" style="fill:#fff; stroke-width:0px;"/>
+    <polygon points="35.7 31.9 27.7 31.9 27.7 24.9 35.7 24.9 35.7 31.9" style="fill:#fff; stroke-width:0px;"/>
+    <polygon points="50.7 31.9 42.7 31.9 42.7 24.9 50.7 24.9 50.7 31.9" style="fill:#fff; stroke-width:0px;"/>
+    <rect x="2.7" y="60.9" width="36" height="5.2" style="fill:#b4bbbf; stroke-width:0px;"/>
+    <rect x="38.7" y="60.9" width="22" height="5.2" style="fill:#0072bc; stroke-width:0px;"/>
+    <rect x="53.1" y="5.75" width="156.6" height="52.3" style="fill:none; stroke-width:0px;"/>
+    <text transform="translate(69.1 47.7)" style="fill:#454646; font-family:ArialRoundedMTBold, &apos;Arial Rounded MT Bold&apos;; font-size:38px;">
+        <tspan x="0" y="0">Pl</tspan>
+        <tspan x="35.64" y="0" style="letter-spacing:-.02em;">a</tspan>
+        <tspan x="57.28" y="0">t</tspan>
+        <tspan x="70.73" y="0" style="letter-spacing:-.01em;">f</tspan>
+        <tspan x="82.88" y="0">orm</tspan>
+    </text>
+</svg>
