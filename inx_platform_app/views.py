@@ -169,6 +169,7 @@ def import_from_SQL(table_tuples):
         data_dicts = [dict(zip(row.cursor_description, row)) for row in records]
         df = pd.DataFrame(data_dicts)
         df.columns = column_names
+        print("Dataframe creation completed")
         
         if table_name == 'Users':
             for index, row in df.iterrows():
@@ -181,11 +182,13 @@ def import_from_SQL(table_tuples):
         # Prune unnecessary columns
         columns_to_keep = [column for column in df.columns if column in mapping]
         df = df[columns_to_keep]
+        print("Columns to keep:", columns_to_keep)
 
         # creating a copy of the index column, if there is one
         if not field_name == None:
             df['sqlapp_id'] = df[field_name]
             df.drop(columns=[field_name], inplace=True)
+            print("Copy of index line created")
         
         # When the tables have no index, the table will be truncated
         if field_name == None:
@@ -197,9 +200,11 @@ def import_from_SQL(table_tuples):
             # Rename the column using the mapping
             if sql_column in df.columns:
                 df.rename(columns={sql_column: django_field}, inplace=True)
+        print("Applied django column names")
 
         # Remove np.nan
         df = df.replace(np.nan, None)
+        print("Removed np.nan")
 
         # Iterate through the model_class fields and detect data types
         for field in model_class._meta.get_fields():
@@ -218,7 +223,6 @@ def import_from_SQL(table_tuples):
                     df[field_name] = df[field_name].fillna('')
                     df[field_name] = df[field_name].astype(str)
 
-        df.to_excel("customers_beforeFK.xlsx")
 
         # --------------------------------------------------
         # FOREIGN KEYS JOB
@@ -252,8 +256,8 @@ def import_from_SQL(table_tuples):
         if model_fks_dict: pass
         if other_model_fks_dict:
             print(f"FK fields of table {table_name}")
-            # for fk in other_model_fks_dict.items():
-            #     print(f"-{fk}")
+            for fk in other_model_fks_dict.items():
+                print(f"-{fk}")
         print(f"created model FKs dictionary in {round(perf_counter()-t_start, 2):.2f} seconds")
 
         # Iterating to update FKs IDs
@@ -286,28 +290,8 @@ def import_from_SQL(table_tuples):
                             df.at[index, django_field] = related_instance.id
                     else:
                         df.at[index, django_field] = None
-                    # -------------
-                '''
-                # Check if the column is in the model_fks_dict
-                if django_field in model_fks_dict:
-                    # Get the related model
-                    related_model = model_fks_dict[django_field]
-                    
-                    # Check if the SQL column has a corresponding value in the DataFrame row
-                    if django_field in row.index and not pd.isnull(row[django_field]):
-                        # Get the SQL column value (names are already changed to django, so use django names)
-                        sql_column_value = row[django_field] 
-                        # Look up the related model instance by sqlapp_id
-                        related_instance = related_model.objects.filter(sqlapp_id=sql_column_value).first()
-                        if related_instance:
-                            # Update the DataFrame column with the related model's ID
-                            df.at[index, django_field] = related_instance.id
-                        else:
-                            # Handle cases where there is no related instance found
-                            pass
-                        '''
+                # -------------
         print(f"Update of FKs done in {round(perf_counter()-t_start, 2):.2f} seconds")
-        df.to_excel("customers_afterFK.xlsx")
         try:
             with transaction.atomic():
                 print("start atomic transaction")
@@ -331,88 +315,7 @@ def import_from_SQL(table_tuples):
                 print(f"SUCCESS importing {table_name}")                 
         except Exception as e:
             print(e)
-        conn.close()
-        # Dataframe ---------------   
-
-        """
-        # Looping through all table's records
-        record_counter = 0
-        records_to_insert = [] # List to collect all records to be insterted
-        for record in records:
-            sqlapp_id = None
-            # Off the record, we make a dictionary
-            # field_name: field_value
-            record_dict = dict(zip(column_names, record))
-            # Here we get the value of what should be the index
-            if not field_name == None:
-                sqlapp_id = record_dict[field_name]
-
-            # Create a dictionary of field values to be saved in the model
-            # looping through the mapping
-            # This modifies some field name
-            single_record_dict_fields = {}
-            for sql_column, django_field in mapping.items():
-                value = record_dict.get(sql_column)
-                if value is not None:
-                    try:
-                        if type(value) == datetime:
-                            value = timezone.make_aware(value)
-                    except ValueError:
-                        value = None
-                    single_record_dict_fields[django_field] = value
-
-            # --------------------------------------------------
-            # Now there is dict that I could save in the app db
-            # becasue there are django field names,
-            # but I need first to adapt reference ids
-            # --------------------------------------------------
-            # For those fields that are foreign keys, I need to search in the
-            # referenced table what is the id (in django)
-            # and replace it in the dictionary that I am going to save below
-            # --------------------------------------------------
-            # Loop single_record_dict_fields and detect which fileds are FK
-            
-            # First, I need to take the first element of all lists in model_fks,
-            # and make a list out of it
-            # Ths list contains the name of the fields that are FKsu                
-            for sql_table_field in single_record_dict_fields:
-                # if model_fks_dict and sql_table_field in model_fks_dict:
-                if sql_table_field in model_fks_dict:
-                    # get 'value' from the dictionary
-                    related_model = model_fks_dict[sql_table_field]
-                    record_found = related_model.objects.filter(sqlapp_id=single_record_dict_fields[sql_table_field]).first()
-                    if record_found == None:
-                        print(f'related_model: {related_model.__name__}')
-                        print('single_record_dict_fields')
-                        for key, value in single_record_dict_fields.items():
-                            print(f'{key}: {value}')
-                        
-                    # print(f'record_found.id: {record_found.id}')
-                    single_record_dict_fields[sql_table_field] = record_found.id
-                    record_found = None
-            
-            if field_name != None:
-                single_record_dict_fields['sqlapp_id'] = sqlapp_id
-                single_record_dict_fields.pop(field_name)
-            
-            # Prepping for bulk_create
-            model_instance = model_class(**single_record_dict_fields)
-            records_to_insert.append(model_instance)
-            record_counter += 1
-            if record_counter % 1000 == 0:
-                print(f"{record_counter}/{how_many_records}")
-
-        try:
-            with transaction.atomic():
-                model_class.objects.bulk_create(records_to_insert)                     
-            # record_counter, log_messages = save_model(the_class=model_class, the_data=single_record_dict_fields, counter=record_counter, all_records=how_many_records, logs=log_messages)
-        except Exception as e:
-            print(e)
-           
-    # Close the database connection
-    conn.close()
-    """ 
-
+        conn.close() 
 
 
 def get_pk_from_sqlapp_id(model_class, sqlapp_id_value):
