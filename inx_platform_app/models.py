@@ -863,7 +863,7 @@ class BudForLine(models.Model):
     sqlapp_id = models.IntegerField(default=0, null=True)
 
     def __str__(self):
-        return 'Customer: ' + self.customer.name + ' brand: ' + self.brand + ' color group:' + self.color_group
+        return 'Customer: ' + self.customer.name + ' brand: ' + self.brand.name + ' color group:' + self.color_group.name
 
 class BudForNote(models.Model):
     note = models.CharField(max_length=255)
