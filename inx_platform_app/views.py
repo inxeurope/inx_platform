@@ -149,9 +149,15 @@ def import_from_SQL(table_tuples):
     for table_name, field_name, model_class, mapping in table_tuples:
         # Query to get all records of the table
         query = f"SELECT * FROM {table_name}"
+        msg = "startint to get rows ..."
+        print(msg, end="")
         cursor.execute(query)
         records = cursor.fetchall()
-        if not records: continue # Skip empty tables
+        print("\r", " "* len(msg), end="")
+        print(f"completed. {query}")
+        if not records:
+            print("no rows")
+            continue # Skip empty tables
         how_many_records = len(records)
         print(' '*80,'\n','-'*80)
         print('SQL table name:', table_name, '-', how_many_records, "records")
