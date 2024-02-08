@@ -888,7 +888,7 @@ class BudForDetailLine(models.Model):
     sqlapp_id = models.IntegerField(default=0, null=True)
     
     def __str__(self):
-        return_string = f"BudForDetail line - bud_for_id:{self.bud_for_id} - scenario: {self.scenario}"
+        return_string = f"BudForDetail line - bud_for_id:{self.budforline.id} - scenario: {self.scenario.id}"
         return return_string
 
 class CustomerNote(models.Model):
