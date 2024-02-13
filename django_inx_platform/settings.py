@@ -33,7 +33,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "inx_platform_app.apps.InxPlatformAppConfig",
-    # "inx_platform_members.apps.InxPlatformMembersConfig",
+    'debug_toolbar',
+
 ]
 
 AUTH_USER_MODEL = 'inx_platform_app.User'
@@ -48,6 +49,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 ROOT_URLCONF = "django_inx_platform.urls"
@@ -177,4 +179,10 @@ LOGGING = {
         },
     },
 }
+
+INTERNAL_IPS = [
+    # ...
+    "127.0.0.1",
+    "0.0.0.0",
+]
 

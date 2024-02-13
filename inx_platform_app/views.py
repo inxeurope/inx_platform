@@ -1,8 +1,9 @@
 from typing import Any
+from django.apps import apps
 from django.db.models.query import QuerySet
 from django.db import connection
 from django.utils import timezone
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse, HttpResponse
 from django.conf import settings
@@ -21,6 +22,7 @@ from .models import Color, Brand, Product, RateToLT, Customer, User
 from .models import BudForLine, BudForDetailLine
 from .models import UploadedFile, StoredProcedure
 from .forms import EditMajorLabelForm, EditBrandForm, EditCustomerForm, EditProductForm, EditProcedureForm, CustomUserCreationForm, UserPasswordChangeForm, RegistrationForm, LoginForm, UserPasswordResetForm, UserSetPasswordForm
+from .forms import CustomerForm, get_generic_model_form
 from . import dictionaries
 import pyodbc
 import pandas as pd
@@ -103,12 +105,7 @@ def loader(request):
 @login_required
 def import_data(request):
     import_from_SQL(dictionaries.tables_list)
-    return render(request, "index.html")
-
-@login_required
-def import_data_improved(request):
-    import_from_SQL_improved_2(dictionaries.tables_list)
-    return render(request, "index.html")
+    return render(request, "index-inx.html")
 
 def import_single(request):
     context = {'options': dictionaries.tables_list}
@@ -169,17 +166,23 @@ def import_from_SQL(table_tuples):
         data_dicts = [dict(zip(row.cursor_description, row)) for row in records]
         df = pd.DataFrame(data_dicts)
         df.columns = column_names
+        df_length = len(df)
         print("Dataframe creation completed")
         
+        # Manage the duplication of that user
         if table_name == 'Users':
             for index, row in df.iterrows():
                 if row['email'] == 'marco.zanella@inxeurope.com':
                     df.at[index, 'email'] = 'marco.zanella.sql@inxeurope.com'
 
+        # Manage the import of Customer number that comes as 12345.0
+        if table_name == 'Customers':
+            df['CustomerNumber'] = df['CustomerNumber'].astype(int).astype(str)
+        
         # For testing
         # df = df.head(1)
 
-        # Prune unnecessary columns
+        # Trim unnecessary columns
         columns_to_keep = [column for column in df.columns if column in mapping]
         df = df[columns_to_keep]
         print("Columns to keep:", columns_to_keep)
@@ -253,18 +256,18 @@ def import_from_SQL(table_tuples):
                 other_model_fks_dict[app_db_column_name] = (related_model, related_df)
                 # ------------
 
-        if model_fks_dict: pass
-        if other_model_fks_dict:
-            print(f"FK fields of table {table_name}")
-            for fk in other_model_fks_dict.items():
-                print(f"-{fk}")
+        # if model_fks_dict: pass
+        # if other_model_fks_dict:
+        #     print(f"FK fields of table {table_name}")
+        #     for fk in other_model_fks_dict.items():
+        #         print(f"-{fk}")
         print(f"created model FKs dictionary in {round(perf_counter()-t_start, 2):.2f} seconds")
 
         # Iterating to update FKs IDs
         # Iterate through the DataFrame
         t_start = perf_counter()
         for index, row in df.iterrows():
-            print (f"row {index+1}/{len(df)}", end="\r")
+            print (f"row {index+1}/{df_length}", end="\r")
             for sql_column, django_field in mapping.items():
                 if (sql_column == 'ID' and django_field == 'ID') or sql_column == django_field:
                     continue
@@ -292,30 +295,46 @@ def import_from_SQL(table_tuples):
                         df.at[index, django_field] = None
                 # -------------
         print(f"Update of FKs done in {round(perf_counter()-t_start, 2):.2f} seconds")
-        try:
-            with transaction.atomic():
-                print("start atomic transaction")
-                instances_to_create = []
-                problematic_rows = []
-                # df.to_excel("customers.xlsx")
-                for row in df.to_dict(orient='records'):
-                    try:
-                        instances_to_create.append(model_class(**row))
-                    except Exception as ex:
-                        problematic_rows.append((row, str(ex)))
-                if problematic_rows:
-                    print("Problematic Rows:")
-                    for idx, (row_data, error_msg) in enumerate(problematic_rows):
-                        print(f"Row {idx + 1}: {error_msg}\n{row_data}\n")
-                else:
-                    print("no problematic rows")
-                # instances_to_create = [model_class(**row) for row in df.to_dict(orient='records')]
-                print(f"insances_to_create - model {model_class.__name__}")
-                model_class.objects.bulk_create(instances_to_create)
-                print(f"SUCCESS importing {table_name}")                 
-        except Exception as e:
-            print(e)
-        conn.close() 
+    
+        # Removing from df those lines where sqlapp_id are already in the model records
+        # Fetch existing sqlapp_id values from the model records
+        if 'sqlapp_id' in df.columns:
+            print(f"trimming df based on sqlapp_id values, df length={df_length}...", end="")
+            existing_ids = set(model_class.objects.values_list('sqlapp_id', flat=True))
+            # Filter the DataFrame to exclude rows with existing sqlapp_id values
+            df = df[~df['sqlapp_id'].isin(existing_ids)]
+            df_length = len(df)
+            print ("done")
+            print (f"df length after trimming = {df_length}")
+
+        if df_length > 0:
+            try:
+                with transaction.atomic():
+                    print("start atomic transaction")
+                    instances_to_create = []
+                    problematic_rows = []
+                    row_counter = 1
+                    for row in df.to_dict(orient='records'):
+                        try:
+                            instances_to_create.append(model_class(**row))
+                            print(f"filling model instances ... {row_counter}/{df_length}", end="\r")
+                            row_counter += 1
+                        except Exception as ex:
+                            problematic_rows.append((row, str(ex)))
+                    print()
+                    if problematic_rows:
+                        print("Problematic Rows:")
+                        for idx, (row_data, error_msg) in enumerate(problematic_rows):
+                            print(f"Row {idx + 1}: {error_msg}\n{row_data}\n")
+                    else:
+                        print("no problematic rows")
+                    # instances_to_create = [model_class(**row) for row in df.to_dict(orient='records')]
+                    print(f"working on bulk_create - model {model_class.__name__}")
+                    model_class.objects.bulk_create(instances_to_create)
+                    print(f"SUCCESS importing {table_name}")                 
+            except Exception as e:
+                print(e)
+    conn.close() 
 
 
 def get_pk_from_sqlapp_id(model_class, sqlapp_id_value):
@@ -432,11 +451,41 @@ def delete_file(request, file_id):
     return redirect('display_files')
 
 @login_required
-def list_customers(request, page=0):
-    customers = Customer.objects.all().order_by('name')
-    items_per_page = 52
-    paginator = Paginator(customers, items_per_page)
+def customers_list(request, page=0):
+    search_term = request.GET.get('search')
+    entries = request.GET.get('entries')
+    view_entries = request.GET.get('radios_view')
 
+    if search_term:
+        customers = Customer.objects.filter(
+                models.Q(name__icontains=search_term) |
+                models.Q(number__icontains=search_term) |
+                models.Q(country__iso3166_1_alpha_2__icontains=search_term) |
+                models.Q(country__official_name_en__icontains=search_term) |
+                models.Q(sales_employee__first_name__icontains=search_term) |
+                models.Q(sales_employee__last_name__icontains=search_term)
+                ).order_by('name')
+    else:
+        customers = Customer.objects.all().order_by('name')
+    
+    if view_entries is not None or view_entries != '':
+        if view_entries == 'active':
+            customers = customers.filter(active=True)
+        elif view_entries == 'inactive':
+            customers = customers.filter(active=False)
+        else:
+            customers = customers    
+
+    if entries is not None:
+        try:
+            entries = int(entries)
+        except ValueError:
+            entries = 10
+        items_per_page = entries
+    else:
+        items_per_page = 10
+
+    paginator = Paginator(customers, items_per_page)
     # Get the current page from the GET request or in the URL
     if page != 0:
         page_number = page
@@ -446,25 +495,85 @@ def list_customers(request, page=0):
         except (ValueError, TypeError):
             page_number = 1
 
-    # Making a set of records for the page
     try:
         page_obj = paginator.get_page(page_number)
     except (EmptyPage, PageNotAnInteger):
         page_obj = paginator.get_page(1)
 
-    #Get the total number of pages
-    num_pages = paginator.num_pages
-    print('There are', num_pages, 'pages')
     page_obj.adjusted_elided_pages = paginator.get_elided_page_range(page_number)
-    # page_obj.adjusted_elided_pages_list = list(page_obj.adjusted_elided_pages)
-    
-    for customer in page_obj:
-        country_iso = customer.country.iso3166_1_alpha_2.lower()
-        customer.flag_path = f"flags/{country_iso}.svg"
+        
+    context = {
+        'parent': 'interface',
+        'segment': '',
+        'page_object': page_obj
+    }
+    return render(request, "app_pages/customers_list.html", context)
 
-    context = {'customers_page': page_obj}
+
+@login_required
+def products_list(request, page=0):
+    search_term = request.GET.get('search')
+    entries = request.GET.get('entries')
+    view_entries = request.GET.get('radios_view')
+
+    if search_term:
+        products = Product.objects.filter(
+                models.Q(name__icontains=search_term) |
+                models.Q(number__icontains=search_term) |
+                models.Q(brand__name__icontains=search_term) |
+                models.Q(made_in__name__icontains=search_term)
+                ).order_by('-number')
+    else:
+        products = Product.objects.all().order_by('number')
     
-    return render(request, "list_customers.html", context)
+    if view_entries is not None or view_entries != '':
+        if view_entries == 'ink':
+            products = products.filter(is_ink=True)
+        elif view_entries == 'non_ink':
+            products = products.filter(is_ink=False)
+        else:
+            products = products    
+
+    if entries is not None:
+        try:
+            entries = int(entries)
+        except ValueError:
+            entries = 10
+        items_per_page = entries
+    else:
+        items_per_page = 10
+
+    paginator = Paginator(products, items_per_page)
+    # Get the current page from the GET request or in the URL
+    if page != 0:
+        page_number = page
+    else:
+        try:
+            page_number = request.GET.get('page', 1)
+        except (ValueError, TypeError):
+            page_number = 1
+
+    try:
+        page_obj = paginator.get_page(page_number)
+    except (EmptyPage, PageNotAnInteger):
+        page_obj = paginator.get_page(1)
+
+    page_obj.adjusted_elided_pages = paginator.get_elided_page_range(page_number)
+        
+    context = {
+        'parent': 'interface',
+        'segment': '',
+        'page_object': page_obj
+    }
+    return render(request, "app_pages/products_list.html", context)
+
+
+def customer_view(request, pk):
+    customer = Customer.objects.filter(id=pk).first()
+    context = {
+        'customer': customer
+    }
+    return render(request, "app_pages/customer_view.html", context)
 
 def edit_dictionary(request, dictionary_name):
     print(dictionary_name)
@@ -1289,5 +1398,24 @@ def icons(request):
     }
     return render(request, 'app_pages/icons.html', context)
 
+def edit_model_record(request, pk, model):
+    model_class = apps.get_model(app_label='inx_platform_app', model_name=model)
+    instance = get_object_or_404(model_class, pk=pk)
+    generic_model_form = get_generic_model_form(model_class)
+    if request.method == 'POST':
+        form = generic_model_form(request.POST, instance=instance)
+        if form.is_valid():
+            form.save()
+            # Generate the URL dynamically using reverse()
+            redirect_url = reverse('customer-view', args=[pk])
+            # Redirect the user to the generated URL
+            return redirect(redirect_url)
+    else:
+        form = generic_model_form(instance=instance)
+    context = {
+        'form': form
+        }
+    return render(request, 'app_pages/_model_record_edit.html', context)
 
-
+def test(request):
+    pass

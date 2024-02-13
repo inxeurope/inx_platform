@@ -232,3 +232,15 @@ class UserSetPasswordForm(SetPasswordForm):
         'class': 'form-control',
         "placeholder": "Confirm New Password"
     }), label="Confirm New Password")
+
+class CustomerForm(forms.ModelForm):
+    class Meta:
+        model = Customer
+        fields = '__all__'
+
+def get_generic_model_form(model_class):
+    class GenericModelForm(forms.ModelForm):
+        class Meta:
+            model = model_class
+            fields = '__all__'
+    return GenericModelForm      

@@ -32,9 +32,9 @@
             <div class="dropdown-menu">
               <div class="dropdown-menu-columns">
                 <div class="dropdown-menu-column">
-                  <a class="dropdown-item" href="{% url 'inxd-customers' %}">Customers</a>
-                  <a class="dropdown-item" href="{% url 'blank_page' %}">Products</a>
-                  <a class="dropdown-item" href="{% url 'buttons' %}">Brands</a>
+                  <a class="dropdown-item" href="{% url 'customers-list' %}">Customers</a>
+                  <a class="dropdown-item" href="{% url 'products-list' %}">Products</a>
+                  <a class="dropdown-item" href="{% url 'brands-list' %}">Brands</a>
                 </div>
               </div>
             </div>
@@ -321,15 +321,15 @@
                   <path d="M18.35 5.65l-3.35 3.35" />
                 </svg>
               </span>
-              <span class="nav-link-title">Help</span>
+              <span class="nav-link-title">INX</span>
             </a>
             <div class="dropdown-menu">
-              <a class="dropdown-item" target="_blank" rel="noopener" href="https://github.com/app-generator/django-tabler">Download</a>
-              <a class="dropdown-item" target="_blank" rel="noopener" href="https://appseed.us/support/">Support</a>
+              <a class="dropdown-item" href="{% url 'inx' %}">Old index page</a>
+              <a class="dropdown-item" target="_blank" rel="noopener" href="{% url 'admin:index' %}">Admin index</a>
             </div>
           </li>
         </ul>
-        <div class="my-2 my-md-0 flex-grow-1 flex-md-grow-0 order-first order-md-last">
+        {% comment %} <div class="my-2 my-md-0 flex-grow-1 flex-md-grow-0 order-first order-md-last">
           <form action="./" method="get" autocomplete="off" novalidate>
             <div class="input-icon">
               <span class="input-icon-addon">
@@ -343,7 +343,7 @@
               <input type="text" value="" class="form-control" placeholder="Search…" aria-label="Search in website" />
             </div>
           </form>
-        </div>
+        </div> {% endcomment %}
       </div>
     </div>
   </div>

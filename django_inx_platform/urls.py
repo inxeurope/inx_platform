@@ -6,9 +6,8 @@ from django.conf.urls.static import static
 urlpatterns = [
     path("admin/", admin.site.urls),  # Keep the admin URLs first
     path("members/", include('django.contrib.auth.urls')),
-    # path("members/", include('inx_platform_members.urls')),
     path("", include('inx_platform_app.urls')),
-    # path("", include('admin_tabler.urls')),
+    path("__debug__/", include("debug_toolbar.urls")),
 ]
 
 # Serve media files during development

@@ -6,13 +6,12 @@ urlpatterns = [
     path("", views.index, name="index"),
     path("index_original/", views.index_original, name="index_original"),
     path("inx/", views.index_inx, name="inx"),
+    path("test", views.test, name="test"),
 
     path("loader/", views.loader,name="loader"),
 
     path("import_data/", views.import_data, name='import_data'),
     path("import_single/", views.import_single, name='import_single'),
-    path("import_data_improved/", views.import_data_improved, name='import_data_improved'),
-    path("import_single_improved/", views.import_data_improved, name='import_data_improved'),
     
     path("clean_db/", views.clean_db, name='clean_db'),
     path("clean_single/", views.clean_single, name='clean_single'),
@@ -27,13 +26,21 @@ urlpatterns = [
     
     path("customers/", views.CustomerListView.as_view(), name="customers"),
     path("customers/edit/<int:id>", views.CustomerEditView.as_view(), name="customer-edit"),
+    path("customers_list/", views.customers_list, name="customers-list"),
+    path("customer_view/<int:pk>", views.customer_view, name="customer-view"),
+
+    # Generic edit form
+    path("edit_model_record/<int:pk>/<str:model>", views.edit_model_record, name="edit-model-record"),
 
     path("inxd_customers/", views.inxd_customers, name="inxd-customers"),
     
     path("products/", views.ProductListView.as_view(), name="products"),
-    path("products/edit/<int:id>", views.ProductEditView.as_view(), name="product-edit"),
+    path("products_list/", views.products_list, name="products-list"),
+    path("product_view/<int:pk>", views.customer_view, name="product-view"),
+    path("products/edit/<int:id>", views.products_list, name="product-edit"),
 
     path("brands/", views.BrandListView.as_view(), name="brands"),
+    path("brands_list/", views.BrandListView.as_view(), name="brands-list"),
     path("brand/edit/<int:id>", views.BrandEditView.as_view(), name="brand-edit"),
     
     path("major/", views.MajorLabelListView.as_view(), name="major"),

@@ -1,0 +1,123 @@
+{% extends 'app_layouts/base.html' %}
+{% load custom_filters %}
+{% load static %}
+
+{% block content %}
+
+  <div class="page-wrapper">
+    <!-- Page header -->
+    <div class="page-header d-print-none">
+      <div class="container-xl">
+        <div class="row g-2 align-items-center">
+          <div class="col">
+            <h2 class="page-title">
+              Customer data grid
+            </h2>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Page body -->
+    <div class="page-body">
+      <div class="container-xl">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between">
+            <h3 class="card-title">Basic info - {{ customer.name }} - {{ customer.pk }}</h3>
+            <a href="{% url 'edit-model-record' pk=customer.pk model='Customer' %}" class="btn btn-outline-info">Edit</a>
+          </div>
+          <div class="card-body">
+            <div class="datagrid">
+              <div class="datagrid-item">
+                <div class="datagrid-title">SAP Number</div>
+                <div class="datagrid-content">{{ customer.number }}</div>
+              </div>
+              <div class="datagrid-item">
+                <div class="datagrid-title">SAP Description</div>
+                <div class="datagrid-content"><strong>{{ customer.name }}</strong></div>
+              </div>
+              <div class="datagrid-item">
+                <div class="datagrid-title">Country</div>
+                <div class="datagrid-content"><span class="flag flag-country-{{ customer.country.iso3166_1_alpha_2|lower }}"></span> {{ customer.country.official_name_en}}</div>
+              </div>
+              <div class="datagrid-item">
+                <div class="datagrid-title">Account manager</div>
+                <div class="datagrid-content">{{ customer.sales_employee.get_full_name }}</div>
+              </div>
+              <div class="datagrid-item">
+                <div class="datagrid-title">Currency</div>
+                <div class="datagrid-content">
+                  {{ customer.currency }}
+                </div>
+              </div>
+              {% comment %} <div class="datagrid-item">
+                <div class="datagrid-title">Age</div>
+                <div class="datagrid-content">15 days</div>
+              </div> {% endcomment %}
+              <div class="datagrid-item">
+                <div class="datagrid-title">Customer Type
+                </div>
+                <div class="datagrid-content">
+                  {{ customer.customer_type.name}}
+                </div>
+              </div>
+              <div class="datagrid-item">
+                <div class="datagrid-title">Status</div>
+                <div class="datagrid-content">
+                  {% if customer.active %}
+                  <span class="status status-green">
+                    Active
+                  </span>
+                  {% endif %}
+                  {% if not customer.active %}
+                  <span class="status status-red">
+                    Inactive
+                  </span>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-body">
+      <div class="container-xl">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Additional info</h3>
+          </div>
+          <div class="card-body">
+            <div class="datagrid">
+              <div class="datagrid-item">
+                <div class="datagrid-title">VAT Number</div>
+                <div class="datagrid-content">{{ customer.vat }}</div>
+              </div>
+              <div class="datagrid-item">
+                <div class="datagrid-title">Insurance</div>
+                <div class="datagrid-content">
+                  <span>
+                    <input type="checkbox" class="form-check-input" {% if customer.insurance == True %} checked {% endif %}>
+                  </span> {{ customer.insurance }}
+                </div>
+              </div>
+              {% if customer.insurance == True %}
+              <div class="datagrid-item">
+                <div class="datagrid-title">Insurance value</div>
+                <div class="datagrid-content"> {{ customer.insurance_value|format_large_number }}</div>
+              </div>
+              {% endif %}
+              <div class="datagrid-item">
+                <div class="datagrid-title">Credit Limit</div>
+                <div class="datagrid-content">{{ customer.credit_limit|format_large_number }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% include 'app_includes/footer.html' %}
+  </div>
+  
+{% endblock content %}

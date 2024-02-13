@@ -89,7 +89,7 @@ mapping_Scenarios = {
 
 mapping_Country_codes = {
     'CountryID': 'CountryID',
-    'ISO3166-1-Alpha-2': 'iso3166_1_alpha_3',
+    'ISO3166-1-Alpha-3': 'iso3166_1_alpha_3',
     'ISO3166-1-Alpha-2': 'iso3166_1_alpha_2',
     # 'Intermediate Region Code': 'intermediate_region_code',
     'Intermediate Region Name': 'intermediate_region_name',
@@ -600,7 +600,7 @@ mapping_Product = {
     'ProductID': 'ProductID',
     'ProductNumber': 'number',
     'ProductName': 'name',
-    'is_ink': 'is_ink',
+    'isInk': 'is_ink',
     'ColorID': 'color_id',
     'MadeInID': 'made_in_id',
     'BrandID': 'brand_id',
