@@ -509,12 +509,24 @@ def customers_list(request, page=0):
     }
     return render(request, "app_pages/customers_list.html", context)
 
+@login_required
+def customer_view(request, pk):
+    customer = Customer.objects.filter(id=pk).first()
+    context = {
+        'customer': customer
+    }
+    return render(request, "app_pages/customer_view.html", context)
 
 @login_required
 def products_list(request, page=0):
     search_term = request.GET.get('search')
-    entries = request.GET.get('entries')
-    view_entries = request.GET.get('radios_view')
+    entries = request.GET.get('entries') # how many rows to show
+    category = request.GET.get('product_category')
+    if category == '' or category == None: category = 'all'
+    status = request.GET.get('product_status_selected')
+    if status == '' or status == None: status = 'all'
+    made_in = request.GET.get('made_in_country_selected')
+    if made_in == '' or made_in == None: made_in = 'all'
 
     if search_term:
         products = Product.objects.filter(
@@ -524,15 +536,22 @@ def products_list(request, page=0):
                 models.Q(made_in__name__icontains=search_term)
                 ).order_by('-number')
     else:
-        products = Product.objects.all().order_by('number')
+        products = Product.objects.all()
     
-    if view_entries is not None or view_entries != '':
-        if view_entries == 'ink':
+    if category is not None or category != '':
+        if category == 'ink':
             products = products.filter(is_ink=True)
-        elif view_entries == 'non_ink':
+        elif category == 'non_ink':
             products = products.filter(is_ink=False)
         else:
-            products = products    
+            products = products.order_by('-number')
+
+
+    if status is not None and status != 'all':
+        products = products.filter(product_status_id=status)
+
+    if made_in is not None and made_in != 'all':
+        products = products.filter(made_in=made_in)
 
     if entries is not None:
         try:
@@ -543,7 +562,7 @@ def products_list(request, page=0):
     else:
         items_per_page = 10
 
-    paginator = Paginator(products, items_per_page)
+    paginator = Paginator(products.order_by('-number'), items_per_page)
     # Get the current page from the GET request or in the URL
     if page != 0:
         page_number = page
@@ -559,21 +578,44 @@ def products_list(request, page=0):
         page_obj = paginator.get_page(1)
 
     page_obj.adjusted_elided_pages = paginator.get_elided_page_range(page_number)
-        
+    
+    #Get all values of Product Status and Made In Countries
+    product_statuses = ProductStatus.objects.all()
+    made_in_countries = MadeIn.objects.all()
+
+    print("The view was executed")
+    print("--------------------------")
+    print(f"search_term {search_term}")
+    print(f"entries     {entries}")
+    print(f"category    {category}")
+    print(f"status      {status}")
+    print(f"made_in     {made_in}")
+    print("--------------------------")
+    
+    filter_params = {
+        'search_term': search_term,
+        'entries': entries,
+        'product_category': category, #ink/non-ink
+        'product_status_selected': status,
+        'made_in_country_selected': made_in,
+    }
+
     context = {
-        'parent': 'interface',
-        'segment': '',
-        'page_object': page_obj
+        # 'parent': 'interface',
+        # 'segment': '',
+        'page_object': page_obj,
+        'product_statuses_all': product_statuses,
+        'made_in_counties_all': made_in_countries,
+        'filter_params': filter_params
     }
     return render(request, "app_pages/products_list.html", context)
 
-
-def customer_view(request, pk):
-    customer = Customer.objects.filter(id=pk).first()
+def product_view(request, pk):
+    product = Product.objects.filter(id=pk).first()
     context = {
-        'customer': customer
+        'product': product
     }
-    return render(request, "app_pages/customer_view.html", context)
+    return render(request, "app_pages/product_view.html", context)
 
 def edit_dictionary(request, dictionary_name):
     print(dictionary_name)
@@ -1407,15 +1449,13 @@ def edit_model_record(request, pk, model):
         if form.is_valid():
             form.save()
             # Generate the URL dynamically using reverse()
-            redirect_url = reverse('customer-view', args=[pk])
+            redirect_url = reverse(f'{model.lower()}-view', args=[pk])
             # Redirect the user to the generated URL
             return redirect(redirect_url)
     else:
         form = generic_model_form(instance=instance)
     context = {
+        'model_name': model,
         'form': form
         }
-    return render(request, 'app_pages/_model_record_edit.html', context)
-
-def test(request):
-    pass
+    return render(request, 'app_pages/edit_generic_model.html', context)

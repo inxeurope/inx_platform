@@ -10,7 +10,7 @@
   <div class="page page-center">
     <div class="container container-tight py-4">
       <div class="text-center mb-4">
-        <a href="{% url 'index' %}" class="navbar-brand navbar-brand-autodark"><img src="{% static 'static/logo.svg' %}" height="36" alt=""></a>
+        <a href="{% url 'index' %}" class="navbar-brand navbar-brand-autodark"><img src="{% static 'static/plat_logo.svg' %}" height="36" alt=""></a>
       </div>
       <div class="card card-md">
         <div class="card-body">
@@ -61,8 +61,8 @@
             </div>
           </form>
         </div>
-        <div class="hr-text">or</div>
-        <div class="card-body">
+        {% comment %} <div class="hr-text">or</div> {% endcomment %}
+        {% comment %} <div class="card-body">
           <div class="row">
             <div class="col"><a href="#" class="btn w-100">
                 <!-- Download SVG icon from http://tabler-icons.io/i/brand-github -->
@@ -75,7 +75,7 @@
                 Login with Twitter
               </a></div>
           </div>
-        </div>
+        </div> {% endcomment %}
       </div>
       <div class="text-center text-muted mt-3">
         Don't have account yet? <a href="{% url 'register' %}" tabindex="-1">Sign up</a>

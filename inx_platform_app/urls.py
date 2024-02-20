@@ -4,9 +4,8 @@ from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path("", views.index, name="index"),
-    path("index_original/", views.index_original, name="index_original"),
+    path("index_original/", views.index_original, name="index-original"),
     path("inx/", views.index_inx, name="inx"),
-    path("test", views.test, name="test"),
 
     path("loader/", views.loader,name="loader"),
 
@@ -36,7 +35,7 @@ urlpatterns = [
     
     path("products/", views.ProductListView.as_view(), name="products"),
     path("products_list/", views.products_list, name="products-list"),
-    path("product_view/<int:pk>", views.customer_view, name="product-view"),
+    path("product_view/<int:pk>", views.product_view, name="product-view"),
     path("products/edit/<int:id>", views.products_list, name="product-edit"),
 
     path("brands/", views.BrandListView.as_view(), name="brands"),

@@ -793,6 +793,7 @@ class Brand(models.Model):
     sap_name = models.CharField(max_length=30, null=True)
     sap_id = models.CharField(max_length=10, null=True)
     no_budget = models.BooleanField(default=False)
+    has_colors = models.BooleanField(default=False)
     division = models.ForeignKey(Division, on_delete=models.PROTECT)
     major_label = models.ForeignKey(MajorLabel, on_delete=models.PROTECT)
     ink_technology = models.ForeignKey(InkTechnology, on_delete=models.PROTECT)

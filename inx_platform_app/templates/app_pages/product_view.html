@@ -1,0 +1,116 @@
+{% extends 'app_layouts/base.html' %}
+{% load custom_filters %}
+{% load static %}
+
+{% block content %}
+
+  <div class="page-wrapper">
+    <!-- Page header -->
+    <div class="page-header d-print-none">
+      <div class="container-xl">
+        <div class="row g-2 align-items-center">
+          <div class="col">
+            <h2 class="page-title">
+              Product data grid
+            </h2>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Page body -->
+    <div class="page-body">
+      <div class="container-xl">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between">
+            <h3 class="card-title">Basic info - {{ product.name }} - {{ product.pk }}</h3>
+            <a href="{% url 'edit-model-record' pk=product.pk model='Product' %}" class="btn btn-outline-info">Edit</a>
+          </div>
+          <div class="card-body">
+            <div class="datagrid">
+              <div class="datagrid-item">
+                <div class="datagrid-title">SAP Number</div>
+                <div class="datagrid-content">{{ product.number }}</div>
+              </div>
+              <div class="datagrid-item">
+                <div class="datagrid-title">SAP Description</div>
+                <div class="datagrid-content"><strong>{{ product.name }}</strong></div>
+              </div>
+              <div class="datagrid-item">
+                <div class="datagrid-title">Made in</div>
+                <div class="datagrid-content">
+                  {% if 'Europe' in product.made_in.name %}
+                  <span class="flag flag-sm flag-country-eu }}">
+                  </span>
+                  {% elif 'Japan' in product.made_in.name %}
+                  <span class="flag flag-sm flag-country-jp }}">
+                  </span>
+                  {% elif 'US' in product.made_in.name %}
+                  <span class="flag flag-sm flag-country-us }}">
+                  </span>
+                  {% endif %}
+                  {{ product.made_in.name}}
+                </div>
+              </div>
+              <div class="datagrid-item">
+                <div class="datagrid-title">Status</div>
+                <div class="datagrid-content">
+                  {% if product.product_status.name == 'Available' %}
+                  <span class="status status-green">
+                    Available
+                  </span>
+                  {% endif %}
+                  {% if not product.product_status.name == 'Available' %}
+                  <span class="status status-red">
+                    {{ product.product_status.name }}
+                  </span>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="datagrid-item">
+                <div class="datagrid-title">is ink</div>
+                <div class="datagrid-content">{{ product.is_ink }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-body">
+      <div class="container-xl">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Additional info</h3>
+          </div>
+          <div class="card-body">
+            <div class="datagrid">
+              <div class="datagrid-item">
+                <div class="datagrid-title">Brand</div>
+                <div class="datagrid-content">{{ product.brand.name }}</div>
+              </div>
+              <div class="datagrid-item">
+                <div class="datagrid-title">Color</div>
+                <div class="datagrid-content">
+                  <div class="avatar bg-dark text-dark-fg" data-demo-color>
+                    {{ product.color.name_short }}
+                  </div>
+                </div>
+              </div>
+              <div class="datagrid-item">
+                <div class="datagrid-title">Packaging</div>
+                <div class="datagrid-content"> {{ product.packaging.name }}</div>
+              </div>
+              <div class="datagrid-item">
+                <div class="datagrid-title">Product Line</div>
+                <div class="datagrid-content">{{ product.product_line.name }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% include 'app_includes/footer.html' %}
+  </div>
+  
+{% endblock content %}
