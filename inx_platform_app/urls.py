@@ -8,6 +8,7 @@ urlpatterns = [
     path("inx/", views.index_inx, name="inx"),
 
     path("loader/", views.loader,name="loader"),
+    path("loading", views.loading,name="loading"),
 
     path("import_data/", views.import_data, name='import_data'),
     path("import_single/", views.import_single, name='import_single'),

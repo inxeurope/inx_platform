@@ -157,28 +157,11 @@ LOGIN_REDIRECT_URL = "/"
 
 DATA_UPLOAD_MAX_NUMBER_FIELDS  = 25000
 
-MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media_root"
+MEDIA_URL = "/media/"
+
 
 WHITENOISE_DEBUG = True
-
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'level': 'INFO',  # Adjust log level as needed
-            'class': 'logging.StreamHandler',
-        },
-    },
-    'loggers': {
-        'django.db.backends': {
-            'handlers': ['console'],  # Add handlers as needed
-            'level': 'INFO',  # Adjust log level as needed
-            'propagate': False,
-        },
-    },
-}
 
 INTERNAL_IPS = [
     # ...

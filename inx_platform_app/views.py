@@ -35,6 +35,7 @@ import multiprocessing
 from sqlalchemy import create_engine
 
 def index(request):
+    print(settings.BASE_DIR)
     return render(request, "app_pages/index.html", {})
 
 def index_original(request):
@@ -101,6 +102,57 @@ def loader(request):
         return redirect('display_files')
     else:
         return render(request, "loader.html", {})
+
+
+@login_required
+def loading(request):
+    if request.method == "POST":
+
+        timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+
+        ke30_file = request.FILES.get('ke30_file')
+        ke24_file = request.FILES.get('ke24_file')
+        zaq_file = request.FILES.get('zaq_file')
+        oo_file = request.FILES.get('oo_file')
+        oh_file = request.FILES.get('oh_file')
+        oi_file = request.FILES.get('oi_file')
+        arr_file = request.FILES.get('arr_file')
+        pr_file = request.FILES.get('pr_file')
+        boms_file = request.FILES.get('boms_file')
+
+        user_name = request.user.get_snakecase_name()
+
+        files_list = [
+            ('ke30_file', ke30_file),
+            ('ke24_file', ke24_file),
+            ('zaq_file', zaq_file),
+            ('oo_file', oo_file),
+            ('oh_file', oh_file),
+            ('oi_file', oi_file),
+            ('arr_file', arr_file),
+            ('pr_file', pr_file),
+            ('boms_file', boms_file),
+        ]
+
+        for file_field, original_file in files_list:
+            if original_file is not None:
+                original_file_nane = original_file.name.lower()
+                prefix = file_field.split('_')[0]
+                original_file_nane = prefix +"_" + user_name + "_" + timestamp + "_" + original_file_nane.replace(" ", "_")
+                upload_dir = os.path.join(settings.MEDIA_ROOT, "uploads")
+                if not os.path.exists(upload_dir):
+                    os.makedirs(upload_dir)
+                with open(os.path.join(upload_dir, original_file_nane), 'wb+') as destination:
+                    # for chunk in ke30_file.chunks():
+                    for chunk in original_file.chunks():
+                        destination.write(chunk)
+                    # here it's done, update the database
+                    uploaded_file = UploadedFile(owner=request.user, file_type=prefix, file_path=upload_dir, file_name=original_file_nane)
+                    uploaded_file.save()
+        return redirect('display_files')
+    else:
+        return render(request, "app_pages/loading_data.html", {})
+
 
 @login_required
 def import_data(request):
