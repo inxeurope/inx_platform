@@ -32,7 +32,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "inx_platform_app.apps.InxPlatformAppConfig",
+    "inx_platform_app",
     'debug_toolbar',
 
 ]
@@ -168,4 +168,3 @@ INTERNAL_IPS = [
     "127.0.0.1",
     "0.0.0.0",
 ]
-

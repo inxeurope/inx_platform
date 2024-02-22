@@ -921,6 +921,7 @@ class UploadedFile(models.Model):
     file_name = models.CharField(max_length=255, blank=True)
     file_path = models.CharField(max_length=255, blank=True)
     file_type = models.CharField(max_length=20, blank=True)
+    file_color = models.CharField(max_length=20, null=True, default='blue')
     created_at = models.DateTimeField(auto_now=True, null=True)
     is_processed = models.BooleanField(default=False)
     processed_at = models.DateTimeField(blank=True, null=True)
@@ -1034,8 +1035,6 @@ class UploadedFile(models.Model):
         # chunks = [df.iloc[i:i + chunk_size] for i in range(0, len(df), chunk_size)]
         chunks = [df[i:i + chunk_size] for i in range(0, len(df), chunk_size)]
 
-        # if the df is shorter than the chunk size; we will do everything in one operation
-        # otherwise we will launch several processes each doing a chunk
 
         try:
             start_time = time.perf_counter()
@@ -1043,6 +1042,9 @@ class UploadedFile(models.Model):
                 df = df.replace(np.nan, '')
                 print(f"Length of dataframe: {df_length}")
                 c = 0
+
+                # Try bulk operation
+
                 for index, row in df.iterrows():
                     # Import in the model
                     instance = model()
@@ -1063,6 +1065,7 @@ class UploadedFile(models.Model):
             print(f"An error occurred during the transaction: {e}")
         
         print (f'processed the file id: {self.id}  filetye: {self.file_type} file_name: {self.file_name} file_path: {self.file_path}')
+        print("processing terminated in teh model")
 
     def delete_file(self):
         full_file_name = os.path.join(settings.MEDIA_ROOT, self.file_path, self.file_name)

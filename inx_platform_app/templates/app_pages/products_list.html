@@ -19,17 +19,14 @@
                     <form action="{% url 'products-list' %}" name="category_form" method="get">
                     <div>
                       <label class="form-check">
-                        {% comment %} <input class="form-check-input" type="radio" name="category" value="all" {% if request.GET.category == 'all' or (not request.GET.category and filter_params.product_category == 'all') %} checked {% endif %}> {% endcomment %}
                         <input class="form-check-input" type="radio" name="product_category" value="all" {% if request.GET.category == 'all' %} checked {% elif filter_params.product_category == 'all' %} checked {% endif %}>
                         <span class="form-check-label">All</span>
                       </label>
                       <label class="form-check">
-                        {% comment %} <input class="form-check-input" type="radio" name="category" value="ink" {% if request.GET.category == 'ink' or (not request.GET.category and filter_params.product_category == 'ink') %} checked {% endif %}> {% endcomment %}
                         <input class="form-check-input" type="radio" name="product_category" value="ink" {% if request.GET.category == 'ink' %} checked {% elif filter_params.product_category == 'ink' %} checked {% endif %}>
                         <span class="form-check-label">Inks</span>
                       </label>
                       <label class="form-check">
-                        {% comment %} <input class="form-check-input" type="radio" name="category" value="non_ink" {% if request.GET.category == 'non_ink' or (not request.GET.category and filter_params.product_category == 'non_ink') %} checked {% endif %}> {% endcomment %}
                         <input class="form-check-input" type="radio" name="product_category" value="non_ink" {% if request.GET.category == 'non_ink' %} checked {% elif filter_params.product_category == 'non_ink' %} checked {% endif %}>
                         <span class="form-check-label">Non inks</span>
                       </label>

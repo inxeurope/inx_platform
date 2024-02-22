@@ -17,7 +17,9 @@ urlpatterns = [
     path("clean_single/", views.clean_single, name='clean_single'),
     
     path("display_files/", views.display_files, name='display_files'),
-    path('start_processing/<int:file_id>/', views.start_processing, name='start_processing'),
+    path("importing_files/", views.importing_files, name='importing-files'),
+
+    path('start_processing/<int:file_id>/', views.start_processing, name='start-processing'),
     path('delete_file/<int:file_id>/', views.delete_file, name='delete_file'),
     
     path("import_settings/<str:dictionary_name>", views.edit_dictionary, name="edit_dictionary"),

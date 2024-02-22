@@ -5,7 +5,7 @@ from django.db import connection
 from django.utils import timezone
 from django.urls import reverse_lazy, reverse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -16,13 +16,11 @@ from django.db import models, transaction
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.generic.list import ListView
 from django.views.generic.edit import UpdateView, CreateView
-from .models import ColorGroup, Division, MadeIn, MajorLabel, InkTechnology, NSFDivision, MarketSegment, MaterialGroup, Packaging, ProductStatus, UnitOfMeasure, ExchangeRate, Scenario, CountryCode, CustomerType
-from .models import Fbl5nArrImport, Fbl5nOpenImport, Ke24ImportLine, Ke24Line, ZACODMI9_line, ZACODMI9_import_line, Ke30ImportLine, Ke30Line
+from .models import ColorGroup, Division, MadeIn, MajorLabel, ProductStatus
 from .models import Color, Brand, Product, RateToLT, Customer, User
-from .models import BudForLine, BudForDetailLine
 from .models import UploadedFile, StoredProcedure
 from .forms import EditMajorLabelForm, EditBrandForm, EditCustomerForm, EditProductForm, EditProcedureForm, CustomUserCreationForm, UserPasswordChangeForm, RegistrationForm, LoginForm, UserPasswordResetForm, UserSetPasswordForm
-from .forms import CustomerForm, get_generic_model_form
+from .forms import get_generic_model_form
 from . import dictionaries
 import pyodbc
 import pandas as pd
@@ -31,11 +29,10 @@ import os
 import json
 from datetime import datetime
 from time import perf_counter
-import multiprocessing
 from sqlalchemy import create_engine
 
 def index(request):
-    print(settings.BASE_DIR)
+    print("This is BASE_DIR from the loading view:", settings.BASE_DIR)
     return render(request, "app_pages/index.html", {})
 
 def index_original(request):
@@ -107,7 +104,6 @@ def loader(request):
 @login_required
 def loading(request):
     if request.method == "POST":
-
         timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
 
         ke30_file = request.FILES.get('ke30_file')
@@ -140,6 +136,27 @@ def loading(request):
                 prefix = file_field.split('_')[0]
                 original_file_nane = prefix +"_" + user_name + "_" + timestamp + "_" + original_file_nane.replace(" ", "_")
                 upload_dir = os.path.join(settings.MEDIA_ROOT, "uploads")
+
+                match prefix:
+                    case 'ke30':
+                        file_color = 'blue'
+                    case 'zaq':
+                        file_color = 'red'
+                    case 'oo':
+                        file_color = 'purple'
+                    case 'ke24':
+                        file_color = 'orange'
+                    case 'oo':
+                        file_color = 'green'
+                    case 'oi':
+                        fiile_color = 'cyan'
+                    case 'arr':
+                        file_color = 'indigo'
+                    case 'pr':
+                        file_color = 'indigo'
+                    case _:
+                        file_color = 'muted'
+
                 if not os.path.exists(upload_dir):
                     os.makedirs(upload_dir)
                 with open(os.path.join(upload_dir, original_file_nane), 'wb+') as destination:
@@ -147,9 +164,9 @@ def loading(request):
                     for chunk in original_file.chunks():
                         destination.write(chunk)
                     # here it's done, update the database
-                    uploaded_file = UploadedFile(owner=request.user, file_type=prefix, file_path=upload_dir, file_name=original_file_nane)
+                    uploaded_file = UploadedFile(owner=request.user, file_type=prefix, file_path=upload_dir, file_name=original_file_nane, file_color=file_color)
                     uploaded_file.save()
-        return redirect('display_files')
+        return redirect('importing-files')
     else:
         return render(request, "app_pages/loading_data.html", {})
 
@@ -490,17 +507,24 @@ def display_files(request):
     
     return render(request, "display_files.html", {'user_files': user_files})
 
+def importing_files(request):
+    user = request.user
+    user_files = UploadedFile.objects.filter(owner=user)
+    
+    return render(request, "app_pages/importing_files.html", {'user_files': user_files})
+
 def start_processing(request, file_id):
-    # This is used to run a method in UploadedFile class
+    # This is used to run a method in UploadedFile class/model
     # Method is called start_processing
     file = get_object_or_404(UploadedFile, id = file_id)
     file.start_processing()
-    return redirect('display_files')
+    print("finished processing")
+    return render(request, "app_pages/importing_files.html")
 
 def delete_file(request, file_id):
     file = get_object_or_404(UploadedFile, id = file_id)
     file.delete_file()
-    return redirect('display_files')
+    return redirect('importing-files')
 
 @login_required
 def customers_list(request, page=0):
@@ -1351,7 +1375,7 @@ def wizard(request):
     }
     return render(request, 'app_pages/wizard.html', context)
 
-def settings(request):
+def app_settings(request):
     context = {
         'parent': 'extra',
         'segment': 'settings',

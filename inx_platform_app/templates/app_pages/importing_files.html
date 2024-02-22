@@ -1,0 +1,61 @@
+{% extends 'app_layouts/base.html' %}
+{% load static %}
+
+{% block content %}
+  
+  <div class="page-wrapper">
+    <!-- Page header -->
+    <div class="page-header d-print-none">
+      <div class="container-xl">
+        <div class="row g-2 align-items-center">
+          <div class="col">
+            <h2 class="page-title">
+              Files to import
+            </h2>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Page body -->
+    <div class="page-body">
+      <div class="container">
+        <div class="row row-cards mb-5">
+          {% for file in user_files %}
+            <div class="col-md-6 col-lg-3">
+              <div class="card">
+                <div class="ribbon bg-{{ file.file_color }}">{{ file.file_type }}</div>
+                <div class="card-header">
+                  <h3 class="card-title">file id: {{file.id}}</h3>
+                </div>
+                <div class="card-body">
+                  <h3 class="card-title">{{ file.owner.get_full_name }}</h3>
+                  <p class="text-muted">{{ file.file_name }}
+
+                  </p>
+                </div>
+                <div class="card-footer">
+                  <div class="d-flex align-items-center">
+                    <a href="{% url 'delete_file' file.id %}">
+                      <span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                          <path d="M4 7l16 0" />
+                          <path d="M10 11l0 6" />
+                          <path d="M14 11l0 6" />
+                          <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+                          <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+                        </svg>
+                      </span>
+                    </a>
+                    <a href="{% url 'start-processing' file.id %}" class="btn btn-primary ms-auto">Process</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    {% include 'app_includes/footer.html' %}
+  </div>
+{% endblock content %}
