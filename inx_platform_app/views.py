@@ -19,7 +19,8 @@ from django.views.generic.edit import UpdateView, CreateView
 from .models import ColorGroup, Division, MadeIn, MajorLabel, ProductStatus
 from .models import Color, Brand, Product, RateToLT, Customer, User
 from .models import UploadedFile, StoredProcedure
-from .forms import EditMajorLabelForm, EditBrandForm, EditCustomerForm, EditProductForm, EditProcedureForm, CustomUserCreationForm, UserPasswordChangeForm, RegistrationForm, LoginForm, UserPasswordResetForm, UserSetPasswordForm
+from .forms import EditMajorLabelForm, EditBrandForm, EditCustomerForm, EditProductForm, StoredProcedureForm, CustomUserCreationForm, UserPasswordChangeForm, RegistrationForm, LoginForm, UserPasswordResetForm, UserSetPasswordForm
+from .forms import ProductForm, CustomerForm
 from .forms import get_generic_model_form
 from . import dictionaries
 import pyodbc
@@ -437,7 +438,6 @@ def clean_the_table(tuple_list):
     model_to_clean = tuple_list[0][2]
     model_to_clean.objects.all().delete()
 
-
 @login_required
 def clean_db(request):
 
@@ -454,7 +454,6 @@ def clean_db(request):
             model.objects.all().delete()
     
     return render(request, 'index-inx.html', {})
-
 
 def save_model(the_class, the_data, counter, all_records, logs=None):
     if the_class.__name__ == 'User':
@@ -509,7 +508,7 @@ def display_files(request):
 
 def importing_files(request):
     user = request.user
-    user_files = UploadedFile.objects.filter(owner=user)
+    user_files = UploadedFile.objects.filter(owner=user, is_processed=False)
     
     return render(request, "app_pages/importing_files.html", {'user_files': user_files})
 
@@ -519,11 +518,16 @@ def start_processing(request, file_id):
     file = get_object_or_404(UploadedFile, id = file_id)
     file.start_processing()
     print("finished processing")
-    return render(request, "app_pages/importing_files.html")
+    return redirect("importing-files")
 
 def delete_file(request, file_id):
     file = get_object_or_404(UploadedFile, id = file_id)
-    file.delete_file()
+    try:
+        file.delete_file()
+    except FileNotFoundError as fnf:
+        print(fnf)
+        file.is_processed = False
+        file.save()
     return redirect('importing-files')
 
 @login_required
@@ -531,9 +535,21 @@ def customers_list(request, page=0):
     search_term = request.GET.get('search')
     entries = request.GET.get('entries')
     view_entries = request.GET.get('radios_view')
+    
+
+    if 'new_customers' in request.GET:
+        only_new_ustomers = request.GET.get('new_customers')
+        if only_new_ustomers == 'on':
+            only_new_ustomers = True
+        else:
+            only_new_ustomers = False
+        customers = Customer.objects.filter(is_new = only_new_ustomers).order_by('name')
+    else:
+        only_new_ustomers = False
+        customers = Customer.objects.all()
 
     if search_term:
-        customers = Customer.objects.filter(
+        customers = customers.filter(
                 models.Q(name__icontains=search_term) |
                 models.Q(number__icontains=search_term) |
                 models.Q(country__iso3166_1_alpha_2__icontains=search_term) |
@@ -542,7 +558,7 @@ def customers_list(request, page=0):
                 models.Q(sales_employee__last_name__icontains=search_term)
                 ).order_by('name')
     else:
-        customers = Customer.objects.all().order_by('name')
+        customers = customers.order_by('name')
     
     if view_entries is not None or view_entries != '':
         if view_entries == 'active':
@@ -577,11 +593,16 @@ def customers_list(request, page=0):
         page_obj = paginator.get_page(1)
 
     page_obj.adjusted_elided_pages = paginator.get_elided_page_range(page_number)
-        
+
+    filter_params = {
+        'only_new': only_new_ustomers
+    }
+
     context = {
         'parent': 'interface',
         'segment': '',
-        'page_object': page_obj
+        'page_object': page_obj,
+        'filter_params': filter_params
     }
     return render(request, "app_pages/customers_list.html", context)
 
@@ -592,6 +613,20 @@ def customer_view(request, pk):
         'customer': customer
     }
     return render(request, "app_pages/customer_view.html", context)
+
+def customer_edit(request, pk):
+    c = get_object_or_404(Customer, id=pk)
+    if request.method == 'POST':
+        form = CustomerForm(request.POST, instance = c)
+        if form.is_valid():
+            form.save()
+            return redirect('customer-view', pk=c.pk)
+        else:
+            print(form.errors)
+    else:
+        form = CustomerForm(instance=c)
+    context = {'form': form}
+    return render(request, "app_pages/customer_edit.html", context)
 
 @login_required
 def products_list(request, page=0):
@@ -692,6 +727,48 @@ def product_view(request, pk):
         'product': product
     }
     return render(request, "app_pages/product_view.html", context)
+
+def product_edit(request, pk):
+    p = get_object_or_404(Product, id=pk)
+    if request.method == 'POST':
+        form = ProductForm(request.POST, instance = p)
+        if form.is_valid():
+            form.save()
+            return redirect('product-view', pk=p.pk)
+        else:
+            print(form.errors)
+    else:
+        form = ProductForm(instance=p)
+    context = {'form': form}
+    return render(request, "app_pages/product_edit.html", context)
+
+def stored_procedures(request):
+    procedures = StoredProcedure.objects.all()
+    context = {'procedures': procedures}
+    return render(request, "app_pages/stored_procedures.html", context)
+
+
+def stored_procedure(request, pk):
+    procedure = get_object_or_404(StoredProcedure, id=pk)
+    if request.method == 'POST':
+        f = StoredProcedureForm(request.POST, instance=procedure)
+        if f.is_valid():
+            f.save()
+            return redirect('stored-procedures')
+        else:
+            print(f.errors)
+    else:
+        form = StoredProcedureForm(instance=procedure)
+    context = {'form': form}
+    return render(request,"app_pages/stored_procedure.html", context)
+
+
+def stored_procedure_push(request, pk):
+    pass
+
+def stored_procedure_execute(request, pk):
+    pass
+
 
 def edit_dictionary(request, dictionary_name):
     print(dictionary_name)
@@ -866,18 +943,6 @@ class MajorLabelCreateView(CreateView):
     template_name = "major_label_create.html"
     success_url = "/major/"
 
-@method_decorator(login_required, name='dispatch')
-class StoredProcedureListView(ListView):
-    model = StoredProcedure
-    template_name = 'stored_procedures/list.html'
-    context_object_name = 'procedures'
-
-@method_decorator(login_required, name='dispatch')
-class StoredProcedureUpdateView(UpdateView):
-    model = StoredProcedure
-    form_class = EditProcedureForm
-    template_name = 'stored_procedures/update.html'
-    success_url = reverse_lazy('procedure_list')
 
 def push_and_execute(request, pk):
     procedure = get_object_or_404(StoredProcedure, pk=pk)

@@ -20,8 +20,14 @@
             <div class="row row-cards">
               <div class="col-12">
                 <div class="card">
-                  <div class="card-header">
-                    <h3 class="card-title">Customers List</h3>
+                  <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="card-title mb-0">Customers List</h3>
+                    <label class="form-check form-switch mb-0">
+                      <form id="toggleForm_new" class="d-flex" action="{% url 'customers-list' %}" method="get">
+                        <input class="form-check-input" name="new_customers" type="checkbox" {% if filter_params.only_new %}checked{% endif %}>
+                        <span class="form-check-label">  Show only new customers</span>
+                      </form>
+                    </label>
                   </div>
                   <div class="card-body border-bottom py-3">
                     <div class="d-flex flex-row">
@@ -84,6 +90,18 @@
                                     document.forms['view_entries'].submit();
                                 });
                             });
+                            // Submit the form when the toggle changes
+                            var toggle = document.querySelector('#toggleForm_new .form-check-input');
+                            if (toggle) {
+                              console.log("Toggle found.");
+                              toggle.addEventListener('change', function() {
+                                console.log("Toggle value:", this.checked);
+                                this.form.submit();
+                              });
+                            } else {
+                              console.log("Toggle not found.");
+                            }
+                            
                           </script>
                         </div>
                       </div>

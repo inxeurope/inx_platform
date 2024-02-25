@@ -1,0 +1,83 @@
+{% extends 'app_layouts/base.html' %}
+{% load static %}
+
+{% block content %}
+
+  <div class="page-wrapper">
+    <!-- Page header -->
+    <div class="page-header d-print-none">
+      <div class="container-xl">
+        <div class="row g-2 align-items-center">
+          <div class="col">
+            <h2 class="page-title">
+              Stored Procedures
+            </h2>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Page body -->
+    <div class="page-body">
+      <div class="container-xl">
+        <div class="card">
+          <div class="card-body">
+            <div id="table-default" class="table-responsive">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th><button class="table-sort" data-sort="sort-name">Name</button></th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="table-tbody">
+
+                  {% for procedure in procedures %}
+                  <tr>
+                    <td class="sort-name">
+                      <div class="row align-items-center">
+                        {{ procedure.name }} {{ procedure.id }}
+                      </div>
+                    </td>
+                    <td >
+                      <div class="row align-items-center">
+                        {% comment %} <div class="col-12 col-lg-auto"> {% endcomment %}
+                        <div class="col-12">  
+                          <a href="{% url 'stored-procedure' procedure.id %}" class="btn btn-pill btn-primary">Edit script</a>
+                          <a href="" class="btn btn-pill btn-teal">Push in the database</a>
+                          <a href="" class="btn btn-pill btn-warning">Execute</a>
+
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% include 'app_includes/footer.html' %}
+  </div>
+
+{% endblock content %}
+
+{% block extrajs %}
+
+    <script src="{% static 'dist/libs/list.js/dist/list.min.js' %}?1684106062" defer></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+      const list = new List('table-default', {
+      	sortClass: 'table-sort',
+      	listClass: 'table-tbody',
+      	valueNames: [ 'sort-name', 'sort-type', 'sort-city', 'sort-score',
+      		{ attr: 'data-date', name: 'sort-date' },
+      		{ attr: 'data-progress', name: 'sort-progress' },
+      		'sort-quantity'
+      	]
+      });
+      })
+    </script>
+
+{% endblock extrajs %}

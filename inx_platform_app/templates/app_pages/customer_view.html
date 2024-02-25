@@ -11,7 +11,7 @@
         <div class="row g-2 align-items-center">
           <div class="col">
             <h2 class="page-title">
-              Customer data grid
+              {{ customer.name }} data grid
             </h2>
           </div>
         </div>
@@ -22,17 +22,21 @@
       <div class="container-xl">
         <div class="card">
           <div class="card-header d-flex justify-content-between">
-            <h3 class="card-title">Basic info - {{ customer.name }} - {{ customer.pk }}</h3>
-            <a href="{% url 'edit-model-record' pk=customer.pk model='Customer' %}" class="btn btn-outline-info">Edit</a>
+            <h3 class="card-title">Basic info - {{ customer.name }}</h3>
+            <a href="{% url 'customer-edit' customer.pk %}" class="btn btn-outline-info">Edit</a>
           </div>
           <div class="card-body">
             <div class="datagrid">
+              <div class="datagrid-item">
+                <div class="datagrid-title">ID</div>
+                <div class="datagrid-content">{{ customer.pk }}</div>
+              </div>
               <div class="datagrid-item">
                 <div class="datagrid-title">SAP Number</div>
                 <div class="datagrid-content">{{ customer.number }}</div>
               </div>
               <div class="datagrid-item">
-                <div class="datagrid-title">SAP Description</div>
+                <div class="datagrid-title">SAP Description - Customer name</div>
                 <div class="datagrid-content"><strong>{{ customer.name }}</strong></div>
               </div>
               <div class="datagrid-item">

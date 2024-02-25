@@ -7,10 +7,107 @@
     <!-- Page body -->
     <div class="page-body">
       <div class="container-xl d-flex flex-column justify-content-center">
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">Save</button>
+        <form class="card" method="POST">
+          {% csrf_token %}
+          <div class="card-body">
+            <h3 class="card-title">Update Product</h3>
+            <div class="row row-cards">
+              <div class="col-sm-12 col-md-12">
+                <div class="mb-3">
+                  <label class="form-label">{{ form.number.label }}</label>
+                  {{ form.number }}
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="mb-3 mb-0">
+                  <label class="form-label">{{ form.name.label }}</label>
+                  {{ form.name }}
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="mb-3 mb-0">
+                  <label class="form-label">{{ form.country.label }}</label>
+                  {{ form.country }}
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="mb-3 mb-0">
+                  <label class="form-label">{{ form.currency.label }}</label>
+                  {{ form.currency }}
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="mb-3 mb-0">
+                  <label class="form-label">{{ form.vat.label }}</label>
+                  {{ form.vat }}
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="mb-3 mb-0">
+                  <label class="form-label">{{ form.email.label }}</label>
+                  {{ form.email }}
+                </div>
+              </div>
+              
+              <div class="col-md-12">
+                <div class="mb-3 mb-0">
+                  <label class="form-label">{{ form.customer_type.label }}</label>
+                  {{ form.customer_type }}
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="mb-3 mb-0">
+                  <label class="form-label">{{ form.sales_employee.label }}</label>
+                  {{ form.sales_employee }}
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="mb-3 mb-0">
+                  <label class="form-label">{{ form.active.label }}</label>
+                  {{ form.active }}
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="mb-3 mb-0">
+                  <label class="form-label">{{ form.insurance.label }}</label>
+                  {{ form.insurance }}
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="mb-3 mb-0">
+                  <label class="form-label">{{ form.insurance_value.label }}</label>
+                  {{ form.insurance_value }}
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="mb-3 mb-0">
+                  <label class="form-label">{{ form.credit_limit.label }}</label>
+                  {{ form.credit_limit }}
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="mb-3 mb-0">
+                  <label class="form-label">{{ form.approved_on.label }}</label>
+                  {{ form.approved_on }}
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="mb-3 mb-0">
+                  <label class="form-label">{{ form.approved_by.label }}</label>
+                  {{ form.approved_by }}
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="mb-3 mb-0">
+                  <label class="form-label">{{ form.industry.label }}</label>
+                  {{ form.industry }}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer text-end">
+            <button type="submit" class="btn btn-primary">Update Customer</button>
+          </div>
         </form>
       </div>
     </div>

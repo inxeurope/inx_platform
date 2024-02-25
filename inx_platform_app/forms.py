@@ -237,10 +237,66 @@ class CustomerForm(forms.ModelForm):
     class Meta:
         model = Customer
         fields = '__all__'
+        widgets = {
+            'number': forms.TextInput(attrs={'class': 'form-control'}),
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'currency': forms.TextInput(attrs={'class': 'form-control'}),
+            'vat': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.TextInput(attrs={'class': 'form-control'}),
+            'approved_by_old': forms.TextInput(attrs={'class': 'form-control'}),
+            'import_note': forms.TextInput(attrs={'class': 'form-control'}),
+            'import_status': forms.TextInput(attrs={'class': 'form-control'}),
+
+            'insurance_value': forms.NumberInput(attrs={'class': 'form-control'}),
+            'credit_limit': forms.NumberInput(attrs={'class': 'form-control'}),
+
+            'approved_on': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+
+            'active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'insurance': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+
+            'sales_employee': forms.Select(attrs={'class': 'form-select'}),
+            'customer_type': forms.Select(attrs={'class': 'form-select'}),
+            'industry': forms.Select(attrs={'class': 'form-select'}),
+            'country': forms.Select(attrs={'class': 'form-select'}),
+            'approved_by': forms.Select(attrs={'class': 'form-select'}),
+        }
 
 def get_generic_model_form(model_class):
     class GenericModelForm(forms.ModelForm):
         class Meta:
             model = model_class
             fields = '__all__'
-    return GenericModelForm      
+    return GenericModelForm
+
+class StoredProcedureForm(forms.ModelForm):
+    class Meta:
+        model = StoredProcedure
+        fields = ('name', 'script')
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control name-input'}),
+            'script': forms.Textarea(attrs={'class':'form-control font-monospace', 'cols': 80, 'rows': 20}),
+        }
+
+class ProductForm(forms.ModelForm):
+    class Meta:
+        model = Product
+        fields = '__all__'
+        widgets = {
+            'number': forms.TextInput(attrs={'class': 'form-control number-input'}),
+            'name': forms.TextInput(attrs={'class': 'form-control name-input'}),
+            'is_ink': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'import_note': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'import_status': forms.TextInput(attrs={'class': 'form-control'}),
+            
+            'color': forms.Select(attrs={'class': 'form-select'}),
+            'made_in': forms.Select(attrs={'class': 'form-select'}),
+            'brand': forms.Select(attrs={'class': 'form-select'}),
+            'packaging': forms.Select(attrs={'class': 'form-select'}),
+            'product_line': forms.Select(attrs={'class': 'form-select'}),
+            'product_status': forms.Select(attrs={'class': 'form-select'}),
+            'sqlapp_id': forms.NumberInput(attrs={'class': 'form-control'}),
+            'is_new': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'approved_on': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'approved_by': forms.Select(attrs={'class': 'form-select'}),
+        }

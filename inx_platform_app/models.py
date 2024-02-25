@@ -90,7 +90,7 @@ class ProductLine(models.Model):
     sqlapp_id = models.IntegerField(default=0)
 
     def __str__(self):
-        return_value = f"ID: {self.id} name: {self.name} - SQLapp ID:{self.sqlapp_id}"
+        return_value = f"{self.name}"
         return return_value
 
 class ColorGroup(models.Model):
@@ -108,7 +108,7 @@ class MadeIn(models.Model):
     sqlapp_id = models.IntegerField(default=0)
 
     def __str__(self):
-        return_value = f"ID:{self.id} Made In: {self.name}"
+        return_value = f"{self.name}"
         return return_value
 
 class Division(models.Model):
@@ -233,7 +233,7 @@ class CountryCode(models.Model):
     capital = models.CharField(max_length=255, null=True)
     official_name_en = models.CharField(max_length=255, null=True)
     cldr_display_name = models.CharField(max_length=255, null=True)
-    sqlapp_id = models.IntegerField(default=0, null=True)
+    sqlapp_id = models.IntegerField(default=0, null=True, blank=True)
 
     def __str__(self):
         return self.official_name_en
@@ -785,7 +785,7 @@ class Color(models.Model):
     sqlapp_id = models.IntegerField(default=0, null=True)
 
     def __str__(self):
-        return_value = f"ID: {self.id}, Color: {self.name}"
+        return_value = f"{self.name}"
         return return_value
 
 class Brand(models.Model):
@@ -809,8 +809,8 @@ class Product(models.Model):
     name = models.CharField(max_length=100)
     number = models.CharField(max_length=30)
     is_ink = models.BooleanField(default = True)
-    import_note = models.CharField(max_length=255)
-    import_status = models.CharField(max_length=255)
+    import_note = models.CharField(max_length=255, null=True, blank=True)
+    import_status = models.CharField(max_length=255, null=True, blank=True)
     color = models.ForeignKey(Color, on_delete=models.PROTECT)
     made_in = models.ForeignKey(MadeIn, on_delete=models.PROTECT)
     brand = models.ForeignKey(Brand, on_delete=models.PROTECT)
@@ -818,9 +818,12 @@ class Product(models.Model):
     product_line = models.ForeignKey(ProductLine, on_delete=models.PROTECT, null=True)
     product_status = models.ForeignKey(ProductStatus, on_delete=models.PROTECT)
     sqlapp_id = models.IntegerField(default=0, null=True)
+    is_new = models.BooleanField(default=True)
+    approved_on = models.DateField(null=True)
+    approved_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
-        return_value = f"sqlapp_id:{self.id}({self.sqlapp_id}), Product number:{self.number}, Product name:{self.name}"
+        return_value = f"{self.number}, {self.name}"
         return return_value
     
 class RateToLT(models.Model):
@@ -839,19 +842,21 @@ class Customer(models.Model):
     active = models.BooleanField(default=False, null=True)
     insurance = models.BooleanField(default=False, null=True)
     insurance_value = models.IntegerField(null=True, blank=True, default=0)
-    credit_limit = models.IntegerField(default=0)
-    vat = models.CharField(max_length=30, blank=True)
-    email = models.CharField(max_length=255, blank=True)
+    credit_limit = models.IntegerField(null=True, blank=True, default=0)
+    vat = models.CharField(max_length=30, null=True, blank=True)
+    email = models.CharField(max_length=255, null=True, blank=True)
     approved_by_old = models.CharField(max_length=255, null=True, blank=True)
     approved_on =  models.DateTimeField(auto_now_add=True, null=True)
-    import_note = models.CharField(max_length=255, blank=True)
-    import_status = models.CharField(max_length=255, blank = True)
-    sqlapp_id = models.IntegerField(default=0, null=True)
+    import_note = models.CharField(max_length=255, null=True, blank=True)
+    import_status = models.CharField(max_length=255, null=True, blank=True)
+    sqlapp_id = models.IntegerField(default=0, null=True, blank=True)
     sales_employee = models.ForeignKey(User, on_delete=models.PROTECT, related_name='sales_manager')
     customer_type = models.ForeignKey(CustomerType, on_delete=models.PROTECT, blank=True, null=True)
     industry = models.ForeignKey(Industry, on_delete=models.PROTECT, blank=True, null=True)
     country = models.ForeignKey(CountryCode, on_delete=models.PROTECT)
-    approved_by =  models.ForeignKey(User, on_delete=models.PROTECT, related_name='approved_by', blank=True, null=True)
+    is_new = models.BooleanField(default=True)
+    approved_on = models.DateField(null=True)
+    approved_by = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='approved_by', blank=True, null=True)
 
     def __str__(self):
         return_value = f"Customer number: {self.number}, Customer name: {self.name}"
@@ -941,138 +946,145 @@ class UploadedFile(models.Model):
             instance.save()
 
     def start_processing(self):
-        # Add code for processing
-        # self is the file that needs processing
-        # Read the file
         file_path = self.file_path + "/" + self.file_name
-        django.setup()
-        match self.file_type:
-            case "ke30":
-                convert_dict = import_dictionaries.ke30_converters_dict
-                print("start reading Excel file")
-                df = self.read_excel_file(file_path, convert_dict)
-                print("done reading Excel file")
-                df_length = len(df)
-                df['Importtimestamp'] = datetime.now()
-                df["YearMonth"] = (df['Fiscal Year'].astype(int) * 100 + df['Period'].astype(int)).astype(str)
-                # These 2 variable are set for the following action, after the match-case
-                model = Ke30ImportLine
-                field_mapping = import_dictionaries.ke30_mapping_dict
-            case "ke24":
-                convert_dict = import_dictionaries.ke24_converters_dict
-                df = self.read_excel_file(file_path, convert_dict)
-                df = df.drop(columns=['Industry Code 1'])
-                # df['Industry Code 1'] = df['Industry Code 1'].astype(str)               
-                model = Ke24ImportLine
-                field_mapping = import_dictionaries.ke24_mapping_dict
-            case "zaq":
-                convert_dict = import_dictionaries.zaq_converters_dict
-                df = self.read_excel_file(file_path, convert_dict)
-                df["Billing date"] = df['Billing date'].apply(lambda x: x.strftime("%Y-%m-%d") if not pd.isna(x) else x)
-                # This Excel file has the totals,at teh bottom, that must be removed
-                # The number of rows may vary depending on the number of currencies and UoMs mentioned
-                unique_uom = df['UoM'].nunique()
-                unique_curr = df['Curr.'].nunique()
-                rows_to_remove = max(unique_curr, unique_uom)
-                df = df.head(len(df) - rows_to_remove) 
-                model = ZACODMI9_import_line
-                field_mapping = import_dictionaries.zaq_mapping_dict
-            case "oo":
-                convert_dict = import_dictionaries.oo_converters_dict
-                df = self.read_excel_file(file_path, convert_dict)
-                # Setting these records as "Open Orders"
-                df['LineType'] = 'OO'
-                # Trimming the bottom
-                print(f"it was {len(df)}")
-                uniques = len(df['Unit'].value_counts())
-                df = df.iloc[:-uniques]
-                print(f"it is {len(df)}")
-                # Filtering out rows where Plant is null
-                df = df[df["Plant"].notnull()]
-                # Adjusting dates
-                df["Order Date"] = df['Order Date'].apply(lambda x: x.strftime("%Y-%m-%d") if not pd.isna(x) else x)
-                df["Req. dt"] = df['Req. dt'].apply(lambda x: x.strftime("%Y-%m-%d") if not pd.isna(x) else x)
-                df["PL. GI Dt"] = df['PL. GI Dt'].apply(lambda x: x.strftime("%Y-%m-%d") if not pd.isna(x) else x)
-                # sometimes Customer number is null - assign a value
-                df['Sold-to'] = df['Sold-to'].fillna(df['Ship-to'])
-                df['Sold-to'] = np.where(df['Sold-to'] == '', df['Ship-to'], df['Sold-to'])
-                model = Order
-                field_mapping = import_dictionaries.oo_mapping_dict
-            case "oi" | "arr":
-                convert_dict = import_dictionaries.oo_converters_dict
-                df = self.read_excel_file(file_path, convert_dict)
-                # Removing bottom lines
-                print(f"{self.file_type} was {len(df)} lines long")
-                uniques = len(df['Document currency'].value_counts())
-                df = df.iloc[:-uniques]
-                print(f"{self.file_type} is now {len(df)} lines long")
-                # Adjusting dates
-                df['Document Date'] = df['Document Date'].dt.date
-                df['Net due date'] = df['Net due date'].dt.date
-                df['Payment date'] = df['Payment date'].dt.date
-                df['Arrears after net due date'] = df['Arrears after net due date'].fillna(0).astype(int)
-                if self.file_type == "arr":
-                    model = Fbl5nArrImport
-                    field_mapping = import_dictionaries.arr_mapping_dict
-                if self.file_type == "oi":
-                    model = Fbl5nOpenImport
-                    field_mapping = import_dictionaries.oi_mapping_dict
-            case "pr":
-                convert_dict = import_dictionaries.pr_converters_dict
-                df = self.read_excel_file(file_path)
-                model = Price
-                field_mapping = import_dictionaries.pr_mapping_dict
+        if not os.path.exists(file_path):
+            # The file does not exists
+            print(f"The file {file_path} is not existing, marking the UploadedFile record as is_processed=True")
+            self.is_processed = True
+            self.save()
+        else:
+            django.setup()
+            match self.file_type:
+                case "ke30":
+                    convert_dict = import_dictionaries.ke30_converters_dict
+                    print("start reading Excel file")
+                    df = self.read_excel_file(file_path, convert_dict)
+                    print("done reading Excel file")
+                    df_length = len(df)
+                    df['Importtimestamp'] = datetime.now()
+                    df["YearMonth"] = (df['Fiscal Year'].astype(int) * 100 + df['Period'].astype(int)).astype(str)
+                    # These 2 variable are set for the following action, after the match-case
+                    model = Ke30ImportLine
+                    field_mapping = import_dictionaries.ke30_mapping_dict
+                case "ke24":
+                    convert_dict = import_dictionaries.ke24_converters_dict
+                    df = self.read_excel_file(file_path, convert_dict)
+                    df = df.drop(columns=['Industry Code 1'])
+                    # df['Industry Code 1'] = df['Industry Code 1'].astype(str)               
+                    model = Ke24ImportLine
+                    field_mapping = import_dictionaries.ke24_mapping_dict
+                case "zaq":
+                    convert_dict = import_dictionaries.zaq_converters_dict
+                    df = self.read_excel_file(file_path, convert_dict)
+                    df["Billing date"] = df['Billing date'].apply(lambda x: x.strftime("%Y-%m-%d") if not pd.isna(x) else x)
+                    # This Excel file has the totals,at teh bottom, that must be removed
+                    # The number of rows may vary depending on the number of currencies and UoMs mentioned
+                    unique_uom = df['UoM'].nunique()
+                    unique_curr = df['Curr.'].nunique()
+                    rows_to_remove = max(unique_curr, unique_uom)
+                    df = df.head(len(df) - rows_to_remove) 
+                    model = ZACODMI9_import_line
+                    field_mapping = import_dictionaries.zaq_mapping_dict
+                case "oo":
+                    convert_dict = import_dictionaries.oo_converters_dict
+                    df = self.read_excel_file(file_path, convert_dict)
+                    # Setting these records as "Open Orders"
+                    df['LineType'] = 'OO'
+                    # Trimming the bottom
+                    print(f"it was {len(df)}")
+                    uniques = len(df['Unit'].value_counts())
+                    df = df.iloc[:-uniques]
+                    print(f"it is {len(df)}")
+                    # Filtering out rows where Plant is null
+                    df = df[df["Plant"].notnull()]
+                    # Adjusting dates
+                    df["Order Date"] = df['Order Date'].apply(lambda x: x.strftime("%Y-%m-%d") if not pd.isna(x) else x)
+                    df["Req. dt"] = df['Req. dt'].apply(lambda x: x.strftime("%Y-%m-%d") if not pd.isna(x) else x)
+                    df["PL. GI Dt"] = df['PL. GI Dt'].apply(lambda x: x.strftime("%Y-%m-%d") if not pd.isna(x) else x)
+                    # sometimes Customer number is null - assign a value
+                    df['Sold-to'] = df['Sold-to'].fillna(df['Ship-to'])
+                    df['Sold-to'] = np.where(df['Sold-to'] == '', df['Ship-to'], df['Sold-to'])
+                    model = Order
+                    field_mapping = import_dictionaries.oo_mapping_dict
+                case "oi" | "arr":
+                    convert_dict = import_dictionaries.oo_converters_dict
+                    df = self.read_excel_file(file_path, convert_dict)
+                    # Removing bottom lines
+                    print(f"{self.file_type} was {len(df)} lines long")
+                    uniques = len(df['Document currency'].value_counts())
+                    df = df.iloc[:-uniques]
+                    print(f"{self.file_type} is now {len(df)} lines long")
+                    # Adjusting dates
+                    df['Document Date'] = df['Document Date'].dt.date
+                    df['Net due date'] = df['Net due date'].dt.date
+                    df['Payment date'] = df['Payment date'].dt.date
+                    df['Arrears after net due date'] = df['Arrears after net due date'].fillna(0).astype(int)
+                    if self.file_type == "arr":
+                        model = Fbl5nArrImport
+                        field_mapping = import_dictionaries.arr_mapping_dict
+                    if self.file_type == "oi":
+                        model = Fbl5nOpenImport
+                        field_mapping = import_dictionaries.oi_mapping_dict
+                case "pr":
+                    convert_dict = import_dictionaries.pr_converters_dict
+                    df = self.read_excel_file(file_path)
+                    model = Price
+                    field_mapping = import_dictionaries.pr_mapping_dict
 
-        start_time = time.perf_counter()
-        model.objects.all().delete()
-        end_time = time.perf_counter()
-        elapsed_time = end_time - start_time
-        print(f"deletion {model._meta.model_name} took {elapsed_time} seconds")
-
-        # check how long is the dataframe
-        df_length = len(df)
-        chunk_size = 2000
-        # chunks = [df.iloc[i:i + chunk_size] for i in range(0, len(df), chunk_size)]
-        chunks = [df[i:i + chunk_size] for i in range(0, len(df), chunk_size)]
-
-
-        try:
             start_time = time.perf_counter()
-            with transaction.atomic():
-                df = df.replace(np.nan, '')
-                print(f"Length of dataframe: {df_length}")
-                c = 0
-
-                # Try bulk operation
-
-                for index, row in df.iterrows():
-                    # Import in the model
-                    instance = model()
-                    for field,column_name in field_mapping.items():
-                        setattr(instance, field, row[column_name])
-                    instance.save()
-                    c += 1
-                    print (f"{c}/{df_length}", end="\r")
+            model.objects.all().delete()
             end_time = time.perf_counter()
             elapsed_time = end_time - start_time
-            print(f"work on {self.file_type} took {elapsed_time} seconds")
-            self.is_processed = True
-            self.processed_at = datetime.now()
+            print(f"deletion {model._meta.model_name} took {elapsed_time} seconds")
+
+            # check how long is the dataframe
+            df_length = len(df)
+            df = df.replace(np.nan, '')
+            chunk_size = 30
+            chunks = [df[i:i + chunk_size] for i in range(0, len(df), chunk_size)]
+
+            print(f"Chunk size {chunk_size}")
+            print(f"based on chnuck_size we got {len(chunks)} chunks for {df_length} rows")
+
+            chunk_counter = 0
+            for chunk in chunks:
+                chunk_counter += 1
+                print (f"processing {chunk_counter}/{len(chunks)}", end="")
+                try:
+                    start_time = time.perf_counter()
+                    # List to hold model instances
+                    instances = []
+                    for index, row in chunk.iterrows():
+                        instance = model()
+                        for field, column_name in field_mapping.items():
+                            setattr(instance, field, row[column_name])
+                        instances.append(instance)
+                    with transaction.atomic():
+                        model.objects.bulk_create(instances)
+                        instances = []
+                    end_time = time.perf_counter()
+                    elapsed_time = end_time - start_time
+                    print(f" ... work on chunk {chunk_counter} of {len(chunks)} took {elapsed_time} seconds")
+                    self.is_processed = True
+                    self.processed_at = datetime.now()
+                except Exception as e:
+                    # Handle the exception
+                    print(f"An error occurred during the transaction: {e}")
             # Delete the file
-            self.delete_file() # this also deletes the record on the table
-        except Exception as e:
-            # Handle the exception
-            print(f"An error occurred during the transaction: {e}")
-        
-        print (f'processed the file id: {self.id}  filetye: {self.file_type} file_name: {self.file_name} file_path: {self.file_path}')
-        print("processing terminated in teh model")
+            self.delete_file()
+            print (f'processed the file id: {self.id}  filetye: {self.file_type} file_name: {self.file_name} file_path: {self.file_path}')
+            print("processing terminated in the model")
 
     def delete_file(self):
         full_file_name = os.path.join(settings.MEDIA_ROOT, self.file_path, self.file_name)
         print(full_file_name)
-        if os.path.exists(self.file_path):
+    
+        if os.path.exists(full_file_name):
             os.remove(full_file_name)
-        self.delete()
+            # Mark as is_processed=True
+            self.is_processed = True
+            self.save()
+        
 
     def read_excel_file(self, file_path, conversion_dict):
         df = pd.read_excel(file_path, thousands='.', decimal=',', dtype=conversion_dict, parse_dates=True)
@@ -1087,5 +1099,8 @@ class StoredProcedure(models.Model):
     def __str__(self) -> str:
         return self.name 
 
+    class Meta:
+        verbose_name = "Stored Procedure"
+        verbose_name_plural = "Stored Procedures"
         
    

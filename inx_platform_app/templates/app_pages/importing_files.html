@@ -29,8 +29,11 @@
                 </div>
                 <div class="card-body">
                   <h3 class="card-title">{{ file.owner.get_full_name }}</h3>
-                  <p class="text-muted">{{ file.file_name }}
-
+                  <p class="text-muted">
+                    {{ file.file_name }}
+                  </p>
+                  <p class="text-muted">
+                    {{ file.is_processed }}
                   </p>
                 </div>
                 <div class="card-footer">

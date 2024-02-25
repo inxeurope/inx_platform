@@ -26,21 +26,19 @@ urlpatterns = [
     path("dictionary_add_key/<str:dictionary_name>", views.dictionary_add_key, name='dictionary_add_key'),
     path("dictionary_delete_key/<str:dictionary_name>", views.dictionary_delete_key, name='dictionary_delete_key'),
     
-    path("customers/", views.CustomerListView.as_view(), name="customers"),
-    path("customers/edit/<int:id>", views.CustomerEditView.as_view(), name="customer-edit"),
     path("customers_list/", views.customers_list, name="customers-list"),
     path("customer_view/<int:pk>", views.customer_view, name="customer-view"),
+    path("customer_edit/<int:pk>", views.customer_edit, name="customer-edit"),
+
+    path("products_list/", views.products_list, name="products-list"),
+    path("product_view/<int:pk>", views.product_view, name="product-view"),
+    path("product_edit/<int:pk>", views.product_edit, name="product-edit"),
 
     # Generic edit form
     path("edit_model_record/<int:pk>/<str:model>", views.edit_model_record, name="edit-model-record"),
 
     path("inxd_customers/", views.inxd_customers, name="inxd-customers"),
     
-    path("products/", views.ProductListView.as_view(), name="products"),
-    path("products_list/", views.products_list, name="products-list"),
-    path("product_view/<int:pk>", views.product_view, name="product-view"),
-    path("products/edit/<int:id>", views.products_list, name="product-edit"),
-
     path("brands/", views.BrandListView.as_view(), name="brands"),
     path("brands_list/", views.BrandListView.as_view(), name="brands-list"),
     path("brand/edit/<int:id>", views.BrandEditView.as_view(), name="brand-edit"),
@@ -49,9 +47,10 @@ urlpatterns = [
     path("major/add", views.MajorLabelCreateView.as_view(), name="major-add"),
     path("major/edit/<int:id>", views.MajorLabelEditView.as_view(), name="major-edit"),
 
-    path('procedures/', views.StoredProcedureListView.as_view(), name='procedure_list'),
-    path('procedure/<int:pk>/', views.StoredProcedureUpdateView.as_view(), name='procedure_update'),
-    path('procedure/<int:pk>/push_and_execute/', views.push_and_execute, name='push_and_execute'),
+    path('stored_procedures', views.stored_procedures, name='stored-procedures'),
+    path('procedure/<int:pk>', views.stored_procedure, name='stored-procedure'),
+    path('procedure/<int:pk>/push', views.stored_procedure_push, name='stored-procedure-push'),
+    path('procedure/<int:pk>/execute', views.stored_procedure_execute, name='stored-procedure-execute'),
 
     # For managing users
     path('login_user', views.login_user, name="login"),
