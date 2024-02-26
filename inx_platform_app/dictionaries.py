@@ -566,7 +566,7 @@ mapping_Ke30Line = {
     'C#Margin % Actual': 'contribution_margin_perc_actual',
     'N#Sales/unit Actual': 'net_sales_unit_actual',
     'Cost/Unit Actual': 'cost_unit_actual',
-    'Disc/Claims/Adj Actual': 'disc_claims_adj_actual',
+    'Disc/Claims/Adj Actual': 'disc_claim_adj_actual',
     'ImportTimestamp': 'import_timestamp',
 }
 

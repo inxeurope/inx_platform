@@ -54,7 +54,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     sqlapp_id = models.IntegerField(default=0, null=True)
 
-    photo = models.CharField(default='', max_length=255, blank=True, null=True)
+    photo = models.CharField(default='', max_length=255, blank=True, null=True)    
 
     objects = CustomUserManager()
 
@@ -644,7 +644,7 @@ class Ke30Line(models.Model):
     contribution_margin_perc_actual = models.FloatField(null=True)
     net_sales_unit_actual = models.FloatField(null=True)
     cost_unit_actual = models.FloatField(null=True)
-    disc_claims_adj_actual = models.FloatField(null=True)
+    disc_claim_adj_actual = models.FloatField(null=True)
     import_timestamp = models.DateTimeField(auto_now_add=True, null=True)
     owner = models.ForeignKey(User, on_delete=models.PROTECT, blank=True, null=True)
 
@@ -845,6 +845,7 @@ class Customer(models.Model):
     credit_limit = models.IntegerField(null=True, blank=True, default=0)
     vat = models.CharField(max_length=30, null=True, blank=True)
     email = models.CharField(max_length=255, null=True, blank=True)
+    phone = models.CharField(max_length=255, null=True, blank=True)
     approved_by_old = models.CharField(max_length=255, null=True, blank=True)
     approved_on =  models.DateTimeField(auto_now_add=True, null=True)
     import_note = models.CharField(max_length=255, null=True, blank=True)
@@ -855,7 +856,7 @@ class Customer(models.Model):
     industry = models.ForeignKey(Industry, on_delete=models.PROTECT, blank=True, null=True)
     country = models.ForeignKey(CountryCode, on_delete=models.PROTECT)
     is_new = models.BooleanField(default=True)
-    approved_on = models.DateField(null=True)
+    approved_on = models.DateField(null=True, blank=True)
     approved_by = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='approved_by', blank=True, null=True)
 
     def __str__(self):
@@ -1040,7 +1041,7 @@ class UploadedFile(models.Model):
             # check how long is the dataframe
             df_length = len(df)
             df = df.replace(np.nan, '')
-            chunk_size = 30
+            chunk_size = 150
             chunks = [df[i:i + chunk_size] for i in range(0, len(df), chunk_size)]
 
             print(f"Chunk size {chunk_size}")
@@ -1102,5 +1103,15 @@ class StoredProcedure(models.Model):
     class Meta:
         verbose_name = "Stored Procedure"
         verbose_name_plural = "Stored Procedures"
-        
-   
+
+class Contact(models.Model):
+    first_name = models.CharField(max_length=255, null=True, blank=True)
+    middle_name = models.CharField(max_length=255, null=True, blank=True)
+    last_name = models.CharField(max_length=255, null=True, blank=True)
+    job_postion = models.CharField(max_length=255, null=True, blank=True)
+    email = models.EmailField(max_length=254, null=True, blank=True)
+    customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, blank=True)
+
+    def get_full_name(self):
+        full_name = f"{self.first_name} {self.middle_name[0].capitalize()} {self.last_name}"
+        return full_name

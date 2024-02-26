@@ -10,6 +10,9 @@
       <div class="container-xl">
         <div class="row g-2 align-items-center">
           <div class="col">
+            {% if customer.is_new%}
+              <span class="badge badge-outline text-red small">NEW</span>
+            {% endif %}
             <h2 class="page-title">
               {{ customer.name }} data grid
             </h2>

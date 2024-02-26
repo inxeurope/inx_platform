@@ -255,7 +255,7 @@ def import_from_SQL(table_tuples):
         # Trim unnecessary columns
         columns_to_keep = [column for column in df.columns if column in mapping]
         df = df[columns_to_keep]
-        print("Columns to keep:", columns_to_keep)
+        # print("Columns to keep:", columns_to_keep)
 
         # creating a copy of the index column, if there is one
         if not field_name == None:
@@ -398,10 +398,10 @@ def import_from_SQL(table_tuples):
                             print(f"Row {idx + 1}: {error_msg}\n{row_data}\n")
                     else:
                         print("no problematic rows")
-                    # instances_to_create = [model_class(**row) for row in df.to_dict(orient='records')]
+                    
                     print(f"working on bulk_create - model {model_class.__name__}")
                     model_class.objects.bulk_create(instances_to_create)
-                    print(f"SUCCESS importing {table_name}")                 
+                    print(f"Completed importing {table_name}")                 
             except Exception as e:
                 print(e)
     conn.close() 
@@ -614,17 +614,32 @@ def customer_view(request, pk):
     }
     return render(request, "app_pages/customer_view.html", context)
 
+@login_required
 def customer_edit(request, pk):
     c = get_object_or_404(Customer, id=pk)
+    # Save is_new here to avoid overwriting when making form.is_valid()
+    # for.is_valid would overwrite with False is is_new is not in the 
+    # form template, or it is disabled
+    is_new_value = c.is_new 
     if request.method == 'POST':
         form = CustomerForm(request.POST, instance = c)
         if form.is_valid():
+            print ("c.is_new", c.is_new)
+            # Check if it's NEW
+            if is_new_value:
+                form.instance.approved_by = request.user
+                form.instance.approved_on = datetime.today().date()
+                form.instance.active = True
+                form.instance.is_new = False
             form.save()
             return redirect('customer-view', pk=c.pk)
         else:
             print(form.errors)
     else:
         form = CustomerForm(instance=c)
+        form.fields['is_new'].disabled = True
+        form.fields['approved_by'].disabled = True
+        form.fields['approved_on'].disabled = True
     context = {'form': form}
     return render(request, "app_pages/customer_edit.html", context)
 
