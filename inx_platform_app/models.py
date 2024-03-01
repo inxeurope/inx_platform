@@ -6,6 +6,7 @@ import numpy as np
 import django
 from django.apps import apps
 from django.db import models, transaction
+from django.core.validators import RegexValidator
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, UserManager
 # from inx_platform_members.models import User
@@ -122,19 +123,21 @@ class Division(models.Model):
 
 class MajorLabel(models.Model):
     name = models.CharField(max_length=40)
-    sap_id = models.CharField(max_length=10)
-    sap_name = models.CharField(max_length=50)
-    sqlapp_id = models.IntegerField(default=0)
+    sap_id = models.CharField(max_length=10, null=True, blank=True)
+    sap_name = models.CharField(max_length=50, null=True, blank=True)
+    sqlapp_id = models.IntegerField(default=0, null=True, blank=True)
     svg_logo = models.TextField(blank=True)
 
     def __str__(self):
         return self.name
 
 class InkTechnology(models.Model):
-    name = models.CharField(max_length=40)
-    sap_id = models.CharField(max_length=10)
-    sap_name = models.CharField(max_length=50)
-    sqlapp_id = models.IntegerField(default=0)
+    name = models.CharField(max_length=40, null=True, blank=True)
+    short_name = models.CharField(max_length = 10, null=True, blank=True)
+    sap_id = models.CharField(max_length=10, null=True, blank=True)
+    sap_name = models.CharField(max_length=50, null=True, blank=True)
+    sqlapp_id = models.IntegerField(default=0, null=True, blank=True)
+    ribbon_color = models.CharField(max_length=15, null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -258,6 +261,10 @@ class Industry(models.Model):
     
     def __str__(self):
         return self.name
+
+class PaymentTerm(models.Model):
+    name=models.CharField(max_length=255)
+    days_term = models.SmallIntegerField(null=True)
 
 # -----------------------------------------------------
 # Models with no FK and no index
@@ -790,8 +797,8 @@ class Color(models.Model):
 
 class Brand(models.Model):
     name = models.CharField(max_length=50)
-    sap_name = models.CharField(max_length=30, null=True)
-    sap_id = models.CharField(max_length=10, null=True)
+    sap_name = models.CharField(max_length=30, null=True, blank=True)
+    sap_id = models.CharField(max_length=10, null=True, blank=True)
     no_budget = models.BooleanField(default=False)
     has_colors = models.BooleanField(default=False)
     division = models.ForeignKey(Division, on_delete=models.PROTECT)
@@ -800,7 +807,7 @@ class Brand(models.Model):
     nsf_division = models.ForeignKey(NSFDivision, on_delete=models.PROTECT)
     market_segment = models.ForeignKey(MarketSegment, on_delete=models.PROTECT)
     material_group = models.ForeignKey(MaterialGroup, on_delete=models.PROTECT)
-    sqlapp_id = models.IntegerField(default=0, null=True)
+    sqlapp_id = models.IntegerField(default=0, null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -835,6 +842,9 @@ class RateToLT(models.Model):
     def __str__(self):
         return self.uom + self.packaging
 
+class ShippingPolicy(models.Model):
+    name = models.CharField(max_length=255, null=True, blank=True)
+
 class Customer(models.Model):
     number = models.CharField(max_length=100)
     name = models.CharField(max_length=255)
@@ -858,10 +868,34 @@ class Customer(models.Model):
     is_new = models.BooleanField(default=True)
     approved_on = models.DateField(null=True, blank=True)
     approved_by = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='approved_by', blank=True, null=True)
+    customer_service_rep = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    payment_term = models.ForeignKey(PaymentTerm, on_delete=models.SET_NULL, null=True, blank=True)
+    shipping_policy = models.ForeignKey(ShippingPolicy, on_delete=models.PROTECT, null=True, blank=True)
 
     def __str__(self):
         return_value = f"Customer number: {self.number}, Customer name: {self.name}"
         return return_value
+
+class ShippingAddress(models.Model):
+    name = models.CharField(max_length=250, null=True)
+    street_name = models.CharField(max_length=250, null=True)
+    street_number = models.CharField(max_length=250, null=True)
+    zip_code = models.CharField(max_length=250, null=True)
+    city = models.CharField(max_length=250, null=True)
+    country = models.ForeignKey(CountryCode, on_delete=models.SET_NULL,null=True, blank=True)
+    customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, blank=True)
+
+class CustomerNote(models.Model):
+    note = models.TextField()
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, null=True)
+    note_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='created_by_notes', null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='updated_by_notes',null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
+    archived = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.customer.name} - {self.created_at} - {self.note}"
 
 class BudForLine(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.PROTECT)
@@ -897,12 +931,6 @@ class BudForDetailLine(models.Model):
     def __str__(self):
         return_string = f"BudForDetail line - bud_for_id:{self.budforline.id} - scenario: {self.scenario.id}"
         return return_string
-
-class CustomerNote(models.Model):
-    date = models.DateTimeField()
-    note = models.TextField()
-    author = models.ForeignKey(User, on_delete=models.PROTECT)
-    customer = models.ForeignKey(Customer, on_delete=models.PROTECT)
 
 class Price(models.Model):
     sales_org = models.CharField(max_length=10, null=True)
@@ -1104,13 +1132,26 @@ class StoredProcedure(models.Model):
         verbose_name = "Stored Procedure"
         verbose_name_plural = "Stored Procedures"
 
+
 class Contact(models.Model):
+    TITLE_CHOICES = [
+        ('NO_TITLE', ''),
+        ('MR', 'Mr.'),
+        ('MRS', 'Mrs.'),
+        ('MS', 'Ms.'),
+        ('DR', 'Dr.'),
+        ('PROF', 'Prof.'),
+    ]
+    phone_regex = RegexValidator(regex=r'^\+?1?\d{9,18}$',
+                                 message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")
     first_name = models.CharField(max_length=255, null=True, blank=True)
     middle_name = models.CharField(max_length=255, null=True, blank=True)
     last_name = models.CharField(max_length=255, null=True, blank=True)
-    job_postion = models.CharField(max_length=255, null=True, blank=True)
+    job_position = models.CharField(max_length=255, null=True, blank=True)
+    mobile_number = models.CharField(validators=[phone_regex], max_length=20, blank=True)
     email = models.EmailField(max_length=254, null=True, blank=True)
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, blank=True)
+    title = models.CharField(max_length=10, choices=TITLE_CHOICES, default='NO_TITLE')
 
     def get_full_name(self):
         full_name = f"{self.first_name} {self.middle_name[0].capitalize()} {self.last_name}"

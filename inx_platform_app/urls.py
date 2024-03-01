@@ -34,6 +34,10 @@ urlpatterns = [
     path("product_view/<int:pk>", views.product_view, name="product-view"),
     path("product_edit/<int:pk>", views.product_edit, name="product-edit"),
 
+    path("brands_list/", views.brands_list, name="brands-list"),
+    path("brand_view/<int:pk>", views.brand_view, name="brand-view"),
+    path("brand_edit/<int:pk>", views.brand_edit, name="brand-edit"),
+
     # Generic edit form
     path("edit_model_record/<int:pk>/<str:model>", views.edit_model_record, name="edit-model-record"),
 
@@ -41,7 +45,7 @@ urlpatterns = [
     
     path("brands/", views.BrandListView.as_view(), name="brands"),
     path("brands_list/", views.BrandListView.as_view(), name="brands-list"),
-    path("brand/edit/<int:id>", views.BrandEditView.as_view(), name="brand-edit"),
+    # path("brand/edit/<int:id>", views.BrandEditView.as_view(), name="brand-edit"),
     
     path("major/", views.MajorLabelListView.as_view(), name="major"),
     path("major/add", views.MajorLabelCreateView.as_view(), name="major-add"),
@@ -58,7 +62,8 @@ urlpatterns = [
     path('create_user',views.create_user, name='create_user'),
     path('list_users', views.UserListView.as_view(), name="list_users"),
     path('edit_user/<int:pk>/', views.UserUpdateView.as_view(), name='edit_user'),
-    path('accounts/password-change/', views.UserPasswordChangeView.as_view(), name='change_password'), 
+    path('accounts/password-change/', views.UserPasswordChangeView.as_view(), name='change_password'),
+    path('update_profile', views.update_profile, name="update-profile"),
 
     # Interface
     path('accordion/', views.accordion, name='accordion'),

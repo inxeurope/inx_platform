@@ -5,7 +5,7 @@ from .models import Brand, Packaging, ProductStatus, Product, Customer, Ke30Line
 from .models import ExchangeRate, Scenario, CountryCode, BudForLine, BudForNote, BudForDetailLine
 from .models import CustomerType, Fbl5nArrImport, Fbl5nOpenImport, Ke30ImportLine, Ke24ImportLine
 from .models import Ke24Line, Order, CustomerNote, ProductLine, RateToLT, StoredProcedure
-from .models import ZACODMI9_line, ZACODMI9_import_line, UploadedFile, Price, User
+from .models import ZACODMI9_line, ZACODMI9_import_line, UploadedFile, Price, User, Contact
 
 
 class ColorGroupAdmin(admin.ModelAdmin):
@@ -33,7 +33,7 @@ class MajorLabelAdmin(admin.ModelAdmin):
 
 
 class InkTechnologyAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'sap_id', 'sap_name', 'sqlapp_id']
+    list_display = ['id', 'name', 'short_name', 'ribbon_color', 'sap_id', 'sap_name', 'sqlapp_id']
 
 
 class NSFDivisionAdmin(admin.ModelAdmin):
@@ -123,6 +123,10 @@ class StoredProcedureAdmin(admin.ModelAdmin):
     list_display = ['id', 'name', 'script']
 
 
+class ContactAdmin(admin.ModelAdmin):
+    list_display = ['title', 'first_name', 'last_name', 'job_position', 'email', 'mobile_number']
+
+
 admin.site.register(ColorGroup, ColorGroupAdmin)
 admin.site.register(Color, ColorAdmin)
 admin.site.register(MadeIn, MadeInAdmin)
@@ -162,4 +166,5 @@ admin.site.register(UploadedFile)
 admin.site.register(Price, PriceAdmin)
 admin.site.register(StoredProcedure, StoredProcedureAdmin)
 admin.site.register(User)
+admin.site.register(Contact, ContactAdmin)
 

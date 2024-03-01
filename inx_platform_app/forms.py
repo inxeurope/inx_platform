@@ -246,19 +246,15 @@ class CustomerForm(forms.ModelForm):
             'approved_by_old': forms.TextInput(attrs={'class': 'form-control'}),
             'import_note': forms.TextInput(attrs={'class': 'form-control'}),
             'import_status': forms.TextInput(attrs={'class': 'form-control'}),
-
             'insurance_value': forms.NumberInput(attrs={'class': 'form-control'}),
             'credit_limit': forms.NumberInput(attrs={'class': 'form-control'}),
-
-            'approved_on': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-
             'active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'insurance': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-
             'sales_employee': forms.Select(attrs={'class': 'form-select'}),
             'customer_type': forms.Select(attrs={'class': 'form-select'}),
             'industry': forms.Select(attrs={'class': 'form-select'}),
             'country': forms.Select(attrs={'class': 'form-select'}),
+            'approved_on': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'approved_by': forms.Select(attrs={'class': 'form-select'}),
         }
 
@@ -297,6 +293,25 @@ class ProductForm(forms.ModelForm):
             'product_status': forms.Select(attrs={'class': 'form-select'}),
             'sqlapp_id': forms.NumberInput(attrs={'class': 'form-control'}),
             'is_new': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+
             'approved_on': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'approved_by': forms.Select(attrs={'class': 'form-select'}),
+        }
+    
+class BrandForm(forms.ModelForm):
+    class Meta:
+        model = Brand
+        fields = '__all__'
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'sap_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'sap_id': forms.TextInput(attrs={'class': 'form-control'}),
+            'has_colors': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'no_budget': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'major_label': forms.Select(attrs={'class': 'form-select'}),
+            'division': forms.Select(attrs={'class': 'form-select'}),
+            'ink_technology': forms.Select(attrs={'class': 'form-select'}),
+            'nsf_division': forms.Select(attrs={'class': 'form-select'}),
+            'material_group': forms.Select(attrs={'class': 'form-select'}),
+            'market_segment': forms.Select(attrs={'class': 'form-select'})
         }

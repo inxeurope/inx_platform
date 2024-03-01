@@ -7,6 +7,8 @@ from django.urls import reverse_lazy, reverse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.conf import settings
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.views import LoginView, PasswordResetView, PasswordChangeView, PasswordResetConfirmView
@@ -17,10 +19,10 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.generic.list import ListView
 from django.views.generic.edit import UpdateView, CreateView
 from .models import ColorGroup, Division, MadeIn, MajorLabel, ProductStatus
-from .models import Color, Brand, Product, RateToLT, Customer, User
+from .models import Color, Brand, Product, RateToLT, Customer, InkTechnology, User
 from .models import UploadedFile, StoredProcedure
 from .forms import EditMajorLabelForm, EditBrandForm, EditCustomerForm, EditProductForm, StoredProcedureForm, CustomUserCreationForm, UserPasswordChangeForm, RegistrationForm, LoginForm, UserPasswordResetForm, UserSetPasswordForm
-from .forms import ProductForm, CustomerForm
+from .forms import ProductForm, CustomerForm, BrandForm
 from .forms import get_generic_model_form
 from . import dictionaries
 import pyodbc
@@ -46,9 +48,9 @@ def index_inx(request):
     return render(request, "index-inx.html")
 
 def account_settings(request):
+    user = request.user
     context = {
-        'parent': 'extra',
-        'segment': 'settings',
+        'user': user
     }
     return render(request, 'app_pages/settings.html', context)
 
@@ -100,6 +102,42 @@ def loader(request):
         return redirect('display_files')
     else:
         return render(request, "loader.html", {})
+
+
+def update_profile(request):
+    from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.contrib.auth.models import User
+
+@login_required
+def update_profile(request):
+    if request.method == 'POST':
+        user = request.user
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        email = request.POST.get('email')
+
+        if not first_name or not last_name or not email:
+            messages.error(request, 'Please fill out all fields.')
+            return redirect('account_settings')
+        
+        try:
+            validate_email(email)
+        except ValidationError:
+            messages.error(request, 'Invalid email address.')
+            return redirect('account_settings')
+        
+
+        user.first_name = first_name
+        user.last_name = last_name
+        user.email = email
+        user.save()
+
+        messages.success(request, 'Your profile was successfully updated!')
+        return redirect('index') 
+    else:
+        return redirect('account_settings')
 
 
 @login_required
@@ -708,15 +746,6 @@ def products_list(request, page=0):
     #Get all values of Product Status and Made In Countries
     product_statuses = ProductStatus.objects.all()
     made_in_countries = MadeIn.objects.all()
-
-    print("The view was executed")
-    print("--------------------------")
-    print(f"search_term {search_term}")
-    print(f"entries     {entries}")
-    print(f"category    {category}")
-    print(f"status      {status}")
-    print(f"made_in     {made_in}")
-    print("--------------------------")
     
     filter_params = {
         'search_term': search_term,
@@ -736,6 +765,7 @@ def products_list(request, page=0):
     }
     return render(request, "app_pages/products_list.html", context)
 
+@login_required
 def product_view(request, pk):
     product = Product.objects.filter(id=pk).first()
     context = {
@@ -743,6 +773,7 @@ def product_view(request, pk):
     }
     return render(request, "app_pages/product_view.html", context)
 
+@login_required
 def product_edit(request, pk):
     p = get_object_or_404(Product, id=pk)
     if request.method == 'POST':
@@ -757,12 +788,107 @@ def product_edit(request, pk):
     context = {'form': form}
     return render(request, "app_pages/product_edit.html", context)
 
+@login_required
+def brands_list(request, page=0):
+    search_term = request.GET.get('search')
+    number_of_entries = request.GET.get('number_of_entries',12)
+    selected_major_labels = request.GET.get('major_labels')
+    selected_ink_technologies = request.GET.getlist('ink_technologies')
+
+    if number_of_entries == '': number_of_entries = 12
+
+    b = Brand.objects.all().order_by('name')
+
+    if search_term:
+        b = b.filter(
+                models.Q(name__icontains=search_term) |
+                models.Q(division__name__icontains=search_term) |
+                models.Q(nsf_division__name__icontains=search_term) |
+                models.Q(ink_technology__name__icontains=search_term) 
+                ).order_by('name')
+    else:
+        b = b.order_by('name')
+
+    if selected_ink_technologies:
+         b = b.filter(ink_technology__name__in=selected_ink_technologies).distinct()
+
+    if selected_major_labels:
+        b = b.filter(major_label__name=selected_major_labels).distinct()
+
+    if number_of_entries is not None:
+        try:
+            number_of_entries = int(number_of_entries)
+        except ValueError:
+            number_of_entries = 12
+        items_per_page = number_of_entries
+
+    paginator = Paginator(b, items_per_page)
+     # Get the current page from the GET request or in the URL
+    if page != 0:
+        page_number = page
+    else:
+        try:
+            page_number = request.GET.get('page', 1)
+        except (ValueError, TypeError):
+            page_number = 1
+    
+    try:
+        page_obj = paginator.get_page(page_number)
+    except (EmptyPage, PageNotAnInteger):
+        page_obj = paginator.get_page(1)
+
+    page_obj.adjusted_elided_pages = paginator.get_elided_page_range(page_number)
+
+    ink_technologies = InkTechnology.objects.all()
+    major_labels = MajorLabel.objects.all()
+
+    filter_params = {
+        # 'ink_technologies': ink_technologies,
+        'selected_ink_technologies': selected_ink_technologies,
+        # 'major_labels': major_labels,
+        'selected_major_labels': selected_major_labels
+    }
+
+    context = {
+        'page_object': page_obj,
+        'brands': page_obj,
+        'major_labels': major_labels,
+        'ink_technologies': ink_technologies,
+        'filter_params': filter_params
+    }
+
+    return render(request, "app_pages/brands_list.html", context)
+
+@login_required
+def brand_view(request, pk):
+    b = Brand.objects.filter(id=pk).first()
+    context = {
+        'brand': b
+    }
+    return render(request, "app_pages/brand_view.html", context)
+
+@login_required
+def brand_edit(request, pk):
+    b = get_object_or_404(Brand, id=pk)
+    if request.method == 'POST':
+        form = BrandForm(request.POST, instance = b)
+        if form.is_valid():
+            form.save()
+            return redirect('brand-view', pk=b.pk)
+        else:
+            print(form.errors)
+    else:
+        form = BrandForm(instance=b)
+    context = {'form': form}
+    return render(request, "app_pages/brand_edit.html", context)
+
+@login_required
 def stored_procedures(request):
     procedures = StoredProcedure.objects.all()
     context = {'procedures': procedures}
     return render(request, "app_pages/stored_procedures.html", context)
 
-
+@login_required
 def stored_procedure(request, pk):
     procedure = get_object_or_404(StoredProcedure, id=pk)
     if request.method == 'POST':
@@ -777,10 +903,11 @@ def stored_procedure(request, pk):
     context = {'form': form}
     return render(request,"app_pages/stored_procedure.html", context)
 
-
+@login_required
 def stored_procedure_push(request, pk):
     pass
 
+@login_required
 def stored_procedure_execute(request, pk):
     pass
 

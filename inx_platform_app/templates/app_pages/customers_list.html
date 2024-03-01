@@ -24,8 +24,12 @@
                     <h3 class="card-title mb-0">Customers List</h3>
                     <label class="form-check form-switch mb-0">
                       <form id="toggleForm_new" class="d-flex" action="{% url 'customers-list' %}" method="get">
-                        <input class="form-check-input" name="new_customers" type="checkbox" {% if filter_params.only_new %}checked{% endif %}>
-                        <span class="form-check-label">  Show only new customers</span>
+                        <div class="mx-2">
+                          <input class="form-check-input" name="new_customers" type="checkbox" {% if filter_params.only_new %}checked{% endif %}>
+                        </div>
+                        <div>
+                          <span class="form-check-label">  Show only new customers</span>
+                        </div>
                       </form>
                     </label>
                   </div>

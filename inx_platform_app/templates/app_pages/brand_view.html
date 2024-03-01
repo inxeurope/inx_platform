@@ -1,0 +1,75 @@
+{% extends 'app_layouts/base.html' %}
+{% load custom_filters %}
+{% load static %}
+
+{% block content %}
+
+  <div class="page-wrapper">
+    <!-- Page header -->
+    <div class="page-header d-print-none">
+      <div class="container-xl">
+        <div class="row g-2 align-items-center">
+          <div class="col">
+            <h2 class="page-title">
+              {{ brand.name }} data grid
+            </h2>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Page body -->
+    <div class="page-body">
+      <div class="container-xl">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between">
+            <h3 class="card-title">Basic info - {{ brand.name }}</h3>
+            <a href="{% url 'brand-edit' brand.pk %}" class="btn btn-outline-info">Edit</a>
+          </div>
+          <div class="card-body">
+            <div class="datagrid">
+              <div class="datagrid-item">
+                <div class="datagrid-title">ID</div>
+                <div class="datagrid-content">{{ brand.pk }}</div>
+              </div>
+              <div class="datagrid-item">
+                <div class="datagrid-title">Brand name</div>
+                <div class="datagrid-content"><strong>{{ brand.name }}</strong></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-body">
+      <div class="container-xl">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Additional info</h3>
+          </div>
+          <div class="card-body">
+            <div class="datagrid">
+              <div class="datagrid-item">
+                <div class="datagrid-title">Ink Technology</div>
+                <div class="datagrid-content">{{ brand.ink_technology.name }}</div>
+              </div>
+              <div class="datagrid-item">
+                <div class="datagrid-title">Division</div>
+                <div class="datagrid-content">
+                  <div class="datagrid-content">{{ brand.division.name }}</div>
+                </div>
+              </div>
+              <div class="datagrid-item">
+                <div class="datagrid-title">NSF Division</div>
+                <div class="datagrid-content">{{ brand.nsf_division.name }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% include 'app_includes/footer.html' %}
+  </div>
+  
+{% endblock content %}
