@@ -3,10 +3,10 @@ from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm, Auth
 from .models import Customer, Product, Color, CustomerType, Industry, MajorLabel, Brand, Division, InkTechnology, NSFDivision, MarketSegment, MaterialGroup, User
 from .models import MadeIn, Packaging, ProductLine, ProductStatus, StoredProcedure
 
-class CustomerForm(forms.ModelForm):
-    class Meta:
-        model = Customer
-        fields = ['number', 'name', 'active', 'country', 'sales_employee']
+# class CustomerForm(forms.ModelForm):
+#     class Meta:
+#         model = Customer
+#         fields = ['number', 'name', 'active', 'country', 'sales_employee']
 
 class EditMajorLabelForm(forms.ModelForm):
     class Meta:
@@ -256,6 +256,7 @@ class CustomerForm(forms.ModelForm):
             'country': forms.Select(attrs={'class': 'form-select'}),
             'approved_on': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'approved_by': forms.Select(attrs={'class': 'form-select'}),
+            'customer_service_rep': forms.Select(attrs={'class': 'form-select'}),
         }
 
 def get_generic_model_form(model_class):

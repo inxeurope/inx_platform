@@ -593,7 +593,9 @@ def customers_list(request, page=0):
                 models.Q(country__iso3166_1_alpha_2__icontains=search_term) |
                 models.Q(country__official_name_en__icontains=search_term) |
                 models.Q(sales_employee__first_name__icontains=search_term) |
-                models.Q(sales_employee__last_name__icontains=search_term)
+                models.Q(sales_employee__last_name__icontains=search_term) |
+                models.Q(customer_service_rep__last_name__icontains=search_term) |
+                models.Q(customer_service_rep__first_name__icontains=search_term)
                 ).order_by('name')
     else:
         customers = customers.order_by('name')
