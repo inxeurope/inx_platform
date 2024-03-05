@@ -9,7 +9,6 @@ from django.db import models, transaction
 from django.core.validators import RegexValidator
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, UserManager
-# from inx_platform_members.models import User
 from . import import_dictionaries
 
 # -------------------------------------------
@@ -656,7 +655,7 @@ class Ke30Line(models.Model):
     owner = models.ForeignKey(User, on_delete=models.PROTECT, blank=True, null=True)
 
     def __str__(self):
-        return self.id + ' ' + self.year_month + ' ' + self.customer_name
+        return self.id + ' ' + self.year_month + ' ' + self.customer_name + ' ' + self.product_name
 
 class Ke30ImportLine(models.Model):
     period_year = models.CharField(max_length=20)
@@ -1153,6 +1152,35 @@ class Contact(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, blank=True)
     title = models.CharField(max_length=10, choices=TITLE_CHOICES, default='NO_TITLE')
 
+    class Meta:
+        ordering = ["last_name"]
+
     def get_full_name(self):
         full_name = f"{self.first_name} {self.middle_name[0].capitalize()} {self.last_name}"
         return full_name
+    
+
+class Fert(models.Model):
+    number = models.CharField(max_length=6, blank=True)
+    brand = models.ForeignKey(Brand, on_delete=models.SET_NULL, null=True, blank=True)
+    division = models.ForeignKey(Division, on_delete=models.SET_NULL, null=True, blank=True)
+    nsf_division = models.ForeignKey(NSFDivision, on_delete=models.SET_NULL, null=True, blank=True)
+    market_segment = models.ForeignKey(MarketSegment, on_delete=models.SET_NULL, null=True, blank=True)
+    material_group = models.ForeignKey(MaterialGroup, on_delete=models.SET_NULL, null=True, blank=True)
+    major_label = models.ForeignKey(MajorLabel, on_delete=models.SET_NULL, null=True, blank=True)
+    ink_technology = models.ForeignKey(InkTechnology, on_delete=models.SET_NULL, null=True, blank=True)
+    is_active =  models.BooleanField(default=True)
+    is_approved = models.BooleanField(default=False)
+    approved_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    approved_on = models.DateTimeField()
+
+    class Meta:
+        ordering = ["number"]
+
+    def __str__(self):
+        return self.number
+    
+    def get_fert_and_brand(self):
+        return_string = self.number + self.brand.name
+        return return_string
+    

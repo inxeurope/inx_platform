@@ -2,10 +2,9 @@ from typing import Any
 from django.apps import apps
 from django.db.models.query import QuerySet
 from django.db import connection
-from django.utils import timezone
 from django.urls import reverse_lazy, reverse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse
+from django.http import JsonResponse, StreamingHttpResponse
 from django.conf import settings
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
@@ -18,8 +17,8 @@ from django.db import models, transaction
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.generic.list import ListView
 from django.views.generic.edit import UpdateView, CreateView
-from .models import ColorGroup, Division, MadeIn, MajorLabel, ProductStatus
-from .models import Color, Brand, Product, RateToLT, Customer, InkTechnology, User
+from .models import MadeIn, MajorLabel, ProductStatus
+from .models import Brand, Product, Customer, InkTechnology, User
 from .models import UploadedFile, StoredProcedure
 from .forms import EditMajorLabelForm, EditBrandForm, EditCustomerForm, EditProductForm, StoredProcedureForm, CustomUserCreationForm, UserPasswordChangeForm, RegistrationForm, LoginForm, UserPasswordResetForm, UserSetPasswordForm
 from .forms import ProductForm, CustomerForm, BrandForm
@@ -29,6 +28,7 @@ import pyodbc
 import pandas as pd
 import numpy as np
 import os
+import asyncio, uuid
 import json
 from datetime import datetime
 from time import perf_counter
@@ -1744,3 +1744,22 @@ def edit_model_record(request, pk, model):
         'form': form
         }
     return render(request, 'app_pages/edit_generic_model.html', context)
+
+
+def sse(request):
+    return render(request, "app_pages/sse.html", {})
+
+
+async def sse_stream(request):
+    '''
+    Sends SSEs to the client
+    '''
+    async def stream_the_event():
+        counter = 0
+        while counter <= 10:
+            message = message = f"data: {str(uuid.uuid4())}  -  {counter}\n\n"
+            yield message
+            await asyncio.sleep(0.3)
+            counter += 1
+
+    return StreamingHttpResponse(stream_the_event(), content_type='text/event-stream')

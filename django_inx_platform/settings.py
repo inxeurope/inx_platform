@@ -25,6 +25,7 @@ ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '159.223.26.141', 'azsql.inxeurope.de
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'admin_tabler.apps.AdminTablerConfig',
     "django.contrib.admin",
     "django.contrib.auth",
@@ -34,8 +35,11 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "inx_platform_app",
     'debug_toolbar',
+    'trials',
 
 ]
+
+ASGI_APPLICATION = "django_inx_platform.asgi.application"
 
 AUTH_USER_MODEL = 'inx_platform_app.User'
 

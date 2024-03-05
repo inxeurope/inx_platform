@@ -177,6 +177,9 @@ urlpatterns = [
     path('profile/', views.profile, name='profile'),
     path('icons/', views.icons, name='icons'),
 
+    # Test for SSE
+    path("sse/", views.sse, name="sse"),
+    path('stream_channel/', views.sse_stream, name='stream_channel')
 
 ]
 

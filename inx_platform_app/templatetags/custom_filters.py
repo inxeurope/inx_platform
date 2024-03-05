@@ -16,7 +16,6 @@ def format_large_number(value):
 
 @register.filter
 def build_query_params(additional_params):
-    print("additional_params",additional_params)
     temp_string =''
     if additional_params:
         for k, v in additional_params.items():
@@ -24,8 +23,4 @@ def build_query_params(additional_params):
             if v: temp_string += f"&{k}={v}"
 
     return_string = temp_string
-    print("-"*80)
-    print("query string:", return_string)
-    print("-"*80)
-    # return_string = ''.join([f"&{key}={value}" for key, value in additional_params.items() if value])
     return return_string
