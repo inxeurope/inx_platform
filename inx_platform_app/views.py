@@ -285,10 +285,13 @@ def import_from_SQL(table_tuples):
         print("Dataframe creation completed")
         
         # Manage the duplication of that user
-        if table_name == 'Users':
+        if table_name == 'Users': 
             for index, row in df.iterrows():
                 if row['email'] == 'marco.zanella@inxeurope.com':
                     df.at[index, 'email'] = 'marco.zanella.sql@inxeurope.com'
+                
+                if row['email'] == 'stefano.rogora@inxeurope.com':
+                    df.at[index, 'email'] = 'stefano.rogora.sql@inxeurope.com'
 
         # Manage the import of Customer number that comes as 12345.0
         if table_name == 'Customers':
