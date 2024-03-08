@@ -6,11 +6,16 @@
   <div class="page-wrapper">
     <!-- Page header -->
     <div class="page-header d-print-none">
-      <div class="container-xl">
-        <div class="row g-2 align-items-center">
+      <div class="container p-2 ">
+        <div class="row g-2 align-items-center justify-content-between">
           <div class="col">
             <h2 class="page-title">
               Files to import
+            </h2>
+          </div>
+          <div class="col-auto ">
+            <h2 class="page-title">
+              <a href="{% url 'imported-files' %}" class="btn btn-outline">Imported Files</a>
             </h2>
           </div>
         </div>
@@ -21,7 +26,7 @@
       <div class="container">
         <div class="row row-cards mb-5">
           {% for file in user_files %}
-            <div class="col-md-6 col-lg-3">
+            <div id="{{ file.id }}" class="col-md-6 col-lg-3">
               <div class="card">
                 <div class="ribbon bg-{{ file.file_color }}">{{ file.file_type }}</div>
                 <div class="card-header">
@@ -33,7 +38,7 @@
                     {{ file.file_name }}
                   </p>
                   <p class="text-muted">
-                    {{ file.is_processed }}
+                    Processed: {{ file.is_processed }}
                   </p>
                 </div>
                 <div class="card-footer">
@@ -50,13 +55,77 @@
                         </svg>
                       </span>
                     </a>
-                    <a href="{% url 'start-processing' file.id %}" class="btn btn-primary ms-auto">Process</a>
+                    {% comment %} <a href="{% url 'start-file-processing' file.id %}" class="btn btn-primary ms-auto">Process</a> {% endcomment %}
+                    <button data-file-id="{{ file.id }}" class="btn btn-primary process-button ms-auto">Process</button>
                   </div>
                 </div>
               </div>
             </div>
           {% endfor %}
         </div>
+        {% if user_files %}
+        <div class="row row-cards">
+          <div class="col">
+            <div class="card">
+              <div id="log" class="card-body text-muted">
+                Log messages here ...
+              </div>
+            </div>
+          </div>
+          <script>
+            document.addEventListener('DOMContentLoaded', function() {
+              let eventSource;
+              const sseData = document.getElementById('log');
+              const processButtons = document.querySelectorAll('.process-button');
+              
+              processButtons.forEach(button => {
+                button.addEventListener('click', function(event) {
+                    event.preventDefault(); // Prevent any default action.
+                    const fileId = this.getAttribute('data-file-id');
+                    console.log('fileID: ' + fileId);
+                    startSSE(fileId);
+                });
+              });
+
+              function startSSE(fileId) {
+                console.log('entered startSSE with fileID: ' + fileId)
+                  if (eventSource) {
+                      eventSource.close(); // Ensure to close any previously opened connections
+                      console.log('forced EventSource to close')
+                  }
+                  sseData.innerHTML = 'Starting up ...'; // Reset log content
+                  eventSource = new EventSource(`/log_stream_import_files/${fileId}/`);
+                  if (eventSource) {
+                    console.log('eventSource open')
+                  }
+                  eventSource.onmessage = event => {
+                    console.log(event.data)
+                    data = event.data
+                    if (data === "basta") {
+                        console.log("Stream finished. Closing connection.");
+                        eventSource.close();
+                        sseData.innerHTML += 'stop<br>';
+                        removeFileDiv(fileId);
+                    } else {
+                        // Handle normal messages
+                        sseData.innerHTML += event.data + '<br>';
+                    }
+                  };
+              }
+              
+              function removeFileDiv(fileId) {
+                const fileDiv = document.getElementById(fileId);
+                if (fileDiv) {
+                    fileDiv.parentNode.removeChild(fileDiv);
+                    console.log(`Removed div for fileID: ${fileId}`);
+                }
+              }
+
+            });
+          
+          </script>
+        </div>
+        {% endif %}
       </div>
     </div>
     {% include 'app_includes/footer.html' %}

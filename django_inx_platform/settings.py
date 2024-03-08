@@ -35,7 +35,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "inx_platform_app",
     'debug_toolbar',
-    'trials',
+    'django_extensions',
 
 ]
 

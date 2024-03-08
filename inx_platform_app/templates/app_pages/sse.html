@@ -18,41 +18,41 @@
         <button class="btn btn-primary" onclick="stopSSE()" disabled>Stop</button>
       </div>
 
-        <script>
-          let eventSource;
-          let message_count = 0;
-          const sseData = document.getElementById('sse-data');
-      
-          function startSSE() {
-            sseData.innerHTML = '';  
-            eventSource = new EventSource('/stream_channel/');
-            message_count = 0;
-            eventSource.onmessage = event => {
-              message_count++;
-              // console.log('event.data: ' + event.data)
-              sseData.innerHTML += event.data + '<br>';
-              if (message_count > 10){
-                eventSource.close();
-                console.log("channel closed after 10 events")
-              }
-              document.querySelector('button[onclick="startSSE()"]').disabled = false;
-              document.querySelector('button[onclick="stopSSE()"]').disabled = true;
-            };
-            document.querySelector('button[onclick="startSSE()"]').disabled = true;
-            document.querySelector('button[onclick="stopSSE()"]').disabled = false;
-          }
+      <script>
+        let eventSource;
+        let message_count = 0;
+        const sseData = document.getElementById('sse-data');
+    
+        function startSSE() {
+          sseData.innerHTML = '';  
+          eventSource = new EventSource('/stream_channel/');
+          message_count = 0;
+          eventSource.onmessage = event => {
+            message_count++;
+            // console.log('event.data: ' + event.data)
+            sseData.innerHTML += event.data + '<br>';
+            if (message_count > 10){
+              eventSource.close();
+              console.log("channel closed after 10 events")
+            }
+            document.querySelector('button[onclick="startSSE()"]').disabled = false;
+            document.querySelector('button[onclick="stopSSE()"]').disabled = true;
+          };
+          document.querySelector('button[onclick="startSSE()"]').disabled = true;
+          document.querySelector('button[onclick="stopSSE()"]').disabled = false;
+        }
 
-          
-      
-          function stopSSE() {
-              if (eventSource) {
-                eventSource.close();
-                console.log('close')
-              }
-              document.querySelector('button[onclick="startSSE()"]').disabled = false;
-              document.querySelector('button[onclick="stopSSE()"]').disabled = true;
-          }
-      </script>
+        
+    
+        function stopSSE() {
+            if (eventSource) {
+              eventSource.close();
+              console.log('close')
+            }
+            document.querySelector('button[onclick="startSSE()"]').disabled = false;
+            document.querySelector('button[onclick="stopSSE()"]').disabled = true;
+        }
+    </script>
     </div>
     {% include 'app_includes/footer.html' %}
   </div>

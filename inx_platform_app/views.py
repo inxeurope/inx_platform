@@ -17,19 +17,18 @@ from django.db import models, transaction
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.generic.list import ListView
 from django.views.generic.edit import UpdateView, CreateView
+from .models import Ke30ImportLine, Ke24ImportLine, ZACODMI9_import_line, Order, Fbl5nArrImport, Fbl5nOpenImport, Price
 from .models import MadeIn, MajorLabel, ProductStatus
 from .models import Brand, Product, Customer, InkTechnology, User
 from .models import UploadedFile, StoredProcedure
 from .forms import EditMajorLabelForm, EditBrandForm, EditCustomerForm, EditProductForm, StoredProcedureForm, CustomUserCreationForm, UserPasswordChangeForm, RegistrationForm, LoginForm, UserPasswordResetForm, UserSetPasswordForm
 from .forms import ProductForm, CustomerForm, BrandForm
 from .forms import get_generic_model_form
-from . import dictionaries
+from . import dictionaries, import_dictionaries
 import pyodbc
 import pandas as pd
 import numpy as np
-import os
-import asyncio, uuid
-import json
+import os, time, asyncio, uuid, json
 from datetime import datetime
 from time import perf_counter
 from sqlalchemy import create_engine
@@ -106,9 +105,9 @@ def loader(request):
 
 def update_profile(request):
     from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from django.contrib.auth.models import User
+    from django.contrib.auth.decorators import login_required
+    from django.contrib import messages
+    from django.contrib.auth.models import User
 
 @login_required
 def update_profile(request):
@@ -169,10 +168,18 @@ def loading(request):
             ('boms_file', boms_file),
         ]
 
+        are_all_empty = all(file is None for _, file in files_list)
+        if are_all_empty:
+            return render(request, "app_pages/index.html")
+
         for file_field, original_file in files_list:
             if original_file is not None:
                 original_file_nane = original_file.name.lower()
                 prefix = file_field.split('_')[0]
+                print(f"prefix {prefix}")
+                print(f"user_name {user_name}")
+                print(f"timestamp {timestamp}")
+                print(f"original_file_name {original_file_nane}")
                 original_file_nane = prefix +"_" + user_name + "_" + timestamp + "_" + original_file_nane.replace(" ", "_")
                 upload_dir = os.path.join(settings.MEDIA_ROOT, "uploads")
 
@@ -493,6 +500,7 @@ def clean_db(request):
     
     return render(request, 'index-inx.html', {})
 
+@login_required
 def save_model(the_class, the_data, counter, all_records, logs=None):
     if the_class.__name__ == 'User':
         if the_data['email'] == 'marco.zanella@inxeurope.com':
@@ -538,25 +546,69 @@ def save_model(the_class, the_data, counter, all_records, logs=None):
         print(f'skipping sqlapp_id {sql_app_to_find}', end='\r')
     return counter, logs
 
+@login_required
 def display_files(request):
     user = request.user
     user_files = UploadedFile.objects.filter(owner=user)
     
     return render(request, "display_files.html", {'user_files': user_files})
 
+@login_required
 def importing_files(request):
     user = request.user
     user_files = UploadedFile.objects.filter(owner=user, is_processed=False)
-    
     return render(request, "app_pages/importing_files.html", {'user_files': user_files})
 
+@login_required
+def imported_files(request, page=0):
+    user = request.user
+    user_files = UploadedFile.objects.filter(owner=user, is_processed=True).order_by('-processed_at')
+    
+    items_per_page = 10
+
+    paginator = Paginator(user_files.order_by('-processed_at'), items_per_page)
+    # Get the current page from the GET request or in the URL
+    if page != 0:
+        page_number = page
+    else:
+        try:
+            page_number = request.GET.get('page', 1)
+        except (ValueError, TypeError):
+            page_number = 1
+        
+    try:
+        page_obj = paginator.get_page(page_number)
+    except (EmptyPage, PageNotAnInteger):
+        page_obj = paginator.get_page(1)
+
+
+
+    context = {
+        'user_files': page_obj,
+        'page_object': page_obj
+        }
+    return render(request, "app_pages/imported_files.html", context)
+
 def start_processing(request, file_id):
-    # This is used to run a method in UploadedFile class/model
-    # Method is called start_processing
-    file = get_object_or_404(UploadedFile, id = file_id)
-    file.start_processing()
-    print("finished processing")
-    return redirect("importing-files")
+    pass
+#     # This is used to run a method in UploadedFile class/model
+#     # Method is called start_processing
+#     file = get_object_or_404(UploadedFile, id = file_id)
+#     file.start_processing()
+#     print("finished processing")
+#     return redirect("importing-files")
+
+
+@login_required
+def start_file_processing(request, file_id):
+    def event_stream():
+        print("event_stream function")
+        yield f'data:start yielding\n\n'
+        file = get_object_or_404(UploadedFile, id = file_id)
+        yield from process_this_file(file)
+        
+    response = StreamingHttpResponse(event_stream(), content_type="text/event-stream")
+    return response
 
 def delete_file(request, file_id):
     file = get_object_or_404(UploadedFile, id = file_id)
@@ -567,6 +619,151 @@ def delete_file(request, file_id):
         file.is_processed = False
         file.save()
     return redirect('importing-files')
+
+
+def process_this_file(file):
+    file_path = file.file_path + "/" + file.file_name
+    log_text = ''
+    if not os.path.exists(file_path):
+        # The file does not exists
+        log_message = f"data:The file {file_path} is not existing, marking the UploadedFile record as is_processed=True\n\n"
+        yield log_message
+        log_text += log_message + '\n'
+        file.is_processed = True
+        file.save()
+    else:
+        match file.file_type:
+            case "ke30":
+                convert_dict = import_dictionaries.ke30_converters_dict
+                log_message = "data:start reading the Excel file\n\n"
+                print(log_message)
+                yield log_message
+                log_text += log_message + '\n'
+                df = file.read_excel_file(file_path, convert_dict)
+                log_message = "data:completed reading the Excel file\n\n"
+                print(log_message)
+                yield log_message
+                log_text += log_message + '\n'
+                df['Importtimestamp'] = datetime.now()
+                df["YearMonth"] = (df['Fiscal Year'].astype(int) * 100 + df['Period'].astype(int)).astype(str)
+                # These 2 variable are set for the following action, after the match-case
+                model = Ke30ImportLine
+                field_mapping = import_dictionaries.ke30_mapping_dict
+            case "ke24":
+                convert_dict = import_dictionaries.ke24_converters_dict
+                df = file.read_excel_file(file_path, convert_dict)
+                df = df.drop(columns=['Industry Code 1'])
+                # df['Industry Code 1'] = df['Industry Code 1'].astype(str)               
+                model = Ke24ImportLine
+                field_mapping = import_dictionaries.ke24_mapping_dict
+            case "zaq":
+                convert_dict = import_dictionaries.zaq_converters_dict
+                df = file.read_excel_file(file_path, convert_dict)
+                df["Billing date"] = df['Billing date'].apply(lambda x: x.strftime("%Y-%m-%d") if not pd.isna(x) else x)
+                # This Excel file has the totals,at teh bottom, that must be removed
+                # The number of rows may vary depending on the number of currencies and UoMs mentioned
+                unique_uom = df['UoM'].nunique()
+                unique_curr = df['Curr.'].nunique()
+                rows_to_remove = max(unique_curr, unique_uom)
+                df = df.head(len(df) - rows_to_remove) 
+                model = ZACODMI9_import_line
+                field_mapping = import_dictionaries.zaq_mapping_dict
+            case "oo":
+                convert_dict = import_dictionaries.oo_converters_dict
+                df = file.read_excel_file(file_path, convert_dict)
+                df['LineType'] = 'OO'
+                print(f"it was {len(df)}")
+                uniques = len(df['Unit'].value_counts())
+                df = df.iloc[:-uniques]
+                print(f"it is {len(df)}")
+                df = df[df["Plant"].notnull()]
+                df["Order Date"] = df['Order Date'].apply(lambda x: x.strftime("%Y-%m-%d") if not pd.isna(x) else x)
+                df["Req. dt"] = df['Req. dt'].apply(lambda x: x.strftime("%Y-%m-%d") if not pd.isna(x) else x)
+                df["PL. GI Dt"] = df['PL. GI Dt'].apply(lambda x: x.strftime("%Y-%m-%d") if not pd.isna(x) else x)
+                df['Sold-to'] = df['Sold-to'].fillna(df['Ship-to'])
+                df['Sold-to'] = np.where(df['Sold-to'] == '', df['Ship-to'], df['Sold-to'])
+                model = Order
+                field_mapping = import_dictionaries.oo_mapping_dict
+            case "oi" | "arr":
+                convert_dict = import_dictionaries.oo_converters_dict
+                df = file.read_excel_file(file_path, convert_dict)
+                # Removing bottom lines
+                print(f"{file.file_type} was {len(df)} lines long")
+                uniques = len(df['Document currency'].value_counts())
+                df = df.iloc[:-uniques]
+                print(f"{file.file_type} is now {len(df)} lines long")
+                # Adjusting dates
+                df['Document Date'] = df['Document Date'].dt.date
+                df['Net due date'] = df['Net due date'].dt.date
+                df['Payment date'] = df['Payment date'].dt.date
+                df['Arrears after net due date'] = df['Arrears after net due date'].fillna(0).astype(int)
+                if file.file_type == "arr":
+                    model = Fbl5nArrImport
+                    field_mapping = import_dictionaries.arr_mapping_dict
+                if file.file_type == "oi":
+                    model = Fbl5nOpenImport
+                    field_mapping = import_dictionaries.oi_mapping_dict
+            case "pr":
+                convert_dict = import_dictionaries.pr_converters_dict
+                df = file.read_excel_file(file_path)
+                model = Price
+                field_mapping = import_dictionaries.pr_mapping_dict
+        model.objects.all().delete()
+        log_message = "data:deleting rows from the db table\n\n"
+        yield log_message
+        log_text += log_message + '\n'
+        df_length = len(df)
+        df = df.replace(np.nan, '')
+        chunk_size = 500
+        chunks = [df[i:i + chunk_size] for i in range(0, len(df), chunk_size)]
+        log_message = f"data:based on chunck_size, we got {len(chunks)} chunks for {df_length} total datframe rows\n\n"
+        yield log_message
+        log_text += log_message + '\n'
+        chunk_counter = 0
+        for chunk in chunks:
+            chunk_counter += 1
+            log_message = f"data:processing {chunk_counter}/{len(chunks)}\n\n"
+            print(f"processing {chunk_counter}/{len(chunks)}")
+            yield log_message
+            log_text += log_message + '\n'
+            try:
+                start_time = time.perf_counter()
+                # List to hold model instances
+                instances = []
+                for index, row in chunk.iterrows():
+                    instance = model()
+                    for field, column_name in field_mapping.items():
+                        setattr(instance, field, row[column_name])
+                    instances.append(instance)
+                with transaction.atomic():
+                    model.objects.bulk_create(instances)
+                    instances = []
+                end_time = time.perf_counter()
+                elapsed_time = end_time - start_time
+                log_message = f"data:working on chunk {chunk_counter} of {len(chunks)}  -  it took {elapsed_time} seconds\n\n"
+                yield log_message
+                log_text += log_message + '\n'
+                file.is_processed = True
+                file.processed_at = datetime.now()
+            except Exception as e:
+                # Handle the exception
+                log_message = f"data:An error occurred during the transaction: {e}\n\n"
+                yield log_message
+                log_text += log_message + '\n'
+        # Delete the file
+        if file.delete_file_soft():
+            log_message = f"data:File {file.file_name} removed and db updated"
+        else:
+            log_message = f"data:There is a problem with file name {file.file_name}"
+        yield log_message
+        log_text += log_message + '\n'
+        file.log = log_text
+        file.save()
+        print()
+        log_message = f'data:process terminated for file id: {file.id}  filetye: {file.file_type} file_name: {file.file_name} file_path: {file.file_path}\n\n'
+        yield log_message
+        yield f'data:basta\n\n'
+
 
 @login_required
 def customers_list(request, page=0):
@@ -716,8 +913,10 @@ def products_list(request, page=0):
     if status is not None and status != 'all':
         products = products.filter(product_status_id=status)
 
+
     if made_in is not None and made_in != 'all':
         products = products.filter(made_in=made_in)
+
 
     if entries is not None:
         try:
@@ -727,6 +926,7 @@ def products_list(request, page=0):
         items_per_page = entries
     else:
         items_per_page = 10
+
 
     paginator = Paginator(products.order_by('-number'), items_per_page)
     # Get the current page from the GET request or in the URL
@@ -743,12 +943,15 @@ def products_list(request, page=0):
     except (EmptyPage, PageNotAnInteger):
         page_obj = paginator.get_page(1)
 
+
     page_obj.adjusted_elided_pages = paginator.get_elided_page_range(page_number)
-    
+
+
     #Get all values of Product Status and Made In Countries
     product_statuses = ProductStatus.objects.all()
     made_in_countries = MadeIn.objects.all()
-    
+
+
     filter_params = {
         'search_term': search_term,
         'entries': entries,
@@ -758,8 +961,6 @@ def products_list(request, page=0):
     }
 
     context = {
-        # 'parent': 'interface',
-        # 'segment': '',
         'page_object': page_obj,
         'product_statuses_all': product_statuses,
         'made_in_counties_all': made_in_countries,
@@ -794,8 +995,8 @@ def product_edit(request, pk):
 def brands_list(request, page=0):
     search_term = request.GET.get('search')
     number_of_entries = request.GET.get('number_of_entries',12)
-    selected_major_labels = request.GET.get('major_labels')
-    selected_ink_technologies = request.GET.getlist('ink_technologies')
+    selected_major_labels = request.GET.get('selected_major_labels')
+    selected_ink_technologies = request.GET.getlist('selected_ink_technologies')
 
     if number_of_entries == '': number_of_entries = 12
 
@@ -845,9 +1046,7 @@ def brands_list(request, page=0):
     major_labels = MajorLabel.objects.all()
 
     filter_params = {
-        # 'ink_technologies': ink_technologies,
         'selected_ink_technologies': selected_ink_technologies,
-        # 'major_labels': major_labels,
         'selected_major_labels': selected_major_labels
     }
 

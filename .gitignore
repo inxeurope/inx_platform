@@ -9,3 +9,4 @@ sample_files
 .env
 local_env/
 static_files
+media_root/uploads/

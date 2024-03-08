@@ -42,6 +42,10 @@
               <input type="file" class="form-control" id="inputGroupFileBOMS" name="boms_file">
           </div>
           <button type="submit" class="btn btn-primary">Upload data</button>
+          
+          {% if request.user.is_superuser %}
+          <a class="btn" href="{% url 'importing-files' %}">View Files</a>
+          {% endif %}
         </form>
       </div>
     </div>

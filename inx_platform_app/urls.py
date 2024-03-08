@@ -9,6 +9,7 @@ urlpatterns = [
 
     path("loader/", views.loader,name="loader"),
     path("loading", views.loading,name="loading"),
+    path('log_stream_import_files/<int:file_id>/', views.start_file_processing, name='log_stream_import_files'),
 
     path("import_data/", views.import_data, name='import_data'),
     path("import_single/", views.import_single, name='import_single'),
@@ -18,8 +19,10 @@ urlpatterns = [
     
     path("display_files/", views.display_files, name='display_files'),
     path("importing_files/", views.importing_files, name='importing-files'),
+    path("imported_files/", views.imported_files, name='imported-files'),
 
     path('start_processing/<int:file_id>/', views.start_processing, name='start-processing'),
+    path('start_file_processing/<int:file_id>', views.start_file_processing, name='start-file-processing'),
     path('delete_file/<int:file_id>/', views.delete_file, name='delete_file'),
     
     path("import_settings/<str:dictionary_name>", views.edit_dictionary, name="edit_dictionary"),

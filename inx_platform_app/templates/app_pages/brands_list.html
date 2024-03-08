@@ -47,7 +47,7 @@
               <div class="mb-2">
                 {% for ink_technology in ink_technologies %}
                 <label class="form-check">
-                  <input type="checkbox" class="form-check-input" name="ink_technologies" value="{{ ink_technology.name }}" {% if ink_technology.name in filter_params.selected_ink_technologies %} checked {% endif %}>
+                  <input type="checkbox" class="form-check-input" name="selected_ink_technologies" value="{{ ink_technology.name }}" {% if ink_technology.name in filter_params.selected_ink_technologies %} checked {% endif %}>
                   <span class="form-check-label">{{ ink_technology.name }}</span>
                 </label>
                 {% endfor %}
@@ -60,7 +60,7 @@
               <div class="mb-2">
                 {% for major_label in major_labels %}
                 <label class="form-check">
-                  <input type="radio" class="form-check-input" name="major_labels" value="{{ major_label.name }}" {% if major_label.name in filter_params.selected_major_labels %} checked {% endif %}>
+                  <input type="radio" class="form-check-input" name="selected_major_labels" value="{{ major_label.name }}" {% if major_label.name in filter_params.selected_major_labels %} checked {% endif %}>
                   <span class="form-check-label">{{ major_label.name }}</span>
                 </label>
                 {% endfor %}

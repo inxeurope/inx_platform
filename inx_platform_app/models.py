@@ -74,7 +74,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.first_name or self.email
     
     def get_snakecase_name(self):
-        strings =[self.first_name.lower(), self.last_name.lower()]
+        strings =[self.first_name.replace(" ", "_").lower(), self.last_name.lower()]
         return '_'.join(strings)
     
     @classmethod
@@ -959,6 +959,7 @@ class UploadedFile(models.Model):
     is_processed = models.BooleanField(default=False)
     processed_at = models.DateTimeField(blank=True, null=True)
     owner = models.ForeignKey(User, on_delete=models.PROTECT)
+    log = models.TextField(null=True, blank=True)
 
     def __str__(self) -> str:
         value = self.file_path + self.file_name + ' ' + self.owner.email + ' ' + self.created_at.strftime("%Y/%m/%d, %H:%M:%S")
@@ -977,7 +978,9 @@ class UploadedFile(models.Model):
         file_path = self.file_path + "/" + self.file_name
         if not os.path.exists(file_path):
             # The file does not exists
-            print(f"The file {file_path} is not existing, marking the UploadedFile record as is_processed=True")
+            log_message = f"The file {file_path} is not existing, marking the UploadedFile record as is_processed=True"
+            print(log_message)
+            yield log_message
             self.is_processed = True
             self.save()
         else:
@@ -985,9 +988,13 @@ class UploadedFile(models.Model):
             match self.file_type:
                 case "ke30":
                     convert_dict = import_dictionaries.ke30_converters_dict
-                    print("start reading Excel file")
+                    log_message = "start reading the Excel file"
+                    print(log_message)
+                    yield log_message
                     df = self.read_excel_file(file_path, convert_dict)
-                    print("done reading Excel file")
+                    log_message = "completed reading the Excel file"
+                    print(log_message)
+                    yield log_message
                     df_length = len(df)
                     df['Importtimestamp'] = datetime.now()
                     df["YearMonth"] = (df['Fiscal Year'].astype(int) * 100 + df['Period'].astype(int)).astype(str)
@@ -1063,7 +1070,9 @@ class UploadedFile(models.Model):
             model.objects.all().delete()
             end_time = time.perf_counter()
             elapsed_time = end_time - start_time
-            print(f"deletion {model._meta.model_name} took {elapsed_time} seconds")
+            log_message = f"deletion {model._meta.model_name} took {elapsed_time} seconds"
+            print(log_message)
+            yield log_message
 
             # check how long is the dataframe
             df_length = len(df)
@@ -1071,13 +1080,19 @@ class UploadedFile(models.Model):
             chunk_size = 150
             chunks = [df[i:i + chunk_size] for i in range(0, len(df), chunk_size)]
 
-            print(f"Chunk size {chunk_size}")
-            print(f"based on chnuck_size we got {len(chunks)} chunks for {df_length} rows")
+            log_message = f"Chunk size {chunk_size}"
+            print(log_message)
+            yield log_message
+            log_message = f"based on chnuck_size we got {len(chunks)} chunks for {df_length} rows"
+            print(log_message)
+            yield log_message
 
             chunk_counter = 0
             for chunk in chunks:
                 chunk_counter += 1
-                print (f"processing {chunk_counter}/{len(chunks)}", end="")
+                log_message = f"processing {chunk_counter}/{len(chunks)}"
+                print(log_message)
+                yield log_message
                 try:
                     start_time = time.perf_counter()
                     # List to hold model instances
@@ -1092,26 +1107,44 @@ class UploadedFile(models.Model):
                         instances = []
                     end_time = time.perf_counter()
                     elapsed_time = end_time - start_time
-                    print(f" ... work on chunk {chunk_counter} of {len(chunks)} took {elapsed_time} seconds")
+                    log_message = f" ... work on chunk {chunk_counter} of {len(chunks)} took {elapsed_time} seconds"
+                    print(log_message)
+                    yield log_message
                     self.is_processed = True
                     self.processed_at = datetime.now()
                 except Exception as e:
                     # Handle the exception
-                    print(f"An error occurred during the transaction: {e}")
+                    log_message = f"An error occurred during the transaction: {e}"
+                    print(log_message)
+                    yield log_message
             # Delete the file
             self.delete_file()
+            log_message = f'process terminated for file id: {self.id}  filetye: {self.file_type} file_name: {self.file_name} file_path: {self.file_path}'
+            print(log_message)
+            yield log_message
             print (f'processed the file id: {self.id}  filetye: {self.file_type} file_name: {self.file_name} file_path: {self.file_path}')
             print("processing terminated in the model")
+
+    def delete_file_soft(self):
+        full_file_name = os.path.join(settings.MEDIA_ROOT, self.file_path, self.file_name)
+        print(full_file_name)
+        if os.path.exists(full_file_name):
+            os.remove(full_file_name)
+            self.is_processed = True
+            self.save()
+            return True
+        else:
+            return False
 
     def delete_file(self):
         full_file_name = os.path.join(settings.MEDIA_ROOT, self.file_path, self.file_name)
         print(full_file_name)
-    
         if os.path.exists(full_file_name):
             os.remove(full_file_name)
             # Mark as is_processed=True
             self.is_processed = True
             self.save()
+            
         
 
     def read_excel_file(self, file_path, conversion_dict):
