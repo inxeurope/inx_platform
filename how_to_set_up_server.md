@@ -1,12 +1,19 @@
 # create the server with ubuntu 22.04 LTS
+apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confnew" upgrade
 
 ## create a non-root user as marco
 ```
-useradd -m -d /home/marco -U -r -s /bin/bash marco
-also add user marco is possible
-usermod -aG sudo marco
-passwd marco
-sudo rsync --archive --chown=marco:marco ~/.ssh /home/marco
+USERNAME=marco
+PASSWORD=dellaBiella2!
+
+useradd -m -d /home/$USERNAME -U -r -s /bin/bash $USERNAME
+usermod -aG sudo $USERNAME
+
+
+# Set the password for the user
+echo "${USERNAME}:${PASSWORD}" | chpasswd
+
+sudo rsync --archive --chown=$USERNAME:$USERNAME ~/.ssh /home/$USERNAME
 ```
 log in as root
 ```
@@ -20,7 +27,7 @@ log out
 log in as marco
 ```
 sudo apt-get update
-sudo ACCEPT_EULA=Y apt-get install -y msodbcsql18
+sudo ACCEPT_EULA=Y apt-get install -y msodbcsql18 mssql-tools18
 sudo ACCEPT_EULA=Y apt-get install -y mssql-tools18
 echo 'export PATH="$PATH:/opt/mssql-tools18/bin"' >> ~/.bashrc
 source ~/.bashrc

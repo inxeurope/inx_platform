@@ -818,7 +818,7 @@ class Product(models.Model):
     import_note = models.CharField(max_length=255, null=True, blank=True)
     import_status = models.CharField(max_length=255, null=True, blank=True)
     color = models.ForeignKey(Color, on_delete=models.PROTECT, null=True, blank=True)
-    made_in = models.ForeignKey(MadeIn, on_delete=models.PROTECT)
+    made_in = models.ForeignKey(MadeIn, on_delete=models.PROTECT, null=True, blank=True)
     brand = models.ForeignKey(Brand, on_delete=models.PROTECT)
     packaging = models.ForeignKey(Packaging, on_delete=models.PROTECT)
     product_line = models.ForeignKey(ProductLine, on_delete=models.PROTECT, null=True)
