@@ -60,10 +60,6 @@
                   {{ customer.currency }}
                 </div>
               </div>
-              {% comment %} <div class="datagrid-item">
-                <div class="datagrid-title">Age</div>
-                <div class="datagrid-content">15 days</div>
-              </div> {% endcomment %}
               <div class="datagrid-item">
                 <div class="datagrid-title">Customer Type
                 </div>
@@ -129,7 +125,7 @@
     </div>
 
     <div class="container-xl  mb-3">
-      <div class="card">
+      <div class="card mb-4">
         <div class="card-header">
           <h3 class="card-title">Approval</h3>
         </div>
@@ -146,8 +142,325 @@
         </div>
       </div>
     </div>
+    <div class="container-xl mb-3">
+      <div class="card-tabs">
+        <!-- Cards navigation -->
+        <ul class="nav nav-tabs" role="tablist">
+          <li class="nav-item" role="presentation"><a href="#tab-top-1" class="nav-link active" data-bs-toggle="tab" aria-selected="false" role="tab" tabindex="-1">Contacts</a></li>
+          <li class="nav-item" role="presentation"><a href="#tab-top-2" class="nav-link" data-bs-toggle="tab" aria-selected="true" role="tab">Sales</a></li>
+          <li class="nav-item" role="presentation"><a href="#tab-top-3" class="nav-link" data-bs-toggle="tab" aria-selected="false" role="tab" tabindex="-1">Tab 3</a></li>
+          <li class="nav-item" role="presentation"><a href="#tab-top-4" class="nav-link" data-bs-toggle="tab" aria-selected="false" role="tab" tabindex="-1">Tab 4</a></li>
+        </ul>
+        <div class="tab-content">
+          <!-- Content of card #1 -->
+          <div id="tab-top-1" class="card tab-pane active show" role="tabpanel">
+            <div class="card-body">
+              <div class="card-title">
+                <a href="#" class="btn btn-primary ms-auto" data-bs-toggle="modal" data-bs-target="#modal-report" id="add-new-contact"  data-customer-id="{{ customer.pk }}">
+                  <span><svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg></span>
+                  Add
+                </a>
+              </div>
+              
+              <div id="table-default" class="table-responsive">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th><button class="table-sort" data-sort="sort-first-name">First Name</button></th>
+                      <th><button class="table-sort" data-sort="sort-last-name">Last Name</button></th>
+                      <th><button class="table-sort" data-sort="sort-job-position">Job Position</button></th>
+                      <th><button class="table-sort" data-sort="sort-mobile">Mobile</button></th>
+                      <th><button class="table-sort" data-sort="sort-email">Email</button></th>
+                      <th><button class="table-sort" data-sort="">Action</button></th>
+                    </tr>
+                  </thead>
+                  <tbody class="table-tbody">
+                    {% for contact in contacts %}
+                    <tr>
+                      <td class="sort-first-name">{{ contact.first_name }}</td>
+                      <td class="sort-last-name">{{ contact.last_name }}</td>
+                      <td class="sort-job-position">{{ contact.job_position }}</td>
+                      <td class="sort-mobile">{{ contact.mobile_number }}</td>
+                      <td class="sort-email">{{ contact.email }}</td>
+                      <td><a class="btn btn-outline-primary btn-sm" href="#" data-bs-toggle="modal" data-bs-target="#modal-report" data-contact-id="{{ contact.id }}">Edit</a></td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+
+            </div>
+          </div>
+          <!-- Content of card #2 -->
+          <div id="tab-top-2" class="card tab-pane" role="tabpanel">
+            <div class="card-body">
+              <div class="card-title">Content of tab #2</div>
+              <div id="chart-mentions" class="chart-lg"></div>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    </div>
 
     {% include 'app_includes/footer.html' %}
   </div>
   
 {% endblock content %}
+
+{% block modal %}
+
+<div class="modal modal-blur fade" id="modal-report" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">New Contact</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="" method="post">
+        {% csrf_token %}
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-lg-5">
+              <div class="mb-3">
+                <label class="form-label">First name</label>
+                <input type="text" name="first_name" class="form-control">
+              </div>
+            </div>
+            <div class="col-lg-2">
+              <div class="mb-3">
+                <label class="form-label">Middle name</label>
+                <input type="text" name="middle_name" class="form-control">
+              </div>
+            </div>
+            <div class="col-lg-5">
+              <div class="mb-3">
+                <label class="form-label">Last name</label>
+                <input type="text" name="last_name" class="form-control">
+              </div>
+            </div>
+            <div class="col-lg-12 mb-3">
+              <div>
+                <label class="form-label">Job position</label>
+                <input type="text" name="job_position" class="form-control">
+              </div>
+            </div>
+            <div class="col-lg-12 mb-3">
+              <div>
+                <label class="form-label">Mobile number</label>
+                <input type="text" name="mobile_number" class="form-control">
+              </div>
+            </div>
+            <div class="col-lg-12 mb-3">
+              <div>
+                <label class="form-label">Email</label>
+                <input type="text" name="email" class="form-control">
+              </div>
+            </div>
+            <div class="col-lg-12 mb-3">
+              <div>
+                <label class="form-label">Contact id</label>
+                <input type="text" name="contact_id" class="form-control">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">
+            Cancel
+          </a>
+          <button type="submit" class="btn btn-primary ms-auto" id="modal-submit-button">
+          <span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-device-floppy" width="64" height="64" viewBox="0 0 24 24" stroke-width="1.5" stroke="#0071ce" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+              <path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2" />
+              <path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+              <path d="M14 4l0 4l-6 0l0 -4" />
+            </svg>
+          </span>
+            Create new contact
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock modal%}
+
+
+{% block extrajs %}
+<!-- Libs JS -->
+<script src="{% static 'dist/libs/apexcharts/dist/apexcharts.min.js' %}?1684106062" defer></script>
+<script src="{% static 'dist/libs/jsvectormap/dist/js/jsvectormap.min.js' %}?1684106062" defer></script>
+<script src="{% static 'dist/libs/jsvectormap/dist/maps/world.js' %}?1684106062" defer></script>
+<script src="{% static 'dist/libs/jsvectormap/dist/maps/world-merc.js' %}?1684106062" defer></script>
+<script>
+  // @formatter:off
+  document.addEventListener("DOMContentLoaded", function () {
+    window.ApexCharts && (new ApexCharts(document.getElementById('chart-mentions'), {
+      chart: {
+        type: "bar",
+        fontFamily: 'inherit',
+        height: 240,
+        parentHeightOffset: 0,
+        toolbar: {
+          show: false,
+        },
+        animations: {
+          enabled: false
+        },
+        stacked: true,
+      },
+      plotOptions: {
+        bar: {
+          columnWidth: '50%',
+        }
+      },
+      dataLabels: {
+        enabled: false,
+      },
+      fill: {
+        opacity: 1,
+      },
+      series: [{
+        name: "Web",
+        data: [1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 2, 12, 5, 8, 22, 6, 8, 6, 4, 1, 8, 24, 29, 51, 40, 47, 23, 26, 50, 26, 41, 22, 46, 47, 81, 46, 6]
+      },{
+        name: "Social",
+        data: [2, 5, 4, 3, 3, 1, 4, 7, 5, 1, 2, 5, 3, 2, 6, 7, 7, 1, 5, 5, 2, 12, 4, 6, 18, 3, 5, 2, 13, 15, 20, 47, 18, 15, 11, 10, 0]
+      },{
+        name: "Other",
+        data: [2, 9, 1, 7, 8, 3, 6, 5, 5, 4, 6, 4, 1, 9, 3, 6, 7, 5, 2, 8, 4, 9, 1, 2, 6, 7, 5, 1, 8, 3, 2, 3, 4, 9, 7, 1, 6]
+      }],
+      tooltip: {
+        theme: 'dark'
+      },
+      grid: {
+        padding: {
+          top: -20,
+          right: 0,
+          left: -4,
+          bottom: -4
+        },
+        strokeDashArray: 4,
+        xaxis: {
+          lines: {
+            show: true
+          }
+        },
+      },
+      xaxis: {
+        labels: {
+          padding: 0,
+        },
+        tooltip: {
+          enabled: false
+        },
+        axisBorder: {
+          show: false,
+        },
+        type: 'datetime',
+      },
+      yaxis: {
+        labels: {
+          padding: 4
+        },
+      },
+      labels: [
+        '2020-06-20', '2020-06-21', '2020-06-22', '2020-06-23', '2020-06-24', '2020-06-25', '2020-06-26', '2020-06-27', '2020-06-28', '2020-06-29', '2020-06-30', '2020-07-01', '2020-07-02', '2020-07-03', '2020-07-04', '2020-07-05', '2020-07-06', '2020-07-07', '2020-07-08', '2020-07-09', '2020-07-10', '2020-07-11', '2020-07-12', '2020-07-13', '2020-07-14', '2020-07-15', '2020-07-16', '2020-07-17', '2020-07-18', '2020-07-19', '2020-07-20', '2020-07-21', '2020-07-22', '2020-07-23', '2020-07-24', '2020-07-25', '2020-07-26'
+      ],
+      colors: [tabler.getColor("primary"), tabler.getColor("primary", 0.8), tabler.getColor("green", 0.8)],
+      legend: {
+        show: false,
+      },
+    })).render();
+  });
+  // @formatter:on
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const addContactButton = document.getElementById('add-new-contact');
+    const modalTitle = document.querySelector('#modal-report .modal-title');
+    const form = document.querySelector('#modal-report form');
+    const submitButton = document.getElementById('modal-submit-button');
+
+    // Event listener for opening the modal in "Add New Contact" mode
+    addContactButton.addEventListener('click', function() {
+      const customerId = this.getAttribute('data-customer-id');
+      modalTitle.textContent = 'Add New Contact'; 
+      form.action = `/customer_view/${customerId}`; 
+      form.method = 'POST'; 
+      form.reset();
+      submitButton.textContent = 'Add Contact';
+
+      // Remove existing operation input if exists
+      let operationInput = document.getElementById('operation-type');
+      if (operationInput) {
+        operationInput.value = 'add'; // Update value if already exists
+      }  else {
+        // Create a new hidden input for operation type
+        operationInput = document.createElement('input');
+        operationInput.type = 'hidden';
+        operationInput.id = 'operation-type';
+        operationInput.name = 'operation';
+        operationInput.value = 'add';
+        form.appendChild(operationInput);
+      }
+    });
+  
+  
+    // Event listeners for opening the modal in "Update Contact" mode
+    document.querySelectorAll('[data-contact-id]').forEach(item => {
+      item.addEventListener('click', function(e) {
+        const contactId = this.getAttribute('data-contact-id');
+        console.log('contact_id: ' + contactId)
+        submitButton.textContent = 'Update Contact';
+        fetch(`/get_contact_details/${contactId}`)
+        .then(response => response.json())
+        .then(data => {
+          document.querySelector('input[name="first_name"]').value = data.first_name;
+          document.querySelector('input[name="middle_name"]').value = data.middle_name || '';
+          document.querySelector('input[name="last_name"]').value = data.last_name;
+          document.querySelector('input[name="job_position"]').value = data.job_position || '';
+          document.querySelector('input[name="mobile_number"]').value = data.mobile_number || '';
+          document.querySelector('input[name="email"]').value = data.email || '';
+          document.querySelector('input[name="contact_id"]').value = data.id;
+
+          document.querySelector('#modal-report .modal-title').textContent = 'Update Contact';
+
+          
+          // Remove existing operation input if exists
+          let operationInput = document.getElementById('operation-type');
+          if (operationInput) {
+            operationInput.value = 'update';
+          } else {
+            // Create a new hidden input for operation type
+            operationInput = document.createElement('input');
+            operationInput.type = 'hidden';
+            operationInput.id = 'operation-type';
+            operationInput.name = 'operation';
+            operationInput.value = 'update';
+            form.appendChild(operationInput);
+          }
+
+        })
+        .catch(error => {
+          console.error('Error fetching contact details:', error);
+        });
+      });
+    });
+  
+  
+  
+  
+  
+  
+  
+  });
+  
+  </script>
+  
+
+{% endblock extrajs %}

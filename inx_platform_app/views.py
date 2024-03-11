@@ -4,10 +4,10 @@ from django.db.models.query import QuerySet
 from django.db import connection
 from django.urls import reverse_lazy, reverse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse, StreamingHttpResponse
+from django.http import JsonResponse, StreamingHttpResponse, HttpResponseRedirect, HttpResponseBadRequest
 from django.conf import settings
 from django.core.validators import validate_email
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.views import LoginView, PasswordResetView, PasswordChangeView, PasswordResetConfirmView
@@ -20,7 +20,7 @@ from django.views.generic.edit import UpdateView, CreateView
 from .models import Ke30ImportLine, Ke24ImportLine, ZACODMI9_import_line, Order, Fbl5nArrImport, Fbl5nOpenImport, Price
 from .models import MadeIn, MajorLabel, ProductStatus
 from .models import Brand, Product, Customer, InkTechnology, User
-from .models import UploadedFile, StoredProcedure
+from .models import UploadedFile, StoredProcedure, Contact
 from .forms import EditMajorLabelForm, EditBrandForm, EditCustomerForm, EditProductForm, StoredProcedureForm, CustomUserCreationForm, UserPasswordChangeForm, RegistrationForm, LoginForm, UserPasswordResetForm, UserSetPasswordForm
 from .forms import ProductForm, CustomerForm, BrandForm
 from .forms import get_generic_model_form
@@ -774,7 +774,6 @@ def customers_list(request, page=0):
     entries = request.GET.get('entries')
     view_entries = request.GET.get('radios_view')
     
-
     if 'new_customers' in request.GET:
         only_new_ustomers = request.GET.get('new_customers')
         if only_new_ustomers == 'on':
@@ -835,24 +834,57 @@ def customers_list(request, page=0):
     page_obj.adjusted_elided_pages = paginator.get_elided_page_range(page_number)
 
     filter_params = {
+        'search_term': search_term,
+        'entries': entries,
         'only_new': only_new_ustomers
     }
 
     context = {
-        'parent': 'interface',
-        'segment': '',
         'page_object': page_obj,
         'filter_params': filter_params
     }
     return render(request, "app_pages/customers_list.html", context)
 
+
 @login_required
 def customer_view(request, pk):
     customer = Customer.objects.filter(id=pk).first()
+
+    if request.method == "POST":
+        operation = request.POST.get('operation')
+        if operation == 'add':
+
+            new_contact = Contact(
+                customer = customer,
+                first_name = request.POST.get('first_name',),
+                middle_name = request.POST.get('middle_name', ''),
+                last_name = request.POST.get('last_name', ''),
+                job_position = request.POST.get('job_position', ''),
+                mobile_number = request.POST.get('mobile_number', ''),
+                email = request.POST.get('email', ''),
+            )
+            new_contact.save()
+        elif operation == 'update':
+            contact_id = request.POST.get('contact_id')
+            contact = get_object_or_404(Contact, pk=contact_id, customer=customer)
+            contact.first_name = request.POST.get('first_name')
+            contact.middle_name = request.POST.get('middle_name')
+            contact.last_name = request.POST.get('last_name')
+            contact.job_position = request.POST.get('job_position')
+            contact.mobile_number = request.POST.get('mobile_number')
+            contact.email = request.POST.get('email')
+            contact.save()
+        return HttpResponseRedirect(request.path_info)
+
+    # Get Contacts of this customer
+    contacts = Contact.objects.filter(customer = customer)
+
     context = {
-        'customer': customer
+        'customer': customer,
+        'contacts': contacts
     }
     return render(request, "app_pages/customer_view.html", context)
+
 
 @login_required
 def customer_edit(request, pk):
@@ -882,6 +914,25 @@ def customer_edit(request, pk):
         form.fields['approved_on'].disabled = True
     context = {'form': form}
     return render(request, "app_pages/customer_edit.html", context)
+
+
+def get_contact_details(request, id):
+    if request.method == 'GET':
+        try:
+            contact = Contact.objects.filter(pk=id).first()
+            contact_data = {
+                'id': contact.id,
+                'first_name': contact.first_name,
+                'middle_name': contact.middle_name,
+                'last_name': contact.last_name,
+                'job_position': contact.job_position,
+                'mobile_number': contact.mobile_number,
+                'email': contact.email,
+            }
+            return JsonResponse(contact_data)
+        except ObjectDoesNotExist:
+            return HttpResponseBadRequest('Contact not found')
+
 
 @login_required
 def products_list(request, page=0):
@@ -971,6 +1022,7 @@ def products_list(request, page=0):
     }
     return render(request, "app_pages/products_list.html", context)
 
+
 @login_required
 def product_view(request, pk):
     product = Product.objects.filter(id=pk).first()
@@ -1047,6 +1099,9 @@ def brands_list(request, page=0):
 
     ink_technologies = InkTechnology.objects.all()
     major_labels = MajorLabel.objects.all()
+
+    print("selected_ink_technologies", selected_ink_technologies)
+    print("selected_major_labels", selected_major_labels)
 
     filter_params = {
         'selected_ink_technologies': selected_ink_technologies,

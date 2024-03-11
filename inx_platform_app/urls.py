@@ -33,6 +33,8 @@ urlpatterns = [
     path("customer_view/<int:pk>", views.customer_view, name="customer-view"),
     path("customer_edit/<int:pk>", views.customer_edit, name="customer-edit"),
 
+    path("get_contact_details/<int:id>", views.get_contact_details, name="get-contact-details"),
+
     path("products_list/", views.products_list, name="products-list"),
     path("product_view/<int:pk>", views.product_view, name="product-view"),
     path("product_edit/<int:pk>", views.product_edit, name="product-edit"),

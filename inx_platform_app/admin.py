@@ -4,7 +4,7 @@ from .models import InkTechnology, NSFDivision, MarketSegment, MaterialGroup, In
 from .models import Brand, Packaging, ProductStatus, Product, Customer, Ke30Line, UnitOfMeasure
 from .models import ExchangeRate, Scenario, CountryCode, BudForLine, BudForNote, BudForDetailLine
 from .models import CustomerType, Fbl5nArrImport, Fbl5nOpenImport, Ke30ImportLine, Ke24ImportLine
-from .models import Ke24Line, Order, CustomerNote, ProductLine, RateToLT, StoredProcedure
+from .models import Ke24Line, Order, CustomerNote, ProductLine, RateToLT, StoredProcedure, Fert
 from .models import ZACODMI9_line, ZACODMI9_import_line, UploadedFile, Price, User, Contact
 
 
@@ -124,7 +124,11 @@ class StoredProcedureAdmin(admin.ModelAdmin):
 
 
 class ContactAdmin(admin.ModelAdmin):
-    list_display = ['title', 'first_name', 'last_name', 'job_position', 'email', 'mobile_number']
+    list_display = ['id', 'title', 'first_name', 'last_name', 'job_position', 'email', 'mobile_number']
+
+
+class FertAdmin(admin.ModelAdmin):
+    list_display = ['id', 'number']
 
 
 admin.site.register(ColorGroup, ColorGroupAdmin)
@@ -167,4 +171,5 @@ admin.site.register(Price, PriceAdmin)
 admin.site.register(StoredProcedure, StoredProcedureAdmin)
 admin.site.register(User)
 admin.site.register(Contact, ContactAdmin)
+admin.site.register(Fert, FertAdmin)
 

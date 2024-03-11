@@ -845,6 +845,10 @@ class ShippingPolicy(models.Model):
     name = models.CharField(max_length=255, null=True, blank=True)
 
 class Customer(models.Model):
+    class Meta:
+        ordering = ['name']
+
+        
     number = models.CharField(max_length=100)
     name = models.CharField(max_length=255)
     currency = models.CharField(max_length=10, blank=True)
@@ -872,7 +876,7 @@ class Customer(models.Model):
     shipping_policy = models.ForeignKey(ShippingPolicy, on_delete=models.PROTECT, null=True, blank=True)
 
     def __str__(self):
-        return_value = f"Customer number: {self.number}, Customer name: {self.name}"
+        return_value = f"{self.name}"
         return return_value
 
 class ShippingAddress(models.Model):
@@ -931,6 +935,7 @@ class BudForDetailLine(models.Model):
         return_string = f"BudForDetail line - bud_for_id:{self.budforline.id} - scenario: {self.scenario.id}"
         return return_string
 
+
 class Price(models.Model):
     sales_org = models.CharField(max_length=10, null=True)
     customer_number = models.CharField(max_length=10, blank=True, null=True)
@@ -949,6 +954,7 @@ class Price(models.Model):
     currency = models.CharField(max_length=5)
     import_timestamp = models.DateTimeField(auto_now_add=True, null=True)
     owner = models.ForeignKey(User, on_delete=models.PROTECT, null=True)
+
 
 class UploadedFile(models.Model):
     file_name = models.CharField(max_length=255, blank=True)
@@ -1151,7 +1157,8 @@ class UploadedFile(models.Model):
         df = pd.read_excel(file_path, thousands='.', decimal=',', dtype=conversion_dict, parse_dates=True)
         df = df.replace(np.nan, '')
         return df
-    
+
+
 class StoredProcedure(models.Model):
 
     name = models.CharField(max_length=255)
@@ -1192,6 +1199,7 @@ class Contact(models.Model):
         full_name = f"{self.first_name} {self.middle_name[0].capitalize()} {self.last_name}"
         return full_name
     
+
 
 class Fert(models.Model):
     number = models.CharField(max_length=6, blank=True)
