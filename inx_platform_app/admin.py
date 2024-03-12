@@ -90,14 +90,15 @@ class BrandAdmin(admin.ModelAdmin):
 
 
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ['id', 'number', 'name', 'get_brand_name']
+    # list_display = ['id', 'number', 'name', 'get_brand_name']
+    list_display = ['id', 'number', 'name']
 
-    def get_brand_name(self, obj):
+    # def get_brand_name(self, obj):
         
-        print(f"SPECIAL LOG ------ obj: {obj}")
-        return obj.brand.name
+    #     print(f"SPECIAL LOG ------ obj: {obj}")
+    #     return obj.brand.name
     
-    get_brand_name.short_description = 'brand_name'
+    # get_brand_name.short_description = 'brand_name'
 
 
 class CustomerAdmin(admin.ModelAdmin):
