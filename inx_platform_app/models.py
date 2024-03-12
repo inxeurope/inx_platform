@@ -12,7 +12,7 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, UserM
 from . import import_dictionaries
 
 # -------------------------------------------
-# Following model to manage custom User model
+# Following classes to manage custom User model
 # -------------------------------------------
 
 class CustomUserManager(UserManager):
@@ -48,6 +48,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_superuser = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
+
+    mobile_number = models.CharField(max_length=100, null=True, blank=True)
 
     date_joined = models.DateTimeField(auto_now_add=True)
     last_login = models.DateTimeField(blank=True, null=True)
@@ -655,7 +657,7 @@ class Ke30Line(models.Model):
     owner = models.ForeignKey(User, on_delete=models.PROTECT, blank=True, null=True)
 
     def __str__(self):
-        return self.id + ' ' + self.year_month + ' ' + self.customer_name + ' ' + self.product_name
+        return self.id
 
 class Ke30ImportLine(models.Model):
     period_year = models.CharField(max_length=20)
@@ -734,7 +736,7 @@ class Ke30ImportLine(models.Model):
     owner = models.ForeignKey(User, on_delete=models.PROTECT, blank=True, null=True)
     
     def __str__(self):
-        string_to_return = f"{self.year_month} {self.customer1} {self.product1} qty:{self.sales_qty_actual}"
+        string_to_return = f"{self.year_month} {self.customer} {self.product} qty:{self.sales_qty_actual}"
         return string_to_return
 
 class Order(models.Model):

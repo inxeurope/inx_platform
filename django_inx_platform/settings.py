@@ -26,7 +26,7 @@ ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '159.223.26.141', 'azsql.inxeurope.de
 
 INSTALLED_APPS = [
     'daphne',
-    'admin_tabler.apps.AdminTablerConfig',
+    # 'admin_tabler.apps.AdminTablerConfig',
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",

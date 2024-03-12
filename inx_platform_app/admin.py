@@ -91,14 +91,13 @@ class BrandAdmin(admin.ModelAdmin):
 
 class ProductAdmin(admin.ModelAdmin):
     # list_display = ['id', 'number', 'name', 'get_brand_name']
-    list_display = ['id', 'number', 'name']
+    list_display = ['id', 'number', 'name', 'get_brand_name']
 
-    # def get_brand_name(self, obj):
-        
-    #     print(f"SPECIAL LOG ------ obj: {obj}")
-    #     return obj.brand.name
+    def get_brand_name(self, obj):
+        #print(f"SPECIAL LOG ------ obj: {obj}")
+        return obj.brand.name
     
-    # get_brand_name.short_description = 'brand_name'
+    get_brand_name.short_description = 'brand_name'
 
 
 class CustomerAdmin(admin.ModelAdmin):
@@ -134,6 +133,13 @@ class FertAdmin(admin.ModelAdmin):
     list_display = ['id', 'number']
 
 
+class Ke30ImportLineAdmin(admin.ModelAdmin):
+    list_display = ['id', 'period_year', 'customer', 'customer_1', 'product', 'product_1', 'sales_qty_actual']
+
+
+class Ke30LineAdmin(admin.ModelAdmin):
+    list_display = ['id', 'year_month', 'customer_number', 'customer_name', 'product_number', 'product_name', 'currency', 'quantity', 'gross_sales']
+
 admin.site.register(ColorGroup, ColorGroupAdmin)
 admin.site.register(Color, ColorAdmin)
 admin.site.register(MadeIn, MadeInAdmin)
@@ -161,8 +167,8 @@ admin.site.register(BudForNote)
 admin.site.register(BudForDetailLine)
 admin.site.register(Fbl5nArrImport)
 admin.site.register(Fbl5nOpenImport)
-admin.site.register(Ke30ImportLine)
-admin.site.register(Ke30Line)
+admin.site.register(Ke30ImportLine, Ke30ImportLineAdmin)
+admin.site.register(Ke30Line, Ke30LineAdmin)
 admin.site.register(Ke24ImportLine)
 admin.site.register(Ke24Line)
 admin.site.register(ZACODMI9_import_line)
