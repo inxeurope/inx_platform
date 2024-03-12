@@ -10,7 +10,7 @@
         <div class="row g-2 align-items-center justify-content-between">
           <div class="col">
             <h2 class="page-title">
-              Files to import
+              Files to import X
             </h2>
           </div>
           <div class="col-auto ">
@@ -66,11 +66,21 @@
         {% if user_files %}
         <div class="row row-cards">
           <div class="col">
-            <div class="card">
+            <div class="card mb-5">
               <div id="log" class="card-body text-muted">
                 Log messages here ...
               </div>
             </div>
+            <div class="card mb-5">
+              <div class="card-body text-muted">
+                <a id="trig" href="{% url 'importing-files-x' %}" hx-boost="true" hx-swap="beforeend" hx-target="#logger">Link</a>
+              </div>
+            </div>
+            <div class="card">
+                <div id="logger" class="card-body text-muted">
+                  
+                </div>
+              </div>
           </div>
           <script>
             document.addEventListener('DOMContentLoaded', function() {

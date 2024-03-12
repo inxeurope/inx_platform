@@ -11,3 +11,4 @@ django-debug-toolbar==4.3.0
 SQLAlchemy==2.0.28
 daphne==4.1.0
 django-extensions==3.2.3
+django-htmx==1.17.0

@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     "inx_platform_app",
     'debug_toolbar',
     'django_extensions',
+    'django_htmx',
 
 ]
 
@@ -54,6 +55,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
+    "django_htmx.middleware.HtmxMiddleware",
 ]
 
 ROOT_URLCONF = "django_inx_platform.urls"

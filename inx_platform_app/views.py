@@ -562,6 +562,21 @@ def importing_files(request):
     return render(request, "app_pages/importing_files.html", {'user_files': user_files})
 
 @login_required
+def importing_files_x(request):
+    
+    if request.htmx:
+        print("HTMX request")
+        print ('trigger', request.htmx.trigger)
+        print ('target', request.htmx.target)
+        print ('boosted', request.htmx.boosted)
+        return render(request, "app_pages/importing_files_x_partial.html")
+    else:
+        print("Normal request")
+        user = request.user
+        user_files = UploadedFile.objects.filter(owner=user, is_processed=False)
+        return render(request, "app_pages/importing_files_x.html", {'user_files': user_files})
+
+@login_required
 def imported_files(request, page=0):
     user = request.user
     user_files = UploadedFile.objects.filter(owner=user, is_processed=True).order_by('-processed_at')
@@ -593,12 +608,6 @@ def imported_files(request, page=0):
 
 def start_processing(request, file_id):
     pass
-#     # This is used to run a method in UploadedFile class/model
-#     # Method is called start_processing
-#     file = get_object_or_404(UploadedFile, id = file_id)
-#     file.start_processing()
-#     print("finished processing")
-#     return redirect("importing-files")
 
 
 @login_required
@@ -2019,3 +2028,6 @@ async def sse_stream(request):
             counter += 1
 
     return StreamingHttpResponse(stream_the_event(), content_type='text/event-stream')
+
+        
+

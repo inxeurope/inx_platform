@@ -19,6 +19,7 @@ urlpatterns = [
     
     path("display_files/", views.display_files, name='display_files'),
     path("importing_files/", views.importing_files, name='importing-files'),
+    path("importing_files_x/", views.importing_files_x, name='importing-files-x'),
     path("imported_files/", views.imported_files, name='imported-files'),
 
     path('start_processing/<int:file_id>/', views.start_processing, name='start-processing'),
@@ -184,7 +185,9 @@ urlpatterns = [
 
     # Test for SSE
     path("sse/", views.sse, name="sse"),
-    path('stream_channel/', views.sse_stream, name='stream_channel')
+    path('stream_channel/', views.sse_stream, name='stream_channel'),
+
+
 
 ]
 
