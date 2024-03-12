@@ -34,7 +34,6 @@ from time import perf_counter
 from sqlalchemy import create_engine
 
 def index(request):
-    print("This is BASE_DIR from the loading view:", settings.BASE_DIR)
     return render(request, "app_pages/index.html", {})
 
 def index_original(request):

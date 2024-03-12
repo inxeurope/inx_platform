@@ -93,6 +93,8 @@ class ProductAdmin(admin.ModelAdmin):
     list_display = ['id', 'number', 'name', 'get_brand_name']
 
     def get_brand_name(self, obj):
+        
+        print(f"SPECIAL LOG ------ obj: {obj}")
         return obj.brand.name
     
     get_brand_name.short_description = 'brand_name'
