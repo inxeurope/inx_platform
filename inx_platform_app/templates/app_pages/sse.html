@@ -29,6 +29,14 @@
           message_count = 0;
           eventSource.onmessage = event => {
             message_count++;
+            if (event.data === "chiudi") {
+              eventSource.close();
+              console.log("Server requested to close the channel.");
+              // Optionally, disable or enable buttons based on the connection status
+              document.querySelector('button[onclick="startSSE()"]').disabled = false;
+              document.querySelector('button[onclick="stopSSE()"]').disabled = true;
+              return; 
+            }
             // console.log('event.data: ' + event.data)
             sseData.innerHTML += event.data + '<br>';
             if (message_count > 10){
