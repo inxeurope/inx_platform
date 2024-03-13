@@ -7,5 +7,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         customers = Customer.objects.all()
         for c in customers:
+            print(c.name, c.is_new, end='')
             c.is_new = False
+            print(c.is_new)
         

@@ -7,5 +7,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         products = Product.objects.all()
         for p in products:
+            print(p.name, p.is_new, end='')
             p.is_new = False
-        
+            print(p.is_new)
