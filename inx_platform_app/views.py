@@ -635,6 +635,7 @@ def delete_file(request, file_id):
 def process_this_file(file):
     file_path = file.file_path + "/" + file.file_name
     log_text = ''
+    list_of_sp = []
     if not os.path.exists(file_path):
         # The file does not exists
         log_message = f"data:The file {file_path} is not existing, marking the UploadedFile record as is_processed=True\n\n"
@@ -660,6 +661,7 @@ def process_this_file(file):
                 # These 2 variable are set for the following action, after the match-case
                 model = Ke30ImportLine
                 field_mapping = import_dictionaries.ke30_mapping_dict
+                list_of_sp =['_ke30_import', '_ke30_import_add_new_customers', '_ke30_import_add_new_products']
             case "ke24":
                 convert_dict = import_dictionaries.ke24_converters_dict
                 df = file.read_excel_file(file_path, convert_dict)
@@ -748,20 +750,45 @@ def process_this_file(file):
                     instances.append(instance)
                 with transaction.atomic():
                     model.objects.bulk_create(instances)
+                    print(f'bulk_create for chunk {chunk_counter} done')
                     instances = []
                 end_time = time.perf_counter()
                 elapsed_time = end_time - start_time
                 log_message = f"data:working on chunk {chunk_counter} of {len(chunks)}  -  it took {elapsed_time} seconds\n\n"
                 yield log_message
                 log_text += log_message + '\n'
-                file.is_processed = True
-                file.processed_at = datetime.now()
             except Exception as e:
                 # Handle the exception
                 log_message = f"data:An error occurred during the transaction: {e}\n\n"
                 yield log_message
                 log_text += log_message + '\n'
+        # All chunks are processed
+        print('all chunks processed')
+        file.is_processed = True
+        file.processed_at = datetime.now()
+        # Woring on the stored procedures now
+        if list_of_sp:
+            print(f'There are {len(list_of_sp)} stored procedures')
+            with connection.cursor() as curs:
+                for index, sp in enumerate(list_of_sp):
+                    print(f'sp{index}: {sp}')
+                    sql_command = f'EXECUTE {sp}'
+                    curs.execute(sql_command)
+                    if curs.description:
+                        resulting_rows = curs.fetchall()
+                        print(f'resulting_rows from procedure: {len(resulting_rows)}')
+                        print(resulting_rows)
+                        result_text=''
+                        for row in resulting_rows:
+                            row_text = ', '.join(map(str, row))
+                            result_text += row_text + "\n"
+                            log_message = result_text
+                            yield log_message
+                            log_text += log_message + '\n'
+
+            
         # Delete the file
+        print(f'deleting ...{file.file_name}')
         if file.delete_file_soft():
             log_message = f"data:File {file.file_name} removed and db updated"
         else:
@@ -770,7 +797,6 @@ def process_this_file(file):
         log_text += log_message + '\n'
         file.log = log_text
         file.save()
-        print()
         log_message = f'data:process terminated for file id: {file.id}  filetye: {file.file_type} file_name: {file.file_name} file_path: {file.file_path}\n\n'
         yield log_message
         yield f'data:basta\n\n'
@@ -805,7 +831,7 @@ def customers_list(request, page=0):
                 models.Q(customer_service_rep__first_name__icontains=search_term)
                 ).order_by('name')
     else:
-        customers = customers.order_by('name')
+        customers = customers.order_by('-is_new','name')
     
     if view_entries is not None or view_entries != '':
         if view_entries == 'active':
@@ -920,7 +946,12 @@ def customer_edit(request, pk):
         form.fields['is_new'].disabled = True
         form.fields['approved_by'].disabled = True
         form.fields['approved_on'].disabled = True
-    context = {'form': form}
+        print(c.import_note)
+    context = {
+        'form': form,
+        'customer_is_new': c.is_new,
+        'import_note': c.import_note
+        }
     return render(request, "app_pages/customer_edit.html", context)
 
 
@@ -971,6 +1002,7 @@ def products_list(request, page=0):
         else:
             products = products.order_by('-number')
 
+    products = products.order_by('-is_new', '-number')
 
     if status is not None and status != 'all':
         products = products.filter(product_status_id=status)
@@ -990,7 +1022,7 @@ def products_list(request, page=0):
         items_per_page = 10
 
 
-    paginator = Paginator(products.order_by('-number'), items_per_page)
+    paginator = Paginator(products, items_per_page)
     # Get the current page from the GET request or in the URL
     if page != 0:
         page_number = page
@@ -1053,6 +1085,7 @@ def product_edit(request, pk):
         form = ProductForm(instance=p)
     context = {'form': form}
     return render(request, "app_pages/product_edit.html", context)
+
 
 @login_required
 def brands_list(request, page=0):
@@ -1126,6 +1159,7 @@ def brands_list(request, page=0):
 
     return render(request, "app_pages/brands_list.html", context)
 
+
 @login_required
 def brand_view(request, pk):
     b = Brand.objects.filter(id=pk).first()
@@ -1133,6 +1167,7 @@ def brand_view(request, pk):
         'brand': b
     }
     return render(request, "app_pages/brand_view.html", context)
+
 
 @login_required
 def brand_edit(request, pk):
@@ -1149,11 +1184,13 @@ def brand_edit(request, pk):
     context = {'form': form}
     return render(request, "app_pages/brand_edit.html", context)
 
+
 @login_required
 def stored_procedures(request):
     procedures = StoredProcedure.objects.all()
     context = {'procedures': procedures}
     return render(request, "app_pages/stored_procedures.html", context)
+
 
 @login_required
 def stored_procedure(request, pk):

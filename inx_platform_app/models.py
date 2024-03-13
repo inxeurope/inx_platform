@@ -850,10 +850,9 @@ class Customer(models.Model):
     class Meta:
         ordering = ['name']
 
-        
     number = models.CharField(max_length=100)
     name = models.CharField(max_length=255)
-    currency = models.CharField(max_length=10, blank=True)
+    currency = models.CharField(max_length=10, null=True, blank=True)
     active = models.BooleanField(default=False, null=True)
     insurance = models.BooleanField(default=False, null=True)
     insurance_value = models.IntegerField(null=True, blank=True, default=0)
@@ -866,10 +865,10 @@ class Customer(models.Model):
     import_note = models.CharField(max_length=255, null=True, blank=True)
     import_status = models.CharField(max_length=255, null=True, blank=True)
     sqlapp_id = models.IntegerField(default=0, null=True, blank=True)
-    sales_employee = models.ForeignKey(User, on_delete=models.PROTECT, related_name='sales_manager')
+    sales_employee = models.ForeignKey(User, on_delete=models.PROTECT, related_name='sales_manager', null=True)
     customer_type = models.ForeignKey(CustomerType, on_delete=models.PROTECT, blank=True, null=True)
     industry = models.ForeignKey(Industry, on_delete=models.PROTECT, blank=True, null=True)
-    country = models.ForeignKey(CountryCode, on_delete=models.PROTECT)
+    country = models.ForeignKey(CountryCode, on_delete=models.PROTECT, null=True)
     is_new = models.BooleanField(default=True)
     approved_on = models.DateField(null=True, blank=True)
     approved_by = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='approved_by', blank=True, null=True)

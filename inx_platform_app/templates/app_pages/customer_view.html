@@ -88,6 +88,25 @@
       </div>
     </div>
 
+    {% if customer.is_new %}
+    <div class="page-body">
+      <div class="container-xl">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Import info</h3>
+          </div>
+          <div class="card-body">
+            <div class="font-monospace">
+              {{ customer.import_note }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+
+
     <div class="page-body">
       <div class="container-xl">
         <div class="card">

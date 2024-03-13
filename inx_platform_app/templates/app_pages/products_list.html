@@ -201,7 +201,12 @@
                                     </svg>
                                   {% endif %}              
                                 </td>
-                                <td> {{ product.name}} </td>
+                                <td>
+                                  {% if product.is_new%}
+                                    <span class="badge badge-outline text-red small">NEW</span>
+                                  {% endif %}
+                                  {{ product.name}}
+                                </td>
                                 <td>
                                   {{ product.brand.name  }}
                                 </td>
