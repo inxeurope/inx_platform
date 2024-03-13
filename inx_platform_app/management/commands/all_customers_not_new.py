@@ -9,5 +9,6 @@ class Command(BaseCommand):
         for c in customers:
             print(c.name, c.is_new, end='')
             c.is_new = False
+            c.save()
             print(c.is_new)
         

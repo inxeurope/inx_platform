@@ -9,4 +9,5 @@ class Command(BaseCommand):
         for p in products:
             print(p.name, p.is_new, end='')
             p.is_new = False
+            p.save()
             print(p.is_new)
