@@ -1,7 +1,7 @@
 from typing import Any
 from django.apps import apps
 from django.db.models.query import QuerySet
-from django.db import connection
+from django.db import connection, utils
 from django.urls import reverse_lazy, reverse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse, StreamingHttpResponse, HttpResponseRedirect, HttpResponseBadRequest
@@ -17,11 +17,11 @@ from django.db import models, transaction
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.generic.list import ListView
 from django.views.generic.edit import UpdateView, CreateView
-from .models import Ke30ImportLine, Ke24ImportLine, ZACODMI9_import_line, Order, Fbl5nArrImport, Fbl5nOpenImport, Price
+from .models import Ke30ImportLine, Ke24ImportLine, ZAQCODMI9_import_line, Order, Fbl5nArrImport, Fbl5nOpenImport, Price
 from .models import MadeIn, MajorLabel, ProductStatus
 from .models import Brand, Product, Customer, InkTechnology, User
-from .models import UploadedFile, StoredProcedure, Contact
-from .forms import EditMajorLabelForm, EditBrandForm, EditCustomerForm, EditProductForm, StoredProcedureForm, CustomUserCreationForm, UserPasswordChangeForm, RegistrationForm, LoginForm, UserPasswordResetForm, UserSetPasswordForm
+from .models import UploadedFile, StoredProcedure, DatabaseView, Contact
+from .forms import EditMajorLabelForm, EditBrandForm, EditCustomerForm, EditProductForm, StoredProcedureForm, DatabaseViewForm, CustomUserCreationForm, UserPasswordChangeForm, RegistrationForm, LoginForm, UserPasswordResetForm, UserSetPasswordForm
 from .forms import ProductForm, CustomerForm, BrandForm
 from .forms import get_generic_model_form
 from . import dictionaries, import_dictionaries
@@ -36,14 +36,18 @@ from sqlalchemy import create_engine
 def index(request):
     return render(request, "app_pages/index.html", {})
 
+
 def index_original(request):
     return render(request, "app_pages/index_original.html", {})
+
 
 def profile(request):
     return render(request, "app_pages/profile.html", {})
 
+
 def index_inx(request):
     return render(request, "index-inx.html")
+
 
 def account_settings(request):
     user = request.user
@@ -51,6 +55,7 @@ def account_settings(request):
         'user': user
     }
     return render(request, 'app_pages/settings.html', context)
+
 
 @login_required
 def loader(request):
@@ -107,6 +112,7 @@ def update_profile(request):
     from django.contrib.auth.decorators import login_required
     from django.contrib import messages
     from django.contrib.auth.models import User
+
 
 @login_required
 def update_profile(request):
@@ -221,6 +227,7 @@ def import_data(request):
     import_from_SQL(dictionaries.tables_list)
     return render(request, "index-inx.html")
 
+
 def import_single(request):
     context = {'options': dictionaries.tables_list}
     if request.method == 'POST':
@@ -236,6 +243,24 @@ def import_single(request):
         return render(request, "import_single.html", context)
     else:
         return render(request, "import_single.html", context)
+    
+
+def import_single_table(request):
+    context = {'options': dictionaries.tables_list}
+    if request.method == 'POST':
+        submit_action = request.POST.get('submit_type')
+        table_name = request.POST.get('table_name')
+        filtered_tuple = [(t1, t2, t3, t4) for t1, t2, t3, t4 in dictionaries.tables_list if t1 == table_name]
+        if submit_action == 'Import':
+            import_from_SQL(filtered_tuple)
+            messages.success(request, f"Import done on {table_name}")
+        if submit_action == 'Clean':
+            clean_the_table(filtered_tuple)
+            messages.success(request, f"Clean done on {table_name}")
+        return render(request, "app_pages/import_single_table.html", context)
+    else:
+        return render(request, "app_pages/import_single_table.html", context)
+
 
 def import_from_SQL(table_tuples):
     host = os.getenv("DB_SERVER", default=None)
@@ -613,13 +638,14 @@ def start_processing(request, file_id):
 @login_required
 def start_file_processing(request, file_id):
     def event_stream():
-        print("event_stream function")
+        print("we are in the event_stream function")
         yield f'data:start yielding\n\n'
         file = get_object_or_404(UploadedFile, id = file_id)
         yield from process_this_file(file)
         
     response = StreamingHttpResponse(event_stream(), content_type="text/event-stream")
     return response
+
 
 def delete_file(request, file_id):
     file = get_object_or_404(UploadedFile, id = file_id)
@@ -633,6 +659,7 @@ def delete_file(request, file_id):
 
 
 def process_this_file(file):
+    print("entered process_this_file")
     file_path = file.file_path + "/" + file.file_name
     log_text = ''
     list_of_sp = []
@@ -670,6 +697,7 @@ def process_this_file(file):
                 model = Ke24ImportLine
                 field_mapping = import_dictionaries.ke24_mapping_dict
             case "zaq":
+                print("enter zaq section")
                 convert_dict = import_dictionaries.zaq_converters_dict
                 df = file.read_excel_file(file_path, convert_dict)
                 df["Billing date"] = df['Billing date'].apply(lambda x: x.strftime("%Y-%m-%d") if not pd.isna(x) else x)
@@ -679,8 +707,13 @@ def process_this_file(file):
                 unique_curr = df['Curr.'].nunique()
                 rows_to_remove = max(unique_curr, unique_uom)
                 df = df.head(len(df) - rows_to_remove) 
-                model = ZACODMI9_import_line
+                model = ZAQCODMI9_import_line
                 field_mapping = import_dictionaries.zaq_mapping_dict
+                # Store procedure are importing from import table to full table
+                # Then deleting sales from budfordetailline
+                # Then backing up budfordetailline
+                # Then filling in again sales from zaq with proper granularity
+                list_of_sp = ['_zaq_import', '_budfordetailline_delete_sales', '_budforsales_add_triplets', '_budfordetailline_fill_sales']
             case "oo":
                 convert_dict = import_dictionaries.oo_converters_dict
                 df = file.read_excel_file(file_path, convert_dict)
@@ -769,11 +802,14 @@ def process_this_file(file):
         # Woring on the stored procedures now
         if list_of_sp:
             print(f'There are {len(list_of_sp)} stored procedures')
+            print(list_of_sp)
             with connection.cursor() as curs:
                 for index, sp in enumerate(list_of_sp):
-                    print(f'sp{index}: {sp}')
+                    log_message = f'sp{index}: {sp}'
+                    log_text += log_message + '\n'
                     sql_command = f'EXECUTE {sp}'
                     curs.execute(sql_command)
+                    print(f"...executed")
                     if curs.description:
                         resulting_rows = curs.fetchall()
                         print(f'resulting_rows from procedure: {len(resulting_rows)}')
@@ -783,10 +819,9 @@ def process_this_file(file):
                             row_text = ', '.join(map(str, row))
                             result_text += row_text + "\n"
                             log_message = result_text
-                            yield log_message
                             log_text += log_message + '\n'
+                            yield log_message
 
-            
         # Delete the file
         print(f'deleting ...{file.file_name}')
         if file.delete_file_soft():
@@ -795,10 +830,11 @@ def process_this_file(file):
             log_message = f"data:There is a problem with file name {file.file_name}"
         yield log_message
         log_text += log_message + '\n'
-        file.log = log_text
-        file.save()
         log_message = f'data:process terminated for file id: {file.id}  filetye: {file.file_type} file_name: {file.file_name} file_path: {file.file_path}\n\n'
         yield log_message
+        log_text += log_message + '\n'
+        file.log = log_text
+        file.save()
         yield f'data:basta\n\n'
 
 
@@ -1193,13 +1229,13 @@ def stored_procedures(request):
 
 
 @login_required
-def stored_procedure(request, pk):
+def stored_procedure_edit(request, pk):
     procedure = get_object_or_404(StoredProcedure, id=pk)
     if request.method == 'POST':
         f = StoredProcedureForm(request.POST, instance=procedure)
         if f.is_valid():
             f.save()
-            return redirect('stored-procedures')
+            return redirect('procedures')
         else:
             print(f.errors)
     else:
@@ -1207,13 +1243,85 @@ def stored_procedure(request, pk):
     context = {'form': form}
     return render(request,"app_pages/stored_procedure.html", context)
 
+
+@login_required
+def stored_procedure_add(request):
+    if request.method == "POST":
+        form = StoredProcedureForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('procedures')
+    else:
+        form = StoredProcedureForm()
+    context = {'form': form}
+    return render(request, 'app_pages/stored_procedure.html', context)
+
+
 @login_required
 def stored_procedure_push(request, pk):
-    pass
+    proc = get_object_or_404(StoredProcedure, pk=pk)
+    if proc:
+        print('pushing stored procedure', pk)
+
+        with connection.cursor() as cursor:
+            cursor.execute(f"DROP PROCEDURE IF EXISTS {proc.name};")
+            try:
+                cursor.execute(f"{proc.script}")
+                messages.success(request, f"{proc.name} was successfully pushed in the db", extra_tags="alert-success")
+            except (pyodbc.ProgrammingError, utils.ProgrammingError) as e:
+                messages.error(request, f"{proc.name} faild being pushed to db", extra_tags="alert-danger")
+                print (e)
+            
+            return redirect('procedures')
+            
 
 @login_required
 def stored_procedure_execute(request, pk):
     pass
+
+
+@login_required
+def db_views(request):
+    db_views = DatabaseView. objects.all()
+    context = {
+        'db_views': db_views
+    }
+    return render(request, "app_pages/db_views.html", context)
+
+
+@login_required
+def db_view_edit(request, pk):
+    db_view = get_object_or_404(DatabaseView, id=pk)
+    if request.method == 'POST':
+        f = DatabaseViewForm(request.POST, instance=db_view)
+        if f.is_valid():
+            f.save()
+            return redirect('db-views')
+        else:
+            print(f.errors)
+    else:
+        form = DatabaseViewForm(instance=db_view)
+    context = {
+        'form': form,
+        'button_text': 'Update View'
+        }
+    return render(request,"app_pages/db_view.html", context)
+
+
+@login_required
+def db_view_add(request):
+    if request.method == "POST":
+        form = DatabaseViewForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('db-views')
+    else:
+        form = DatabaseViewForm()
+    context = {
+        'form': form,
+        'button_text': 'Save View'
+        }
+    return render(request, 'app_pages/db_view.html', context)
 
 
 def edit_dictionary(request, dictionary_name):
@@ -1251,6 +1359,7 @@ def edit_dictionary(request, dictionary_name):
     
     return render(request, "edit_dictionary.html", {'dictionary_name': dictionary_name, 'data_converting': data_converting, 'data_renaming': data_renaming})
 
+
 def dictionary_add_key(request, dictionary_name):
     key_name = request.GET.get('key_name', '')
     if key_name:
@@ -1258,6 +1367,7 @@ def dictionary_add_key(request, dictionary_name):
         # You can use a similar approach as in the update_dictionary view
         return JsonResponse({'message': 'Key added successfully'})
     return JsonResponse({'message': 'Key not added'})
+
 
 def dictionary_delete_key(request, dictionary_name):
     print('delete dictionary key on the dictionary: ', dictionary_name)
@@ -1268,12 +1378,14 @@ def dictionary_delete_key(request, dictionary_name):
         return JsonResponse({'message': 'Key deleted successfully'})
     return JsonResponse({'message': 'Key not deleted'})
 
+
 @method_decorator(login_required, name='dispatch')
 class BrandListView(ListView):
     model = Brand
     paginate_by = 24
     template_name = "brand_list.html"
     context_object_name = "brands"
+
 
 @method_decorator(login_required, name='dispatch')
 class BrandEditView(UpdateView):
@@ -1285,6 +1397,7 @@ class BrandEditView(UpdateView):
     def get_object(self, queryset=None):
         id = self.kwargs.get('id', None)
         return get_object_or_404(Brand, id=id)
+
 
 @method_decorator(login_required, name='dispatch')
 class CustomerListView(ListView):
@@ -1313,6 +1426,7 @@ class CustomerListView(ListView):
         context['reset_pressed'] = 'reset' in self.request.GET
         return context
 
+
 @method_decorator(login_required, name='dispatch')
 class CustomerEditView(UpdateView):
     model = Customer
@@ -1323,6 +1437,7 @@ class CustomerEditView(UpdateView):
     def get_object(self, queryset=None):
         id = self.kwargs.get('id', None)
         return get_object_or_404(Customer, id=id)
+
 
 @method_decorator(login_required, name='dispatch')
 class ProductListView(ListView):
@@ -1353,6 +1468,7 @@ class ProductListView(ListView):
         context['reset_pressed'] = 'reset' in self.request.GET
         return context
 
+
 @method_decorator(login_required, name='dispatch')
 class ProductEditView(UpdateView):
     model = Product
@@ -1364,12 +1480,14 @@ class ProductEditView(UpdateView):
         id = self.kwargs.get('id', None)
         return get_object_or_404(Product, id=id)
 
+
 @method_decorator(login_required, name='dispatch')
 class MajorLabelListView(ListView):
     model = MajorLabel
     paginate_by = 10
     template_name = "major_label_list.html"
     context_object_name = "major_labels"
+
 
 @method_decorator(login_required, name='dispatch')
 class MajorLabelEditView(UpdateView):
@@ -1381,6 +1499,7 @@ class MajorLabelEditView(UpdateView):
     def get_object(self, queryset=None):
         id = self.kwargs.get('id', None)
         return get_object_or_404(MajorLabel, id=id)
+
 
 @method_decorator(login_required, name='dispatch')
 class MajorLabelCreateView(CreateView):
@@ -1421,6 +1540,7 @@ def create_user(request):
 
     return render(request, 'authenticate/create_user.html', {'form': form})
 
+
 def login_user(request):
     if request.method == "POST":
         email = request.POST["login_email"]
@@ -1446,6 +1566,7 @@ def logout_user(request):
     messages.success(request, ("You were logged out"))
     return redirect('index')
 
+
 class UserListView(ListView):
     model = User
     template_name = "list_users.html"
@@ -1470,12 +1591,14 @@ def accordion(request):
     }
     return render(request, 'app_pages/accordion.html', context)
 
+
 def blank_page(request):
     context = {
         'parent': 'interface',
         'segment': 'blank_page',
     }
     return render(request, 'app_pages/blank.html', context)
+
 
 def badges(request):
     context = {
@@ -1484,12 +1607,14 @@ def badges(request):
     }
     return render(request, 'app_pages/badges.html', context)
 
+
 def buttons(request):
     context = {
         'parent': 'interface',
         'segment': 'buttons',
     }
     return render(request, 'app_pages/buttons.html', context)
+
 
 # Cards
 def sample_cards(request):
@@ -1499,12 +1624,14 @@ def sample_cards(request):
     }
     return render(request, 'app_pages/cards.html', context)
 
+
 def card_actions(request):
     context = {
         'parent': 'interface',
         'segment': 'card_actions',
     }
     return render(request, 'app_pages/card-actions.html', context)
+
 
 def cards_masonry(request):
     context = {
@@ -1513,12 +1640,14 @@ def cards_masonry(request):
     }
     return render(request, 'app_pages/cards-masonry.html', context)
 
+
 def colors(request):
     context = {
         'parent': 'interface',
         'segment': 'colors',
     }
     return render(request, 'app_pages/colors.html', context)
+
 
 def data_grid(request):
     context = {
@@ -1527,12 +1656,14 @@ def data_grid(request):
     }
     return render(request, 'app_pages/datagrid.html', context)
 
+
 def datatables(request):
     context = {
         'parent': 'interface',
         'segment': 'datatables',
     }
     return render(request, 'app_pages/datatables.html', context)
+
 
 def dropdowns(request):
     context = {
@@ -1541,12 +1672,14 @@ def dropdowns(request):
     }
     return render(request, 'app_pages/dropdowns.html', context)
 
+
 def modals(request):
     context = {
         'parent': 'interface',
         'segment': 'modals',
     }
     return render(request, 'app_pages/modals.html', context)
+
 
 def maps(request):
     context = {
@@ -1555,12 +1688,14 @@ def maps(request):
     }
     return render(request, 'app_pages/maps.html', context)
 
+
 def map_fullsize(request):
     context = {
         'parent': 'interface',
         'segment': 'map_fullsize',
     }
     return render(request, 'app_pages/map-fullsize.html', context)
+
 
 def vector_maps(request):
     context = {
@@ -1569,12 +1704,14 @@ def vector_maps(request):
     }
     return render(request, 'app_pages/maps-vector.html', context)
 
+
 def navigation(request):
     context = {
         'parent': 'interface',
         'segment': 'navigation',
     }
     return render(request, 'app_pages/navigation.html', context)
+
 
 def charts(request):
     context = {
@@ -1583,12 +1720,14 @@ def charts(request):
     }
     return render(request, 'app_pages/charts.html', context)
 
+
 def pagination(request):
     context = {
         'parent': 'interface',
         'segment': 'pagination',
     }
     return render(request, 'app_pages/pagination.html', context)
+
 
 def placeholder(request):
     context = {
@@ -1597,12 +1736,14 @@ def placeholder(request):
     }
     return render(request, 'app_pages/placeholder.html', context)
 
+
 def steps(request):
     context = {
         'parent': 'interface',
         'segment': 'steps',
     }
     return render(request, 'app_pages/steps.html', context)
+
 
 def stars_rating(request):
     context = {
@@ -1611,6 +1752,7 @@ def stars_rating(request):
     }
     return render(request, 'app_pages/stars-rating.html', context)
 
+
 def tabs(request):
     context = {
         'parent': 'interface',
@@ -1618,12 +1760,14 @@ def tabs(request):
     }
     return render(request, 'app_pages/tabs.html', context)
 
+
 def tables(request):
     context = {
         'parent': 'interface',
         'segment': 'tables',
     }
     return render(request, 'app_pages/tables.html', context)
+
 
 def inxd_customers(request):
     customers = Customer.objects.all()
@@ -1634,12 +1778,14 @@ def inxd_customers(request):
     }
     return render(request, 'app_pages/inxd_customers.html', context)
 
+
 def carousel(request):
     context = {
         'parent': 'interface',
         'segment': 'carousel',
     }
     return render(request, 'app_pages/carousel.html', context)
+
 
 def lists(request):
     context = {
@@ -1648,12 +1794,14 @@ def lists(request):
     }
     return render(request, 'app_pages/lists.html', context)
 
+
 def typography(request):
     context = {
         'parent': 'interface',
         'segment': 'typography',
     }
     return render(request, 'app_pages/typography.html', context)
+
 
 def offcanvas(request):
     context = {
@@ -1662,6 +1810,7 @@ def offcanvas(request):
     }
     return render(request, 'app_pages/offcanvas.html', context)
 
+
 def markdown(request):
     context = {
         'parent': 'interface',
@@ -1669,12 +1818,14 @@ def markdown(request):
     }
     return render(request, 'app_pages/markdown.html', context)
 
+
 def dropzone(request):
     context = {
         'parent': 'interface',
         'segment': 'dropzone',
     }
     return render(request, 'app_pages/dropzone.html', context)
+
 
 def lightbox(request):
     context = {

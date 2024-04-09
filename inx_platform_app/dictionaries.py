@@ -691,6 +691,6 @@ tables_list = [
     ("_BudForDetails", "ID", models.BudForDetailLine, mapping_BudForDetails),
 
     ("Sales.KE24", None, models.Ke24Line, mapping_Ke24Line),
-    ("Sales.ZAQCODMI9", None, models.ZACODMI9_line, mapping_ZACODMI9_line),
+    ("Sales.ZAQCODMI9", None, models.ZAQCODMI9_line, mapping_ZACODMI9_line),
     ("Sales.Ke30", None, models.Ke30Line, mapping_Ke30Line),
 ]

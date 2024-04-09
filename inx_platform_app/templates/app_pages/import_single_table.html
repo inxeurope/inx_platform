@@ -1,0 +1,55 @@
+{% extends 'app_layouts/base.html' %}
+{% load static %}
+
+{% block content %}
+
+  <div class="page-wrapper">
+    <!-- Page header -->
+    <div class="page-header d-print-none">
+      <div class="container-xl">
+        <div class="row g-2 align-items-center">
+          <div class="col">
+            <h2 class="page-title">
+              Table of the old SQL database
+            </h2>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Page body -->
+
+    <div class="page-body">
+      <div class="container-xl d-flex flex-column justify-content-center">
+        <div class="row g-4">
+          <div class="col-12">
+            <div class="row row-cards mb-3">
+              {% for table_name, field_name_id, model, mapping_dict in options %}
+              {% comment %} {% for brand in page_object %} {% endcomment %}
+              <div class="col-md-6 col-lg-3">
+                <div class="card">
+                  <div class="card-body">
+                    <h3 class="card-title">{{ table_name }}</h3>
+  
+                  </div>
+                  <div class="card-footer">
+                    <div class="d-flex">
+                      <form method="post" action="{% url 'import-single-table' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="table_name" value="{{ table_name }}">
+                        <input class="btn btn-success btn-sm mx-2" type="submit" name="submit_type" value="Import">
+                        <input class="btn btn-danger btn-sm mx-2" type="submit" name="submit_type" value="Clean">
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+    {% include 'app_includes/footer.html' %}
+  </div>
+{% endblock content %}

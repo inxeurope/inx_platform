@@ -45,7 +45,14 @@
                       </div>
                     </div>
                     <div class="card-footer text-end">
-                      <button type="submit" class="btn btn-primary">Update Procedure</button>
+						<div class="d-flex justify-content-between align-items-center">
+							<div class="col">
+								<a href="{% url 'procedures' %}">Cancel</a>
+							</div>
+							<div class="col">
+								<button type="submit" class="btn btn-primary">Update Procedure</button>
+							</div>
+						</div>
                     </div>
                   </form>
                 </div>
@@ -280,32 +287,6 @@
     document.addEventListener("DOMContentLoaded", function () {
     	var el;
     	window.TomSelect && (new TomSelect(el = document.getElementById('select-people'), {
-    		copyClassesToDropdown: false,
-    		dropdownParent: 'body',
-    		controlInput: '<input>',
-    		render:{
-    			item: function(data,escape) {
-    				if( data.customProperties ){
-    					return '<div><span class="dropdown-item-indicator">' + data.customProperties + '</span>' + escape(data.text) + '</div>';
-    				}
-    				return '<div>' + escape(data.text) + '</div>';
-    			},
-    			option: function(data,escape){
-    				if( data.customProperties ){
-    					return '<div><span class="dropdown-item-indicator">' + data.customProperties + '</span>' + escape(data.text) + '</div>';
-    				}
-    				return '<div>' + escape(data.text) + '</div>';
-    			},
-    		},
-    	}));
-    });
-    // @formatter:on
-  </script>
-  <script>
-    // @formatter:off
-    document.addEventListener("DOMContentLoaded", function () {
-    	var el;
-    	window.TomSelect && (new TomSelect(el = document.getElementById('select-countries'), {
     		copyClassesToDropdown: false,
     		dropdownParent: 'body',
     		controlInput: '<input>',

@@ -12,7 +12,8 @@ urlpatterns = [
     path('log_stream_import_files/<int:file_id>/', views.start_file_processing, name='log_stream_import_files'),
 
     path("import_data/", views.import_data, name='import_data'),
-    path("import_single/", views.import_single, name='import_single'),
+    # path("import_single/", views.import_single, name='import_single'),
+    path("import_single_table/", views.import_single_table, name='import-single-table'),
     
     path("clean_db/", views.clean_db, name='clean_db'),
     path("clean_single/", views.clean_single, name='clean_single'),
@@ -57,10 +58,16 @@ urlpatterns = [
     path("major/add", views.MajorLabelCreateView.as_view(), name="major-add"),
     path("major/edit/<int:id>", views.MajorLabelEditView.as_view(), name="major-edit"),
 
-    path('stored_procedures', views.stored_procedures, name='stored-procedures'),
-    path('procedure/<int:pk>', views.stored_procedure, name='stored-procedure'),
-    path('procedure/<int:pk>/push', views.stored_procedure_push, name='stored-procedure-push'),
-    path('procedure/<int:pk>/execute', views.stored_procedure_execute, name='stored-procedure-execute'),
+    path('procedures', views.stored_procedures, name='procedures'),
+    path('procedure/add', views.stored_procedure_add, name='procedure-add'),
+    path('procedure/<int:pk>', views.stored_procedure_edit, name='procedure-edit'),
+    path('procedure/push/<int:pk>', views.stored_procedure_push, name='procedure-push'),
+    path('procedure/execute/<int:pk>', views.stored_procedure_execute, name='procedure-execute'),
+
+    path('db_views', views.db_views, name='db-views'),
+    path('db_view/add', views.db_view_add, name='db-view-add'),
+    path('db_view/<int:pk>', views.db_view_edit, name='db-view-edit'),
+
 
     # For managing users
     path('login_user', views.login_user, name="login"),

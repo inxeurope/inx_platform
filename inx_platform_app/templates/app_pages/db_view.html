@@ -1,0 +1,69 @@
+{% extends 'app_layouts/base.html' %}
+{% load static %}
+
+{% block content %}
+      <div class="page-wrapper">
+        <!-- Page header -->
+        <div class="page-header d-print-none">
+          <div class="container">
+            <div class="row g-2 align-items-center">
+              <div class="col">
+                <h2 class="page-title">
+                  Database View
+                </h2>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Page body -->
+        <div class="page-body">
+          <div class="container">
+                       
+            <div class="col-lg-8 col-md-12">
+              <div class="row row-cards">
+                <div class="col-12">
+                  <form class="card" method="post">
+                    {% csrf_token %}
+                    <div class="card-body">
+                      <h3 class="card-title">Update Database View</h3>
+                      <div class="row row-cards">
+                        <div class="col-sm-12 col-md-12">
+                          <div class="mb-3">
+                            <label class="form-label">{{ form.name.label }}</label>
+                            {{ form.name }}
+                          </div>
+                        </div>
+                        <div class="col-md-12">
+                          <div class="mb-3 mb-0">
+                            <label class="form-label">{{ form.script.label }}</label>
+                            {{ form.script }}
+                            
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card-footer text-end">
+						<div class="d-flex justify-content-between align-items-center">
+							<div class="col">
+								<a href="{% url 'db-views' %}">Cancel</a>
+							</div>
+							<div class="col">
+								<button type="submit" class="btn btn-primary">{{ button_text }}</button>
+							</div>
+						</div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% include 'app_includes/footer.html' %}
+    </div>
+
+{% endblock content %}
+
+{% block extrajs %}
+
+{% endblock extrajs %}

@@ -10,11 +10,11 @@
         <div class="row g-2 align-items-center">
           <div class="col">
             <h2 class="page-title">
-              Stored Procedures
+              Database Views
             </h2>
           </div>
           <div class="col-auto">
-            <a href="{% url 'procedure-add' %}" class="btn btn-outline-primary ">Add</a>
+            <a href="{% url 'db-view-add' %}" class="btn btn-outline-primary ">Add</a>
           </div>
         </div>
       </div>
@@ -35,24 +35,23 @@
                 </thead>
                 <tbody class="table-tbody">
 
-                  {% for procedure in procedures %}
+                  {% for db_view in db_views %}
                   <tr>
                     <td>
-                      <div>{{ procedure.id }}</div>
+                      <div>{{ db_view.id }}</div>
                     </td>
                     <td class="sort-name">
                       <div class="row align-items-center">
-                        {{ procedure.name }}
+                        {{ db_view.name }}
                       </div>
                     </td>
                     <td >
                       <div class="row align-items-center">
                         {% comment %} <div class="col-12 col-lg-auto"> {% endcomment %}
                         <div class="col-12">  
-                          <a href="{% url 'procedure-edit' procedure.id %}" class="btn btn-pill btn-primary">Edit script</a>
-                          <a href="{% url 'procedure-push' procedure.id %}" class="btn btn-pill btn-teal">Push in the db</a>
-                          <a href="" class="btn btn-pill btn-warning">Execute</a>
-
+                          <a href="{% url 'db-view-edit' db_view.id %}" class="btn btn-pill btn-primary">Edit script</a>
+                          {% comment %} <a href="{% url 'db-view-push' procedure.id %}" class="btn btn-pill btn-teal">Push in the db</a> {% endcomment %}
+                          {% comment %} <a href="" class="btn btn-pill btn-warning">Execute</a> {% endcomment %}
                         </div>
                       </div>
                     </td>
@@ -71,20 +70,5 @@
 {% endblock content %}
 
 {% block extrajs %}
-
-    <script src="{% static 'dist/libs/list.js/dist/list.min.js' %}?1684106062" defer></script>
-    <script>
-      document.addEventListener("DOMContentLoaded", function() {
-      const list = new List('table-default', {
-      	sortClass: 'table-sort',
-      	listClass: 'table-tbody',
-      	valueNames: [ 'sort-name', 'sort-type', 'sort-city', 'sort-score',
-      		{ attr: 'data-date', name: 'sort-date' },
-      		{ attr: 'data-progress', name: 'sort-progress' },
-      		'sort-quantity'
-      	]
-      });
-      })
-    </script>
 
 {% endblock extrajs %}

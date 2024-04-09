@@ -4,8 +4,9 @@ from .models import InkTechnology, NSFDivision, MarketSegment, MaterialGroup, In
 from .models import Brand, Packaging, ProductStatus, Product, Customer, Ke30Line, UnitOfMeasure
 from .models import ExchangeRate, Scenario, CountryCode, BudForLine, BudForNote, BudForDetailLine
 from .models import CustomerType, Fbl5nArrImport, Fbl5nOpenImport, Ke30ImportLine, Ke24ImportLine
-from .models import Ke24Line, Order, CustomerNote, ProductLine, RateToLT, StoredProcedure, Fert
-from .models import ZACODMI9_line, ZACODMI9_import_line, UploadedFile, Price, User, Contact
+from .models import Ke24Line, Order, CustomerNote, ProductLine, RateToLT, Fert
+from .models import ZAQCODMI9_line, ZAQCODMI9_import_line, UploadedFile, Price, User, Contact
+from .models import StoredProcedure, DatabaseView
 
 
 class ColorGroupAdmin(admin.ModelAdmin):
@@ -65,7 +66,7 @@ class ExchangeRateAdmin(admin.ModelAdmin):
 
 
 class ScenarioAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name']
+    list_display = ['id', 'is_sales', 'name', 'sqlapp_id']
 
 
 class CountryCodeAdmin(admin.ModelAdmin):
@@ -91,13 +92,32 @@ class BrandAdmin(admin.ModelAdmin):
 
 class ProductAdmin(admin.ModelAdmin):
     # list_display = ['id', 'number', 'name', 'get_brand_name']
-    list_display = ['id', 'number', 'name', 'get_brand_name']
+    list_display = ['id', 'number', 'name','get_color_name', 'get_colorgroup_name', 'get_brand_name']
 
     def get_brand_name(self, obj):
-        #print(f"SPECIAL LOG ------ obj: {obj}")
-        return obj.brand.name
+        if obj.brand:
+            value = obj.brand.name
+        else:
+            value = ''
+        return value
     
-    get_brand_name.short_description = 'brand_name'
+    def get_color_name(self, obj):
+        if obj.color:
+            value = obj.color.name
+        else:
+            value = ''
+        return value
+    
+    def get_colorgroup_name(self, obj):
+        if obj.color and obj.color.color_group:
+            value = obj.color.color_group.name
+        else:
+            value =''
+        return value
+    
+    get_brand_name.short_description = 'brand name'
+    get_color_name.short_description = 'color name'
+    get_colorgroup_name.short_description = 'color group'
 
 
 class CustomerAdmin(admin.ModelAdmin):
@@ -140,6 +160,52 @@ class Ke30ImportLineAdmin(admin.ModelAdmin):
 class Ke30LineAdmin(admin.ModelAdmin):
     list_display = ['id', 'year_month', 'customer_number', 'customer_name', 'product_number', 'product_name', 'currency', 'quantity', 'gross_sales']
 
+
+class DatabaseViewAdmin(admin.ModelAdmin):
+    fields = ['id', 'name', 'script']
+
+
+class BudForLineAdmin(admin.ModelAdmin):
+    list_display = ['id', 'get_customer_name', 'get_brand_name', 'get_colorgroup_name']
+
+    def get_customer_name(self, obj):
+        return obj.customer.name
+    
+    def get_brand_name(self, obj):
+        return obj.brand.name
+
+    def get_colorgroup_name(self, obj):
+        return obj.color_group.name
+    
+    get_customer_name.short_description = 'customer_name'
+    get_brand_name.short_description = 'brand_name'
+    get_colorgroup_name.short_description = 'color_group_name'
+
+
+class BudForDetailLineAdmin(admin.ModelAdmin):
+    list_display = ['id', 'get_budforline_id', 'get_budforline_info', 'get_scenario_name', 'year', 'month', 'volume', 'price', 'get_value']
+    search_fields = ['scenario__name', 'budforline__customer__name', 'budforline__brand__name', 'budforline__color_group__name', 'year', 'month']
+
+    def get_budforline_id(self, obj):
+        return obj.budforline.id
+    
+    def get_budforline_info(self, obj):
+        the_related_budforline = obj.budforline
+        return_value = f"{the_related_budforline.customer.name} - {the_related_budforline.brand.name} - {the_related_budforline.color_group.name}"
+        return return_value
+    
+    def get_scenario_name(self, obj):
+        return obj.scenario.name
+
+    def get_value(self, obj):
+        return_value = obj.price * obj.volume
+        return return_value
+
+    get_budforline_id.short_description = 'budforline_id'
+    get_scenario_name.short_description = 'scenario'
+    get_budforline_info.short_description = 'additional info'
+
+
 admin.site.register(ColorGroup, ColorGroupAdmin)
 admin.site.register(Color, ColorAdmin)
 admin.site.register(MadeIn, MadeInAdmin)
@@ -162,22 +228,23 @@ admin.site.register(CountryCode, CountryCodeAdmin)
 admin.site.register(CustomerType, CustomerTypeAdmin)
 admin.site.register(Brand, BrandAdmin)
 admin.site.register(Product, ProductAdmin)
-admin.site.register(BudForLine)
+admin.site.register(BudForLine, BudForLineAdmin)
 admin.site.register(BudForNote)
-admin.site.register(BudForDetailLine)
+admin.site.register(BudForDetailLine, BudForDetailLineAdmin)
 admin.site.register(Fbl5nArrImport)
 admin.site.register(Fbl5nOpenImport)
 admin.site.register(Ke30ImportLine, Ke30ImportLineAdmin)
 admin.site.register(Ke30Line, Ke30LineAdmin)
 admin.site.register(Ke24ImportLine)
 admin.site.register(Ke24Line)
-admin.site.register(ZACODMI9_import_line)
-admin.site.register(ZACODMI9_line)
+admin.site.register(ZAQCODMI9_import_line)
+admin.site.register(ZAQCODMI9_line)
 admin.site.register(Order)
 admin.site.register(CustomerNote)
 admin.site.register(UploadedFile)
 admin.site.register(Price, PriceAdmin)
 admin.site.register(StoredProcedure, StoredProcedureAdmin)
+admin.site.register(DatabaseView, DatabaseViewAdmin)
 admin.site.register(User)
 admin.site.register(Contact, ContactAdmin)
 admin.site.register(Fert, FertAdmin)

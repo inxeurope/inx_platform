@@ -22,6 +22,9 @@
         {% block sidebar %}
             {% include 'app_includes/sidebar.html' %}
         {% endblock sidebar %}
+        {% block messages %}
+          {% include 'app_includes/messages.html' %}
+        {% endblock messages %}
         {% block content %}{% endblock content %}
     </div>
     {% block modal %}{% endblock modal %}

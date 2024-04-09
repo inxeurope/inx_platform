@@ -210,6 +210,7 @@ class ExchangeRate(models.Model):
 
 class Scenario(models.Model):
     name = models.CharField(max_length=100, blank=True)
+    is_sales = models.BooleanField(default=False, null=True)
     sqlapp_id = models.IntegerField(default=0, null=True)
 
     def __str__(self):
@@ -552,7 +553,7 @@ class Ke24Line(models.Model):
     import_timestamp = models.DateTimeField(auto_now_add=True, null=True)
     owner = models.ForeignKey(User, on_delete=models.PROTECT, blank=True, null=True)
 
-class ZACODMI9_line(models.Model):
+class ZAQCODMI9_line(models.Model):
     billing_date = models.DateField() 
     material = models.CharField(max_length=30)
     description = models.CharField(max_length=100)
@@ -580,7 +581,7 @@ class ZACODMI9_line(models.Model):
     sales_doc = models.CharField(max_length=20)
     import_date = models.CharField(max_length=25)
 
-class ZACODMI9_import_line(models.Model):
+class ZAQCODMI9_import_line(models.Model):
     billing_date = models.DateField() 
     material = models.CharField(max_length=30)
     description = models.CharField(max_length=100)
@@ -796,6 +797,7 @@ class Color(models.Model):
         return_value = f"{self.name}"
         return return_value
 
+
 class Brand(models.Model):
     name = models.CharField(max_length=50)
     sap_name = models.CharField(max_length=30, null=True, blank=True)
@@ -812,6 +814,7 @@ class Brand(models.Model):
 
     def __str__(self):
         return self.name
+
 
 class Product(models.Model):
     name = models.CharField(max_length=100)
@@ -833,7 +836,8 @@ class Product(models.Model):
     def __str__(self):
         return_value = f"{self.number}, {self.name}"
         return return_value
-    
+
+
 class RateToLT(models.Model):
     uom = models.ForeignKey(UnitOfMeasure, on_delete=models.PROTECT)
     packaging = models.ForeignKey(Packaging, on_delete=models.PROTECT)
@@ -843,8 +847,10 @@ class RateToLT(models.Model):
     def __str__(self):
         return self.uom + self.packaging
 
+
 class ShippingPolicy(models.Model):
     name = models.CharField(max_length=255, null=True, blank=True)
+
 
 class Customer(models.Model):
     class Meta:
@@ -880,6 +886,7 @@ class Customer(models.Model):
         return_value = f"{self.name}"
         return return_value
 
+
 class ShippingAddress(models.Model):
     name = models.CharField(max_length=250, null=True)
     street_name = models.CharField(max_length=250, null=True)
@@ -888,6 +895,7 @@ class ShippingAddress(models.Model):
     city = models.CharField(max_length=250, null=True)
     country = models.ForeignKey(CountryCode, on_delete=models.SET_NULL,null=True, blank=True)
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, blank=True)
+
 
 class CustomerNote(models.Model):
     note = models.TextField()
@@ -901,6 +909,7 @@ class CustomerNote(models.Model):
     def __str__(self):
         return f"{self.customer.name} - {self.created_at} - {self.note}"
 
+
 class BudForLine(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.PROTECT)
     brand = models.ForeignKey(Brand, on_delete=models.PROTECT)
@@ -909,6 +918,7 @@ class BudForLine(models.Model):
 
     def __str__(self):
         return 'Customer: ' + self.customer.name + ' brand: ' + self.brand.name + ' color group:' + self.color_group.name
+
 
 class BudForNote(models.Model):
     note = models.CharField(max_length=255)
@@ -920,6 +930,7 @@ class BudForNote(models.Model):
     def __str__(self):
         return self.note
     
+
 class BudForDetailLine(models.Model):
     volume = models.IntegerField(null=True, default=0)
     price = models.FloatField(null=True, default=0)
@@ -971,6 +982,7 @@ class UploadedFile(models.Model):
     def __str__(self) -> str:
         value = self.file_path + self.file_name + ' ' + self.owner.email + ' ' + self.created_at.strftime("%Y/%m/%d, %H:%M:%S")
         return value
+
     
     def process_chunk(self, chunk, model, field_mapping, index, no_of_chunks):
         apps.ready()
@@ -980,6 +992,7 @@ class UploadedFile(models.Model):
             for field, column_name in field_mapping.items():
                 setattr(instance, field, row[column_name])
             instance.save()
+
 
     def start_processing(self):
         file_path = self.file_path + "/" + self.file_name
@@ -1132,6 +1145,7 @@ class UploadedFile(models.Model):
             print (f'processed the file id: {self.id}  filetye: {self.file_type} file_name: {self.file_name} file_path: {self.file_path}')
             print("processing terminated in the model")
 
+
     def delete_file_soft(self):
         full_file_name = os.path.join(settings.MEDIA_ROOT, self.file_path, self.file_name)
         print(full_file_name)
@@ -1139,9 +1153,12 @@ class UploadedFile(models.Model):
             os.remove(full_file_name)
             self.is_processed = True
             self.save()
+            print(f'The file {full_file_name} was there and we removed it')
             return True
         else:
+            print(f'The file {full_file_name} was not there')
             return False
+
 
     def delete_file(self):
         full_file_name = os.path.join(settings.MEDIA_ROOT, self.file_path, self.file_name)
@@ -1153,7 +1170,6 @@ class UploadedFile(models.Model):
             self.save()
             
         
-
     def read_excel_file(self, file_path, conversion_dict):
         df = pd.read_excel(file_path, thousands='.', decimal=',', dtype=conversion_dict, parse_dates=True)
         df = df.replace(np.nan, '')
@@ -1161,7 +1177,10 @@ class UploadedFile(models.Model):
 
 
 class StoredProcedure(models.Model):
-
+    '''
+    The StoredProcedure model contains always the CREATE PROCEDURE script as it has to be executed to creat the proc in the django DB.
+    The process will be to DROP the proc in the db and recreate it.
+    '''
     name = models.CharField(max_length=255)
     script = models.TextField()
 
@@ -1171,6 +1190,18 @@ class StoredProcedure(models.Model):
     class Meta:
         verbose_name = "Stored Procedure"
         verbose_name_plural = "Stored Procedures"
+
+
+class DatabaseView(models.Model):
+    name = models.CharField(max_length=255, null=True, blank=True)
+    script = models.TextField()
+
+    def __str__(self) -> str:
+        return self.name 
+
+    class Meta:
+        verbose_name = "Database View"
+        verbose_name_plural = "Database Views"
 
 
 class Contact(models.Model):
@@ -1200,7 +1231,6 @@ class Contact(models.Model):
         full_name = f"{self.first_name} {self.middle_name[0].capitalize()} {self.last_name}"
         return full_name
     
-
 
 class Fert(models.Model):
     number = models.CharField(max_length=6, blank=True)

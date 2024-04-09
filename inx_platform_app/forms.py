@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm, AuthenticationForm, UsernameField, PasswordResetForm, SetPasswordForm
 from .models import Customer, Product, Color, CustomerType, Industry, MajorLabel, Brand, Division, InkTechnology, NSFDivision, MarketSegment, MaterialGroup, User
-from .models import MadeIn, Packaging, ProductLine, ProductStatus, StoredProcedure
+from .models import MadeIn, Packaging, ProductLine, ProductStatus, StoredProcedure, DatabaseView
 
 # class CustomerForm(forms.ModelForm):
 #     class Meta:
@@ -272,7 +272,16 @@ class StoredProcedureForm(forms.ModelForm):
         fields = ('name', 'script')
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control name-input'}),
-            'script': forms.Textarea(attrs={'class':'form-control font-monospace', 'cols': 80, 'rows': 20}),
+            'script': forms.Textarea(attrs={'class':'form-control font-monospace', 'cols': 80, 'rows': 40}),
+        }
+
+class DatabaseViewForm(forms.ModelForm):
+    class Meta:
+        model = DatabaseView
+        fields = ('name', 'script')
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control name-input'}),
+            'script': forms.Textarea(attrs={'class':'form-control font-monospace', 'cols': 80, 'rows': 40}),
         }
 
 class ProductForm(forms.ModelForm):

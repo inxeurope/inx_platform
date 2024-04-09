@@ -5,26 +5,7 @@
         <p class="h4">Single table operation</p>
     </div>
 </div>
-<!--
-<div class="row p-1 mb-3">
-    <div class="col-auto">
-        <form method="post" action="{% url 'import_single' %}">
-            {% csrf_token %}
-            
-            <label for="selected_option">Select a table:</label>
-            <select name="selected_option" id="selected_option">
-                {% for table_name, field_name_id, model, mapping_dict in options %}
-                    <option value="{{ table_name }}">{{ table_name }}</option>
-                {% endfor %}
-            </select>
-            
-            <input class="btn btn-success" type="submit" name="submit_type" value="Import">
-            <input class="btn btn-danger" type="submit" name="submit_type" value="Clean">
-            
-        </form> 
-    </div>
-</div>
--->
+
 {% for table_name, field_name_id, model, mapping_dict in options %}
 <div class="row p-1 mb-3 align-items-center border">
     <form method="post" action="{% url 'import_single' %}">
