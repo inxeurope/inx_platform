@@ -6,7 +6,6 @@ from .models import ExchangeRate, Scenario, CountryCode, BudForLine, BudForNote,
 from .models import CustomerType, Fbl5nArrImport, Fbl5nOpenImport, Ke30ImportLine, Ke24ImportLine
 from .models import Ke24Line, Order, CustomerNote, ProductLine, RateToLT, Fert
 from .models import ZAQCODMI9_line, ZAQCODMI9_import_line, UploadedFile, Price, User, Contact
-from .models import StoredProcedure, DatabaseView
 
 
 class ColorGroupAdmin(admin.ModelAdmin):
@@ -141,9 +140,6 @@ class PriceAdmin(admin.ModelAdmin):
     list_display=['id', 'customer_name', 'product_name', 'volume_from', 'volume_to', 'price', 'per', 'UoM', 'currency', 'valid_from', 'valid_to']
 
 
-class StoredProcedureAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'script']
-
 
 class ContactAdmin(admin.ModelAdmin):
     list_display = ['id', 'title', 'first_name', 'last_name', 'job_position', 'email', 'mobile_number']
@@ -159,10 +155,6 @@ class Ke30ImportLineAdmin(admin.ModelAdmin):
 
 class Ke30LineAdmin(admin.ModelAdmin):
     list_display = ['id', 'year_month', 'customer_number', 'customer_name', 'product_number', 'product_name', 'currency', 'quantity', 'gross_sales']
-
-
-class DatabaseViewAdmin(admin.ModelAdmin):
-    fields = ['id', 'name', 'script']
 
 
 class BudForLineAdmin(admin.ModelAdmin):
@@ -243,8 +235,6 @@ admin.site.register(Order)
 admin.site.register(CustomerNote)
 admin.site.register(UploadedFile)
 admin.site.register(Price, PriceAdmin)
-admin.site.register(StoredProcedure, StoredProcedureAdmin)
-admin.site.register(DatabaseView, DatabaseViewAdmin)
 admin.site.register(User)
 admin.site.register(Contact, ContactAdmin)
 admin.site.register(Fert, FertAdmin)

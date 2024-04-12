@@ -20,8 +20,8 @@ from django.views.generic.edit import UpdateView, CreateView
 from .models import Ke30ImportLine, Ke24ImportLine, ZAQCODMI9_import_line, Order, Fbl5nArrImport, Fbl5nOpenImport, Price
 from .models import MadeIn, MajorLabel, ProductStatus
 from .models import Brand, Product, Customer, InkTechnology, User
-from .models import UploadedFile, StoredProcedure, DatabaseView, Contact
-from .forms import EditMajorLabelForm, EditBrandForm, EditCustomerForm, EditProductForm, StoredProcedureForm, DatabaseViewForm, CustomUserCreationForm, UserPasswordChangeForm, RegistrationForm, LoginForm, UserPasswordResetForm, UserSetPasswordForm
+from .models import UploadedFile, Contact
+from .forms import EditMajorLabelForm, EditBrandForm, EditCustomerForm, EditProductForm, CustomUserCreationForm, UserPasswordChangeForm, RegistrationForm, LoginForm, UserPasswordResetForm, UserSetPasswordForm
 from .forms import ProductForm, CustomerForm, BrandForm
 from .forms import get_generic_model_form
 from . import dictionaries, import_dictionaries
@@ -527,6 +527,7 @@ def clean_db(request):
     
     return render(request, 'index-inx.html', {})
 
+
 @login_required
 def save_model(the_class, the_data, counter, all_records, logs=None):
     if the_class.__name__ == 'User':
@@ -573,6 +574,7 @@ def save_model(the_class, the_data, counter, all_records, logs=None):
         print(f'skipping sqlapp_id {sql_app_to_find}', end='\r')
     return counter, logs
 
+
 @login_required
 def display_files(request):
     user = request.user
@@ -580,11 +582,13 @@ def display_files(request):
     
     return render(request, "display_files.html", {'user_files': user_files})
 
+
 @login_required
 def importing_files(request):
     user = request.user
     user_files = UploadedFile.objects.filter(owner=user, is_processed=False)
     return render(request, "app_pages/importing_files.html", {'user_files': user_files})
+
 
 @login_required
 def importing_files_x(request):
@@ -600,6 +604,7 @@ def importing_files_x(request):
         user = request.user
         user_files = UploadedFile.objects.filter(owner=user, is_processed=False)
         return render(request, "app_pages/importing_files_x.html", {'user_files': user_files})
+
 
 @login_required
 def imported_files(request, page=0):
@@ -630,6 +635,7 @@ def imported_files(request, page=0):
         'page_object': page_obj
         }
     return render(request, "app_pages/imported_files.html", context)
+
 
 def start_processing(request, file_id):
     pass
@@ -1107,6 +1113,7 @@ def product_view(request, pk):
     }
     return render(request, "app_pages/product_view.html", context)
 
+
 @login_required
 def product_edit(request, pk):
     p = get_object_or_404(Product, id=pk)
@@ -1219,109 +1226,6 @@ def brand_edit(request, pk):
         form = BrandForm(instance=b)
     context = {'form': form}
     return render(request, "app_pages/brand_edit.html", context)
-
-
-@login_required
-def stored_procedures(request):
-    procedures = StoredProcedure.objects.all()
-    context = {'procedures': procedures}
-    return render(request, "app_pages/stored_procedures.html", context)
-
-
-@login_required
-def stored_procedure_edit(request, pk):
-    procedure = get_object_or_404(StoredProcedure, id=pk)
-    if request.method == 'POST':
-        f = StoredProcedureForm(request.POST, instance=procedure)
-        if f.is_valid():
-            f.save()
-            return redirect('procedures')
-        else:
-            print(f.errors)
-    else:
-        form = StoredProcedureForm(instance=procedure)
-    context = {'form': form}
-    return render(request,"app_pages/stored_procedure.html", context)
-
-
-@login_required
-def stored_procedure_add(request):
-    if request.method == "POST":
-        form = StoredProcedureForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('procedures')
-    else:
-        form = StoredProcedureForm()
-    context = {'form': form}
-    return render(request, 'app_pages/stored_procedure.html', context)
-
-
-@login_required
-def stored_procedure_push(request, pk):
-    proc = get_object_or_404(StoredProcedure, pk=pk)
-    if proc:
-        print('pushing stored procedure', pk)
-
-        with connection.cursor() as cursor:
-            cursor.execute(f"DROP PROCEDURE IF EXISTS {proc.name};")
-            try:
-                cursor.execute(f"{proc.script}")
-                messages.success(request, f"{proc.name} was successfully pushed in the db", extra_tags="alert-success")
-            except (pyodbc.ProgrammingError, utils.ProgrammingError) as e:
-                messages.error(request, f"{proc.name} faild being pushed to db", extra_tags="alert-danger")
-                print (e)
-            
-            return redirect('procedures')
-            
-
-@login_required
-def stored_procedure_execute(request, pk):
-    pass
-
-
-@login_required
-def db_views(request):
-    db_views = DatabaseView. objects.all()
-    context = {
-        'db_views': db_views
-    }
-    return render(request, "app_pages/db_views.html", context)
-
-
-@login_required
-def db_view_edit(request, pk):
-    db_view = get_object_or_404(DatabaseView, id=pk)
-    if request.method == 'POST':
-        f = DatabaseViewForm(request.POST, instance=db_view)
-        if f.is_valid():
-            f.save()
-            return redirect('db-views')
-        else:
-            print(f.errors)
-    else:
-        form = DatabaseViewForm(instance=db_view)
-    context = {
-        'form': form,
-        'button_text': 'Update View'
-        }
-    return render(request,"app_pages/db_view.html", context)
-
-
-@login_required
-def db_view_add(request):
-    if request.method == "POST":
-        form = DatabaseViewForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('db-views')
-    else:
-        form = DatabaseViewForm()
-    context = {
-        'form': form,
-        'button_text': 'Save View'
-        }
-    return render(request, 'app_pages/db_view.html', context)
 
 
 def edit_dictionary(request, dictionary_name):

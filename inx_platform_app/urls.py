@@ -58,17 +58,6 @@ urlpatterns = [
     path("major/add", views.MajorLabelCreateView.as_view(), name="major-add"),
     path("major/edit/<int:id>", views.MajorLabelEditView.as_view(), name="major-edit"),
 
-    path('procedures', views.stored_procedures, name='procedures'),
-    path('procedure/add', views.stored_procedure_add, name='procedure-add'),
-    path('procedure/<int:pk>', views.stored_procedure_edit, name='procedure-edit'),
-    path('procedure/push/<int:pk>', views.stored_procedure_push, name='procedure-push'),
-    path('procedure/execute/<int:pk>', views.stored_procedure_execute, name='procedure-execute'),
-
-    path('db_views', views.db_views, name='db-views'),
-    path('db_view/add', views.db_view_add, name='db-view-add'),
-    path('db_view/<int:pk>', views.db_view_edit, name='db-view-edit'),
-
-
     # For managing users
     path('login_user', views.login_user, name="login"),
     path('logout_user', views.logout_user, name="logout"),

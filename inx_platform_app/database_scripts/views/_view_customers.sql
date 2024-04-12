@@ -1,7 +1,3 @@
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
 CREATE VIEW [dbo].[_view_customers] AS
 SELECT
     c.*,
@@ -13,4 +9,3 @@ SELECT
 FROM inx_platform_app_customer c
 LEFT JOIN inx_platform_app_countrycode cc ON cc.id = c.country_id
 LEFT JOIN inx_platform_app_user u ON u.id = c.sales_employee_id
-GO

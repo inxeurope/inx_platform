@@ -1,9 +1,3 @@
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
--- What we are trying to achieve here? This is the
--- _view_zaq
 CREATE VIEW [dbo].[_view_zaq] AS
 SELECT
     z.[id] as zaq_id,
@@ -100,4 +94,3 @@ SELECT
 FROM inx_platform_app_zaqcodmi9_line z
 LEFT JOIN _view_products p ON p.number = z.material
 LEFT JOIN _view_customers c ON c.number = z.sold_to
-GO

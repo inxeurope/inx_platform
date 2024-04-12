@@ -1,7 +1,3 @@
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
 CREATE VIEW [dbo].[_view_products] AS
 SELECT
     p.id,
@@ -44,4 +40,3 @@ LEFT JOIN inx_platform_app_colorgroup cg ON cg.id = c.color_group_id
 LEFT JOIN inx_platform_app_madein mi ON mi.id = p.made_in_id
 LEFT JOIN inx_platform_app_division d ON d.id = b.division_id
 WHERE p.brand_id IS NOT NULL AND cg.id IS NOT NULL
-GO

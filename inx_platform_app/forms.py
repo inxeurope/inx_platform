@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm, AuthenticationForm, UsernameField, PasswordResetForm, SetPasswordForm
 from .models import Customer, Product, Color, CustomerType, Industry, MajorLabel, Brand, Division, InkTechnology, NSFDivision, MarketSegment, MaterialGroup, User
-from .models import MadeIn, Packaging, ProductLine, ProductStatus, StoredProcedure, DatabaseView
+from .models import MadeIn, Packaging, ProductLine, ProductStatus
 
 # class CustomerForm(forms.ModelForm):
 #     class Meta:
@@ -132,18 +132,6 @@ class EditProductForm(forms.ModelForm):
         product_line = forms.ModelChoiceField(queryset=ProductLine.objects.all(), widget=forms.Select(attrs={'class': 'form-control'}))
         product_status = forms.ModelChoiceField(queryset=ProductStatus.objects.all(), widget=forms.Select(attrs={'class': 'form-control'}))
 
-class EditProcedureForm(forms.ModelForm):
-    class Meta:
-        model = StoredProcedure
-        fields = (
-            'name',
-            'script',
-        )
-        widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control'}),
-            'script': forms.Textarea(attrs={'class': 'form-control'}),
-        }
-
 class CustomUserCreationForm(UserCreationForm):
     class Meta:
         model = User
@@ -265,24 +253,6 @@ def get_generic_model_form(model_class):
             model = model_class
             fields = '__all__'
     return GenericModelForm
-
-class StoredProcedureForm(forms.ModelForm):
-    class Meta:
-        model = StoredProcedure
-        fields = ('name', 'script')
-        widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control name-input'}),
-            'script': forms.Textarea(attrs={'class':'form-control font-monospace', 'cols': 80, 'rows': 40}),
-        }
-
-class DatabaseViewForm(forms.ModelForm):
-    class Meta:
-        model = DatabaseView
-        fields = ('name', 'script')
-        widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control name-input'}),
-            'script': forms.Textarea(attrs={'class':'form-control font-monospace', 'cols': 80, 'rows': 40}),
-        }
 
 class ProductForm(forms.ModelForm):
     class Meta:

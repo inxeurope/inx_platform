@@ -1176,33 +1176,6 @@ class UploadedFile(models.Model):
         return df
 
 
-class StoredProcedure(models.Model):
-    '''
-    The StoredProcedure model contains always the CREATE PROCEDURE script as it has to be executed to creat the proc in the django DB.
-    The process will be to DROP the proc in the db and recreate it.
-    '''
-    name = models.CharField(max_length=255)
-    script = models.TextField()
-
-    def __str__(self) -> str:
-        return self.name 
-
-    class Meta:
-        verbose_name = "Stored Procedure"
-        verbose_name_plural = "Stored Procedures"
-
-
-class DatabaseView(models.Model):
-    name = models.CharField(max_length=255, null=True, blank=True)
-    script = models.TextField()
-
-    def __str__(self) -> str:
-        return self.name 
-
-    class Meta:
-        verbose_name = "Database View"
-        verbose_name_plural = "Database Views"
-
 
 class Contact(models.Model):
     TITLE_CHOICES = [

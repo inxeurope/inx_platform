@@ -33,11 +33,10 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "inx_platform_app",
-    'debug_toolbar',
-    'django_extensions',
-    'django_htmx',
-
+    "debug_toolbar",
+    "django_extensions",
+    "django_htmx",
+    "inx_platform_app.apps.InxPlatformAppConfig",
 ]
 
 ASGI_APPLICATION = "django_inx_platform.asgi.application"

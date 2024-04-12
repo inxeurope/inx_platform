@@ -4,6 +4,10 @@ from django.db import connection
 
 def check_and_create_views_and_procs(app_folder):
     # Check for views
+    print("*"*50)
+    print("* VIEWS", end="")
+    print(" "*41, "*")
+    print("*"*50)
     view_folder = os.path.join(app_folder, 'database_scripts/views')
     view_files = [f[:-4] for f in os.listdir(view_folder) if f.endswith('.sql')]
     with connection.cursor() as cursor:
@@ -16,8 +20,13 @@ def check_and_create_views_and_procs(app_folder):
                 print(f"{view_name} created in the db")
             else:
                 print(f"{view_name} exists")
+    print()
 
     # Check for stored procedures
+    print("*"*50)
+    print("* PROCS", end="")
+    print(" "*41, "*")
+    print("*"*50)
     proc_folder = os.path.join(app_folder, 'database_scripts/stored_procedures')
     proc_files = [f[:-4] for f in os.listdir(proc_folder) if f.endswith('.sql')]
     with connection.cursor() as cursor:
@@ -30,3 +39,4 @@ def check_and_create_views_and_procs(app_folder):
                 print(f"{proc_name} created in the db")
             else:
                 print(f"{proc_name} exists")
+    print()

@@ -1,3 +1,4 @@
+CREATE VIEW [_view_budforsales_temporary] AS
 SELECT
     _view_customers_id,
     _view_customers_number,
