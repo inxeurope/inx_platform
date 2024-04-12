@@ -1,4 +1,4 @@
-CREATE PROCEDURE [dbo].[_budforsales_add_triplets]
+CREATE PROCEDURE [_budforline_add_triplets]
 AS
 BEGIN
     SET NOCOUNT ON

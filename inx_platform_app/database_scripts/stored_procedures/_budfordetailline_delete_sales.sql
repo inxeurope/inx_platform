@@ -1,4 +1,4 @@
-CREATE PROCEDURE [dbo].[_budfordetailline_delete_sales]
+CREATE PROCEDURE [_budfordetailline_delete_sales]
 AS
 BEGIN
     -- Get sales id from Scenario

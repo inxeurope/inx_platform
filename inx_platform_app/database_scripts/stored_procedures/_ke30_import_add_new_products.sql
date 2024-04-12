@@ -1,8 +1,4 @@
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-CREATE PROCEDURE [dbo].[_ke30_import_add_new_products]
+CREATE PROCEDURE [_ke30_import_add_new_products]
 -- This porocedure insert NEW products that are present in KE30 and not yet present in Products table
 -- This procedure marks thos NEW products as "New item, pending definition" in KE30_ImportStatus
 AS
@@ -52,4 +48,3 @@ BEGIN
     WHERE is_new=1;
 
 END
-GO

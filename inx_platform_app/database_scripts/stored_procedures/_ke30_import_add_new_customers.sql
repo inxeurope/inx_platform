@@ -1,8 +1,4 @@
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-CREATE PROCEDURE [dbo].[_ke30_import_add_new_customers]
+CREATE PROCEDURE [_ke30_import_add_new_customers]
 -- This porocedure insert NEW customers that are present in KE30 and not yet present in Customers table
 -- This procedure marks thos NEW customers as "New Customers, pending definition" in KE30_ImportStatus
 AS
@@ -54,4 +50,3 @@ BEGIN
     WHERE is_new=1;
 
 END
-GO

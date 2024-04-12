@@ -1,4 +1,4 @@
-CREATE PROCEDURE [dbo].[_budfordetailline_fill_sales]
+CREATE PROCEDURE [_budfordetailline_fill_sales]
 AS
 BEGIN
     SET NOCOUNT ON

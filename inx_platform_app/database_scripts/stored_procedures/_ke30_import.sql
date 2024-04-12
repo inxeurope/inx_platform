@@ -1,4 +1,4 @@
-CREATE PROCEDURE [dbo].[_ke30_import]
+CREATE PROCEDURE [_ke30_import]
 
 AS
 BEGIN

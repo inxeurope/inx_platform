@@ -1,11 +1,4 @@
-/****** Object:  StoredProcedure [db_owner].[DropAllTables]    Script Date: 1/3/2024 9:46:14 PM ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
-CREATE PROCEDURE [db_owner].[DropAllTables]
+CREATE PROCEDURE [_drop_all_tables]
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -64,6 +57,5 @@ FROM sys.foreign_keys f
 	DEALLOCATE table_cursor
 
 END
-GO
 
 

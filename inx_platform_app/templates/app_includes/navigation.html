@@ -9,6 +9,7 @@
         <a href="{% url 'index' %}">
             <img src="{% static 'static/plat_logo.svg' %}" width="110" height="32" alt="Tabler" class="navbar-brand-image">
         </a>
+        {% if is_local %} Local {% endif %}
         </h1>
         <div class="navbar-nav flex-row order-md-last">
         <div class="nav-item d-none d-md-flex me-3">
