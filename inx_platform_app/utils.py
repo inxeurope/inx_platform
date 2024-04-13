@@ -10,10 +10,11 @@ def check_and_create_views_and_procs(app_folder):
     print("*"*50)
     view_folder = os.path.join(app_folder, 'database_scripts/views')
     view_files = [f[:-4] for f in os.listdir(view_folder) if f.endswith('.sql')]
+    print(f"view_files:{view_files}")
     with connection.cursor() as cursor:
         for view_name in view_files:
             sql_statement = f"SELECT * FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_NAME = '{view_name}'"
-            print(f"{sql_statement}")
+            print(f"sql_statement: {sql_statement}")
             cursor.execute(sql_statement)
             if not cursor.fetchone():
                 with open(os.path.join(view_folder, f"{view_name}.sql")) as f:
