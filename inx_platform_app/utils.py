@@ -49,7 +49,7 @@ def check_and_create_views_and_procs(app_folder):
         print(proc_files)
         with connection.cursor() as cursor:
             for proc_name in proc_files:
-                sql_statement = f"SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[{proc_name}]') AND type in (N'P', N'PC')"
+                sql_statement = f"SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[{proc_name}]') AND type in (N'P', N'PC')"
                 try:
                     print(sql_statement)
                     cursor.execute(sql_statement)
