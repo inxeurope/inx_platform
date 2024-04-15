@@ -9,7 +9,7 @@ def check_and_create_views_and_procs(app_folder):
     print("* VIEWS", end="")
     print(" "*41, "*")
     print("*"*50)
-    products = Product.object.all()
+    products = Product.objects.all()
     if products:
         print("products present")
     view_folder = os.path.join(app_folder, 'database_scripts/views')
