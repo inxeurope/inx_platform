@@ -1,6 +1,7 @@
 import os
 from django.conf import settings
 from django.db import connection
+from .models import Product
 
 def check_and_create_views_and_procs(app_folder):
     # Check for views
@@ -8,6 +9,9 @@ def check_and_create_views_and_procs(app_folder):
     print("* VIEWS", end="")
     print(" "*41, "*")
     print("*"*50)
+    products = Product.object.all()
+    if products:
+        print("products present")
     view_folder = os.path.join(app_folder, 'database_scripts/views')
     view_files = sorted([f[:-4] for f in os.listdir(view_folder) if f.endswith('.sql')])
     print(f"view_files:{view_files}")
