@@ -9,7 +9,7 @@ def check_and_create_views_and_procs(app_folder):
     print(" "*41, "*")
     print("*"*50)
     view_folder = os.path.join(app_folder, 'database_scripts/views')
-    view_files = [f[:-4] for f in os.listdir(view_folder) if f.endswith('.sql')]
+    view_files = sorted([f[:-4] for f in os.listdir(view_folder) if f.endswith('.sql')])
     print(f"view_files:{view_files}")
     with connection.cursor() as cursor:
         for view_name in view_files:

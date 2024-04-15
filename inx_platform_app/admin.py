@@ -140,7 +140,6 @@ class PriceAdmin(admin.ModelAdmin):
     list_display=['id', 'customer_name', 'product_name', 'volume_from', 'volume_to', 'price', 'per', 'UoM', 'currency', 'valid_from', 'valid_to']
 
 
-
 class ContactAdmin(admin.ModelAdmin):
     list_display = ['id', 'title', 'first_name', 'last_name', 'job_position', 'email', 'mobile_number']
 
@@ -198,6 +197,9 @@ class BudForDetailLineAdmin(admin.ModelAdmin):
     get_budforline_info.short_description = 'additional info'
 
 
+class UserAdmin(admin.ModelAdmin):
+    list_display = ['id', 'first_name', 'last_name', 'email']
+
 admin.site.register(ColorGroup, ColorGroupAdmin)
 admin.site.register(Color, ColorAdmin)
 admin.site.register(MadeIn, MadeInAdmin)
@@ -235,7 +237,7 @@ admin.site.register(Order)
 admin.site.register(CustomerNote)
 admin.site.register(UploadedFile)
 admin.site.register(Price, PriceAdmin)
-admin.site.register(User)
+admin.site.register(User, UserAdmin)
 admin.site.register(Contact, ContactAdmin)
 admin.site.register(Fert, FertAdmin)
 

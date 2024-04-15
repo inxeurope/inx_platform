@@ -11,10 +11,9 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, UserManager
 from . import import_dictionaries
 
-# -------------------------------------------
-# Following classes to manage custom User model
-# -------------------------------------------
-
+# ----------------------------------------------------------
+# The following classes are for managing a custom User model
+# ----------------------------------------------------------
 class CustomUserManager(UserManager):
     def _create_user(self, email, password, **extra_fields):
         if not email:
@@ -39,6 +38,7 @@ class CustomUserManager(UserManager):
     
     def get_all_users(self):
         return self.get_queryset().all()
+
 
 class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(blank=True, default='', unique=True)
@@ -95,6 +95,7 @@ class ProductLine(models.Model):
         return_value = f"{self.name}"
         return return_value
 
+
 class ColorGroup(models.Model):
     name = models.CharField(max_length=50)
     sqlapp_id = models.IntegerField(default=0)
@@ -102,7 +103,8 @@ class ColorGroup(models.Model):
     def __str__(self):
         return_value = f"{self.name}"
         return return_value
-    
+
+
 class MadeIn(models.Model):
     name = models.CharField(max_length=10)
     plant_name = models.CharField(max_length=40)
@@ -113,6 +115,7 @@ class MadeIn(models.Model):
         return_value = f"{self.name}"
         return return_value
 
+
 class Division(models.Model):
     name = models.CharField(max_length=40)
     sap_id = models.CharField(max_length=10, blank=True, null=True)
@@ -121,6 +124,7 @@ class Division(models.Model):
 
     def __str__(self):
         return self.name
+
 
 class MajorLabel(models.Model):
     name = models.CharField(max_length=40)
@@ -132,16 +136,18 @@ class MajorLabel(models.Model):
     def __str__(self):
         return self.name
 
+
 class InkTechnology(models.Model):
     name = models.CharField(max_length=40, null=True, blank=True)
     short_name = models.CharField(max_length = 10, null=True, blank=True)
     sap_id = models.CharField(max_length=10, null=True, blank=True)
     sap_name = models.CharField(max_length=50, null=True, blank=True)
     sqlapp_id = models.IntegerField(default=0, null=True, blank=True)
-    ribbon_color = models.CharField(max_length=15, null=True, blank=True)
+    ribbon_color = models.CharField(max_length=100, null=True, blank=True)
 
     def __str__(self):
         return self.name
+
 
 class NSFDivision(models.Model):
     name = models.CharField(max_length=40)
@@ -152,6 +158,7 @@ class NSFDivision(models.Model):
     def __str__(self):
         return self.name
 
+
 class MarketSegment(models.Model):
     name = models.CharField(max_length=40)
     sap_id = models.CharField(max_length=10)
@@ -161,6 +168,7 @@ class MarketSegment(models.Model):
     def __str__(self):
         return self.name
 
+
 class MaterialGroup(models.Model):
     name = models.CharField(max_length=40)
     sap_id = models.CharField(max_length=10)
@@ -169,6 +177,7 @@ class MaterialGroup(models.Model):
 
     def __str__(self):
         return self.name
+
 
 class Packaging(models.Model):
     name = models.CharField(max_length=20)
@@ -181,6 +190,7 @@ class Packaging(models.Model):
     def __str__(self):
         return self.name
 
+
 class ProductStatus(models.Model):
     name = models.CharField(max_length=50)
     color_r = models.IntegerField(null=True)
@@ -192,12 +202,14 @@ class ProductStatus(models.Model):
     def __str__(self):
         return self.name
 
+
 class UnitOfMeasure(models.Model):
     name = models.CharField(max_length=15)
     sqlapp_id = models.IntegerField(default=0, null=True)
 
     def __str__(self):
         return self.name
+
 
 class ExchangeRate(models.Model):
     currency = models.CharField(max_length=3)
@@ -208,6 +220,7 @@ class ExchangeRate(models.Model):
     def __str__(self):
         return self.currency + self.year
 
+
 class Scenario(models.Model):
     name = models.CharField(max_length=100, blank=True)
     is_sales = models.BooleanField(default=False, null=True)
@@ -215,6 +228,7 @@ class Scenario(models.Model):
 
     def __str__(self):
         return self.name
+
 
 class CountryCode(models.Model):
     country_id = models.IntegerField(default=0)
@@ -243,12 +257,14 @@ class CountryCode(models.Model):
     def __str__(self):
         return self.official_name_en
 
+
 class CustomerType(models.Model):
     name = models.CharField(max_length=20)
     sqlapp_id = models.IntegerField(default=0, null=True)
     
     def __str__(self):
         return self.name
+
 
 class Industry(models.Model):
     # Industry defines if a Customer is a Distributor or an OEM or other values
@@ -263,6 +279,7 @@ class Industry(models.Model):
     
     def __str__(self):
         return self.name
+
 
 class PaymentTerm(models.Model):
     name=models.CharField(max_length=255)
@@ -291,6 +308,7 @@ class Fbl5nArrImport(models.Model):
         return_value = f"ID:{self.id}, Document date: {self.document_date}, Customer number: {self.customer_number}"
         return return_value
 
+
 class Fbl5nOpenImport(models.Model):
     document_date = models.DateField()
     net_due_date = models.DateField()
@@ -309,6 +327,7 @@ class Fbl5nOpenImport(models.Model):
     def __str__(self):
         return_value = f"ID:{self.id}, Document date: {self.document_date}, Customer number: {self.customer_number}"
         return return_value
+
 
 class Ke24ImportLine(models.Model):
     currency = models.CharField(max_length=3, null=True) 
@@ -430,6 +449,7 @@ class Ke24ImportLine(models.Model):
     field_sales_manager = models.CharField(max_length=4, null=True)
     import_timestamp = models.DateTimeField(auto_now_add=True, null=True)
     owner = models.ForeignKey(User, on_delete=models.PROTECT, blank=True, null=True)
+
 
 class Ke24Line(models.Model):
     currency = models.CharField(max_length=3, null=True) 
@@ -553,6 +573,7 @@ class Ke24Line(models.Model):
     import_timestamp = models.DateTimeField(auto_now_add=True, null=True)
     owner = models.ForeignKey(User, on_delete=models.PROTECT, blank=True, null=True)
 
+
 class ZAQCODMI9_line(models.Model):
     billing_date = models.DateField() 
     material = models.CharField(max_length=30)
@@ -580,6 +601,7 @@ class ZAQCODMI9_line(models.Model):
     shpt = models.FloatField() 
     sales_doc = models.CharField(max_length=20)
     import_date = models.CharField(max_length=25)
+
 
 class ZAQCODMI9_import_line(models.Model):
     billing_date = models.DateField() 
@@ -610,6 +632,7 @@ class ZAQCODMI9_import_line(models.Model):
     import_date = models.DateTimeField(auto_now_add=True, null=True)
     import_timestamp = models.DateTimeField(auto_now_add=True, null=True)
     owner = models.ForeignKey(User, on_delete=models.PROTECT, blank=True, null=True)
+
 
 class Ke30Line(models.Model):
     currency = models.CharField(max_length=3, null=True)
@@ -659,6 +682,7 @@ class Ke30Line(models.Model):
 
     def __str__(self):
         return self.id
+
 
 class Ke30ImportLine(models.Model):
     period_year = models.CharField(max_length=20)
@@ -739,6 +763,7 @@ class Ke30ImportLine(models.Model):
     def __str__(self):
         string_to_return = f"{self.year_month} {self.customer} {self.product} qty:{self.sales_qty_actual}"
         return string_to_return
+
 
 class Order(models.Model):
     customer_number = models.FloatField(null=True)
@@ -1174,7 +1199,6 @@ class UploadedFile(models.Model):
         df = pd.read_excel(file_path, thousands='.', decimal=',', dtype=conversion_dict, parse_dates=True)
         df = df.replace(np.nan, '')
         return df
-
 
 
 class Contact(models.Model):

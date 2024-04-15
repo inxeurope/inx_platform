@@ -25,7 +25,7 @@
             <div class="row row-cards mb-3">
               {% for table_name, field_name_id, model, mapping_dict in options %}
               {% comment %} {% for brand in page_object %} {% endcomment %}
-              <div class="col-md-6 col-lg-3">
+              <div class="col-md-3 col-lg-2">
                 <div class="card">
                   <div class="card-body">
                     <h3 class="card-title">{{ table_name }}</h3>
@@ -36,8 +36,8 @@
                       <form method="post" action="{% url 'import-single-table' %}">
                         {% csrf_token %}
                         <input type="hidden" name="table_name" value="{{ table_name }}">
-                        <input class="btn btn-success btn-sm mx-2" type="submit" name="submit_type" value="Import">
-                        <input class="btn btn-danger btn-sm mx-2" type="submit" name="submit_type" value="Clean">
+                        <input class="btn btn-success btn-sm mx-0" type="submit" name="submit_type" value="Import">
+                        <input class="btn btn-danger btn-sm mx-0" type="submit" name="submit_type" value="Clean">
                       </form>
                     </div>
                   </div>
