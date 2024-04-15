@@ -12,42 +12,42 @@ class Command(BaseCommand):
             match i_t.name:
                 case 'Liquid Laminate':
                     i_t.short_name = 'LL'
-                    i_t.color = 'azure-lt'
+                    i_t.ribbon_color = 'azure-lt'
                 case 'Not an ink':
                     i_t.short_name = 'Nai'
-                    i_t.color = 'muted'
+                    i_t.ribbon_color = 'muted'
                 case 'Toner':
                     i_t.short_name = 'Toner'
-                    i_t.color = 'cyan-lt'
+                    i_t.ribbon_color = 'cyan-lt'
                 case 'Ebeam':
                     i_t.short_name = 'EB'
-                    i_t.color = 'green'
+                    i_t.ribbon_color = 'green'
                 case 'Eco Solvent':
                     i_t.short_name = 'ESolv'
-                    i_t.color = 'purple-lt'
+                    i_t.ribbon_color = 'purple-lt'
                 case 'Mild Solvent':
                     i_t.short_name = 'MSolv'
-                    i_t.color = 'purple'
+                    i_t.ribbon_color = 'purple'
                 case 'Water-based dye-sub':
                     i_t.short_name = 'Dyesub'
-                    i_t.color = 'yellow'
+                    i_t.ribbon_color = 'yellow'
                 case 'True Solvent':
                     i_t.short_name = 'TSolv'
-                    i_t.color = 'red'
+                    i_t.ribbon_color = 'red'
                 case 'Bio Solvent':
                     i_t.short_name = 'Bio'
-                    i_t.color = 'lime'
+                    i_t.ribbon_color = 'lime'
                 case 'UVCurable':
                     i_t.short_name = 'UV'
-                    i_t.color = 'teal'
+                    i_t.ribbon_color = 'teal'
                 case 'Water-based':
                     i_t.short_name = 'WB'
-                    i_t.color = 'azure'
+                    i_t.ribbon_color = 'azure'
                 case 'Adhesion Promoter':
                     i_t.short_name = 'AP'
-                    i_t.color = 'muted-lt'
+                    i_t.ribbon_color = 'muted-lt'
                 case _:
                     i_t.short_name = 'NAI'
-                    i_t.color = 'muted'
+                    i_t.ribbon_color = 'muted'
             print(i_t.short_name, i_t.ribbon_color)
             i_t.save()
