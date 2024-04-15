@@ -51,13 +51,14 @@ def check_and_create_views_and_procs(app_folder):
             for proc_name in proc_files:
                 sql_statement = f"SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[{proc_name}]') AND type in (N'P', N'PC')"
                 try:
-                    print(sql_statement)
+                    # print(sql_statement)
                     cursor.execute(sql_statement)
                 except Exception as e:
                     print("Error executing SQL statement:", e)
                     sys.exit(2)
                 # cursor.execute(sql_statement)
                 if not cursor.fetchone():
+                    print(f"there is not {proc_name}", end = "")
                     with open(os.path.join(proc_folder, f"{proc_name}.sql")) as f:
                         proc_sql = f.read()
                         try:
