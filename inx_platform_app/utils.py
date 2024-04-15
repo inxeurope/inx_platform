@@ -23,12 +23,16 @@ def check_and_create_views_and_procs(app_folder):
                 except Exception as e:
                     print("Error executing SQL statement:", e)
                     sys.exit(1)
-
                 if not cursor.fetchone():
                     print(f"there is not {view_name}", end = "")
                     with open(os.path.join(view_folder, f"{view_name}.sql")) as f:
                         view_sql = f.read()
-                    cursor.execute(view_sql)
+                    try:
+                        cursor.execute(sql_statement)
+                    except Exception as e:
+                        print("Error executing SQL statement:", e)
+                        sys.exit(1)
+                    # cursor.execute(view_sql)
                     print(f" -> {view_name} created in the db")
                 else:
                     print(f"{view_name} exists")
@@ -42,14 +46,25 @@ def check_and_create_views_and_procs(app_folder):
         print("*"*50)
         proc_folder = os.path.join(app_folder, 'database_scripts/stored_procedures')
         proc_files = [f[:-4] for f in os.listdir(proc_folder) if f.endswith('.sql')]
+        print(proc_files)
         with connection.cursor() as cursor:
             for proc_name in proc_files:
-                cursor.execute(f"SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[{proc_name}]') AND type in (N'P', N'PC')")
+                sql_statement = f"SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[{proc_name}]') AND type in (N'P', N'PC')"
+                try:
+                    cursor.execute(sql_statement)
+                except Exception as e:
+                    print("Error executing SQL statement:", e)
+                    sys.exit(2)
+                # cursor.execute(sql_statement)
                 if not cursor.fetchone():
                     with open(os.path.join(proc_folder, f"{proc_name}.sql")) as f:
                         proc_sql = f.read()
-                    cursor.execute(proc_sql)
-                    print(f"{proc_name} created in the db")
+                        try:
+                            cursor.execute(proc_sql)
+                        except Exception as e:
+                            print("Error executing SQL statement:", e)
+                            sys.exit(1)
+                    print(f" -> {proc_name} created in the db")
                 else:
                     print(f"{proc_name} exists")
         print()
