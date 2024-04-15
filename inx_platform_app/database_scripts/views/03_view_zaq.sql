@@ -8,7 +8,7 @@ IF @ViewExists = 0
 BEGIN
     DECLARE @CreateViewSql NVARCHAR(MAX);
     SET @CreateViewSql = N'
-        CREATE VIEW [dbo].[03_view_zaq] AS
+        CREATE VIEW [03_view_zaq] AS
         SELECT
             z.[id] as zaq_id,
             z.[billing_date],
