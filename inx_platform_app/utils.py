@@ -17,7 +17,7 @@ def check_and_create_views_and_procs(app_folder):
         with connection.cursor() as cursor:
             for view_name in view_files:
                 sql_statement = f"SELECT * FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_NAME = '{view_name}'"
-                print(f"sql_statement: {sql_statement}")
+                # print(f"sql_statement: {sql_statement}")
                 try:
                     cursor.execute(sql_statement)
                 except Exception as e:
@@ -31,7 +31,7 @@ def check_and_create_views_and_procs(app_folder):
                     cursor.execute(view_sql)
                     print(f"{view_name} created in the db")
                 else:
-                    # print(f"{view_name} exists")
+                    print(f"{view_name} exists")
                     pass
         print()
 
