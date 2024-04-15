@@ -1,4 +1,4 @@
-import os
+import os, sys
 from django.db import connection
 
 def check_and_create_views_and_procs(app_folder):
@@ -18,7 +18,12 @@ def check_and_create_views_and_procs(app_folder):
             for view_name in view_files:
                 sql_statement = f"SELECT * FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_NAME = '{view_name}'"
                 print(f"sql_statement: {sql_statement}")
-                cursor.execute(sql_statement)
+                try:
+                    cursor.execute(sql_statement)
+                except Exception as e:
+                    print("Error executing SQL statement:", e)
+                    sys.exit(1)
+
                 if not cursor.fetchone():
                     with open(os.path.join(view_folder, f"{view_name}.sql")) as f:
                         view_sql = f.read()
