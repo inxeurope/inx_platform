@@ -33,7 +33,7 @@ def check_and_create_views_and_procs(app_folder):
                         print("Error executing SQL statement:", e)
                         sys.exit(1)
                     # cursor.execute(view_sql)
-                    print(f" -> {view_name} created in the db")
+                    print(f" -> {view_name} CREATED in the db")
                 else:
                     print(f"{view_name} exists")
                     pass
@@ -66,7 +66,7 @@ def check_and_create_views_and_procs(app_folder):
                         except Exception as e:
                             print("Error executing SQL statement:", e)
                             sys.exit(1)
-                        print(f" -> {proc_name} created in the db")
+                        print(f" -> {proc_name} CREATED in the db")
                 else:
                     print(f"{proc_name} exists")
         print()
