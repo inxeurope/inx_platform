@@ -5,6 +5,8 @@ def check_and_create_views_and_procs(app_folder):
     
 
     table_names = connection.introspection.table_names()
+    print("table_names:")
+    print(table_names)
     if 'inx_platform_app_product' in table_names and 'inx_platform_app_customer' in table_names:
         # Check for views
         print("*"*50)
@@ -25,8 +27,10 @@ def check_and_create_views_and_procs(app_folder):
                     sys.exit(1)
 
                 if not cursor.fetchone():
+                    print(f"there is not {view_name}")
                     with open(os.path.join(view_folder, f"{view_name}.sql")) as f:
                         view_sql = f.read()
+                        print(view_sql)
                     cursor.execute(view_sql)
                     print(f"{view_name} created in the db")
                 else:
