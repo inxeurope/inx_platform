@@ -869,7 +869,7 @@ def process_this_file(file):
                         result_text=''
                         for row in resulting_rows:
                             row_text = ', '.join(map(str, row))
-                            print(row_text)
+                            # print(row_text)
                             result_text += row_text + "\n"
                             log_message = result_text
                             log_text += log_message + '\n'
