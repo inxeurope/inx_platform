@@ -156,6 +156,10 @@ class Ke30LineAdmin(admin.ModelAdmin):
     list_display = ['id', 'year_month', 'customer_number', 'customer_name', 'product_number', 'product_name', 'currency', 'quantity', 'gross_sales']
 
 
+class ZACODMI9_lineAdmin(admin.ModelAdmin):
+    list_display = ['id', 'billing_date', 'sold_to', 'name', 'material', 'description', 'invoice_qty', 'unit_price', 'invoice_sales', 'curr', 'batch']
+
+
 class BudForLineAdmin(admin.ModelAdmin):
     list_display = ['id', 'get_customer_name', 'get_brand_name', 'get_colorgroup_name']
 
@@ -232,7 +236,7 @@ admin.site.register(Ke30Line, Ke30LineAdmin)
 admin.site.register(Ke24ImportLine)
 admin.site.register(Ke24Line)
 admin.site.register(ZAQCODMI9_import_line)
-admin.site.register(ZAQCODMI9_line)
+admin.site.register(ZAQCODMI9_line, ZACODMI9_lineAdmin)
 admin.site.register(Order)
 admin.site.register(CustomerNote)
 admin.site.register(UploadedFile)
