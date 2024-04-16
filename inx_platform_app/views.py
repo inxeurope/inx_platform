@@ -25,7 +25,7 @@ from .forms import EditMajorLabelForm, EditBrandForm, EditCustomerForm, EditProd
 from .forms import ProductForm, CustomerForm, BrandForm
 from .forms import get_generic_model_form
 from . import dictionaries, import_dictionaries
-import pyodbc
+import pyodbc, math
 import pandas as pd
 import numpy as np
 import os, time, asyncio, uuid, json
@@ -289,8 +289,7 @@ def import_from_SQL(table_tuples):
         print(msg, end="")
         cursor.execute(query)
         records = cursor.fetchall()
-        print("\r", " "* len(msg), end="")
-        print(f"completed. {query}")
+        print(f"reading {query} - completed")
         if not records:
             print("no rows")
             continue # Skip empty tables
@@ -320,20 +319,16 @@ def import_from_SQL(table_tuples):
         # Manage the import of Customer number that comes as 12345.0
         if table_name == 'Customers':
             df['CustomerNumber'] = df['CustomerNumber'].astype(int).astype(str)
-        
-        # For testing
-        # df = df.head(1)
 
         # Trim unnecessary columns
         columns_to_keep = [column for column in df.columns if column in mapping]
         df = df[columns_to_keep]
-        # print("Columns to keep:", columns_to_keep)
 
         # creating a copy of the index column, if there is one
         if not field_name == None:
             df['sqlapp_id'] = df[field_name]
             df.drop(columns=[field_name], inplace=True)
-            print("Copy of index line created")
+            print("Copy of index column created")
         
         # When the tables have no index, the table will be truncated
         if field_name == None:
@@ -448,34 +443,78 @@ def import_from_SQL(table_tuples):
             df_length = len(df)
             print ("done")
             print (f"df length after trimming = {df_length}")
+        
+        # Define the size of each chunk
+        size_of_df_chunk = 100  # Adjust this according to your requirements
 
-        if df_length > 0:
-            try:
-                with transaction.atomic():
-                    print("start atomic transaction")
-                    instances_to_create = []
-                    problematic_rows = []
-                    row_counter = 1
-                    for row in df.to_dict(orient='records'):
-                        try:
-                            instances_to_create.append(model_class(**row))
-                            print(f"filling model instances ... {row_counter}/{df_length}", end="\r")
-                            row_counter += 1
-                        except Exception as ex:
-                            problematic_rows.append((row, str(ex)))
-                    print()
-                    if problematic_rows:
-                        print("Problematic Rows:")
-                        for idx, (row_data, error_msg) in enumerate(problematic_rows):
-                            print(f"Row {idx + 1}: {error_msg}\n{row_data}\n")
-                    else:
-                        print("no problematic rows")
+        # Calculate the number of chunks needed
+        num_chunks = math.ceil(df_length / size_of_df_chunk)
+
+        # Iterate over each chunk
+        for chunk_index in range(num_chunks):
+            start_index = chunk_index * size_of_df_chunk
+            end_index = min((chunk_index + 1) * size_of_df_chunk, df_length)
+            chunk_df = df.iloc[start_index:end_index]
+            len_of_chunk_df = len(chunk_df)
+
+            if df_length > 0:
+                try:
+                    with transaction.atomic():
+                        print("start atomic transaction")
+                        instances_to_create = []
+                        problematic_rows = []
+                        row_counter = 1
+                        for row in chunk_df.to_dict(orient='records'):
+                            try:
+                                instances_to_create.append(model_class(**row))
+                                print(f"filling model instances ... {row_counter}/{len_of_chunk_df}", end="\r")
+                                row_counter += 1
+                            except Exception as ex:
+                                problematic_rows.append((row, str(ex)))
+                        print()
+                        if problematic_rows:
+                            print("Problematic Rows:")
+                            for idx, (row_data, error_msg) in enumerate(problematic_rows):
+                                print(f"Row {idx + 1}: {error_msg}\n{row_data}\n")
+                        else:
+                            print("no problematic rows")
+                        
+                        print(f"working on bulk_create - model {model_class.__name__}")
+                        print(f"there are {len(instances_to_create)} instances to create in the db")
+                        model_class.objects.bulk_create(instances_to_create)
+                        print(f"Completed importing {table_name}, chunk: {chunk_index} of {num_chunks}")                 
+                except Exception as e:
+                    print(e)
+
+
+        # if df_length > 0:
+        #     try:
+        #         with transaction.atomic():
+        #             print("start atomic transaction")
+        #             instances_to_create = []
+        #             problematic_rows = []
+        #             row_counter = 1
+        #             for row in df.to_dict(orient='records'):
+        #                 try:
+        #                     instances_to_create.append(model_class(**row))
+        #                     print(f"filling model instances ... {row_counter}/{df_length}", end="\r")
+        #                     row_counter += 1
+        #                 except Exception as ex:
+        #                     problematic_rows.append((row, str(ex)))
+        #             print()
+        #             if problematic_rows:
+        #                 print("Problematic Rows:")
+        #                 for idx, (row_data, error_msg) in enumerate(problematic_rows):
+        #                     print(f"Row {idx + 1}: {error_msg}\n{row_data}\n")
+        #             else:
+        #                 print("no problematic rows")
                     
-                    print(f"working on bulk_create - model {model_class.__name__}")
-                    model_class.objects.bulk_create(instances_to_create)
-                    print(f"Completed importing {table_name}")                 
-            except Exception as e:
-                print(e)
+        #             print(f"working on bulk_create - model {model_class.__name__}")
+        #             print(f"there are {len(instances_to_create)} instances to create in the db")
+        #             model_class.objects.bulk_create(instances_to_create)
+        #             print(f"Completed importing {table_name}")                 
+        #     except Exception as e:
+        #         print(e)
     conn.close() 
 
 
