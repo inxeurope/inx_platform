@@ -719,7 +719,7 @@ def process_this_file(file):
                 # Then deleting sales from budfordetailline
                 # Then backing up budfordetailline
                 # Then filling in again sales from zaq with proper granularity
-                list_of_sp = ['_zaq_import', '_budfordetailline_delete_sales', '_budforsales_add_triplets', '_budfordetailline_fill_sales']
+                list_of_sp = ['_zaq_import', '_budfordetailline_delete_sales', '_budforline_add_triplets', '_budfordetailline_fill_sales']
             case "oo":
                 convert_dict = import_dictionaries.oo_converters_dict
                 df = file.read_excel_file(file_path, convert_dict)
