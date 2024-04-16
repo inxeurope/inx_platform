@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     "inx_platform_app.apps.InxPlatformAppConfig",
 ]
 
+CSRF_COOKIE_SAMESITE = 'None'
+
 ASGI_APPLICATION = "django_inx_platform.asgi.application"
 
 AUTH_USER_MODEL = 'inx_platform_app.User'
