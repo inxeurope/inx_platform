@@ -855,7 +855,7 @@ def process_this_file(file):
                     log_text += log_message + '\n'
                     sql_command = f'EXECUTE {sp}'
                     curs.execute(sql_command)
-                    print(f"...executed")
+                    print(f"{sp}...executed")
                     if curs.description:
                         resulting_rows = curs.fetchall()
                         print(f'resulting_rows from procedure: {len(resulting_rows)}')
@@ -863,6 +863,7 @@ def process_this_file(file):
                         result_text=''
                         for row in resulting_rows:
                             row_text = ', '.join(map(str, row))
+                            print(row_text)
                             result_text += row_text + "\n"
                             log_message = result_text
                             log_text += log_message + '\n'
