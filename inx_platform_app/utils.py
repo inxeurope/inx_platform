@@ -28,7 +28,7 @@ def check_and_create_views_and_procs(app_folder):
                     with open(os.path.join(view_folder, f"{view_name}.sql")) as f:
                         view_sql = f.read()
                     try:
-                        cursor.execute(sql_statement)
+                        cursor.execute(view_sql)
                     except Exception as e:
                         print("Error executing SQL statement:", e)
                         sys.exit(1)
