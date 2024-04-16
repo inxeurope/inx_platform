@@ -11,9 +11,9 @@ BEGIN
         t.colorgroup_id as color_group_id,
         t._view_customers_id as customer_id
     FROM 
-        [dbo].[_view_budforsales_temporary] t
+        [dbo].[04_view_budforsales_temporary] t
     WHERE NOT EXISTS (
-        -- This subquery checks for the existence of the triplet in the inx_platform_app_budforline table
+        -- This subquery checks for the existence of the triplets in the inx_platform_app_budforline table
         SELECT 1
         FROM inx_platform_app_budforline b
         WHERE 

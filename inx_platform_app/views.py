@@ -854,12 +854,18 @@ def process_this_file(file):
                     log_message = f'sp{index}: {sp}'
                     log_text += log_message + '\n'
                     sql_command = f'EXECUTE {sp}'
+                    log_message = f"...executing {sp}"
+                    log_text += log_message + '\n'
+                    print(log_message)
                     curs.execute(sql_command)
-                    print(f"{sp}...executed")
+                    log_message = f"{sp}...executed"
+                    log_text += log_message + '\n'
+                    print(log_message)
                     if curs.description:
                         resulting_rows = curs.fetchall()
-                        print(f'resulting_rows from procedure: {len(resulting_rows)}')
-                        print(resulting_rows)
+                        log_message = f'resulting_rows from procedure: {len(resulting_rows)}'
+                        print(log_message)
+                        log_text += log_message + '\n'
                         result_text=''
                         for row in resulting_rows:
                             row_text = ', '.join(map(str, row))
@@ -868,6 +874,7 @@ def process_this_file(file):
                             log_message = result_text
                             log_text += log_message + '\n'
                             yield log_message
+                    print("-----------------------------------------------------------")
 
         # Delete the file
         print(f'deleting ...{file.file_name}')
