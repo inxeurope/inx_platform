@@ -27,10 +27,6 @@ urlpatterns = [
     path('start_file_processing/<int:file_id>', views.start_file_processing, name='start-file-processing'),
     path('delete_file/<int:file_id>/', views.delete_file, name='delete_file'),
     
-    path("import_settings/<str:dictionary_name>", views.edit_dictionary, name="edit_dictionary"),
-    path("dictionary_add_key/<str:dictionary_name>", views.dictionary_add_key, name='dictionary_add_key'),
-    path("dictionary_delete_key/<str:dictionary_name>", views.dictionary_delete_key, name='dictionary_delete_key'),
-    
     path("customers_list/", views.customers_list, name="customers-list"),
     path("customer_view/<int:pk>", views.customer_view, name="customer-view"),
     path("customer_edit/<int:pk>", views.customer_edit, name="customer-edit"),
@@ -115,7 +111,7 @@ urlpatterns = [
 
     path('accounts/password-change/', views.UserPasswordChangeView.as_view(), name='change_password'),
     path('accounts/password-change-done/', auth_views.PasswordChangeDoneView.as_view(
-        template_name='pages/password-change-done.html'
+        template_name='app_pages/password-change-done.html'
     ), name="password_change_done" ),
 
     path('accounts/forgot-password/', views.PasswordReset.as_view(), name='forgot_password'),

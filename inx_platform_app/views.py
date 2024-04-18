@@ -393,11 +393,6 @@ def import_from_SQL(table_tuples):
                 other_model_fks_dict[app_db_column_name] = (related_model, related_df)
                 # ------------
 
-        # if model_fks_dict: pass
-        # if other_model_fks_dict:
-        #     print(f"FK fields of table {table_name}")
-        #     for fk in other_model_fks_dict.items():
-        #         print(f"-{fk}")
         print(f"created model FKs dictionary in {round(perf_counter()-t_start, 2):.2f} seconds")
 
         # Iterating to update FKs IDs
@@ -445,7 +440,7 @@ def import_from_SQL(table_tuples):
             print (f"df length after trimming = {df_length}")
         
         # Defining the size of the chunk in rows
-        size_of_df_chunk = 600
+        size_of_df_chunk = 300
 
         # Calculate the number of chunks needed
         num_chunks = math.ceil(df_length / size_of_df_chunk)
@@ -486,36 +481,6 @@ def import_from_SQL(table_tuples):
                         print()                 
                 except Exception as e:
                     print(e)
-
-
-        # if df_length > 0:
-        #     try:
-        #         with transaction.atomic():
-        #             print("start atomic transaction")
-        #             instances_to_create = []
-        #             problematic_rows = []
-        #             row_counter = 1
-        #             for row in df.to_dict(orient='records'):
-        #                 try:
-        #                     instances_to_create.append(model_class(**row))
-        #                     print(f"filling model instances ... {row_counter}/{df_length}", end="\r")
-        #                     row_counter += 1
-        #                 except Exception as ex:
-        #                     problematic_rows.append((row, str(ex)))
-        #             print()
-        #             if problematic_rows:
-        #                 print("Problematic Rows:")
-        #                 for idx, (row_data, error_msg) in enumerate(problematic_rows):
-        #                     print(f"Row {idx + 1}: {error_msg}\n{row_data}\n")
-        #             else:
-        #                 print("no problematic rows")
-                    
-        #             print(f"working on bulk_create - model {model_class.__name__}")
-        #             print(f"there are {len(instances_to_create)} instances to create in the db")
-        #             model_class.objects.bulk_create(instances_to_create)
-        #             print(f"Completed importing {table_name}")                 
-        #     except Exception as e:
-        #         print(e)
     conn.close() 
 
 
@@ -1274,61 +1239,6 @@ def brand_edit(request, pk):
         form = BrandForm(instance=b)
     context = {'form': form}
     return render(request, "app_pages/brand_edit.html", context)
-
-
-def edit_dictionary(request, dictionary_name):
-    print(dictionary_name)
-    dict_path = os.path.join(settings.MEDIA_ROOT, "dictionaries")
-    path_dict_converting = f"{dict_path}/{dictionary_name}_converting.json"
-    path_dict_renaming = f"{dict_path}/{dictionary_name}_renaming.json"
-
-    if request.method == 'POST':
-        if 'submit_button' in request.POST:
-            button_value = request.POST['submit_button']
-            if button_value == 'form_converting':
-                data_converting = {}
-                for key, value in request.POST.items():
-                    if key.startswith('data_converting'):
-                        key_name = key[len('data_converting['):-1]
-                        data_converting[key_name] = value
-                with open(path_dict_converting, 'w') as file_converting:
-                    json.dump(data_converting, file_converting)
-
-            if button_value == 'form_renaming':
-                data_renaming = {}
-                for key, value in request.POST.items():
-                    if key.startswith('data_renaming'):
-                        key_name = key[len('data_renaming['):-1]
-                        data_renaming[key_name] = value
-                with open(path_dict_renaming, 'w') as file_renaming:
-                    json.dump(data_renaming, file_renaming)
-
-    with open(path_dict_converting, 'r') as file_converting:
-        data_converting = json.load(file_converting)
-
-    with open(path_dict_renaming, 'r') as file_renaming:
-        data_renaming = json.load(file_renaming)
-    
-    return render(request, "edit_dictionary.html", {'dictionary_name': dictionary_name, 'data_converting': data_converting, 'data_renaming': data_renaming})
-
-
-def dictionary_add_key(request, dictionary_name):
-    key_name = request.GET.get('key_name', '')
-    if key_name:
-        # Add the key to the dictionary and update the JSON file
-        # You can use a similar approach as in the update_dictionary view
-        return JsonResponse({'message': 'Key added successfully'})
-    return JsonResponse({'message': 'Key not added'})
-
-
-def dictionary_delete_key(request, dictionary_name):
-    print('delete dictionary key on the dictionary: ', dictionary_name)
-    key_name = request.GET.get('key_name', '')
-    if key_name:
-        # Add the key to the dictionary and update the JSON file
-        # You can use a similar approach as in the update_dictionary view
-        return JsonResponse({'message': 'Key deleted successfully'})
-    return JsonResponse({'message': 'Key not deleted'})
 
 
 @method_decorator(login_required, name='dispatch')
