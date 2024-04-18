@@ -7,7 +7,7 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         with connection.cursor() as cursor:
             cursor.execute("EXEC __zotta")
-            results = cursor.fetchall()
-            for result in results:
-                self.stdout.write(self.style.SUCCESS(f'Result: {result}'))
-            self.stdout.write(self.style.SUCCESS('Successfully executed __zotta'))
+            # results = cursor.fetchall()
+            # for result in results:
+            #     self.stdout.write(self.style.SUCCESS(f'Result: {result}'))
+            self.stdout.write(self.style.SUCCESS('Executed __zotta'))
