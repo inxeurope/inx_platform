@@ -445,7 +445,7 @@ def import_from_SQL(table_tuples):
             print (f"df length after trimming = {df_length}")
         
         # Defining the size of the chunk in rows
-        size_of_df_chunk = 300
+        size_of_df_chunk = 600
 
         # Calculate the number of chunks needed
         num_chunks = math.ceil(df_length / size_of_df_chunk)
@@ -482,7 +482,7 @@ def import_from_SQL(table_tuples):
                         print(f"working on bulk_create - model {model_class.__name__}")
                         print(f"there are {len(instances_to_create)} instances to create in the db")
                         model_class.objects.bulk_create(instances_to_create)
-                        print(f"Completed atomic transaction on table {table_name}, chunk: {chunk_index} of {num_chunks}")
+                        print(f"Completed atomic transaction on table {table_name}, chunk: {chunk_index + 1} of {num_chunks}")
                         print()                 
                 except Exception as e:
                     print(e)

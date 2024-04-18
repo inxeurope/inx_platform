@@ -10,7 +10,7 @@ class Command(BaseCommand):
         try:
             call_command('create_superuser')
             import_from_SQL(dictionaries.tables_list)
-            call_command('all_customers_not_new')
+            call_command('set_sales_scenario')
             call_command('all_products_not_new')
             call_command('all_customers_not_new')
             call_command('ink_technologies_colors_and_short_names')
