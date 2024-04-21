@@ -858,6 +858,15 @@ def process_this_file(file):
 
 
 @login_required
+def customers_list_2(request, page=0):
+    customers = Customer.objects.all().order_by('-id')[:200]
+    context = {
+        'customers': customers
+    }
+    return render(request, "app_pages/customers_list_2.html", context)
+
+
+@login_required
 def customers_list(request, page=0):
     search_term = request.GET.get('search')
     entries = request.GET.get('entries')

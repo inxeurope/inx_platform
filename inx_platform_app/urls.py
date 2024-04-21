@@ -28,6 +28,7 @@ urlpatterns = [
     path('delete_file/<int:file_id>/', views.delete_file, name='delete_file'),
     
     path("customers_list/", views.customers_list, name="customers-list"),
+    path("customers_list_2/", views.customers_list_2, name="customers-list-2"),
     path("customer_view/<int:pk>", views.customer_view, name="customer-view"),
     path("customer_edit/<int:pk>", views.customer_edit, name="customer-edit"),
 
@@ -55,13 +56,13 @@ urlpatterns = [
     path("major/edit/<int:id>", views.MajorLabelEditView.as_view(), name="major-edit"),
 
     # For managing users
-    path('login_user', views.login_user, name="login"),
-    path('logout_user', views.logout_user, name="logout"),
-    path('create_user',views.create_user, name='create_user'),
-    path('list_users', views.UserListView.as_view(), name="list_users"),
-    path('edit_user/<int:pk>/', views.UserUpdateView.as_view(), name='edit_user'),
-    path('accounts/password-change/', views.UserPasswordChangeView.as_view(), name='change_password'),
-    path('update_profile', views.update_profile, name="update-profile"),
+    # path('login_user', views.login_user, name="login"),
+    # path('logout_user', views.logout_user, name="logout"),
+    # path('create_user',views.create_user, name='create_user'),
+    # path('list_users', views.UserListView.as_view(), name="list_users"),
+    # path('edit_user/<int:pk>/', views.UserUpdateView.as_view(), name='edit_user'),
+    # path('accounts/password-change/', views.UserPasswordChangeView.as_view(), name='change_password'),
+    # path('update_profile', views.update_profile, name="update-profile"),
 
     # Interface
     path('accordion/', views.accordion, name='accordion'),

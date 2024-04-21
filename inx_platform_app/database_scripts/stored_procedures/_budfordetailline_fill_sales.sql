@@ -9,7 +9,7 @@ BEGIN
             -- get id of is_asles (it must be unique)
             -- *************************************************************************
             DECLARE @is_sales AS INT
-            SELECT @is_sales = is_sales FROM inx_platform_app_scenario
+            SELECT @is_sales = id FROM inx_platform_app_scenario
             WHERE is_sales = 1
             PRINT(N'Sales marker is ' + CAST(@is_sales AS NVARCHAR))
 
@@ -28,9 +28,12 @@ BEGIN
             PRINT(N'Backup table filled')
 
             -- *************************************************************************
-            -- Empty the table
+            -- Empty the table - THE PROBLEM IS HERE !!!!
             -- *************************************************************************
-            DELETE FROM inx_platform_app_budfordetailline
+            PRINT(N'Truncate with store proc starts')
+            -- DELETE FROM inx_platform_app_budfordetailline
+            EXEC _truncate_table_budfordetailline_w_FK
+            PRINT(N'Truncate with store proc done')
             -- reset the index counter
             DBCC CHECKIDENT (inx_platform_app_budfordetailline, RESEED, 0)
 
