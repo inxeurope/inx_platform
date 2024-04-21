@@ -20,11 +20,8 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '159.223.26.141', 'platform.inxeurope.dev']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '159.223.26.141']
 
-CORS_ALLOWED_ORIGINS = [
-    "https://platform.inxeurope.dev",
-]
 
 # Application definition
 
@@ -180,4 +177,8 @@ INTERNAL_IPS = [
     # ...
     "127.0.0.1",
     "0.0.0.0",
+]
+
+CORS_ALLOWED_ORIGINS = [
+    "https://platform.inxeurope.dev",
 ]
