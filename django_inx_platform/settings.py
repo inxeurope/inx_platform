@@ -23,7 +23,7 @@ DEBUG = True
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '159.223.26.141', 'platform.inxeurope.dev']
 
 CORS_ALLOWED_ORIGINS = [
-    "https://platform.inxeurope.com",
+    "https://platform.inxeurope.dev",
 ]
 
 # Application definition
