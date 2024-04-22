@@ -534,7 +534,29 @@ zaq_mapping_dict = {
 }
 
 oo_mapping_dict = {
-
+    'customer_number': 'Sold-to',
+    'customer_name': 'Customer Name',
+    'ship_to': 'Ship-to',
+    'country': 'Cty',
+    'plant': 'Plant',
+    'sales_order_number': 'Sales Doc#',
+    'store_location': 'SOStLoc',
+    'item_line_number': 'Item',
+    'order_type': 'Sa Ty',
+    'sales_order_date': 'Order Date',
+    'requested_date': 'Req. dt',
+    'partial_shipment_date': 'PL. GI Dt',
+    'days_late': 'Days late',
+    'product_number': 'Material',
+    'product_name': 'Material Description',
+    'qty_ordered': 'Ordered Qty',
+    'qty_ordered_unit': 'Unit',
+    'qty_open': 'Open Order Qty',
+    'qty_open_unit': 'Unit.1',
+    'qty_partial_shipped': 'GI Qty',
+    'qty_partial_shipped_unit': 'Unit.3',
+    'customer_po_number': 'Cust PO #',
+    'lead_time': 'Lead time'
 }
 
 oi_mapping_dict = {

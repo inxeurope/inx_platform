@@ -780,7 +780,7 @@ class Order(models.Model):
     partial_shipment_date = models.DateField(null=True)
     days_late = models.IntegerField(null=True)
     product_number = models.CharField(max_length=20)
-    product_name = models.CharField(max_length=20)
+    product_name = models.CharField(max_length=100)
     qty_ordered = models.IntegerField(null=True)
     qty_ordered_unit = models.CharField(max_length=4)
     qty_open = models.IntegerField(null=True)
@@ -803,7 +803,8 @@ class Order(models.Model):
     owner = models.ForeignKey(User, on_delete=models.PROTECT, blank=True, null=True)
 
     def __str__(self) -> str:
-        return self.name
+        return_tring = self.invoice_number or "" + " " + self.customer_name or ""
+        return return_tring
 
 # -----------------------------------------------------
 # Models with Foreign Keys
