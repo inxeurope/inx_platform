@@ -193,7 +193,7 @@ class BudForDetailLineAdmin(admin.ModelAdmin):
         return obj.scenario.name
 
     def get_value(self, obj):
-        return_value = obj.price * obj.volume
+        return_value = obj.price or 0 * obj.volume or 0
         return return_value
 
     get_budforline_id.short_description = 'budforline_id'
@@ -203,6 +203,11 @@ class BudForDetailLineAdmin(admin.ModelAdmin):
 
 class UserAdmin(admin.ModelAdmin):
     list_display = ['id', 'first_name', 'last_name', 'email']
+
+
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ['id','sales_order_number', 'customer_number', 'customer_name', 'country']
+
 
 admin.site.register(ColorGroup, ColorGroupAdmin)
 admin.site.register(Color, ColorAdmin)
@@ -237,7 +242,7 @@ admin.site.register(Ke24ImportLine)
 admin.site.register(Ke24Line)
 admin.site.register(ZAQCODMI9_import_line)
 admin.site.register(ZAQCODMI9_line, ZACODMI9_lineAdmin)
-admin.site.register(Order)
+admin.site.register(Order, OrderAdmin)
 admin.site.register(CustomerNote)
 admin.site.register(UploadedFile)
 admin.site.register(Price, PriceAdmin)
