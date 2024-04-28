@@ -121,6 +121,7 @@ class ProductAdmin(admin.ModelAdmin):
 
 class CustomerAdmin(admin.ModelAdmin):
     list_display = ['id', 'number', 'name', 'get_countrycode']
+    search_fields = ['name']
 
     def get_countrycode(self, obj):
         return obj.country.iso3166_1_alpha_2
@@ -206,7 +207,8 @@ class UserAdmin(admin.ModelAdmin):
 
 
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ['id','sales_order_number', 'customer_number', 'customer_name', 'country']
+    list_display = ['id','sales_order_number', 'customer_number', 'customer_name', 'country', 'product_number', 'product_name', 'qty_ordered', 'qty_ordered_unit']
+    search_fields = ['customer_number', 'customer_name', 'product_number', 'product_name']
 
 
 admin.site.register(ColorGroup, ColorGroupAdmin)

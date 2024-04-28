@@ -55,15 +55,6 @@ urlpatterns = [
     path("major/add", views.MajorLabelCreateView.as_view(), name="major-add"),
     path("major/edit/<int:id>", views.MajorLabelEditView.as_view(), name="major-edit"),
 
-    # For managing users
-    # path('login_user', views.login_user, name="login"),
-    # path('logout_user', views.logout_user, name="logout"),
-    # path('create_user',views.create_user, name='create_user'),
-    # path('list_users', views.UserListView.as_view(), name="list_users"),
-    # path('edit_user/<int:pk>/', views.UserUpdateView.as_view(), name='edit_user'),
-    # path('accounts/password-change/', views.UserPasswordChangeView.as_view(), name='change_password'),
-    # path('update_profile', views.update_profile, name="update-profile"),
-
     # Interface
     path('accordion/', views.accordion, name='accordion'),
     path('blank-page/', views.blank_page, name='blank_page'),

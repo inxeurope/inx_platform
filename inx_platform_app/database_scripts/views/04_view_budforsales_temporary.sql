@@ -24,7 +24,7 @@ BEGIN
             SUM(invoice_sales) as value,
             ''sales'' as [scenario]
         FROM [03_view_zaq]
-        WHERE [year] >= YEAR(GETDATE()) - 2 AND _view_customers_id IS NOT NULL AND brand_id IS NOT NULL
+        WHERE [year] >= YEAR(GETDATE()) - 2 AND (_view_customers_id IS NOT NULL OR brand_id IS NOT NULL OR colorgroup_id IS NOT NULL)
         GROUP BY
             _view_customers_id,
             _view_customers_number,
@@ -39,6 +39,3 @@ BEGIN
     ';
     EXEC sp_executesql @CreateViewSql;
 END
-
-
-

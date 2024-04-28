@@ -1,7 +1,8 @@
 from typing import Any
 from django.apps import apps
 from django.db.models.query import QuerySet
-from django.db import connection, utils
+from django.db import connection
+from django.db.models import OuterRef, Subquery, Q
 from django.urls import reverse_lazy, reverse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse, StreamingHttpResponse, HttpResponseRedirect, HttpResponseBadRequest
@@ -20,9 +21,9 @@ from django.views.generic.edit import UpdateView, CreateView
 from .models import Ke30ImportLine, Ke24ImportLine, ZAQCODMI9_import_line, Order, Fbl5nArrImport, Fbl5nOpenImport, Price
 from .models import MadeIn, MajorLabel, ProductStatus
 from .models import Brand, Product, Customer, InkTechnology, User
-from .models import UploadedFile, Contact
+from .models import UploadedFile, Contact, BudForLine, ZAQCODMI9_line, ColorGroup
 from .forms import EditMajorLabelForm, EditBrandForm, EditCustomerForm, EditProductForm, CustomUserCreationForm, UserPasswordChangeForm, RegistrationForm, LoginForm, UserPasswordResetForm, UserSetPasswordForm
-from .forms import ProductForm, CustomerForm, BrandForm
+from .forms import ProductForm, CustomerForm, BrandForm, Color
 from .forms import get_generic_model_form
 from . import dictionaries, import_dictionaries
 import pyodbc, math
@@ -816,30 +817,31 @@ def process_this_file(file):
             print(list_of_sp)
             with connection.cursor() as curs:
                 for index, sp in enumerate(list_of_sp):
-                    log_message = f'sp{index}: {sp}'
-                    log_text += log_message + '\n'
-                    sql_command = f'EXECUTE {sp}'
-                    log_message = f"...executing {sp}"
-                    log_text += log_message + '\n'
-                    print(log_message)
-                    curs.execute(sql_command)
-                    log_message = f"{sp}...executed"
-                    log_text += log_message + '\n'
-                    print(log_message)
-                    if curs.description:
-                        resulting_rows = curs.fetchall()
-                        log_message = f'resulting_rows from procedure: {len(resulting_rows)}'
-                        print(log_message)
+                    with transaction.atomic():
+                        log_message = f'sp{index}: {sp}'
                         log_text += log_message + '\n'
-                        result_text=''
-                        for row in resulting_rows:
-                            row_text = ', '.join(map(str, row))
-                            # print(row_text)
-                            result_text += row_text + "\n"
-                            log_message = result_text
+                        sql_command = f'EXECUTE {sp}'
+                        log_message = f"...executing {sp}"
+                        log_text += log_message + '\n'
+                        print(log_message)
+                        curs.execute(sql_command)
+                        log_message = f"{sp}...executed"
+                        log_text += log_message + '\n'
+                        print(log_message)
+                        if curs.description:
+                            resulting_rows = curs.fetchall()
+                            log_message = f'resulting_rows from procedure: {len(resulting_rows)}'
+                            print(log_message)
                             log_text += log_message + '\n'
-                            yield log_message
-                    print("-----------------------------------------------------------")
+                            result_text=''
+                            for row in resulting_rows:
+                                row_text = ', '.join(map(str, row))
+                                # print(row_text)
+                                result_text += row_text + "\n"
+                                log_message = result_text
+                                log_text += log_message + '\n'
+                                yield log_message
+                        print("-----------------------------------------------------------")
 
         # Delete the file
         print(f'deleting ...{file.file_name}')
@@ -2087,6 +2089,3 @@ async def sse_stream(request):
             counter += 1
 
     return StreamingHttpResponse(stream_the_event(), content_type='text/event-stream')
-
-        
-

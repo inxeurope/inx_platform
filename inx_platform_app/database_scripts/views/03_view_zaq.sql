@@ -9,6 +9,12 @@ BEGIN
     DECLARE @CreateViewSql NVARCHAR(MAX);
     SET @CreateViewSql = N'
         CREATE VIEW [03_view_zaq] AS
+        /*
+        This view pulls sales data from zaq
+        joins the data with products and customers
+        id a product or a customer dont exist, some fields will be NULL
+        like _view_customer_id, brand_id, colorgroup_id
+        */
         SELECT
             z.[id] as zaq_id,
             z.[billing_date],
