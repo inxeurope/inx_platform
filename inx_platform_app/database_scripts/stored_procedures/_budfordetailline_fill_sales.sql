@@ -9,7 +9,7 @@ BEGIN
             -- get id of is_sales (it must be unique in the table, no 2 lines must be 1)
             -- *************************************************************************
             DECLARE @is_sales AS INT
-            SELECT @is_sales = is_sales FROM inx_platform_app_scenario
+            SELECT @is_sales = id FROM inx_platform_app_scenario
             WHERE is_sales = 1
             PRINT(N'Sales marker is ' + CAST(@is_sales AS NVARCHAR))
 
