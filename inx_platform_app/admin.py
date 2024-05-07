@@ -130,7 +130,7 @@ class CustomerAdmin(admin.ModelAdmin):
         print('________')
         if obj.country:
             value_to_return = obj.country.alpha_2
-        else
+        else:
             value_to_return = 'N/A'
         return value_to_return
     
