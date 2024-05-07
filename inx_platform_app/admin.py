@@ -125,9 +125,6 @@ class CustomerAdmin(admin.ModelAdmin):
     search_fields = ['name']
 
     def get_countrycode(self, obj):
-        print(obj)
-        print(obj.country)
-        print('________')
         if obj.country:
             value_to_return = obj.country.alpha_2
         else:

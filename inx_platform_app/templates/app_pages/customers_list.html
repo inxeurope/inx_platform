@@ -141,7 +141,7 @@
                             <span class="badge {% if customer.active %} bg-success {% else %} bg-danger {% endif %} me-1"></span> {% if customer.active  %} Active {% else %} Inactive {% endif %}
                           </td>
                           <td>
-                            <span class="flag flag-country-{{ customer.country.iso3166_1_alpha_2|lower }}"></span>
+                            <span class="flag flag-country-{{ customer.country.alpha_2|lower }}"></span>
                             {{ customer.country.uniterm_english_short }}
                           </td>
                           <td>
