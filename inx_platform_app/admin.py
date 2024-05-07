@@ -128,7 +128,11 @@ class CustomerAdmin(admin.ModelAdmin):
         print(obj)
         print(obj.country)
         print('________')
-        return obj.country
+        if obj.country:
+            value_to_return = obj.country.alpha_2
+        else
+            value_to_return = 'N/A'
+        return value_to_return
     
     get_countrycode.short_description = 'country'
 
