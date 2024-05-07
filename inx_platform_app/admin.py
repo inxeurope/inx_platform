@@ -127,7 +127,7 @@ class CustomerAdmin(admin.ModelAdmin):
     def get_countrycode(self, obj):
         print(obj)
         print(obj.country)
-        print(obj.country.alpha_2)
+        print('________')
         return obj.country.alpha_2
     
     get_countrycode.short_description = 'country'
