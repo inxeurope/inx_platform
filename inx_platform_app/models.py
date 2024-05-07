@@ -231,9 +231,13 @@ class Scenario(models.Model):
 
 
 class CountryCode(models.Model):
+    class Meta:
+        ordering = ['alpha_2']
+
+
     country_id = models.IntegerField(default=0)
-    iso3166_1_alpha_3 = models.CharField(max_length=3, null=True)
-    iso3166_1_alpha_2 = models.CharField(max_length=2, null=True)
+    alpha_3 = models.CharField(max_length=3, null=True)
+    alpha_2 = models.CharField(max_length=2, null=True)
     intermediate_region_code = models.IntegerField(null=True)
     intermediate_region_name = models.CharField(max_length=255, null=True)
     iso4217_currency_name = models.CharField(max_length=255, null=True)

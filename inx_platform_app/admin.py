@@ -70,7 +70,7 @@ class ScenarioAdmin(admin.ModelAdmin):
 
 
 class CountryCodeAdmin(admin.ModelAdmin):
-    list_display = ['id', 'iso3166_1_alpha_2', 'official_name_en']
+    list_display = ['id', 'alpha_2', 'official_name_en']
 
 
 class CustomerTypeAdmin(admin.ModelAdmin):
@@ -125,7 +125,7 @@ class CustomerAdmin(admin.ModelAdmin):
     search_fields = ['name']
 
     def get_countrycode(self, obj):
-        return obj.country.iso3166_1_alpha_2
+        return obj.country.alpha_2
     
     get_countrycode.short_description = 'country'
 
