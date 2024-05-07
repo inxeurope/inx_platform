@@ -843,6 +843,9 @@ class Brand(models.Model):
 
 
 class Product(models.Model):
+    class Meta:
+        ordering = ['name']
+
     name = models.CharField(max_length=100)
     number = models.CharField(max_length=30)
     is_ink = models.BooleanField(default = True)
@@ -942,9 +945,6 @@ class BudForLine(models.Model):
     color_group = models.ForeignKey(ColorGroup, on_delete=models.PROTECT)
     sqlapp_id = models.IntegerField(default=0, null=True)
 
-    def __str__(self):
-        return 'Customer: ' + self.customer.name + ' brand: ' + self.brand.name + ' color group:' + self.color_group.name
-
 
 class BudForNote(models.Model):
     note = models.CharField(max_length=255)
@@ -966,11 +966,51 @@ class BudForDetailLine(models.Model):
     year = models.IntegerField()
     month = models.IntegerField(default=0)
     currency_zaq = models.CharField(max_length=3)
-    detail_date = models.DateField(default='2023-01-01')
+    detail_date = models.DateField(default='2024-01-01')
     sqlapp_id = models.IntegerField(default=0, null=True)
     
     def __str__(self):
         return_string = f"BudForDetail line - bud_for_id:{self.budforline.id} - scenario: {self.scenario.id}"
+        return return_string
+
+
+class BudForDetail_Abstract(models.Model):
+    '''
+    This is an abstract class and can be used to create other models that will inherit
+    all fields
+    '''
+    budforline = models.ForeignKey(BudForLine, on_delete=models.PROTECT)
+    scenario = models.ForeignKey(Scenario, on_delete= models.PROTECT)
+    year = models.IntegerField(null=True, default=0)
+    month = models.IntegerField(null=True, default=0)
+    volume = models.IntegerField(null=True, default=0)
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    value = models.IntegerField(null=True, default=0)
+    currency_zaq = models.CharField(max_length=3)
+    detail_date = models.DateField(default='2024-01-01')
+    sqlapp_id = models.IntegerField(default=0, null=True)
+
+    class Meta:
+        abstract = True
+        
+    
+class BudgetForecastDetail(BudForDetail_Abstract):
+    class Meta:
+        verbose_name = 'Budget Forecast Detail'
+        verbose_name_plural = 'Budget Forecast Details'
+
+    def __str__(self):
+        return_string = f"BudgetForcastDetail line - bud_for_id:{self.budforline.id} - scenario: {self.scenario.id}"
+        return return_string
+
+
+class BudgetForecastDetail_sales(BudForDetail_Abstract):
+    class Meta:
+        verbose_name = 'Budget Forecast, Sales'
+        verbose_name_plural = 'Budget Forcast, Sales'
+
+    def __str__(self):
+        return_string = f"BudgetForcastDetail_sales line - bud_for_id:{self.budforline.id} - scenario: {self.scenario.id}"
         return return_string
 
 

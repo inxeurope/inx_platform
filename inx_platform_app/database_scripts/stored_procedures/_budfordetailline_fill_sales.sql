@@ -11,6 +11,7 @@ BEGIN
             DECLARE @is_sales AS INT
             SELECT @is_sales = id FROM inx_platform_app_scenario
             WHERE is_sales = 1
+            SELECT * FROM inx_platform_app_scenario WHERE id = @is_sales
             PRINT(N'Sales marker is ' + CAST(@is_sales AS NVARCHAR))
 
             -- *************************************************************************

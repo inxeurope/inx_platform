@@ -6,6 +6,7 @@ from .models import ExchangeRate, Scenario, CountryCode, BudForLine, BudForNote,
 from .models import CustomerType, Fbl5nArrImport, Fbl5nOpenImport, Ke30ImportLine, Ke24ImportLine
 from .models import Ke24Line, Order, CustomerNote, ProductLine, RateToLT, Fert
 from .models import ZAQCODMI9_line, ZAQCODMI9_import_line, UploadedFile, Price, User, Contact
+from .models import BudgetForecastDetail, BudgetForecastDetail_sales
 
 
 class ColorGroupAdmin(admin.ModelAdmin):
@@ -179,7 +180,7 @@ class BudForLineAdmin(admin.ModelAdmin):
 
 
 class BudForDetailLineAdmin(admin.ModelAdmin):
-    list_display = ['id', 'get_budforline_id', 'get_budforline_info', 'get_scenario_name', 'year', 'month', 'volume', 'price', 'get_value']
+    list_display = ['id', 'get_budforline_id', 'get_budforline_info', 'get_scenario_name', 'year', 'month', 'volume', 'price', 'value', 'get_value']
     search_fields = ['scenario__name', 'budforline__customer__name', 'budforline__brand__name', 'budforline__color_group__name', 'year', 'month']
 
     def get_budforline_id(self, obj):
@@ -194,7 +195,7 @@ class BudForDetailLineAdmin(admin.ModelAdmin):
         return obj.scenario.name
 
     def get_value(self, obj):
-        return_value = obj.price or 0 * obj.volume or 0
+        return_value = (obj.price or 0) * (obj.volume or 0)
         return return_value
 
     get_budforline_id.short_description = 'budforline_id'
@@ -204,11 +205,61 @@ class BudForDetailLineAdmin(admin.ModelAdmin):
 
 class UserAdmin(admin.ModelAdmin):
     list_display = ['id', 'first_name', 'last_name', 'email']
+    search_fields = ['id', 'first_name', 'last_name', 'email']
 
 
 class OrderAdmin(admin.ModelAdmin):
     list_display = ['id','sales_order_number', 'customer_number', 'customer_name', 'country', 'product_number', 'product_name', 'qty_ordered', 'qty_ordered_unit']
     search_fields = ['customer_number', 'customer_name', 'product_number', 'product_name']
+
+
+class BudgetForecastDetailAdmin_abs(admin.ModelAdmin):
+    '''
+    This is an abstract class that can be implemented as-is, the same by other models
+    We adopt this strategy to avoid having Budget and Forecast together with Sales, at
+    the same granulariity, in the same table. During normal operation, we must update
+    Sales, every time we update zaq data. If Sales are together with Budget and Forecast,
+    it is very hard and takes long time to remove Sales from a single table, causing delays.
+    With 2 different tables (BudgetForecast and Sales), we can manage Sales in a better way
+    '''
+    list_display = ['id', 'get_budforline_id', 'get_budforline_info', 'get_scenario_name', 'year', 'month', 'volume', 'price', 'value', 'get_value']
+    search_fields = ['scenario__name', 'budforline__customer__name', 'budforline__brand__name', 'budforline__color_group__name', 'year', 'month']
+
+    class Meta:
+        abstract = True
+
+    def get_budforline_id(self, obj):
+        return obj.budfoline.id
+
+    def get_budforline_info(self, obj):
+        the_related_budforline = obj.budforline
+        return_value = f"{the_related_budforline.customer.name} - {the_related_budforline.brand.name} - {the_related_budforline.color_group.name}"
+        return return_value
+
+    def get_value(self, obj):
+        return_value = obj.price or 0 * obj.volume or 0
+        return return_value
+
+    def get_scenario_name(self, obj):
+        return obj.scenario.name
+    
+    get_budforline_id.short_description = 'budforline_id'
+    get_scenario_name.short_description = 'scenario'
+    get_budforline_info.short_description = 'additional info'
+
+
+class BudgetForecastDetailAdmin(BudgetForecastDetailAdmin_abs):
+    '''
+    Contains only Budget and Forecast
+    '''
+    pass
+
+
+class BudgetForecastDetail_salesAdmin(BudgetForecastDetailAdmin_abs):
+    '''
+    Contains only Sales
+    '''
+    pass
 
 
 admin.site.register(ColorGroup, ColorGroupAdmin)
@@ -251,4 +302,6 @@ admin.site.register(Price, PriceAdmin)
 admin.site.register(User, UserAdmin)
 admin.site.register(Contact, ContactAdmin)
 admin.site.register(Fert, FertAdmin)
+admin.site.register(BudgetForecastDetail, BudgetForecastDetailAdmin)
+admin.site.register(BudgetForecastDetail_sales, BudgetForecastDetail_salesAdmin)
 

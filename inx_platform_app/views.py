@@ -22,6 +22,7 @@ from .models import Ke30ImportLine, Ke24ImportLine, ZAQCODMI9_import_line, Order
 from .models import MadeIn, MajorLabel, ProductStatus
 from .models import Brand, Product, Customer, InkTechnology, User
 from .models import UploadedFile, Contact, BudForLine, ZAQCODMI9_line, ColorGroup
+from .tasks import add, ticker_task, very_long_task
 from .forms import EditMajorLabelForm, EditBrandForm, EditCustomerForm, EditProductForm, CustomUserCreationForm, UserPasswordChangeForm, RegistrationForm, LoginForm, UserPasswordResetForm, UserSetPasswordForm
 from .forms import ProductForm, CustomerForm, BrandForm, Color
 from .forms import get_generic_model_form
@@ -33,6 +34,17 @@ import os, time, asyncio, uuid, json
 from datetime import datetime
 from time import perf_counter
 from sqlalchemy import create_engine
+
+
+def long_task(request):
+    return render(request, "app_pages/long_tasks.html")
+
+def trigger_long_task(request):
+    very_long_task.delay()
+    add.delay(4,6)
+    ticker_task.delay()
+    return render(request, 'app_pages/long_tasks.html')
+    
 
 def index(request):
     return render(request, "app_pages/index.html", {})
@@ -285,8 +297,11 @@ def import_from_SQL(table_tuples):
     # Working to import
     for table_name, field_name, model_class, mapping in table_tuples:
         # Query to get all records of the table
-        query = f"SELECT * FROM {table_name}"
-        msg = "startint to get rows ..."
+        if table_name == '_BudForDetails':
+            query = f"SELECT * FROM {table_name} WHERE ScenarioID <> 6"
+        else:
+            query = f"SELECT * FROM {table_name}"
+        msg = "starting to get rows ..."
         print(msg, end="")
         cursor.execute(query)
         records = cursor.fetchall()
@@ -446,7 +461,7 @@ def import_from_SQL(table_tuples):
         # Calculate the number of chunks needed
         num_chunks = math.ceil(df_length / size_of_df_chunk)
 
-        # Iterate over each chunk
+        # Iterate over each chunk to insert
         for chunk_index in range(num_chunks):
             start_index = chunk_index * size_of_df_chunk
             end_index = min((chunk_index + 1) * size_of_df_chunk, df_length)
@@ -671,7 +686,6 @@ def delete_file(request, file_id):
 
 
 def process_this_file(file):
-    print("entered process_this_file")
     file_path = file.file_path + "/" + file.file_name
     log_text = ''
     list_of_sp = []
@@ -725,7 +739,7 @@ def process_this_file(file):
                 # Then deleting sales from budfordetailline
                 # Then backing up budfordetailline
                 # Then filling in again sales from zaq with proper granularity
-                list_of_sp = ['_zaq_import', '_budfordetailline_delete_sales', '_budforline_add_triplets', '_budfordetailline_fill_sales']
+                list_of_sp = ['_zaq_import', '_budforline_add_triplets', '_budgetforecastdetail_fill_sales']
             case "oo":
                 convert_dict = import_dictionaries.oo_converters_dict
                 df = file.read_excel_file(file_path, convert_dict)

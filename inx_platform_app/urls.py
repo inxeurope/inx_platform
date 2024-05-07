@@ -6,6 +6,9 @@ urlpatterns = [
     path("", views.index, name="index"),
     path("index_original/", views.index_original, name="index-original"),
     path("inx/", views.index_inx, name="inx"),
+    
+    path("long_task/", views.long_task, name="long-task"),
+    path("trigger_long_task/", views.trigger_long_task, name="trigger-long-task-001"),
 
     path("loader/", views.loader,name="loader"),
     path("loading", views.loading,name="loading"),

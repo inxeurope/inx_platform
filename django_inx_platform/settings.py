@@ -173,12 +173,14 @@ MEDIA_URL = "/media/"
 
 WHITENOISE_DEBUG = True
 
-INTERNAL_IPS = [
-    # ...
-    "127.0.0.1",
-    "0.0.0.0",
-]
+# INTERNAL_IPS = [
+#     # ...
+#     "127.0.0.1",
+#     "0.0.0.0",
+# ]
 
-CORS_ALLOWED_ORIGINS = [
-    "https://platform.inxeurope.dev",
-]
+# CELERY_BROKER_URL = 'redis://localhost:6379/0'
+# CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER", "redis://redis:6379/0")
+CELERY_RESULT_BACKEND = os.environ.get("CELERY_BROKER", "redis://redis:6379/0")
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
