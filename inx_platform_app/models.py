@@ -10,6 +10,17 @@ from django.core.validators import RegexValidator
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, UserManager
 from . import import_dictionaries
+from django.core.exceptions import ValidationError
+
+
+# Field validators
+def xls_xlsx_file_validator(value):
+    ext = os.path.splitext(value.name)[1]  # Get file extension
+    valid_extensions = ['.xlsx', '.XLSX']
+    if not ext.lower() in valid_extensions:
+        raise ValidationError('Only .xlsx and .XLSX files are allowed.')
+#--------------------------------------------- End of validators
+
 
 # ----------------------------------------------------------
 # The following classes are for managing a custom User model
@@ -1039,6 +1050,11 @@ class Price(models.Model):
 
 
 class UploadedFile(models.Model):
+    STATUS_CHOICES = (
+        ('NEW', 'new'),
+        ('PROCESSING', 'processing'),
+        ('PROCESSED', 'processed'),
+    )
     file_name = models.CharField(max_length=255, blank=True)
     file_path = models.CharField(max_length=255, blank=True)
     file_type = models.CharField(max_length=20, blank=True)
@@ -1046,6 +1062,7 @@ class UploadedFile(models.Model):
     created_at = models.DateTimeField(auto_now=True, null=True)
     is_processed = models.BooleanField(default=False)
     processed_at = models.DateTimeField(blank=True, null=True)
+    process_status = models.CharField(max_length=40, choices=STATUS_CHOICES, default='NEW')
     owner = models.ForeignKey(User, on_delete=models.PROTECT)
     log = models.TextField(null=True, blank=True)
 
@@ -1244,6 +1261,18 @@ class UploadedFile(models.Model):
         df = pd.read_excel(file_path, thousands='.', decimal=',', dtype=conversion_dict, parse_dates=True)
         df = df.replace(np.nan, '')
         return df
+
+
+class UploadedFileLog(models.Model):
+    class Meta:
+        ordering = ['-date']
+
+    uploaded_file = models.ForeignKey(UploadedFile, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    date = models.DateTimeField(auto_now_add=True)
+    file_name = models.FilePathField(path=settings.MEDIA_ROOT, match=r'.*\.(xlsx|XLSX)$', validators=[xls_xlsx_file_validator])
+    log_text = models.TextField()
+
 
 
 class Contact(models.Model):

@@ -7,8 +7,8 @@ urlpatterns = [
     path("index_original/", views.index_original, name="index-original"),
     path("inx/", views.index_inx, name="inx"),
     
-    path("long_task/", views.long_task, name="long-task"),
-    path("trigger_long_task/", views.trigger_long_task, name="trigger-long-task-001"),
+    # task experiment
+    path("start_task/", views.start_task, name="start-task"),
 
     path("loader/", views.loader,name="loader"),
     path("loading", views.loading,name="loading"),

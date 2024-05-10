@@ -26,7 +26,7 @@ ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '159.223.26.141', 'platform.inxeurope
 # Application definition
 
 INSTALLED_APPS = [
-    'daphne',
+    "daphne",
     # 'admin_tabler.apps.AdminTablerConfig',
     "django.contrib.admin",
     "django.contrib.auth",
@@ -173,14 +173,10 @@ MEDIA_URL = "/media/"
 
 WHITENOISE_DEBUG = True
 
-# INTERNAL_IPS = [
-#     # ...
-#     "127.0.0.1",
-#     "0.0.0.0",
-# ]
 
-# CELERY_BROKER_URL = 'redis://localhost:6379/0'
-# CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
-CELERY_BROKER_URL = os.environ.get("CELERY_BROKER", "redis://redis:6379/0")
-CELERY_RESULT_BACKEND = os.environ.get("CELERY_BROKER", "redis://redis:6379/0")
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+CELERY_WORKER_HIJACK_ROOT_LOGGER = False
+CELERY_TASK_ALWAYS_EAGER = False
+CELERY_WORKER_AUTORELOADER = True

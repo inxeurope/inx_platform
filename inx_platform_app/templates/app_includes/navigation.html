@@ -176,6 +176,7 @@
                 {% if request.user.is_superuser %}
                 <a href="{% url 'import-single-table' %}" class="dropdown-item">Import from old SQL tables</a>
                 <a href="{% url 'admin:index' %}" class="dropdown-item" >Admin inteface</a>
+                <a href="{% url 'start-task' %}" class="dropdown-item" >start task</a>
                 {% endif %}
             {% else %}    
                 <a href="{% url 'login' %}" class="dropdown-item">Sign In</a>

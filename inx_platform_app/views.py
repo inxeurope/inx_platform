@@ -22,10 +22,10 @@ from .models import Ke30ImportLine, Ke24ImportLine, ZAQCODMI9_import_line, Order
 from .models import MadeIn, MajorLabel, ProductStatus
 from .models import Brand, Product, Customer, InkTechnology, User
 from .models import UploadedFile, Contact, BudForLine, ZAQCODMI9_line, ColorGroup
-from .tasks import add, ticker_task, very_long_task
 from .forms import EditMajorLabelForm, EditBrandForm, EditCustomerForm, EditProductForm, CustomUserCreationForm, UserPasswordChangeForm, RegistrationForm, LoginForm, UserPasswordResetForm, UserSetPasswordForm
 from .forms import ProductForm, CustomerForm, BrandForm, Color
 from .forms import get_generic_model_form
+from .tasks import ticker_task, very_long_task
 from . import dictionaries, import_dictionaries
 import pyodbc, math
 import pandas as pd
@@ -40,9 +40,9 @@ def long_task(request):
     return render(request, "app_pages/long_tasks.html")
 
 def trigger_long_task(request):
-    very_long_task.delay()
-    add.delay(4,6)
-    ticker_task.delay()
+    # very_long_task.delay()
+    # add.delay(4,6)
+    # ticker_task.delay()
     return render(request, 'app_pages/long_tasks.html')
     
 
@@ -2016,12 +2016,14 @@ def layout_navbar_dark(request):
     }
     return render(request, 'app_pages/layout-navbar-dark.html', context)
 
+
 def layout_navbar_sticky(request):
     context = {
         'parent': 'layout',
         'segment': 'layout_navbar_sticky',
     }
     return render(request, 'app_pages/layout-navbar-sticky.html', context)
+
 
 def layout_navbar_overlap(request):
     context = {
@@ -2030,12 +2032,14 @@ def layout_navbar_overlap(request):
     }
     return render(request, 'app_pages/layout-navbar-overlap.html', context)
 
+
 def layout_rtl(request):
     context = {
         'parent': 'layout',
         'segment': 'layout_rtl',
     }
     return render(request, 'app_pages/layout-rtl.html', context)
+
 
 def layout_fluid(request):
     context = {
@@ -2044,6 +2048,7 @@ def layout_fluid(request):
     }
     return render(request, 'app_pages/layout-fluid.html', context)
 
+
 def layout_fluid_vertical(request):
     context = {
         'parent': 'layout',
@@ -2051,11 +2056,14 @@ def layout_fluid_vertical(request):
     }
     return render(request, 'app_pages/layout-fluid-vertical.html', context)
 
+
 def changelog(request):
     return render(request, 'app_pages/changelog.html')
 
+
 def profile(request):
     return render(request, 'app_pages/profile.html')
+
 
 def icons(request):
 
@@ -2064,6 +2072,7 @@ def icons(request):
         'segment': 'icons',
     }
     return render(request, 'app_pages/icons.html', context)
+
 
 def edit_model_record(request, pk, model):
     model_class = apps.get_model(app_label='inx_platform_app', model_name=model)
@@ -2103,3 +2112,9 @@ async def sse_stream(request):
             counter += 1
 
     return StreamingHttpResponse(stream_the_event(), content_type='text/event-stream')
+
+
+def start_task(request):
+    ticker_task.delay(999)
+    very_long_task.delay()
+    return redirect(to="index")
