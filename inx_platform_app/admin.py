@@ -266,6 +266,10 @@ class BudgetForecastDetail_salesAdmin(BudgetForecastDetailAdmin_abs):
     pass
 
 
+class UploadedFileAdmin(admin.ModelAdmin):
+    list_display=['id', 'created_at', 'process_status', 'owner', 'file_type', 'file_name', 'file_color']
+
+
 admin.site.register(ColorGroup, ColorGroupAdmin)
 admin.site.register(Color, ColorAdmin)
 admin.site.register(MadeIn, MadeInAdmin)
@@ -301,7 +305,7 @@ admin.site.register(ZAQCODMI9_import_line)
 admin.site.register(ZAQCODMI9_line, ZACODMI9_lineAdmin)
 admin.site.register(Order, OrderAdmin)
 admin.site.register(CustomerNote)
-admin.site.register(UploadedFile)
+admin.site.register(UploadedFile, UploadedFileAdmin)
 admin.site.register(Price, PriceAdmin)
 admin.site.register(User, UserAdmin)
 admin.site.register(Contact, ContactAdmin)
