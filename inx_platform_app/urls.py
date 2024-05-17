@@ -20,11 +20,11 @@ urlpatterns = [
     path("clean_db/", views.clean_db, name='clean_db'),
     path("clean_single/", views.clean_single, name='clean_single'),
     
-    path("display_files/", views.display_files, name='display_files'),
-    path("importing_files/", views.importing_files, name='importing-files'),
+    # path("importing_files/", views.importing_files, name='importing-files'),
+    path("imported_files/", views.imported_files, name='imported-files'),
     path("files_to_import/", views.files_to_import, name='files-to-import'),
     path("push_file_to_file_processor", views.push_file_to_processor, name="push-file-to-file-processor"),
-    path("imported_files/", views.imported_files, name='imported-files'),
+   
 
     path('start_processing/<int:file_id>/', views.start_processing, name='start-processing'),
     path('start_file_processing/<int:file_id>', views.start_file_processing, name='start-file-processing'),

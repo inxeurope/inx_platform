@@ -1,13 +1,6 @@
 from django.contrib import admin
+from django import forms
 from .models import *
-# from .models import ColorGroup, Color, MadeIn, Division, MajorLabel
-# from .models import InkTechnology, NSFDivision, MarketSegment, MaterialGroup, Industry
-# from .models import Brand, Packaging, ProductStatus, Product, Customer, Ke30Line, UnitOfMeasure
-# from .models import ExchangeRate, Scenario, CountryCode, BudForLine, BudForNote, BudForDetailLine
-# from .models import CustomerType, Fbl5nArrImport, Fbl5nOpenImport, Ke30ImportLine, Ke24ImportLine
-# from .models import Ke24Line, Order, CustomerNote, ProductLine, RateToLT, Fert
-# from .models import ZAQCODMI9_line, ZAQCODMI9_import_line, UploadedFile, Price, User, Contact
-# from .models import BudgetForecastDetail, BudgetForecastDetail_sales
 
 
 class ColorGroupAdmin(admin.ModelAdmin):
@@ -271,11 +264,15 @@ class UploadedFileAdmin(admin.ModelAdmin):
     list_display=['id', 'created_at', 'process_status', 'owner', 'file_type', 'file_name', 'file_color']
 
 
+
+
 class UploadedFileLogAdmin(admin.ModelAdmin):
     class Meta:
         ordering = ['-date']
 
     list_display = ['id', 'uploaded_file_id', 'get_user_email', 'date', 'file_path', 'file_name', 'log_text']
+    readonly_fields = ("user_id", "user", "uploaded_file", "file_path", "file_name", "celery_task_id",)
+
     
     def get_user_email(self, obj):
         return obj.user.email

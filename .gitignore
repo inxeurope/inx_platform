@@ -11,3 +11,4 @@ local_env/
 static_files
 media_root/uploads/
 venv/
+Procfile

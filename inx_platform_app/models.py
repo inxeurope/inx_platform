@@ -1269,13 +1269,13 @@ class UploadedFileLog(models.Model):
     class Meta:
         ordering = ['-date']
 
-    uploaded_file = models.ForeignKey(UploadedFile, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    uploaded_file = models.ForeignKey(UploadedFile, on_delete=models.CASCADE, null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     date = models.DateTimeField(auto_now_add=True)
-    file_path = models.FilePathField(path=settings.MEDIA_ROOT, match=r'.*\.(xlsx|XLSX)$', validators=[xls_xlsx_file_validator])
-    file_name = models.CharField(max_length=255, null=True)
-    celery_task_id = models.CharField(max_length=255)
-    log_text = models.TextField()
+    file_path = models.FilePathField(path=settings.MEDIA_ROOT, match=r'.*\.(xlsx|XLSX)$', validators=[xls_xlsx_file_validator], null=True, blank=True)
+    file_name = models.CharField(max_length=255, null=True, blank=True)
+    celery_task_id = models.CharField(max_length=255, null=True, blank=True)
+    log_text = models.TextField(null=True, blank=True)
 
 
 

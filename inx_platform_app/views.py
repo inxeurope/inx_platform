@@ -594,19 +594,11 @@ def save_model(the_class, the_data, counter, all_records, logs=None):
     return counter, logs
 
 
-@login_required
-def display_files(request):
-    user = request.user
-    user_files = UploadedFile.objects.filter(owner=user)
-    
-    return render(request, "display_files.html", {'user_files': user_files})
-
-
-@login_required
-def importing_files(request):
-    user = request.user
-    user_files = UploadedFile.objects.filter(owner=user, is_processed=False)
-    return render(request, "app_pages/importing_files.html", {'user_files': user_files})
+# @login_required
+# def importing_files(request):
+#     user = request.user
+#     user_files = UploadedFile.objects.filter(owner=user, is_processed=False)
+#     return render(request, "app_pages/importing_files.html", {'user_files': user_files})
 
 
 @login_required
