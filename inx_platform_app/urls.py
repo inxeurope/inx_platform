@@ -10,12 +10,11 @@ urlpatterns = [
     # task experiment
     path("start_task/", views.start_task, name="start-task"),
 
-    path("loader/", views.loader,name="loader"),
-    path("loading", views.loading,name="loading"),
+    path("loader/", views.loader, name="loader"),
+    path("loading", views.loading, name="loading"),
     path('log_stream_import_files/<int:file_id>/', views.start_file_processing, name='log_stream_import_files'),
 
     path("import_data/", views.import_data, name='import_data'),
-    # path("import_single/", views.import_single, name='import_single'),
     path("import_single_table/", views.import_single_table, name='import-single-table'),
     
     path("clean_db/", views.clean_db, name='clean_db'),
@@ -23,12 +22,13 @@ urlpatterns = [
     
     path("display_files/", views.display_files, name='display_files'),
     path("importing_files/", views.importing_files, name='importing-files'),
-    path("importing_files_x/", views.importing_files_x, name='importing-files-x'),
+    path("files_to_import/", views.files_to_import, name='files-to-import'),
+    path("push_file_to_file_processor", views.push_file_to_processor, name="push-file-to-file-processor"),
     path("imported_files/", views.imported_files, name='imported-files'),
 
     path('start_processing/<int:file_id>/', views.start_processing, name='start-processing'),
     path('start_file_processing/<int:file_id>', views.start_file_processing, name='start-file-processing'),
-    path('delete_file/<int:file_id>/', views.delete_file, name='delete_file'),
+    path('delete_this_file_to_import/<int:file_id>/', views.delete_this_file_to_import, name='delete-this-file-to-import'),
     
     path("customers_list/", views.customers_list, name="customers-list"),
     path("customers_list_2/", views.customers_list_2, name="customers-list-2"),

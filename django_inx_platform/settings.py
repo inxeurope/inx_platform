@@ -61,6 +61,7 @@ MIDDLEWARE = [
     "django_htmx.middleware.HtmxMiddleware",
 ]
 
+
 ROOT_URLCONF = "django_inx_platform.urls"
 
 TEMPLATES = [
@@ -94,18 +95,6 @@ DATABASES = {
         "PORT": os.getenv("DB_PORT", default="1433"),
         "USER": os.getenv("DB_USER", default="sa"),
         "PASSWORD": os.getenv("DB_PASSWORD", default="dellaBiella2!"),
-         
-        # "HOST": "inxeu.database.windows.net",
-        # "PORT": "1433",
-        # "USER": "inxeu_admin ",
-        # "PASSWORD": "2zs$SgD*D8aNPtr@",
-
-        # "HOST": "inxeu.database.windows.net",
-        # "OPTIONS": {
-        #     "driver": "ODBC Driver 18 for SQL Server",
-        #     "MARS_Connection": "True",
-        #     'TrustServerCertificate': "Yes",
-        # }
 
         "OPTIONS": {
             "driver": os.getenv("DB_DRIVER", default="ODBC Driver 18 for SQL Server"),
@@ -113,7 +102,6 @@ DATABASES = {
         }
     },
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators

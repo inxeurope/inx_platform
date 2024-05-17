@@ -10,12 +10,12 @@
         <div class="row g-2 align-items-center justify-content-between">
           <div class="col">
             <h2 class="page-title">
-              Files to import X
+              Files to import
             </h2>
           </div>
           <div class="col-auto ">
             <h2 class="page-title">
-              <a href="{% url 'imported-files' %}" class="btn btn-outline">Imported Files</a>
+              <a href="{% url 'imported-files' %}" class="btn btn-outline" data-bs-toggle="tooltip" data-bs-placement="top" title="View files imported in the past">Previous Files</a>
             </h2>
           </div>
         </div>
@@ -28,6 +28,7 @@
           {% for file in user_files %}
             <div id="{{ file.id }}" class="col-md-6 col-lg-3">
               <div class="card">
+                <div class="card-status-start bg-{{ file.file_color }}"></div>
                 <div class="ribbon bg-{{ file.file_color }}">{{ file.file_type }}</div>
                 <div class="card-header">
                   <h3 class="card-title">file id: {{file.id}}</h3>
@@ -43,7 +44,7 @@
                 </div>
                 <div class="card-footer">
                   <div class="d-flex align-items-center">
-                    <a href="{% url 'delete_file' file.id %}">
+                    <a href="{% url 'delete-this-file-to-import' file.id %}">
                       <span>
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                           <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
@@ -55,8 +56,11 @@
                         </svg>
                       </span>
                     </a>
-                    {% comment %} <a href="{% url 'start-file-processing' file.id %}" class="btn btn-primary ms-auto">Process</a> {% endcomment %}
-                    <button data-file-id="{{ file.id }}" class="btn btn-primary process-button ms-auto">Process</button>
+                    <form action="{% url 'push-file-to-file-processor' %}" method="get" class="ms-auto">
+                      {% csrf_token %}
+                      <input type="hidden" name="file_id" value="{{ file.id }}">
+                      <button type="submit" class="btn btn-primary">Submit Process</button>
+                    </form>
                   </div>
                 </div>
               </div>
@@ -66,21 +70,11 @@
         {% if user_files %}
         <div class="row row-cards">
           <div class="col">
-            <div class="card mb-5">
+            <div class="card">
               <div id="log" class="card-body text-muted">
                 Log messages here ...
               </div>
             </div>
-            <div class="card mb-5">
-              <div class="card-body text-muted">
-                <a id="trig" href="{% url 'importing-files-x' %}" hx-boost="true" hx-swap="beforeend" hx-target="#logger">Link</a>
-              </div>
-            </div>
-            <div class="card">
-                <div id="logger" class="card-body text-muted">
-                  
-                </div>
-              </div>
           </div>
           <script>
             document.addEventListener('DOMContentLoaded', function() {
@@ -97,31 +91,6 @@
                 });
               });
 
-              function startSSE(fileId) {
-                console.log('entered startSSE with fileID: ' + fileId)
-                  if (eventSource) {
-                      eventSource.close(); // Ensure to close any previously opened connections
-                      console.log('forced EventSource to close')
-                  }
-                  sseData.innerHTML = 'Starting up ...'; // Reset log content
-                  eventSource = new EventSource(`/log_stream_import_files/${fileId}/`);
-                  if (eventSource) {
-                    console.log('eventSource open')
-                  }
-                  eventSource.onmessage = event => {
-                    console.log(event.data)
-                    data = event.data
-                    if (data === "basta") {
-                        console.log("Stream finished. Closing connection.");
-                        eventSource.close();
-                        sseData.innerHTML += 'stop<br>';
-                        removeFileDiv(fileId);
-                    } else {
-                        // Handle normal messages
-                        sseData.innerHTML += event.data + '<br>';
-                    }
-                  };
-              }
               
               function removeFileDiv(fileId) {
                 const fileDiv = document.getElementById(fileId);

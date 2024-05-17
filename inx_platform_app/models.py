@@ -1235,26 +1235,28 @@ class UploadedFile(models.Model):
 
     def delete_file_soft(self):
         full_file_name = os.path.join(settings.MEDIA_ROOT, self.file_path, self.file_name)
-        print(full_file_name)
         if os.path.exists(full_file_name):
             os.remove(full_file_name)
             self.is_processed = True
             self.save()
-            print(f'The file {full_file_name} was there and we removed it')
             return True
         else:
-            print(f'The file {full_file_name} was not there')
             return False
 
 
     def delete_file(self):
         full_file_name = os.path.join(settings.MEDIA_ROOT, self.file_path, self.file_name)
-        print(full_file_name)
+        now =  datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         if os.path.exists(full_file_name):
             os.remove(full_file_name)
             # Mark as is_processed=True
             self.is_processed = True
             self.save()
+        else:
+            self.log = f"On {now} this file was asked for deletion, but the file was not there, therefore we set the is_processed property as True, so it won't show up in the list of files to be processed"
+            self.is_processed = True
+            self.save()
+
             
         
     def read_excel_file(self, file_path, conversion_dict):
@@ -1270,7 +1272,9 @@ class UploadedFileLog(models.Model):
     uploaded_file = models.ForeignKey(UploadedFile, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
-    file_name = models.FilePathField(path=settings.MEDIA_ROOT, match=r'.*\.(xlsx|XLSX)$', validators=[xls_xlsx_file_validator])
+    file_path = models.FilePathField(path=settings.MEDIA_ROOT, match=r'.*\.(xlsx|XLSX)$', validators=[xls_xlsx_file_validator])
+    file_name = models.CharField(max_length=255, null=True)
+    celery_task_id = models.CharField(max_length=255)
     log_text = models.TextField()
 
 

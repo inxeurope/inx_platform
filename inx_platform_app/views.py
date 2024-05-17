@@ -25,7 +25,7 @@ from .models import UploadedFile, Contact, BudForLine, ZAQCODMI9_line, ColorGrou
 from .forms import EditMajorLabelForm, EditBrandForm, EditCustomerForm, EditProductForm, CustomUserCreationForm, UserPasswordChangeForm, RegistrationForm, LoginForm, UserPasswordResetForm, UserSetPasswordForm
 from .forms import ProductForm, CustomerForm, BrandForm, Color
 from .forms import get_generic_model_form
-from .tasks import ticker_task, very_long_task
+from .tasks import ticker_task, very_long_task, file_processor
 from . import dictionaries, import_dictionaries
 import pyodbc, math
 import pandas as pd
@@ -204,16 +204,14 @@ def loading(request):
                 match prefix:
                     case 'ke30':
                         file_color = 'blue'
+                    case 'ke24':
+                        file_color = 'orange'
                     case 'zaq':
                         file_color = 'red'
                     case 'oo':
                         file_color = 'purple'
-                    case 'ke24':
-                        file_color = 'orange'
-                    case 'oo':
-                        file_color = 'green'
                     case 'oi':
-                        fiile_color = 'cyan'
+                        file_color = 'cyan'
                     case 'arr':
                         file_color = 'indigo'
                     case 'pr':
@@ -230,7 +228,7 @@ def loading(request):
                     # here it's done, update the database
                     uploaded_file = UploadedFile(owner=request.user, file_type=prefix, file_path=upload_dir, file_name=original_file_nane, file_color=file_color)
                     uploaded_file.save()
-        return redirect('importing-files')
+        return redirect('files-to-import')
     else:
         return render(request, "app_pages/loading_data.html", {})
 
@@ -612,19 +610,10 @@ def importing_files(request):
 
 
 @login_required
-def importing_files_x(request):
-    
-    if request.htmx:
-        print("HTMX request")
-        print ('trigger', request.htmx.trigger)
-        print ('target', request.htmx.target)
-        print ('boosted', request.htmx.boosted)
-        return render(request, "app_pages/importing_files_x_partial.html")
-    else:
-        print("Normal request")
-        user = request.user
-        user_files = UploadedFile.objects.filter(owner=user, is_processed=False)
-        return render(request, "app_pages/importing_files_x.html", {'user_files': user_files})
+def files_to_import(request):
+    user = request.user
+    user_files = UploadedFile.objects.filter(owner=user, is_processed=False)
+    return render(request, "app_pages/files_to_import.html", {'user_files': user_files})
 
 
 @login_required
@@ -661,9 +650,16 @@ def imported_files(request, page=0):
 def start_processing(request, file_id):
     pass
 
+@login_required
+def push_file_to_processor(request):
+    id = request.GET.get("file_id")
+    file_processor.delay(id, request.user.id)
+    return redirect("files-to-import")
+
 
 @login_required
 def start_file_processing(request, file_id):
+    # Landing here when the user clicks on the button of the imported file
     def event_stream():
         print("we are in the event_stream function")
         yield f'data:start yielding\n\n'
@@ -674,7 +670,7 @@ def start_file_processing(request, file_id):
     return response
 
 
-def delete_file(request, file_id):
+def delete_this_file_to_import(request, file_id):
     file = get_object_or_404(UploadedFile, id = file_id)
     try:
         file.delete_file()
@@ -682,7 +678,7 @@ def delete_file(request, file_id):
         print(fnf)
         file.is_processed = False
         file.save()
-    return redirect('importing-files')
+    return redirect('files-to-import')
 
 
 def process_this_file(file):
@@ -779,7 +775,7 @@ def process_this_file(file):
                 convert_dict = import_dictionaries.pr_converters_dict
                 df = file.read_excel_file(file_path)
                 model = Price
-                field_mapping = import_dictionaries.pr_mapping_dict
+                field_mapping = import_dictionaries.prl_mapping_dict
         model.objects.all().delete()
         log_message = "data:deleting rows from the db table\n\n"
         yield log_message

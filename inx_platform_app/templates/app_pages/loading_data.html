@@ -44,7 +44,8 @@
           <button type="submit" class="btn btn-primary">Upload data</button>
           
           {% if request.user.is_superuser %}
-          <a class="btn" href="{% url 'importing-files' %}">View Files</a>
+          {% comment %} <a class="btn" href="{% url 'importing-files' %}">View Files</a> {% endcomment %}
+          <a class="btn" href="{% url 'files-to-import' %}">View Files</a>
           {% endif %}
         </form>
       </div>
