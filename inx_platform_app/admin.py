@@ -271,7 +271,7 @@ class UploadedFileLogAdmin(admin.ModelAdmin):
         ordering = ['-date']
 
     list_display = ['id', 'uploaded_file_id', 'get_user_email', 'date', 'file_path', 'file_name', 'log_text']
-    readonly_fields = ("user_id", "user", "uploaded_file", "file_path", "file_name", "celery_task_id",)
+    readonly_fields = ("user_id", "user", "uploaded_file", "file_path", "file_name", "celery_task_id", )
 
     
     def get_user_email(self, obj):

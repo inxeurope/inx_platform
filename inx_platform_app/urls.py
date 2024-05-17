@@ -20,10 +20,10 @@ urlpatterns = [
     path("clean_db/", views.clean_db, name='clean_db'),
     path("clean_single/", views.clean_single, name='clean_single'),
     
-    # path("importing_files/", views.importing_files, name='importing-files'),
     path("imported_files/", views.imported_files, name='imported-files'),
+    path("imported_file_log/<int:pk>", views.imported_file_log, name='imported-file-log'),
     path("files_to_import/", views.files_to_import, name='files-to-import'),
-    path("push_file_to_file_processor", views.push_file_to_processor, name="push-file-to-file-processor"),
+    path("push_file_to_file_processor", views.push_file_to_file_processor, name="push-file-to-file-processor"),
    
 
     path('start_processing/<int:file_id>/', views.start_processing, name='start-processing'),

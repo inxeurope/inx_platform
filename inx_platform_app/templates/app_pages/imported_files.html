@@ -35,6 +35,7 @@
           {% for file in user_files %}
             <div id="{{ file.id }}" class="col-md-6 col-lg-3">
               <div class="card">
+                <div class="card-status-start bg-{{ file.file_color }}" style="width: 8px"></div>
                 <div class="ribbon bg-{{ file.file_color }}">{{ file.file_type }}</div>
                 <div class="card-header">
                   <h3 class="card-title">file id: {{file.id}}</h3>
@@ -45,11 +46,21 @@
                     {{ file.file_name }}
                   </p>
                   <p class="text-muted">
+                    {{ file.processed_at }}
+                  </p>
+                  {% comment %} <p class="text-muted">
                     Processed: {{ file.is_processed }}
-                  </p>
-                  <p class="text-muted">
-                    Log trace: {{ file.log}}
-                  </p>
+                  </p> {% endcomment %}
+                  {% comment %} <p class="text-muted">
+                    Log trace: {{ file.log }}
+                  </p> {% endcomment %}
+                </div>
+                <div class="card-footer">
+                  <div class="d-flex">
+                    <a href="{% url "imported-file-log" file.id %}" class="">
+                      <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-logs"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 12h.01" /><path d="M4 6h.01" /><path d="M4 18h.01" /><path d="M8 18h2" /><path d="M8 12h2" /><path d="M8 6h2" /><path d="M14 6h6" /><path d="M14 12h6" /><path d="M14 18h6" /></svg>
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>

@@ -1054,6 +1054,7 @@ class UploadedFile(models.Model):
         ('NEW', 'new'),
         ('PROCESSING', 'processing'),
         ('PROCESSED', 'processed'),
+        ('ERROR', 'error'),
     )
     file_name = models.CharField(max_length=255, blank=True)
     file_path = models.CharField(max_length=255, blank=True)
@@ -1276,7 +1277,6 @@ class UploadedFileLog(models.Model):
     file_name = models.CharField(max_length=255, null=True, blank=True)
     celery_task_id = models.CharField(max_length=255, null=True, blank=True)
     log_text = models.TextField(null=True, blank=True)
-
 
 
 class Contact(models.Model):

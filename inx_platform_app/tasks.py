@@ -53,17 +53,18 @@ def file_processor(id_of_UploadedFile, user_id):
                 celery_logger.error(f"file could not be read - {uploaded_file_record}")
                 return
         case "ke24":
-            result = read_this_file(uploaded_file_record,user, import_dictionaries.ke24_converters_dict, celery_task_id)
-            if not result == False:
+            df = read_this_file(uploaded_file_record,user, import_dictionaries.ke24_converters_dict, celery_task_id)
+            if not df.empty:
                 df = df.drop(columns=['Industry Code 1'])               
                 model = Ke24ImportLine
                 field_mapping = import_dictionaries.ke24_mapping_dict
+                list_of_sp =[]
             else:
                 celery_logger.error(f"file could not be read - {uploaded_file_record}")
                 return
         case "zaq":
-            result = read_this_file(uploaded_file_record,user, import_dictionaries.zaq_converters_dict, celery_task_id)
-            if not result == False:
+            df = read_this_file(uploaded_file_record,user, import_dictionaries.zaq_converters_dict, celery_task_id)
+            if not df.empty:
                 df["Billing date"] = df['Billing date'].apply(lambda x: x.strftime("%Y-%m-%d") if not pd.isna(x) else x)
                 # This Excel file has the totals,at teh bottom, that must be removed
                 # The number of rows may vary depending on the number of currencies and UoMs mentioned
@@ -82,8 +83,8 @@ def file_processor(id_of_UploadedFile, user_id):
                 celery_logger.error(f"file could not be read - {uploaded_file_record}")
                 return
         case "oo":
-            result = read_this_file(uploaded_file_record,user, import_dictionaries.oo_converters_dict, celery_task_id)
-            if not result == False:
+            df = read_this_file(uploaded_file_record,user, import_dictionaries.oo_converters_dict, celery_task_id)
+            if not df.empty:
                 df['LineType'] = 'OO'
                 print(f"it was {len(df)}")
                 uniques = len(df['Unit'].value_counts())
@@ -97,12 +98,13 @@ def file_processor(id_of_UploadedFile, user_id):
                 df['Sold-to'] = np.where(df['Sold-to'] == '', df['Ship-to'], df['Sold-to'])
                 model = Order
                 field_mapping = import_dictionaries.oo_mapping_dict
+                list_of_sp =[]
             else:
                 celery_logger.error(f"file could not be read - {uploaded_file_record}")
                 return
         case "oi" | "arr":
-            result = read_this_file(uploaded_file_record,user, import_dictionaries.oo_converters_dict, celery_task_id)
-            if not result == False:
+            df = read_this_file(uploaded_file_record,user, import_dictionaries.oo_converters_dict, celery_task_id)
+            if not df.empty:
                 uniques = len(df['Document currency'].value_counts())
                 df = df.iloc[:-uniques]
                 print(f"{uploaded_file_record.file_type} is now {len(df)} lines long")
@@ -117,14 +119,16 @@ def file_processor(id_of_UploadedFile, user_id):
                 if uploaded_file_record.file_type == "oi":
                     model = Fbl5nOpenImport
                     field_mapping = import_dictionaries.oi_mapping_dict
+                list_of_sp =[]
             else:
                 celery_logger.error(f"file could not be read - {uploaded_file_record}")
                 return
         case "pr":
-            result = read_this_file(uploaded_file_record,user, import_dictionaries.pr_converters_dict, celery_task_id)
-            if not result == False:
+            df = read_this_file(uploaded_file_record,user, import_dictionaries.pr_converters_dict, celery_task_id)
+            if not df.empty:
                 model = Price
                 field_mapping = import_dictionaries.prl_mapping_dict
+                list_of_sp =[]
             else:
                 celery_logger.error(f"file could not be read - {uploaded_file_record}")
                 return
@@ -173,7 +177,12 @@ def file_processor(id_of_UploadedFile, user_id):
             for index, sp in enumerate(list_of_sp):
                 with transaction.atomic():
                     sql_command = f"EXECUTE {sp}"
-                    curs.execute(sql_command)
+                    try:
+                        curs.execute(sql_command)
+                    except Exception as e:
+                        message = f"Error during execution of {sp}. {e}" 
+                        post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, message, "error")
+                        return
                     if curs.description:
                         resulting_rows = curs.fetchall()
                         post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, f"resulting rows from sp {sp}.")
@@ -191,7 +200,7 @@ def file_processor(id_of_UploadedFile, user_id):
     post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, log_message)
     uploaded_file_record.save()
 
-def post_a_log_message(id_of_UploadedFile, user_id, celery_task_id, message):
+def post_a_log_message(id_of_UploadedFile, user_id, celery_task_id, message, level="info"):
     uploaded_file_record = get_object_or_404(UploadedFile, pk=id_of_UploadedFile)
     user = get_object_or_404(User, pk=user_id)
     log = UploadedFileLog.objects.create(
@@ -202,7 +211,10 @@ def post_a_log_message(id_of_UploadedFile, user_id, celery_task_id, message):
         celery_task_id = celery_task_id,
         log_text = message
     )
-    celery_logger.info(message)
+    if level == "info":
+        celery_logger.info(message)
+    else:
+        celery_logger.error(message)
 
 
 def read_this_file(the_file, user, conversion_dictionary, celery_task_id):

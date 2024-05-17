@@ -18,12 +18,8 @@ from django.db import models, transaction
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.generic.list import ListView
 from django.views.generic.edit import UpdateView, CreateView
-from .models import Ke30ImportLine, Ke24ImportLine, ZAQCODMI9_import_line, Order, Fbl5nArrImport, Fbl5nOpenImport, Price
-from .models import MadeIn, MajorLabel, ProductStatus
-from .models import Brand, Product, Customer, InkTechnology, User
-from .models import UploadedFile, Contact, BudForLine, ZAQCODMI9_line, ColorGroup
-from .forms import EditMajorLabelForm, EditBrandForm, EditCustomerForm, EditProductForm, CustomUserCreationForm, UserPasswordChangeForm, RegistrationForm, LoginForm, UserPasswordResetForm, UserSetPasswordForm
-from .forms import ProductForm, CustomerForm, BrandForm, Color
+from .models import *
+from .forms import *
 from .forms import get_generic_model_form
 from .tasks import ticker_task, very_long_task, file_processor
 from . import dictionaries, import_dictionaries
@@ -594,17 +590,10 @@ def save_model(the_class, the_data, counter, all_records, logs=None):
     return counter, logs
 
 
-# @login_required
-# def importing_files(request):
-#     user = request.user
-#     user_files = UploadedFile.objects.filter(owner=user, is_processed=False)
-#     return render(request, "app_pages/importing_files.html", {'user_files': user_files})
-
-
 @login_required
 def files_to_import(request):
     user = request.user
-    user_files = UploadedFile.objects.filter(owner=user, is_processed=False)
+    user_files = UploadedFile.objects.filter(owner=user, is_processed=False).exclude(process_status="PROCESSING")
     return render(request, "app_pages/files_to_import.html", {'user_files': user_files})
 
 
@@ -639,12 +628,23 @@ def imported_files(request, page=0):
     return render(request, "app_pages/imported_files.html", context)
 
 
+def imported_file_log(request, pk):
+    log_records = UploadedFileLog.objects.filter(uploaded_file_id=pk).order_by("date")
+    context = {
+        "log_records": log_records
+    }
+    return render(request, "app_pages/imported_file_log.html", context)
+
+
 def start_processing(request, file_id):
     pass
 
 @login_required
-def push_file_to_processor(request):
+def push_file_to_file_processor(request):
     id = request.GET.get("file_id")
+    file = get_object_or_404(UploadedFile, pk=id)
+    file.process_status = "PROCESSING"
+    file.save()
     file_processor.delay(id, request.user.id)
     return redirect("files-to-import")
 
