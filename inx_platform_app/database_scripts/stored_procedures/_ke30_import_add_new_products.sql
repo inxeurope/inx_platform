@@ -24,7 +24,7 @@ BEGIN
                 is_new,
                 import_note
                 )
-                SELECT
+                SELECT DISTINCT
                     ke30.product_number,
                     ke30.product_name,
                     0 as is_ink,
@@ -33,7 +33,6 @@ BEGIN
                 FROM inx_platform_app_ke30line ke30
                 JOIN #new_products np
                 ON ke30.product_number = np.product_number
-                WHERE ke30.product_number = np.product_number
         COMMIT TRANSACTION;
     END TRY
     BEGIN CATCH

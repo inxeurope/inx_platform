@@ -34,7 +34,6 @@ BEGIN
             LEFT JOIN #new_customers nc
             ON nc.customer_number = ke30.customer_number
             WHERE nc.customer_number = ke30.customer_number
-                
         COMMIT TRANSACTION;
     END TRY
     BEGIN CATCH

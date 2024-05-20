@@ -30,7 +30,63 @@
     <div class="page-body">
       <div class="container-xl">
         <div class="row g-4">
+          <!-- Parameters bar -->
           <div class="col-md-3">
+            <form action="./" method="get">
+              <div class="form-label">Only new customers</div>
+              <div class="mb-4">
+                <label class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" >
+                  <span class="form-check-label form-check-label-on">On</span>
+                  <span class="form-check-label form-check-label-off">Off</span>
+                </label>
+                <div class="small text-muted">Only show Customers that need to be apporved</div>
+              </div>
+              <div class="form-label">Customer Activity</div>
+              <div class="mb-4">
+                <label class="form-check">
+                  <input type="radio" class="form-check-input" name="form-salary" value="1" checked>
+                  <span class="form-check-label">All</span>
+                </label>
+                <label class="form-check">
+                  <input type="radio" class="form-check-input" name="form-salary" value="2">
+                  <span class="form-check-label">Active</span>
+                </label>
+                <label class="form-check">
+                  <input type="radio" class="form-check-input" name="form-salary" value="3">
+                  <span class="form-check-label">Inactive</span>
+                </label>
+              </div>
+              <div class="form-label">Location</div>
+              <div class="mb-4">
+                <select class="form-select">
+                  {% for country in country_codes %}
+                  <option value="{{country.alpha_2}}">{{country.official_name_en}}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="form-label">Sales Manager</div>
+              <div class="mb-4">
+                <select class="form-select">
+                  <option>Anywhere</option>
+                  <option>London</option>
+                  <option>San Francisco</option>
+                  <option>New York</option>
+                  <option>Berlin</option>
+                </select>
+              </div>
+              <div class="form-label">Customer Service Rep</div>
+              <div class="mb-4">
+                <select class="form-select">
+                  <option>Anywhere</option>
+                  <option>London</option>
+                  <option>San Francisco</option>
+                  <option>New York</option>
+                  <option>Berlin</option>
+                </select>
+              </div>
+
+            </form>
             <form action="./" method="get" autocomplete="off" novalidate class="sticky-top">
               <div class="form-label">Job Types</div>
               <div class="mb-4">
@@ -111,7 +167,7 @@
               </div>
             </form>
           </div>
-
+          <!-- End of parameters bar -->
           <!-- Main part -->
           <div class="col-md-9">
             <div class="row row-cards">
@@ -123,7 +179,7 @@
                     <div class="col-auto">
                       <div class="card-body">
                         {% comment %} <div class="avatar avatar-md" style="background-image: url({% static 'static/jobs/job-1.jpg' %})"></div> {% endcomment %}
-                        <span class="flag flag-md flag-country-{{ c.country.iso3166_1_alpha_2|lower }}"></span>
+                        <span class="flag flag-md flag-country-{{ c.country.alpha_2|lower }}"></span>
                       </div>
                     </div>
                     <div class="col">

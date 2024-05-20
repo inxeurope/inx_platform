@@ -1,9 +1,10 @@
 import os, sys
 from django.db import connection
+import json
+from django.core.cache import cache
+from .models import CountryCode
 
 def check_and_create_views_and_procs(app_folder):
-    
-
     table_names = connection.introspection.table_names()
     if 'inx_platform_app_product' in table_names and 'inx_platform_app_customer' in table_names:
         # Check for views
@@ -70,3 +71,13 @@ def check_and_create_views_and_procs(app_folder):
                 else:
                     print(f"{proc_name} exists")
         print()
+
+def get_cache_country_codes():
+    country_codes = cache.get('country_codes')
+    if not country_codes:
+        country_codes = list(CountryCode.objects.values('alpha_2', 'official_name_en').order_by('official_name_en'))
+        country_codes.insert(0, {'alpha_2': '00', 'official_name_en': 'All'})
+        cache.set('country_codes', json.dumps(country_codes), timeout=172800) # cahche 48 hours
+    else:
+        country_codes = json.loads(country_codes)
+    return country_codes

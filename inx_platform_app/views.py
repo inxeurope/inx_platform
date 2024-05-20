@@ -19,6 +19,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.generic.list import ListView
 from django.views.generic.edit import UpdateView, CreateView
 from .models import *
+from .utils import *
 from .forms import *
 from .forms import get_generic_model_form
 from .tasks import ticker_task, very_long_task, file_processor
@@ -26,10 +27,9 @@ from . import dictionaries, import_dictionaries
 import pyodbc, math
 import pandas as pd
 import numpy as np
-import os, time, asyncio, uuid, json
+import os, time, asyncio, uuid
 from datetime import datetime
 from time import perf_counter
-from sqlalchemy import create_engine
 
 
 def long_task(request):
@@ -863,8 +863,10 @@ def process_this_file(file):
 
 @login_required
 def customers_list_2(request, page=0):
-    customers = Customer.objects.all().order_by('-id')[:200]
+    country_codes = get_cache_country_codes()
+    customers = Customer.objects.all().order_by('name')[:20]
     context = {
+        'country_codes': country_codes,
         'customers': customers
     }
     return render(request, "app_pages/customers_list_2.html", context)
@@ -891,7 +893,7 @@ def customers_list(request, page=0):
         customers = customers.filter(
                 models.Q(name__icontains=search_term) |
                 models.Q(number__icontains=search_term) |
-                models.Q(country__iso3166_1_alpha_2__icontains=search_term) |
+                models.Q(country__alpha_2__icontains=search_term) |
                 models.Q(country__official_name_en__icontains=search_term) |
                 models.Q(sales_employee__first_name__icontains=search_term) |
                 models.Q(sales_employee__last_name__icontains=search_term) |

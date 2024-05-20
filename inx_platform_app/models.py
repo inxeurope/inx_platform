@@ -245,7 +245,6 @@ class CountryCode(models.Model):
     class Meta:
         ordering = ['alpha_2']
 
-
     country_id = models.IntegerField(default=0)
     alpha_3 = models.CharField(max_length=3, null=True)
     alpha_2 = models.CharField(max_length=2, null=True)
