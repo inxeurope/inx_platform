@@ -17,8 +17,6 @@ def format_large_number(value):
 
 @register.filter
 def build_query_params(additional_params):
-    logger.info(f"Entered the customer template tag build_query_param")
-    logger.info(f"addtional_params: {additional_params}")
     temp_string =''
     if additional_params:
         for k, v in additional_params.items():
@@ -31,5 +29,4 @@ def build_query_params(additional_params):
                     temp_string += f"&{k}={v}"
 
     return_string = temp_string
-    logger.info(f"returning value: {return_string}")
     return return_string

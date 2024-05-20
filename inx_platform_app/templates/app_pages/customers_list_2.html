@@ -94,7 +94,7 @@
               <div class="mb-4">
                 <div class="form-label">Entries per page</div>
                 <div>
-                  <input type="text" name="entries_per_page" class="form-control" placeholder="20">
+                  <input type="text" name="entries_per_page" class="form-control" placeholder="20" value="{{ form_data.entries_per_page }}">
                 </div>
               </div>
               <div>
@@ -126,7 +126,12 @@
                       <div class="card-body ps-0">
                         <div class="row">
                           <div class="col">
-                            <h3 class="mb-0"><a href="#">{{ c.number }} {{ c.name }}</a></h3>
+                            <h3 class="mb-0">
+                              {% if c.is_new %}
+                              <div class="badge badge-outline badge-pill text-red me-1 align-middle" style="font-size: 0.7rem;"><span class="align-middle">NEW</span></div>
+                              {%endif %}
+                              <a href="#"class="align-middle">{{ c.number }} {{ c.name }}</a>
+                            </h3>
                           </div>
                         </div>
                         <div class="row">
@@ -142,7 +147,7 @@
                                 {{ c.customer_service_rep.first_name }}</div>
                               <div class="list-inline-item"><!-- Download SVG icon from http://tabler-icons.io/i/map-pin -->
                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-inline" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /><path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z" /></svg>
-                                {{ c.country.iso3166_1_alpha_2 }}</div>
+                                {{ c.country.alpha_2 }}</div>
                             </div>
                             <div class="mt-3 list mb-0 text-muted d-block d-sm-none">
                               <div class="list-item"><!-- Download SVG icon from http://tabler-icons.io/i/building-community -->
@@ -153,7 +158,7 @@
                                 {{ c.customer_service_rep.get_full_name }}</div>
                               <div class="list-item"><!-- Download SVG icon from http://tabler-icons.io/i/map-pin -->
                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-inline" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /><path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z" /></svg>
-                                {{ c.country.iso3166_1_alpha_2 }}</div>
+                                {{ c.country.alpha_2 }}</div>
                             </div>
                           </div>
                           <div class="col-md-auto">

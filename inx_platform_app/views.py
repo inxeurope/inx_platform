@@ -858,7 +858,6 @@ def process_this_file(file):
 
 @login_required
 def customers_list_2(request, page=0):
-    start_time = time.time()
     country_codes = get_cache_country_codes()
     customers = Customer.objects.all().order_by('name')
     sales_team_group = Group.objects.get(name="Sales Team")
@@ -866,58 +865,26 @@ def customers_list_2(request, page=0):
     cs_group = Group.objects.get(name="Customer Service")
     cs_reps = User.objects.filter(groups=cs_group)
 
-    #collect form data
-    form_data = {
-            'search_term': request.POST.get('search_term', ''),
-            'only_new_customers' : request.POST.get('only_new_customers', ''),
-            'activity' :request.POST.get('activity', ''),
-            'country_code': request.POST.get('country_code', ''),
-            'sales_manager': request.POST.get('sales_manager', ''),
-            'customer_service_rep': request.POST.get('customer_service_rep', ''),
-            'entries_per_page': request.POST.get('entries_per_page', '')
-        }
-
-    logger.info(f"POST data collection: {(time.time() - start_time)/1000} ms")
-    start_time = time.time()
 
     if request.method == "POST":
+        #collect form data
+        form_data = {
+                'search_term': request.POST.get('search_term', ''),
+                'only_new_customers' : request.POST.get('only_new_customers', ''),
+                'activity' :request.POST.get('activity', ''),
+                'country_code': request.POST.get('country_code', ''),
+                'sales_manager': request.POST.get('sales_manager', ''),
+                'customer_service_rep': request.POST.get('customer_service_rep', ''),
+                'entries_per_page': request.POST.get('entries_per_page', '20')
+            }
+    
+        request.session['customer_filters'] = form_data
+
         if "apply_filters" in request.POST:
-            # Check set of filters
-            search_term = form_data['search_term']
-            only_new_customers = form_data['only_new_customers']
-            activity = form_data['activity']
-            country_code = form_data['country_code']
-            sales_manager = form_data['sales_manager']
-            customer_service_rep = form_data['customer_service_rep']
-            entries_per_page = form_data['entries_per_page']
+            customers = apply_filters_to_customers(customers, form_data)
 
-            if search_term:
-                customers = customers.filter(name__icontains=search_term)
-            if only_new_customers:
-                customers = customers.filter(is_new = True)
-            if activity:
-                if activity == "active":
-                    customers = customers.filter(active = True)
-                if activity == "inactive":
-                    customers = customers.filter(active = False)
-            if country_code:
-                customers = customers.filter(country__alpha_2=country_code)
-            if sales_manager:
-                customers = customers.filter(sales_employee__id=sales_manager)
-            if customer_service_rep:
-                customers = customers.filter(customer_service_rep_id=customer_service_rep)
-
-            logger.info(f"Application of filters: {(time.time() - start_time)/1000} ms")
-            start_time = time.time()
-
-            # Pagination
-            if not entries_per_page:
-                entries_per_page = 20
-            paginator = Paginator(customers, entries_per_page)
-            page_number = request.POST.get('page', 1)
-            customers = paginator.get_page(page_number)
-            logger.info(f"Pagination: {(time.time() - start_time)/1000} ms")
         elif "reset_filters" in request.POST:
+            request.session.pop('customer_filters', None)
             form_data = {
                 'search_term': '',
                 'only_new_customers': '',
@@ -925,22 +892,29 @@ def customers_list_2(request, page=0):
                 'country_code': '',
                 'sales_manager': '',
                 'customer_service_rep': '',
-                'entries_per_page': '20'
+                'entries_per_page': ''
             }
-            logger.info(f"cleaned form_data: {(time.time() - start_time)/1000} ms")
-            start_time = time.time()
             customers = Customer.objects.all().order_by('name')
-            paginator = Paginator(customers, 20)
-            page_number = request.GET.get('page', 1)
-            customers = paginator.get_page(page_number)
-            logger.info(f"reset data source: {(time.time() - start_time)/1000} ms")
-            start_time = time.time()
-            
+
     else:
-        # No filter applied, default pagination
-        paginator = Paginator(customers, 20)
-        page_number = request.GET.get('page', 1)
-        customers = paginator.get_page(page_number)
+        form_data = request.session.get('customer_filters',{
+            'search_term': '',
+            'only_new_customers': '',
+            'activity': 'all',
+            'country_code': '',
+            'sales_manager': '',
+            'customer_service_rep': '',
+            'entries_per_page': '20'
+        })
+        customers = apply_filters_to_customers(customers, form_data)
+
+    try:
+        entries_per_page = int(form_data['entries_per_page'])
+    except ValueError:
+        entries_per_page = 20
+    paginator = Paginator(customers, entries_per_page)
+    page_number = request.GET.get('page', 1)
+    customers = paginator.get_page(page_number)
     
     context = {
         'country_codes': country_codes,
@@ -952,6 +926,21 @@ def customers_list_2(request, page=0):
     }
     return render(request, "app_pages/customers_list_2.html", context)
 
+
+def apply_filters_to_customers(customers, form_data):
+    if form_data['search_term']:
+        customers = customers.filter(name__icontains=form_data['search_term'])
+    if form_data['only_new_customers']:
+        customers = customers.filter(is_new=True)
+    if form_data['activity'] != 'all':
+        customers = customers.filter(active=(form_data['activity'] == 'active'))
+    if form_data['country_code']:
+        customers = customers.filter(country__alpha_2=form_data['country_code'])
+    if form_data['sales_manager']:
+        customers = customers.filter(sales_employee__id=form_data['sales_manager'])
+    if form_data['customer_service_rep']:
+        customers = customers.filter(customer_service_rep_id=form_data['customer_service_rep'])
+    return customers
 
 @login_required
 def customers_list(request, page=0):
