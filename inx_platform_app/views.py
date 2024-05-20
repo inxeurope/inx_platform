@@ -11,6 +11,7 @@ from django.core.validators import validate_email
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User, Group
 from django.contrib.auth.views import LoginView, PasswordResetView, PasswordChangeView, PasswordResetConfirmView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
@@ -30,6 +31,7 @@ import numpy as np
 import os, time, asyncio, uuid
 from datetime import datetime
 from time import perf_counter
+from loguru import logger
 
 
 def long_task(request):
@@ -114,13 +116,6 @@ def loader(request):
         return redirect('display_files')
     else:
         return render(request, "loader.html", {})
-
-
-def update_profile(request):
-    from django.shortcuts import render, redirect
-    from django.contrib.auth.decorators import login_required
-    from django.contrib import messages
-    from django.contrib.auth.models import User
 
 
 @login_required
@@ -863,11 +858,97 @@ def process_this_file(file):
 
 @login_required
 def customers_list_2(request, page=0):
+    start_time = time.time()
     country_codes = get_cache_country_codes()
-    customers = Customer.objects.all().order_by('name')[:20]
+    customers = Customer.objects.all().order_by('name')
+    sales_team_group = Group.objects.get(name="Sales Team")
+    sales_team_members = User.objects.filter(groups=sales_team_group)
+    cs_group = Group.objects.get(name="Customer Service")
+    cs_reps = User.objects.filter(groups=cs_group)
+
+    #collect form data
+    form_data = {
+            'search_term': request.POST.get('search_term', ''),
+            'only_new_customers' : request.POST.get('only_new_customers', ''),
+            'activity' :request.POST.get('activity', ''),
+            'country_code': request.POST.get('country_code', ''),
+            'sales_manager': request.POST.get('sales_manager', ''),
+            'customer_service_rep': request.POST.get('customer_service_rep', ''),
+            'entries_per_page': request.POST.get('entries_per_page', '')
+        }
+
+    logger.info(f"POST data collection: {(time.time() - start_time)/1000} ms")
+    start_time = time.time()
+
+    if request.method == "POST":
+        if "apply_filters" in request.POST:
+            # Check set of filters
+            search_term = form_data['search_term']
+            only_new_customers = form_data['only_new_customers']
+            activity = form_data['activity']
+            country_code = form_data['country_code']
+            sales_manager = form_data['sales_manager']
+            customer_service_rep = form_data['customer_service_rep']
+            entries_per_page = form_data['entries_per_page']
+
+            if search_term:
+                customers = customers.filter(name__icontains=search_term)
+            if only_new_customers:
+                customers = customers.filter(is_new = True)
+            if activity:
+                if activity == "active":
+                    customers = customers.filter(active = True)
+                if activity == "inactive":
+                    customers = customers.filter(active = False)
+            if country_code:
+                customers = customers.filter(country__alpha_2=country_code)
+            if sales_manager:
+                customers = customers.filter(sales_employee__id=sales_manager)
+            if customer_service_rep:
+                customers = customers.filter(customer_service_rep_id=customer_service_rep)
+
+            logger.info(f"Application of filters: {(time.time() - start_time)/1000} ms")
+            start_time = time.time()
+
+            # Pagination
+            if not entries_per_page:
+                entries_per_page = 20
+            paginator = Paginator(customers, entries_per_page)
+            page_number = request.POST.get('page', 1)
+            customers = paginator.get_page(page_number)
+            logger.info(f"Pagination: {(time.time() - start_time)/1000} ms")
+        elif "reset_filters" in request.POST:
+            form_data = {
+                'search_term': '',
+                'only_new_customers': '',
+                'activity': 'all',
+                'country_code': '',
+                'sales_manager': '',
+                'customer_service_rep': '',
+                'entries_per_page': '20'
+            }
+            logger.info(f"cleaned form_data: {(time.time() - start_time)/1000} ms")
+            start_time = time.time()
+            customers = Customer.objects.all().order_by('name')
+            paginator = Paginator(customers, 20)
+            page_number = request.GET.get('page', 1)
+            customers = paginator.get_page(page_number)
+            logger.info(f"reset data source: {(time.time() - start_time)/1000} ms")
+            start_time = time.time()
+            
+    else:
+        # No filter applied, default pagination
+        paginator = Paginator(customers, 20)
+        page_number = request.GET.get('page', 1)
+        customers = paginator.get_page(page_number)
+    
     context = {
         'country_codes': country_codes,
-        'customers': customers
+        'customers': customers,
+        'page_object': customers,
+        'cs_reps': cs_reps,
+        'sales_team_members': sales_team_members,
+        'form_data': form_data
     }
     return render(request, "app_pages/customers_list_2.html", context)
 

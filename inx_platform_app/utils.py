@@ -76,7 +76,7 @@ def get_cache_country_codes():
     country_codes = cache.get('country_codes')
     if not country_codes:
         country_codes = list(CountryCode.objects.values('alpha_2', 'official_name_en').order_by('official_name_en'))
-        country_codes.insert(0, {'alpha_2': '00', 'official_name_en': 'All'})
+        country_codes.insert(0, {'alpha_2': '', 'official_name_en': 'All'})
         cache.set('country_codes', json.dumps(country_codes), timeout=172800) # cahche 48 hours
     else:
         country_codes = json.loads(country_codes)

@@ -1,4 +1,4 @@
-# myapp/management/commands/clear_country_codes_cache.py
+# clear_country_codes_cache.py
 from django.core.management.base import BaseCommand
 from django.core.cache import cache
 

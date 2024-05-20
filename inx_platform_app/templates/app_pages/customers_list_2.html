@@ -12,7 +12,7 @@
         <div class="row g-2 align-items-center">
           <div class="col">
             <h2 class="page-title">
-              Search for Customers
+              Customers
             </h2>
           </div>
           <!-- Page title actions -->
@@ -32,11 +32,19 @@
         <div class="row g-4">
           <!-- Parameters bar -->
           <div class="col-md-3">
-            <form action="./" method="get">
+            <form action="{% url 'customers-list-2' %}" method="post" class="sticky-top">
+              {% csrf_token %}
+              <div><h3>Filters</h3></div>
+                <div class="mb-4">
+                  <div class="form-label">Search</div>
+                  <div>
+                    <input type="text" name="search_term" class="form-control" placeholder="Search term" value="{{ form_data.search_term }}">
+                  </div>
+                </div>
               <div class="form-label">Only new customers</div>
               <div class="mb-4">
                 <label class="form-check form-switch">
-                  <input class="form-check-input" type="checkbox" >
+                  <input class="form-check-input" name="only_new_customers" type="checkbox" {% if form_data.only_new_customers %} checked {% endif %}>
                   <span class="form-check-label form-check-label-on">On</span>
                   <span class="form-check-label form-check-label-off">Off</span>
                 </label>
@@ -45,131 +53,63 @@
               <div class="form-label">Customer Activity</div>
               <div class="mb-4">
                 <label class="form-check">
-                  <input type="radio" class="form-check-input" name="form-salary" value="1" checked>
+                  <input type="radio" class="form-check-input" name="activity" value="all" {% if form_data.activity == 'all' %} checked {% endif %}>
                   <span class="form-check-label">All</span>
                 </label>
                 <label class="form-check">
-                  <input type="radio" class="form-check-input" name="form-salary" value="2">
+                  <input type="radio" class="form-check-input" name="activity" value="active" {% if form_data.activity == 'active' %} checked {% endif %}>
                   <span class="form-check-label">Active</span>
                 </label>
                 <label class="form-check">
-                  <input type="radio" class="form-check-input" name="form-salary" value="3">
+                  <input type="radio" class="form-check-input" name="activity" value="inactive" {% if form_data.activity == 'inactive' %} checked {% endif %}>
                   <span class="form-check-label">Inactive</span>
                 </label>
               </div>
-              <div class="form-label">Location</div>
+              <div class="form-label">Country</div>
               <div class="mb-4">
-                <select class="form-select">
+                <select class="form-select" name="country_code">
                   {% for country in country_codes %}
-                  <option value="{{country.alpha_2}}">{{country.official_name_en}}</option>
+                    <option value="{{country.alpha_2}}" {% if form_data.country_code == country.alpha_2 %} selected {% endif %}>{{country.official_name_en}}</option>
                   {% endfor %}
                 </select>
               </div>
               <div class="form-label">Sales Manager</div>
               <div class="mb-4">
-                <select class="form-select">
-                  <option>Anywhere</option>
-                  <option>London</option>
-                  <option>San Francisco</option>
-                  <option>New York</option>
-                  <option>Berlin</option>
+                <select class="form-select" name="sales_manager">
+                  <option value="">All</option>
+                  {% for sales_team_member in sales_team_members %}
+                    <option value="{{ sales_team_member.id }}" {% if form_data.sales_manager == sales_team_member.id|stringformat:"s" %} selected {% endif %}>{{ sales_team_member.get_full_name }}</option>
+                  {% endfor %}
                 </select>
               </div>
               <div class="form-label">Customer Service Rep</div>
               <div class="mb-4">
-                <select class="form-select">
-                  <option>Anywhere</option>
-                  <option>London</option>
-                  <option>San Francisco</option>
-                  <option>New York</option>
-                  <option>Berlin</option>
+                <select class="form-select" name="customer_service_rep">
+                  <option value="">All</option>
+                  {% for cs_rep in cs_reps %}
+                  <option value="{{cs_rep.id}}" {% if form_data.customer_service_rep == cs_rep.id|stringformat:"s" %} selected {% endif %}>{{ cs_rep.get_full_name }}</option>
+                  {% endfor %}
                 </select>
               </div>
-
-            </form>
-            <form action="./" method="get" autocomplete="off" novalidate class="sticky-top">
-              <div class="form-label">Job Types</div>
               <div class="mb-4">
-                <label class="form-check">
-                  <input type="checkbox" class="form-check-input" name="form-type[]" value="1" checked>
-                  <span class="form-check-label">Programming</span>
-                </label>
-                <label class="form-check">
-                  <input type="checkbox" class="form-check-input" name="form-type[]" value="2" checked>
-                  <span class="form-check-label">Design</span>
-                </label>
-                <label class="form-check">
-                  <input type="checkbox" class="form-check-input" name="form-type[]" value="3">
-                  <span class="form-check-label">Management / Finance</span>
-                </label>
-                <label class="form-check">
-                  <input type="checkbox" class="form-check-input" name="form-type[]" value="4">
-                  <span class="form-check-label">Customer Support</span>
-                </label>
-                <label class="form-check">
-                  <input type="checkbox" class="form-check-input" name="form-type[]" value="5">
-                  <span class="form-check-label">Sales / Marketing</span>
-                </label>
+                <div class="form-label">Entries per page</div>
+                <div>
+                  <input type="text" name="entries_per_page" class="form-control" placeholder="20">
+                </div>
               </div>
-              <div class="form-label">Remote</div>
-              <div class="mb-4">
-                <label class="form-check form-switch">
-                  <input class="form-check-input" type="checkbox" >
-                  <span class="form-check-label form-check-label-on">On</span>
-                  <span class="form-check-label form-check-label-off">Off</span>
-                </label>
-              </div>
-              <div class="form-label">Salary Range</div>
-              <div class="mb-4">
-                <label class="form-check">
-                  <input type="radio" class="form-check-input" name="form-salary" value="1" checked>
-                  <span class="form-check-label">$20K - $50K</span>
-                </label>
-                <label class="form-check">
-                  <input type="radio" class="form-check-input" name="form-salary" value="2" checked>
-                  <span class="form-check-label">$50K - $100K</span>
-                </label>
-                <label class="form-check">
-                  <input type="radio" class="form-check-input" name="form-salary" value="3">
-                  <span class="form-check-label">> $100K</span>
-                </label>
-                <label class="form-check">
-                  <input type="radio" class="form-check-input" name="form-salary" value="4">
-                  <span class="form-check-label">Drawing / Painting</span>
-                </label>
-              </div>
-              <div class="form-label">Immigration</div>
-              <div class="mb-4">
-                <label class="form-check form-switch">
-                  <input class="form-check-input" type="checkbox" >
-                  <span class="form-check-label form-check-label-on">On</span>
-                  <span class="form-check-label form-check-label-off">Off</span>
-                </label>
-                <div class="small text-muted">Only show companies that can sponsor a visa</div>
-              </div>
-              <div class="form-label">Location</div>
-              <div class="mb-4">
-                <select class="form-select">
-                  <option>Anywhere</option>
-                  <option>London</option>
-                  <option>San Francisco</option>
-                  <option>New York</option>
-                  <option>Berlin</option>
-                </select>
-              </div>
-              <div class="mt-5">
-                <button class="btn btn-primary w-100">
-                  Confirm changes
-                </button>
-                <a href="#" class="btn btn-link w-100">
-                  Reset to defaults
-                </a>
+              <div>
+                <button type="submit" name="apply_filters" class="btn btn-primary">Apply Filters</button>
+                <button type="submit" name= "reset_filters"class="btn btn-outline-primary">Reset Filters</button>
               </div>
             </form>
+            
           </div>
           <!-- End of parameters bar -->
           <!-- Main part -->
           <div class="col-md-9">
+            <div class="col-md-9 d-flex align-items-end mb-4">
+              {% include 'app_includes/pagination.html' %}
+            </div>
             <div class="row row-cards">
               <div class="space-y">
                 {% for c in customers %}
@@ -242,6 +182,9 @@
                 <!-- End of the customer card -->
                 
               </div>
+            </div>
+            <div class="col-md-9 d-flex align-items-end mt-4">
+              {% include 'app_includes/pagination.html' %}
             </div>
           </div>
         </div>
