@@ -31,7 +31,7 @@ urlpatterns = [
     path('delete_this_file_to_import/<int:file_id>/', views.delete_this_file_to_import, name='delete-this-file-to-import'),
     
     path("customers_list/", views.customers_list, name="customers-list"),
-    path("customers_list_2/", views.customers_list_2, name="customers-list-2"),
+    # path("customers_list_2/", views.customers_list_2, name="customers-list-2"),
     path("customer_view/<int:pk>", views.customer_view, name="customer-view"),
     path("customer_edit/<int:pk>", views.customer_edit, name="customer-edit"),
 

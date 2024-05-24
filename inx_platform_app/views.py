@@ -857,7 +857,7 @@ def process_this_file(file):
 
 
 @login_required
-def customers_list_2(request, page=0):
+def customers_list(request, page=0):
     country_codes = get_cache_country_codes()
     customers = Customer.objects.all().order_by('name')
     sales_team_group = Group.objects.get(name="Sales Team")
@@ -924,7 +924,7 @@ def customers_list_2(request, page=0):
         'sales_team_members': sales_team_members,
         'form_data': form_data
     }
-    return render(request, "app_pages/customers_list_2.html", context)
+    return render(request, "app_pages/customers_list.html", context)
 
 
 def apply_filters_to_customers(customers, form_data):
@@ -942,8 +942,9 @@ def apply_filters_to_customers(customers, form_data):
         customers = customers.filter(customer_service_rep_id=form_data['customer_service_rep'])
     return customers
 
+
 @login_required
-def customers_list(request, page=0):
+def customers_list_old(request, page=0):
     search_term = request.GET.get('search')
     entries = request.GET.get('entries')
     view_entries = request.GET.get('radios_view')

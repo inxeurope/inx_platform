@@ -33,9 +33,6 @@
               <div class="dropdown-menu-columns">
                 <div class="dropdown-menu-column">
                   <a class="dropdown-item" href="{% url 'customers-list' %}">Customers</a>
-                  {% if request.user.is_superuser %}
-                  <a class="dropdown-item" href="{% url 'customers-list-2' %}">Customers 2</a>
-                  {% endif %}
                   <a class="dropdown-item" href="{% url 'products-list' %}">Products</a>
                   <a class="dropdown-item" href="{% url 'brands-list' %}">Brands</a>
                 </div>

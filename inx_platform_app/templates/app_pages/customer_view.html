@@ -9,13 +9,24 @@
     <div class="page-header d-print-none">
       <div class="container-xl">
         <div class="row g-2 align-items-center">
+          <div class="col-auto">
+            <a href="{% url "customers-list-2" %}">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Customers" width="64" height="64" viewBox="0 0 24 24" stroke-width="1.5" stroke="#0071ce" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <path d="M5 12l14 0" />
+                <path d="M5 12l6 6" />
+                <path d="M5 12l6 -6" />
+              </svg>
+            </a>
+          </div>
           <div class="col">
-            {% if customer.is_new%}
-              <span class="badge badge-outline text-red small">NEW</span>
-            {% endif %}
             <h2 class="page-title">
-              {{ customer.name }} data grid
+              {% if customer.is_new%}
+                <span class="badge badge-outline text-red small">NEW</span>
+              {% endif %}
+              {{ customer.name }}
             </h2>
+            <p class="muted">SAP nr.({{ customer.number }})</p>
           </div>
         </div>
       </div>
@@ -23,9 +34,9 @@
     <!-- Page body -->
     <div class="page-body">
       <div class="container-xl">
-        <div class="card">
+        <div class="card mb-3">
           <div class="card-header d-flex justify-content-between">
-            <h3 class="card-title">Basic info - {{ customer.name }}</h3>
+            <h3 class="card-title">Basic information</h3>
             <a href="{% url 'customer-edit' customer.pk %}" class="btn btn-outline-info">Edit</a>
           </div>
           <div class="card-body">
@@ -35,16 +46,12 @@
                 <div class="datagrid-content">{{ customer.pk }}</div>
               </div>
               <div class="datagrid-item">
-                <div class="datagrid-title">SAP Number</div>
-                <div class="datagrid-content">{{ customer.number }}</div>
-              </div>
-              <div class="datagrid-item">
                 <div class="datagrid-title">SAP Description - Customer name</div>
                 <div class="datagrid-content"><strong>{{ customer.name }}</strong></div>
               </div>
               <div class="datagrid-item">
                 <div class="datagrid-title">Country</div>
-                <div class="datagrid-content"><span class="flag flag-country-{{ customer.country.iso3166_1_alpha_2|lower }}"></span> {{ customer.country.official_name_en}}</div>
+                <div class="datagrid-content"><span class="flag flag-country-{{ customer.country.alpha_2|lower }}"></span> {{ customer.country.official_name_en}}</div>
               </div>
               <div class="datagrid-item">
                 <div class="datagrid-title">Account manager</div>
@@ -85,6 +92,91 @@
             </div>
           </div>
         </div>
+        <div class="card">
+          <div class="accordion" id="accordion-example">
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="heading-1">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-1" aria-expanded="false">
+                  Accounting
+                </button>
+              </h2>
+              <div id="collapse-1" class="accordion-collapse collapse" data-bs-parent="#accordion-example" style="">
+                <div class="accordion-body pt-0">
+                  <div class="card">
+                    <div class="card-body">
+                      <div class="datagrid">
+                        <div class="datagrid-item">
+                          <div class="datagrid-title">VAT number</div>
+                          <div class="datagrid-content">{{ customer.vat }}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="heading-2">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-2" aria-expanded="false">
+                  Credit & Insurance
+                </button>
+              </h2>
+              <div id="collapse-2" class="accordion-collapse collapse" data-bs-parent="#accordion-example" style="">
+                <div class="accordion-body pt-0">
+                  <div class="card">
+                    <div class="card-body">
+                      <div class="datagrid">
+                        <div class="datagrid-item">
+                          <div class="datagrid-title">Insurance</div>
+                          <div class="datagrid-content">
+                            <span>
+                              <input type="checkbox" class="form-check-input" {% if customer.insurance == True %} checked {% endif %} disabled>
+                            {% comment %} </span> {{ customer.insurance }} {% endcomment %}
+                          </div>
+                        </div>
+                        {% if customer.insurance == True %}
+                        <div class="datagrid-item">
+                          <div class="datagrid-title">Insurance value</div>
+                          <div class="datagrid-content"> {{ customer.insurance_value|format_large_number }}</div>
+                        </div>
+                        {% endif %}
+                        <div class="datagrid-item">
+                          <div class="datagrid-title">Credit Limit</div>
+                          <div class="datagrid-content">{{ customer.credit_limit|format_large_number }}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="heading-3">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-3" aria-expanded="false">
+                  Additional Info
+                </button>
+              </h2>
+              <div id="collapse-3" class="accordion-collapse collapse" data-bs-parent="#accordion-example" style="">
+                <div class="accordion-body pt-0">
+                  <div class="card mb-4">
+                    <div class="card-body">
+                      <div class="datagrid">
+                        <div class="datagrid-item">
+                          <div class="datagrid-title">Approved on</div>
+                          <div class="datagrid-content">{{ customer.approved_on}}</div>
+                        </div>
+                        <div class="datagrid-item">
+                          <div class="datagrid-title">Approved By</div>
+                          <div class="datagrid-content"> {{ customer.approved_by }}</div>
+                        </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -106,60 +198,8 @@
     {% endif %}
 
 
-
-    <div class="page-body">
-      <div class="container-xl">
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">Additional info</h3>
-          </div>
-          <div class="card-body">
-            <div class="datagrid">
-              <div class="datagrid-item">
-                <div class="datagrid-title">VAT Number</div>
-                <div class="datagrid-content">{{ customer.vat }}</div>
-              </div>
-              <div class="datagrid-item">
-                <div class="datagrid-title">Insurance</div>
-                <div class="datagrid-content">
-                  <span>
-                    <input type="checkbox" class="form-check-input" {% if customer.insurance == True %} checked {% endif %} disabled>
-                  {% comment %} </span> {{ customer.insurance }} {% endcomment %}
-                </div>
-              </div>
-              {% if customer.insurance == True %}
-              <div class="datagrid-item">
-                <div class="datagrid-title">Insurance value</div>
-                <div class="datagrid-content"> {{ customer.insurance_value|format_large_number }}</div>
-              </div>
-              {% endif %}
-              <div class="datagrid-item">
-                <div class="datagrid-title">Credit Limit</div>
-                <div class="datagrid-content">{{ customer.credit_limit|format_large_number }}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <div class="container-xl  mb-3">
-      <div class="card mb-4">
-        <div class="card-header">
-          <h3 class="card-title">Approval</h3>
-        </div>
-        <div class="card-body">
-          <div class="datagrid">
-            <div class="datagrid-item">
-              <div class="datagrid-title">Approved on</div>
-              <div class="datagrid-content">{{ customer.approved_on}}</div>
-            </div>
-            <div class="datagrid-item">
-              <div class="datagrid-title">Approved By</div>
-              <div class="datagrid-content"> {{ customer.approved_by }}</div>
-            </div>
-        </div>
-      </div>
+
     </div>
     <div class="container-xl mb-3">
       <div class="card-tabs">

@@ -1,170 +1,205 @@
 {% extends 'app_layouts/base.html' %}
+{% load custom_filters %}
 {% load static %}
+
+{% block title %}Customers{% endblock title %}
+
 {% block content %}
-      <div class="page-wrapper">
-        <!-- Page header -->
-        <div class="page-header d-print-none">
-          <div class="container-xl">
-            <div class="row g-2 align-items-center">
-              <div class="col">
-                <h2 class="page-title">
-                  Customers
-                </h2>
-              </div>
-            </div>
+
+  <div class="page-wrapper">
+    <!-- Page header -->
+    <div class="page-header d-print-none">
+      <div class="container-xl">
+        <div class="row g-2 align-items-center">
+          <div class="col">
+            <h2 class="page-title">
+              Customers
+            </h2>
+          </div>
+          <!-- Page title actions -->
+          <div class="col-auto ms-auto d-print-none">
+            <a href="#" class="btn btn-primary">
+              <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
+              Add
+            </a>
           </div>
         </div>
-        <!-- Page body -->
-        <div class="page-body">
-          <div class="container-xl">
-            <div class="row row-cards">
-              <div class="col-12">
-                <div class="card">
-                  <div class="card-header d-flex justify-content-between align-items-center">
-                    <h3 class="card-title mb-0">Customers List</h3>
-                    <label class="form-check form-switch mb-0">
-                      <form id="toggleForm_new" class="d-flex" action="{% url 'customers-list' %}" method="get">
-                        <div class="mx-2">
-                          <input class="form-check-input" name="new_customers" type="checkbox" {% if filter_params.only_new %}checked{% endif %}>
-                        </div>
-                        <div>
-                          <span class="form-check-label">  Show only new customers</span>
-                        </div>
-                      </form>
-                    </label>
+      </div>
+    </div>
+    <!-- Page body -->
+    <div class="page-body">
+      <div class="container-xl">
+        <div class="row g-4">
+          <!-- Parameters bar -->
+          <div class="col-md-3">
+            <form action="{% url 'customers-list' %}" method="post" class="">
+              {% csrf_token %}
+              <div>
+                <h3>Filters
+                  <span><button type="submit" name= "reset_filters" class="ms-3 btn btn-sm btn-outline-primary btn-pill">Reset</button></span>
+                </h3>
+                
+              </div>
+                <div class="mb-4">
+                  <div class="form-label">Search</div>
+                  <div>
+                    <input type="text" name="search_term" class="form-control" placeholder="Search term" value="{{ form_data.search_term }}">
                   </div>
-                  <div class="card-body border-bottom py-3">
-                    <div class="d-flex flex-row">
-                      <div class="text-muted mx-1">
-                        <form id="EntriesForm" class="d-flex" action="{% url 'customers-list' %}" method="get">
-                          {% csrf_token %}
-                          Entries<input type="text" class="form-control form-control-sm mx-2" size="3" id="myInput" name="entries" placeholder="10" aria-label="Entries count" value="{{ request.GET.entries }}">
-                          <button class="btn btn-sm btn-pill btn-primary" type="submit">Show entries</button>
-                          <!-- Hidden field used to retain the search term -->
-                          <input type="hidden" name="search" value="{{ request.GET.search }}">
-                          <input type="hidden" name="radios_view" value="{{ request.GET.radios_view }}">
-                        </form>
+                </div>
+              <div class="form-label">Only new customers</div>
+              <div class="mb-4">
+                <label class="form-check form-switch">
+                  <input class="form-check-input" name="only_new_customers" type="checkbox" {% if form_data.only_new_customers %} checked {% endif %}>
+                  <span class="form-check-label form-check-label-on">On</span>
+                  <span class="form-check-label form-check-label-off">Off</span>
+                </label>
+                <div class="small text-muted">Only show Customers that need to be apporved</div>
+              </div>
+              <div class="form-label">Customer Activity</div>
+              <div class="mb-4">
+                <label class="form-check">
+                  <input type="radio" class="form-check-input" name="activity" value="all" {% if form_data.activity == 'all' %} checked {% endif %}>
+                  <span class="form-check-label">All</span>
+                </label>
+                <label class="form-check">
+                  <input type="radio" class="form-check-input" name="activity" value="active" {% if form_data.activity == 'active' %} checked {% endif %}>
+                  <span class="form-check-label">Active</span>
+                </label>
+                <label class="form-check">
+                  <input type="radio" class="form-check-input" name="activity" value="inactive" {% if form_data.activity == 'inactive' %} checked {% endif %}>
+                  <span class="form-check-label">Inactive</span>
+                </label>
+              </div>
+              <div class="form-label">Country</div>
+              <div class="mb-4">
+                <select class="form-select" name="country_code">
+                  {% for country in country_codes %}
+                    <option value="{{country.alpha_2}}" {% if form_data.country_code == country.alpha_2 %} selected {% endif %}>{{country.official_name_en}}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="form-label">Sales Manager</div>
+              <div class="mb-4">
+                <select class="form-select" name="sales_manager">
+                  <option value="">All</option>
+                  {% for sales_team_member in sales_team_members %}
+                    <option value="{{ sales_team_member.id }}" {% if form_data.sales_manager == sales_team_member.id|stringformat:"s" %} selected {% endif %}>{{ sales_team_member.get_full_name }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="form-label">Customer Service Rep</div>
+              <div class="mb-4">
+                <select class="form-select" name="customer_service_rep">
+                  <option value="">All</option>
+                  {% for cs_rep in cs_reps %}
+                  <option value="{{cs_rep.id}}" {% if form_data.customer_service_rep == cs_rep.id|stringformat:"s" %} selected {% endif %}>{{ cs_rep.get_full_name }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="mb-4">
+                <div class="form-label">Entries per page</div>
+                <div>
+                  <input type="text" name="entries_per_page" class="form-control" placeholder="20" value="{{ form_data.entries_per_page }}">
+                </div>
+              </div>
+              <div>
+                <button type="submit" name="apply_filters" class="btn btn-primary">Apply Filters</button>
+                <button type="submit" name= "reset_filters"class="btn btn-outline-primary">Reset Filters</button>
+              </div>
+            </form>
+            
+          </div>
+          <!-- End of parameters bar -->
+          <!-- Main part -->
+          <div class="col-md-9">
+            <div class="col-md-9 d-flex align-items-end mb-4">
+              {% include 'app_includes/pagination.html' %}
+            </div>
+            <div class="row row-cards">
+              <div class="space-y">
+                {% for c in customers %}
+                <!-- Start of the customer card -->
+                <div class="card">
+                  <div class="row g-0">
+                    <div class="col-auto">
+                      <div class="card-body">
+                        {% comment %} <div class="avatar avatar-md" style="background-image: url({% static 'static/jobs/job-1.jpg' %})"></div> {% endcomment %}
+                        <span class="flag flag-md flag-country-{{ c.country.alpha_2|lower }}"></span>
                       </div>
-
-                      <div class="ms-4 text-muted">
-                        
-                        <form class="d-flex" action="{% url 'customers-list' %}" name="view_entries" method="get">
-                          <span class="me-3">View:</span>
-                          <label class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="radios_view" value="all" {% if request.GET.radios_view == 'all' %} checked {% endif %}>
-                            <span class="form-check-label">All</span>
-                          </label>
-                          <label class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="radios_view"  value="active" {% if request.GET.radios_view == 'active' %} checked {% endif %}>
-                            <span class="form-check-label">Active</span>
-                          </label>
-                          <label class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="radios_view"  value="inactive" {% if request.GET.radios_view == 'inactive' %} checked {% endif %}>
-                            <span class="form-check-label">Inactive</span>
-                          </label>
-                          <input type="hidden" name="search" value="{{ request.GET.search }}">
-                          <input type="hidden" name="entries" value="{{ request.GET.entries }}">
-                        </form>
-                      </div>
-
-
-                      <div class="ms-auto text-muted">
-                        <div class="d-inline-block">
-                          <form class="row g-3" id="searchForm" method="get" action="{% url 'customers-list' %}">
-                            {% csrf_token %}
-                            <div class="col-auto">
-                              <input type="text" class="form-control form-control-sm" value="{{ request.GET.search }}" name="search" placeholder="Search here..." >
+                    </div>
+                    <div class="col">
+                      <div class="card-body ps-0">
+                        <div class="row">
+                          <div class="col">
+                            <h3 class="mb-0">
+                              {% if c.is_new %}
+                              <div class="badge badge-outline badge-pill text-red me-1 align-middle" style="font-size: 0.7rem;"><span class="align-middle">NEW</span></div>
+                              {%endif %}
+                              <a href="{% url "customer-view" c.pk %}"class="align-middle">{{ c.number }} {{ c.name }}</a>
+                            </h3>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md">
+                            <div class="mt-3 list-inline list-inline-dots mb-0 text-muted d-sm-block d-none">
+                              <div class="list-inline-item"><!-- Download SVG icon from http://tabler-icons.io/i/building-community -->
+                                <svg xmlns="http://www.w3.org/2000/svg"  class="icon icon-tabler icons-tabler-outline" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /></svg>
+                                {{ c.sales_employee.get_full_name }}</div>
+                              <div class="list-inline-item"><!-- Download SVG icon from http://tabler-icons.io/i/license -->
+                                <svg xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-user-screen"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19.03 17.818a3 3 0 0 0 1.97 -2.818v-8a3 3 0 0 0 -3 -3h-12a3 3 0 0 0 -3 3v8c0 1.317 .85 2.436 2.03 2.84" /><path d="M10 14a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M8 21a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2" /></svg>
+                                {{ c.customer_service_rep.get_full_name }}</div>
+                              <div class="list-inline-item"><!-- Download SVG icon from http://tabler-icons.io/i/map-pin -->
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-inline" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /><path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z" /></svg>
+                                {{ c.country.alpha_2 }}</div>
                             </div>
-                            <div class="col-auto">
-                              <button type="submit" class="btn btn-sm btn-pill btn-primary">Search</button>
-                              <button type="reset" class="btn btn-sm btn-pill btn-primary" onclick="resetSearch()">Reset</button>
+                            <div class="mt-3 list mb-0 text-muted d-block d-sm-none">
+                              <div class="list-item"><!-- Download SVG icon from http://tabler-icons.io/i/building-community -->
+                                <svg xmlns="http://www.w3.org/2000/svg"  class="icon icon-tabler icons-tabler-outline" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /></svg>
+                                {{ c.sales_employee.get_full_name }}</div>
+                              <div class="list-item"><!-- Download SVG icon from http://tabler-icons.io/i/license -->
+                                <svg xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-user-screen"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19.03 17.818a3 3 0 0 0 1.97 -2.818v-8a3 3 0 0 0 -3 -3h-12a3 3 0 0 0 -3 3v8c0 1.317 .85 2.436 2.03 2.84" /><path d="M10 14a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M8 21a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2" /></svg>
+                                {{ c.customer_service_rep.get_full_name }}</div>
+                              <div class="list-item"><!-- Download SVG icon from http://tabler-icons.io/i/map-pin -->
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-inline" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /><path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z" /></svg>
+                                {{ c.country.alpha_2 }}</div>
                             </div>
-                            <input type="hidden" name="entries" value="{{ request.GET.entries }}">
-                            <input type="hidden" name="radios_view" value="{{ request.GET.radios_view }}">
-                          </form>
-                          <script>
-                            function resetSearch() {
-                                document.getElementById('searchForm').elements['search'].value='';
-                                document.getElementById('searchForm').submit();
-                            }
-                            // Submit the form whenever the radio buttons change
-                            var radioButtons = document.querySelectorAll('input[type="radio"]');
-                            radioButtons.forEach(function(radioButton) {
-                                radioButton.addEventListener('change', function() {
-                                    document.forms['view_entries'].submit();
-                                });
-                            });
-                            // Submit the form when the toggle changes
-                            var toggle = document.querySelector('#toggleForm_new .form-check-input');
-                            if (toggle) {
-                              console.log("Toggle found.");
-                              toggle.addEventListener('change', function() {
-                                console.log("Toggle value:", this.checked);
-                                this.form.submit();
-                              });
-                            } else {
-                              console.log("Toggle not found.");
-                            }
-                            
-                          </script>
+                          </div>
+                          <div class="col-md-auto">
+                            <div class="mt-3 badges">
+                              {% if c.active %}
+                              <span href="#" class="badge badge-outline border fw-normal badge-pill bg-success">ACTIVE</span>
+                              {% else %}
+                              <span href="#" class="badge badge-outline border fw-normal badge-pill bg-danger">INACTIVE</span>
+                              {% endif %}
+                              {% if c.industry.name %}
+                              <span href="#" class="badge badge-outline text-muted border fw-normal badge-pill">{{ c.industry.name }}</span>
+                              {% endif %}
+                              {% if c.insurance %}
+                              <span href="#" class="badge badge-outline text-muted border fw-normal badge-pill" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{ c.insurance_value|format_large_number }}">Insurance</span>
+                              {% endif %}
+
+                              <a href="#" class="badge badge-outline text-muted border fw-normal badge-pill">Tag</a>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>            
-                  <div class="table-responsive">
-                    <table class="table card-table table-vcenter text-nowrap datatable table-striped">
-                      <thead>
-                        <tr>
-                          <th class="w-1">Number
-                            <!-- Download SVG icon from http://tabler-icons.io/i/chevron-up
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm icon-thick" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 15l6 -6l6 6" /></svg> -->
-                          </th>
-                          <th>Name</th>
-                          <th>status</th>
-                          <th>Country</th>
-                          <th>Account Manager</th>
-                          <th class="text-end">Action</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {% for customer in page_object %}
-                        <tr>
-                          
-                          <td><span class="text-muted">{{ customer.number }}</span></td>
-                          <td>
-                            {% if customer.is_new%}
-                              <span class="badge badge-outline text-red">NEW</span>
-                            {% endif %}
-                            {{ customer.name}}
-                          </td>
-                          <td>
-                            <span class="badge {% if customer.active %} bg-success {% else %} bg-danger {% endif %} me-1"></span> {% if customer.active  %} Active {% else %} Inactive {% endif %}
-                          </td>
-                          <td>
-                            {% if customer.country %}<span class="flag flag-country-{{ customer.country.alpha_2|lower }}"></span> {% endif %}
-                            {{ customer.country.uniterm_english_short }}
-                          </td>
-                          <td>
-                            {{ customer.sales_employee.get_full_name }}
-                          </td>
-                          <td class="text-end">
-                            <a href="{% url 'customer-view' customer.pk %}" class="btn btn-outline-info btn-sm">View</a>
-                          </td>
-                        </tr>
-                        {% endfor %}
-                      </tbody>
-                    </table>
-                  </div>
-                  <div class="card-footer d-flex align-items-center">
-                    {% include 'app_includes/pagination.html' %}
                   </div>
                 </div>
+                {% endfor %}
+                <!-- End of the customer card -->
+                
               </div>
             </div>
+            <div class="col-md-9 d-flex align-items-end mt-4">
+              {% include 'app_includes/pagination.html' %}
+            </div>
           </div>
-          <br>
         </div>
-        {% include 'app_includes/footer.html' %}
       </div>
-
+    </div>
+    {% include 'app_includes/footer.html' %}
+  </div>
+  
 {% endblock content %}
