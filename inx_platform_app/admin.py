@@ -73,6 +73,7 @@ class CustomerTypeAdmin(admin.ModelAdmin):
 
 class BrandAdmin(admin.ModelAdmin):
     list_display = ['id', 'name', 'sap_id', 'sap_name', 'get_division_name', 'get_nsf_division_name']
+    search_fields = ['name']
 
     def get_division_name(self, obj):
         return obj.division.name
@@ -87,6 +88,7 @@ class BrandAdmin(admin.ModelAdmin):
 class ProductAdmin(admin.ModelAdmin):
     # list_display = ['id', 'number', 'name', 'get_brand_name']
     list_display = ['id', 'number', 'name','get_color_name', 'get_colorgroup_name', 'get_brand_name']
+    search_fields = ['number', 'name']
 
     def get_brand_name(self, obj):
         if obj.brand:

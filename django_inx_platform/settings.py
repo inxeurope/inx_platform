@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.humanize",
     "debug_toolbar",
+    "django_filters",
     "django_extensions",
     "django_htmx",
     "inx_platform_app.apps.InxPlatformAppConfig",

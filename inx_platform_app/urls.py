@@ -30,13 +30,13 @@ urlpatterns = [
     path('start_file_processing/<int:file_id>', views.start_file_processing, name='start-file-processing'),
     path('delete_this_file_to_import/<int:file_id>/', views.delete_this_file_to_import, name='delete-this-file-to-import'),
     
-    path("customers_list/", views.customers_list, name="customers-list"),
-    # path("customers_list_2/", views.customers_list_2, name="customers-list-2"),
+    path("customers/", views.customers, name="customers"),
     path("customer_view/<int:pk>", views.customer_view, name="customer-view"),
     path("customer_edit/<int:pk>", views.customer_edit, name="customer-edit"),
 
     path("get_contact_details/<int:id>", views.get_contact_details, name="get-contact-details"),
 
+    path("products/", views.products, name="products"),
     path("products_list/", views.products_list, name="products-list"),
     path("product_view/<int:pk>", views.product_view, name="product-view"),
     path("product_edit/<int:pk>", views.product_edit, name="product-edit"),
@@ -170,9 +170,6 @@ urlpatterns = [
     path('profile/', views.profile, name='profile'),
     path('icons/', views.icons, name='icons'),
 
-    # Test for SSE
-    path("sse/", views.sse, name="sse"),
-    path('stream_channel/', views.sse_stream, name='stream_channel'),
 
 
 

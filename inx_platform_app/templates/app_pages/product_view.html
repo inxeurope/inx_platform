@@ -9,10 +9,24 @@
     <div class="page-header d-print-none">
       <div class="container-xl">
         <div class="row g-2 align-items-center">
+          <div class="col-auto">
+            <a href="{% url "products" %}?{{ dj_filters_params }}">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Customers" width="64" height="64" viewBox="0 0 24 24" stroke-width="1.5" stroke="#0071ce" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <path d="M5 12l14 0" />
+                <path d="M5 12l6 6" />
+                <path d="M5 12l6 -6" />
+              </svg>
+            </a>
+          </div>
           <div class="col">
             <h2 class="page-title">
-              Product data grid
+              {% if product.is_new%}
+                <span class="badge badge-outline text-red small">NEW</span>
+              {% endif %}
+              {{ product.name }}
             </h2>
+            <p class="muted">SAP nr.({{ product.number }})</p>
           </div>
         </div>
       </div>
@@ -23,7 +37,7 @@
         <div class="card">
           <div class="card-header d-flex justify-content-between">
             <h3 class="card-title">Basic info - {{ product.name }}    (id:{{ product.pk }})</h3>
-            <a href="{% url 'product-edit' product.pk %}" class="btn btn-outline-info">Edit</a>
+            <a href="{% url 'product-edit' product.id %}?{{dj_filters_params}}" class="btn btn-outline-info">Edit</a>
           </div>
           <div class="card-body">
             <div class="datagrid">

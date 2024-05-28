@@ -32,8 +32,8 @@
             <div class="dropdown-menu">
               <div class="dropdown-menu-columns">
                 <div class="dropdown-menu-column">
-                  <a class="dropdown-item" href="{% url 'customers-list' %}">Customers</a>
-                  <a class="dropdown-item" href="{% url 'products-list' %}">Products</a>
+                  <a class="dropdown-item" href="{% url 'customers' %}">Customers</a>
+                  <a class="dropdown-item" href="{% url 'products' %}">Products</a>
                   <a class="dropdown-item" href="{% url 'brands-list' %}">Brands</a>
                 </div>
               </div>
@@ -69,10 +69,10 @@
               </span>
               <span class="nav-link-title">INX</span>
             </a>
-            <div class="dropdown-menu">            
+            {% comment %} <div class="dropdown-menu">{% endcomment %}
               {% comment %} <a class="dropdown-item" target="" rel="noopener" href="{% url 'index-original' %}">Tabler index</a> {% endcomment %}
-              <a class="dropdown-item" target="" rel="noopener" href="{% url 'sse' %}">SSE trial</a>
-            </div>
+              {% comment %} <a class="dropdown-item" target="" rel="noopener" href="{% url 'sse' %}">SSE trial</a> {% endcomment %}
+            {% comment %} </div> {% endcomment %}
           </li>
         </ul>
       </div>

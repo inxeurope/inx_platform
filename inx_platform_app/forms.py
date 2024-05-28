@@ -277,7 +277,8 @@ class ProductForm(forms.ModelForm):
             'approved_on': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'approved_by': forms.Select(attrs={'class': 'form-select'}),
         }
-    
+
+
 class BrandForm(forms.ModelForm):
     class Meta:
         model = Brand
@@ -295,3 +296,8 @@ class BrandForm(forms.ModelForm):
             'material_group': forms.Select(attrs={'class': 'form-select'}),
             'market_segment': forms.Select(attrs={'class': 'form-select'})
         }
+
+
+# class ProductFilterForm(forms.Form):
+#     name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control'}))
+#     number = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control'}))

@@ -20,7 +20,7 @@ def build_query_params(additional_params):
     temp_string =''
     if additional_params:
         for k, v in additional_params.items():
-            print("key (", k, ") value: ", v)
+            # print("key (", k, ") value: ", v)
             if v:
                 if isinstance(v, list):
                     for item in v:

@@ -5,7 +5,7 @@ from django.db import connection
 from django.db.models import OuterRef, Subquery, Q
 from django.urls import reverse_lazy, reverse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse, StreamingHttpResponse, HttpResponseRedirect, HttpResponseBadRequest
+from django.http import JsonResponse, StreamingHttpResponse, HttpResponseRedirect, HttpResponseBadRequest, QueryDict
 from django.conf import settings
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
@@ -22,7 +22,7 @@ from django.views.generic.edit import UpdateView, CreateView
 from .models import *
 from .utils import *
 from .forms import *
-from .forms import get_generic_model_form
+from .filters import *
 from .tasks import ticker_task, very_long_task, file_processor
 from . import dictionaries, import_dictionaries
 import pyodbc, math
@@ -32,10 +32,12 @@ import os, time, asyncio, uuid
 from datetime import datetime
 from time import perf_counter
 from loguru import logger
+import pprint
 
 
 def long_task(request):
     return render(request, "app_pages/long_tasks.html")
+
 
 def trigger_long_task(request):
     # very_long_task.delay()
@@ -857,7 +859,7 @@ def process_this_file(file):
 
 
 @login_required
-def customers_list(request, page=0):
+def customers(request, page=0):
     country_codes = get_cache_country_codes()
     customers = Customer.objects.all().order_by('name')
     sales_team_group = Group.objects.get(name="Sales Team")
@@ -924,7 +926,7 @@ def customers_list(request, page=0):
         'sales_team_members': sales_team_members,
         'form_data': form_data
     }
-    return render(request, "app_pages/customers_list.html", context)
+    return render(request, "app_pages/customers.html", context)
 
 
 def apply_filters_to_customers(customers, form_data):
@@ -1207,8 +1209,24 @@ def products_list(request, page=0):
 @login_required
 def product_view(request, pk):
     product = Product.objects.filter(id=pk).first()
+  
+
+    if 'page' in request.GET:
+        print(request.GET)
+        django_filters_page = request.GET.get('page')
+        query_dict = request.GET.copy()
+        query_dict.pop('page', None)
+        query_dict['return_page'] = django_filters_page
+        print(query_dict)
+        django_filters_params = query_dict.urlencode()
+    else:
+        print("no page")
+        django_filters_params = request.GET.urlencode()
+    print(django_filters_params)
+
     context = {
-        'product': product
+        'product': product,
+        'dj_filters_params': django_filters_params
     }
     return render(request, "app_pages/product_view.html", context)
 
@@ -1216,16 +1234,29 @@ def product_view(request, pk):
 @login_required
 def product_edit(request, pk):
     p = get_object_or_404(Product, id=pk)
+    django_filters_params = request.GET.urlencode()
     if request.method == 'POST':
         form = ProductForm(request.POST, instance = p)
         if form.is_valid():
             form.save()
-            return redirect('product-view', pk=p.pk)
+            redirect_url = reverse('product-view', kwargs={'pk': p.pk}) + '?' + django_filters_params
+            return redirect(redirect_url)
         else:
             print(form.errors)
     else:
         form = ProductForm(instance=p)
-    context = {'form': form}
+    
+    if django_filters_params:
+        context = {
+            'form': form,
+            'product_id': p.id,
+            'dj_filters_params': django_filters_params 
+            }
+    else:
+        context = {
+            'form': form,
+            'product_id': p.id
+            }
     return render(request, "app_pages/product_edit.html", context)
 
 
@@ -2156,26 +2187,49 @@ def edit_model_record(request, pk, model):
     return render(request, 'app_pages/edit_generic_model.html', context)
 
 
-def sse(request):
-    return render(request, "app_pages/sse.html", {})
-
-
-async def sse_stream(request):
-    '''
-    Sends SSEs to the client
-    '''
-    async def stream_the_event():
-        counter = 0
-        while counter <= 10:
-            message = message = f"data: {str(uuid.uuid4())}  -  {counter}\n\n"
-            yield message
-            await asyncio.sleep(0.3)
-            counter += 1
-
-    return StreamingHttpResponse(stream_the_event(), content_type='text/event-stream')
-
-
 def start_task(request):
     ticker_task.delay(999)
     very_long_task.delay()
     return redirect(to="index")
+
+
+def products(request):
+    
+    if request.method == 'GET':
+        is_reset_button = request.GET.get('reset')
+
+        if is_reset_button and 'Reset' in is_reset_button:
+            return redirect('products')
+    
+    product_filter = ProductFilter(
+        request.GET, Product.objects.select_related(
+        'color', 'made_in', 'brand', 'packaging', 'product_line', 'product_status', 'approved_by'
+        )
+        )
+    
+    paginator = Paginator(product_filter.qs, 10)
+    
+    if 'page' in request.GET:
+        page_number = request.GET.get('page')
+        print(request.GET.get('page'))
+    elif 'return_page' in request.GET:
+        page_number = request.GET.get('return_page')
+    else:
+        page_number = 1
+    page_obj = paginator.get_page(page_number)
+
+    django_filters_params = request.GET.copy()
+    if 'page' in django_filters_params:
+        del django_filters_params['page']
+        django_filters_params['return_page'] = page_number
+    django_filters_params = django_filters_params.urlencode()
+    print(f"from the /products: {django_filters_params}")
+
+    context = {
+        'form': product_filter.form,
+        'products': page_obj,
+        'page_object': page_obj,
+        'dj_filters_params': django_filters_params
+    }
+
+    return render(request, "app_pages/products.html", context)

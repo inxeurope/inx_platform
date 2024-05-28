@@ -33,7 +33,7 @@
         <div class="row g-4">
           <!-- Parameters bar -->
           <div class="col-md-3">
-            <form action="{% url 'customers-list' %}" method="post" class="">
+            <form action="{% url 'customers' %}" method="post" class="">
               {% csrf_token %}
               <div>
                 <h3>Filters
@@ -179,7 +179,7 @@
                               <span href="#" class="badge badge-outline text-muted border fw-normal badge-pill" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{ c.insurance_value|format_large_number }}">Insurance</span>
                               {% endif %}
 
-                              <a href="#" class="badge badge-outline text-muted border fw-normal badge-pill">Tag</a>
+                              {% comment %} <a href="#" class="badge badge-outline text-muted border fw-normal badge-pill">Tag</a> {% endcomment %}
                             </div>
                           </div>
                         </div>
@@ -196,6 +196,7 @@
               {% include 'app_includes/pagination.html' %}
             </div>
           </div>
+          <!-- end of Main part-->
         </div>
       </div>
     </div>
