@@ -4,9 +4,7 @@ from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path("", views.index, name="index"),
-    
-    # task experiment
-    path("start_task/", views.start_task, name="start-task"),
+
 
     path("loader/", views.loader, name="loader"),
     path("loading", views.loading, name="loading"),
@@ -42,19 +40,6 @@ urlpatterns = [
     path("brands_list/", views.brands_list, name="brands-list"),
     path("brand_view/<int:pk>", views.brand_view, name="brand-view"),
     path("brand_edit/<int:pk>", views.brand_edit, name="brand-edit"),
-
-    # Generic edit form
-    path("edit_model_record/<int:pk>/<str:model>", views.edit_model_record, name="edit-model-record"),
-
-    path("inxd_customers/", views.inxd_customers, name="inxd-customers"),
-    
-    path("brands/", views.BrandListView.as_view(), name="brands"),
-    path("brands_list/", views.BrandListView.as_view(), name="brands-list"),
-    # path("brand/edit/<int:id>", views.BrandEditView.as_view(), name="brand-edit"),
-    
-    path("major/", views.MajorLabelListView.as_view(), name="major"),
-    path("major/add", views.MajorLabelCreateView.as_view(), name="major-add"),
-    path("major/edit/<int:id>", views.MajorLabelEditView.as_view(), name="major-edit"),
     
 
     # Authentication
@@ -64,8 +49,6 @@ urlpatterns = [
     path('accounts/logout/', views.logout_view, name='logout'),
     path('accounts/login-link/', views.login_link, name='login_link'),
     path('accounts/register/', views.RegistrationView.as_view(), name='register'),
-    path('terms-service/', views.terms_service, name='terms_service'),
-    path('accounts/lock-screen/', views.lock_screen, name='lock_screen'),
 
     path('accounts/password-change/', views.UserPasswordChangeView.as_view(), name='change_password'),
     path('accounts/password-change-done/', auth_views.PasswordChangeDoneView.as_view(
@@ -81,9 +64,6 @@ urlpatterns = [
     path('accounts/password-reset-complete/', auth_views.PasswordResetCompleteView.as_view(
         template_name='pages/password-reset-complete.html'
     ), name='password_reset_complete'),
-
-
-    path('form-elements/', views.form_elements, name='form_elements'),
 
 ]
 
