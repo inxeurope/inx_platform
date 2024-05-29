@@ -4,8 +4,6 @@ from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path("", views.index, name="index"),
-    path("index_original/", views.index_original, name="index-original"),
-    path("inx/", views.index_inx, name="inx"),
     
     # task experiment
     path("start_task/", views.start_task, name="start-task"),
@@ -169,9 +167,5 @@ urlpatterns = [
     path('changelog/', views.changelog, name='changelog'),
     path('profile/', views.profile, name='profile'),
     path('icons/', views.icons, name='icons'),
-
-
-
-
 ]
 

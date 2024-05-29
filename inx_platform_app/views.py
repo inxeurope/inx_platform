@@ -34,40 +34,11 @@ from time import perf_counter
 from loguru import logger
 import pprint
 
-
-def long_task(request):
-    return render(request, "app_pages/long_tasks.html")
-
-
-def trigger_long_task(request):
-    # very_long_task.delay()
-    # add.delay(4,6)
-    # ticker_task.delay()
-    return render(request, 'app_pages/long_tasks.html')
     
 
 def index(request):
     return render(request, "app_pages/index.html", {})
 
-
-def index_original(request):
-    return render(request, "app_pages/index_original.html", {})
-
-
-def profile(request):
-    return render(request, "app_pages/profile.html", {})
-
-
-def index_inx(request):
-    return render(request, "index-inx.html")
-
-
-def account_settings(request):
-    user = request.user
-    context = {
-        'user': user
-    }
-    return render(request, 'app_pages/settings.html', context)
 
 
 @login_required

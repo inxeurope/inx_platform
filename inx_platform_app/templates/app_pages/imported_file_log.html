@@ -24,28 +24,13 @@
     <!-- Page body -->
     <div class="page-body">
       <div class="container">
-        <div class="card">
-          <div class="table-responsive">
-            <table class="table table-vcenter card-table">
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Message</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for log_record in log_records %}
-                <tr>
-                  <td>{{ log_record.date }}</td>
-                  <td class="text-secondary">
-                    {{ log_record.log_text }}
-                  </td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
-        </div> 
+        <div class="row">
+          <pre class="col-auto">
+            {% for log_record in log_records %}
+              {{ log_record.date }}    {{ log_record.log_text }}
+            {% endfor %}
+          </pre>
+        </div>  
       </div>
     </div>
     {% include 'app_includes/footer.html' %}
