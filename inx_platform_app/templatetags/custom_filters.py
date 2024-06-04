@@ -1,6 +1,6 @@
 # custom_filters.py
 from django import template
-from loguru import logger
+import math
 
 register = template.Library()
 
@@ -30,3 +30,11 @@ def build_query_params(additional_params):
 
     return_string = temp_string
     return return_string
+
+@register.filter
+def round_up(value):
+    return math.ceil(value)
+
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key)

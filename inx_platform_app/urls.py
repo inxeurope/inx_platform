@@ -4,7 +4,9 @@ from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path("", views.index, name="index"),
-
+    path("forecast/", views.forecast, name="forecast"),
+    path("forecast/<int:customer_id>/", views.forecast, name="forecast-customer"),
+    path("forecast/<int:customer_id>/<int:brand_colorgroup_id>/", views.forecast, name="forecast-c-bcg"),
 
     path("loader/", views.loader, name="loader"),
     path("loading", views.loading, name="loading"),

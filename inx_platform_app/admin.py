@@ -60,7 +60,7 @@ class ExchangeRateAdmin(admin.ModelAdmin):
 
 
 class ScenarioAdmin(admin.ModelAdmin):
-    list_display = ['id', 'is_sales', 'name', 'sqlapp_id']
+    list_display = ['id', 'is_sales', 'is_forecast', 'is_budget', 'name', 'sqlapp_id']
 
 
 class CountryCodeAdmin(admin.ModelAdmin):
@@ -218,7 +218,7 @@ class BudgetForecastDetailAdmin_abs(admin.ModelAdmin):
     This is an abstract class that can be implemented as-is, the same by other models
     We adopt this strategy to avoid having Budget and Forecast together with Sales, at
     the same granulariity, in the same table. During normal operation, we must update
-    Sales, every time we update zaq data. If Sales are together with Budget and Forecast,
+    Sales every time we update zaq data. If Sales are together with Budget and Forecast,
     it is very hard and takes long time to remove Sales from a single table, causing delays.
     With 2 different tables (BudgetForecast and Sales), we can manage Sales in a better way
     '''
@@ -229,7 +229,7 @@ class BudgetForecastDetailAdmin_abs(admin.ModelAdmin):
         abstract = True
 
     def get_budforline_id(self, obj):
-        return obj.budfoline.id
+        return obj.budforline.id
 
     def get_budforline_info(self, obj):
         the_related_budforline = obj.budforline

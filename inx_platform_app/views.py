@@ -1,8 +1,7 @@
 from typing import Any
 from django.apps import apps
-from django.db.models.query import QuerySet
+from django.db.models import Sum, Avg, Case, DecimalField, Expression, When
 from django.db import connection
-from django.db.models import OuterRef, Subquery, Q
 from django.urls import reverse_lazy, reverse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse, StreamingHttpResponse, HttpResponseRedirect, HttpResponseBadRequest, QueryDict
@@ -28,17 +27,284 @@ from . import dictionaries, import_dictionaries
 import pyodbc, math
 import pandas as pd
 import numpy as np
-import os, time, asyncio, uuid
+import os, time
 from datetime import datetime
 from time import perf_counter
-from loguru import logger
-import pprint
+from itertools import chain
 
     
-
 def index(request):
     return render(request, "app_pages/index.html", {})
 
+def forecast(request, customer_id=None, brand_colorgroup_id=None):
+    
+    c_id = customer_id
+    customer = Customer.objects.filter(id=c_id).first()
+
+    date_of_today = datetime.today().date()
+    current_year = datetime.today().year
+    current_month = datetime.today().month
+    previous_year = current_year - 1 
+    forecast_year = datetime.now().year
+    forecast_month = datetime.now().month
+    budget_year = datetime.now().year + 1
+
+    if request.htmx:
+        print("This is an htmx request!")
+        '''
+        Estrarre i dati vendita di quest'anno
+        Estrarre i dati di forecast
+        Predisporre nel formato giusto
+        rendere il partial
+        '''
+        
+
+    else:
+        print("This is a REGULAR request")
+        '''
+        Preparare i dati del 2023
+        Estrarre le triplets
+        '''
+        # Get sales of previous year of specific customer
+        # All brands and color group
+        sales_previous_year = BudgetForecastDetail_sales.objects.filter(
+            budforline__customer_id = c_id,
+            year = previous_year,
+            scenario = Scenario.objects.filter(is_sales=True).first()
+            )
+        
+        sales_py_aggregated_per_brand = sales_previous_year.values(
+            'budforline__brand__name',
+            'scenario__name',
+            'year', 
+            'month'
+            ).annotate(
+            total_volume=Sum('volume'),
+            total_value=Sum('value'),
+            price=Case(
+                When(total_volume=0, then=0),
+                default=Expression(F('total_value') / F('total_volume'), output_field=DecimalField(max_digits=10, decimal_places=2)),
+            )
+        )
+
+        # Organize data of last year
+        sales_data_previous_year = {}
+        for s in sales_py_aggregated_per_brand:
+            brand_name = s['budforline__brand__name']
+            month = s['month']
+            value = s['total_value']
+            # If this brand is not yet in the dictionary, add it
+            if brand_name not in sales_data_previous_year:
+                # Initialize months with zero
+                sales_data_previous_year[brand_name] = {m: 0 for m in range(1, 13)}
+            sales_data_previous_year[brand_name][month] = value
+
+            # Get the triplets of a customer
+            bud_for_lines = BudForLine.get_customer_lines(c_id)
+            if not brand_colorgroup_id:
+                b_cg_id = bud_for_lines.first().id
+            else:
+                b_cg_id = brand_colorgroup_id
+        
+        # Get sales of this year YTD of a specific customer
+        sales_of_this_year = BudgetForecastDetail_sales.objects.filter(
+            budforline__customer_id = c_id,
+            year = forecast_year,
+            month__lt = forecast_month,
+            scenario = Scenario.objects.filter(is_sales=True).first()
+            )
+        # Get forecast of this year of a specific customer
+        forecast = BudgetForecastDetail.objects.filter(
+            budforline__customer_id = c_id,
+            year = forecast_year,
+            month__gt = forecast_month,
+            scenario = Scenario.objects.filter(is_forecast=True).first()
+        )
+
+        # The following is a list of dictionaries.
+        # Each dictionary will be either a sales or a forecast
+        current_year_records = [
+            {
+                'year': 0,
+                'month': month,
+                'value': 0,
+                'volume': 0,
+                'price': 0,
+                'budforline_id': 0
+            } for month in range(1, 13)
+        ]
+        # Updating the list of dictionaries, with data coming from sales
+        for sales in sales_of_this_year:
+            # Index is zero-based
+            index_month = sales.month - 1
+            current_year_records[index_month] = {
+                'sceario_id': Scenario.objects.filter(is_sales=True).first().id,
+                'year': sales.year,
+                'month': sales.month,
+                'value': sales.value,
+                'volume': sales.volume,
+                'price': sales.price,
+                'budforline_id': sales.budforline_id
+            }
+        # Updating the list of dictionaries, with data coming from forecast
+        for sales in forecast:
+            # Index is zero-based
+            index_month = sales.month - 1
+            current_year_records[index_month] = {
+                'sceario_id': Scenario.objects.filter(is_sales=True).first().id,
+                'year': sales.year,
+                'month': sales.month,
+                'value': sales.value,
+                'volume': sales.volume,
+                'price': sales.price,
+                'budforline_id': sales.budforline_id
+            }
+        # Fix current month
+        current_year_records[forecast_month - 1] = {
+            'sceario_id': Scenario.objects.filter(is_sales=True).first().id,
+            'year': current_year,
+            'month': current_month,
+            'value': 0,
+            'volume': 0,
+            'price': 0,
+            'budforline_id': brand_colorgroup_id or 0
+        }
+        #
+
+
+    # # Get the triplets of a customer
+    # bud_for_lines = BudForLine.get_customer_lines(c_id)
+    # if not brand_colorgroup_id:
+    #     b_cg_id = bud_for_lines.first().id
+    # else:
+    #     b_cg_id = brand_colorgroup_id
+    
+    # Get sales of previous year of specific customer
+    # All brands and color group
+    # sales_previous_year = BudgetForecastDetail_sales.objects.filter(
+    #     budforline__customer_id = c_id,
+    #     year = previous_year,
+    #     scenario = Scenario.objects.filter(is_sales=True).first()
+    #     )
+    # # Aggregation at the brand level, calculation of totals per brand
+    # sales_py_aggregated_per_brand = sales_previous_year.values(
+    #     'budforline__brand__name',
+    #     'scenario__name',
+    #     'year', 
+    #     'month'
+    #     ).annotate(
+    #     total_volume=Sum('volume'),
+    #     total_value=Sum('value')
+    # )
+
+    # Organize the data for the table
+    # sales_data_py = {}
+    # for record in sales_py_aggregated_per_brand:
+    #     brand_name = record['budforline__brand__name']
+    #     month = record['month']
+    #     value = record['total_value']
+    #     # If this brand is not yet in the dictionary, add it
+    #     if brand_name not in sales_data_py:
+    #         # Initialize months with zero
+    #         sales_data_py[brand_name] = {m: 0 for m in range(1, 13)}
+    #     sales_data_py[brand_name][month] = value
+
+    # Get sales of YTD
+    # sales_on_the_fly = BudgetForecastDetail_sales.objects.filter(
+    #     budforline_id = b_cg_id,
+    #     year = forecast_year,
+    #     month__lt = forecast_month,
+    #     scenario = Scenario.objects.filter(is_sales=True).first()
+    #     )
+    # print(f"there are {len(sales_on_the_fly)} in the sales")
+
+    # Get forecast of this year
+    # forecast_on_the_fly = BudgetForecastDetail.objects.filter(
+    #     budforline_id = b_cg_id,
+    #     year = forecast_year,
+    #     month__gt = forecast_month,
+    #     scenario = Scenario.objects.filter(is_forecast=True).first()
+    # )
+    # print(f"there are {len(forecast_on_the_fly)} in the forecast")
+
+    # Create a list of for previous year
+    # for record in sales_py:
+    #     month_index = record.month -1
+    #     empty_records[month_index] = {
+    #         'year': record.year,
+    #         'month': record.month,
+    #         'value': record.value,
+    #         'volume': record.volume,
+    #         'price': record.price,
+    #         'budforline_id': record.budforline_id
+    #     }
+
+
+    # Create a list with default records for each month
+    # These are used for the sales + forecast
+    # default_records = [
+    #     {
+    #         'year': forecast_year,
+    #         'month': month,
+    #         'value': 0,
+    #         'volume': 0,
+    #         'price': 0,
+    #         'budforline_id': b_cg_id
+    #     } for month in range(1, 13)
+    # ]
+
+    # Update default records with sales data of previous months
+    # for record in sales_on_the_fly:
+    #     month_index = record.month - 1
+    #     default_records[month_index] = {
+    #         'sceario_id': Scenario.objects.filter(is_sales=True).first().id,
+    #         'year': record.year,
+    #         'month': record.month,
+    #         'value': record.value,
+    #         'volume': record.volume,
+    #         'price': record.price,
+    #         'budforline_id': record.budforline_id
+    #     }
+
+    # Placeholder for the current month with value=0 and volume=0
+    # default_records[forecast_month - 1] = {
+    #     'sceario_id': '',
+    #     'year': forecast_year,
+    #     'month': forecast_month,
+    #     'value': 0,
+    #     'volume': 0,
+    #     'price': 0,
+    #     'budforline_id': b_cg_id
+    # }
+
+    # # Update default records with *forecast* data
+    # for record in forecast_on_the_fly:
+    #     month_index = record.month - 1
+    #     value = record.volume * record.price
+    #     default_records[month_index] = {
+    #         'sceario_id': Scenario.objects.filter(is_forecast=True).first().id,
+    #         'year': record.year,
+    #         'month': record.month,
+    #         'value': value,
+    #         'volume': record.volume,
+    #         'price': record.price,
+    #         'budforline_id': record.budforline_id
+    #     }
+
+    context = {
+        'customer': customer,
+        'brand_colorgroup_id': brand_colorgroup_id,
+        'bud_for_lines': bud_for_lines,
+        'date_of_today': date_of_today,
+        'month': forecast_month,
+        'details': default_records,
+        'previous_year': previous_year,
+        # For previous year
+        'sales_data_py': sales_data_py,
+        'months': range(1, 13)
+    }
+
+    return render(request, "app_pages/forecast.html", context)
 
 
 @login_required

@@ -235,6 +235,9 @@ class ExchangeRate(models.Model):
 class Scenario(models.Model):
     name = models.CharField(max_length=100, blank=True)
     is_sales = models.BooleanField(default=False, null=True)
+    is_forecast = models.BooleanField(default=False, null=True)
+    is_budget = models.BooleanField(default=False, null=True)
+    is_mtp = models.BooleanField(default=False, null=True)
     sqlapp_id = models.IntegerField(default=0, null=True)
 
     def __str__(self):
@@ -959,6 +962,10 @@ class BudForLine(models.Model):
     color_group = models.ForeignKey(ColorGroup, on_delete=models.PROTECT)
     sqlapp_id = models.IntegerField(default=0, null=True)
 
+    @classmethod
+    def get_customer_lines(self, customer_id):
+        return self.objects.filter(customer_id=customer_id).select_related('customer', 'brand', 'color_group').order_by('brand__name')
+
 
 class BudForNote(models.Model):
     note = models.CharField(max_length=255)
@@ -990,7 +997,7 @@ class BudForDetailLine(models.Model):
 
 class BudForDetail_Abstract(models.Model):
     '''
-    This is an abstract class and can be used to create other models that will inherit
+    This is an abstract class and can be used to create other models that inherit
     all fields
     '''
     budforline = models.ForeignKey(BudForLine, on_delete=models.PROTECT)
@@ -1003,22 +1010,37 @@ class BudForDetail_Abstract(models.Model):
     currency_zaq = models.CharField(max_length=3)
     detail_date = models.DateField(default='2024-01-01')
     sqlapp_id = models.IntegerField(default=0, null=True)
+    # Adding for an easier management (to be implemented later)
+    customer = models.ForeignKey(Customer, null=True, blank=True, on_delete=models.PROTECT)
+    brand = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.PROTECT)
+    color_group = models.ForeignKey(ColorGroup, null=True, blank=True, on_delete=models.PROTECT)
+
 
     class Meta:
         abstract = True
+        # unique_together = ['customer', 'brand', 'color_group']
+        # index_together = ['customer', 'brand', 'color_group', 'year', 'month', 'scenario']
         
     
 class BudgetForecastDetail(BudForDetail_Abstract):
+    '''
+    This model stores only budget and forecast data
+    '''
+
     class Meta:
         verbose_name = 'Budget Forecast Detail'
         verbose_name_plural = 'Budget Forecast Details'
 
     def __str__(self):
-        return_string = f"BudgetForcastDetail line - bud_for_id:{self.budforline.id} - scenario: {self.scenario.id}"
+        return_string = f"detail line - budforline.id:{self.budforline.id}"
         return return_string
 
 
 class BudgetForecastDetail_sales(BudForDetail_Abstract):
+    '''
+    This model store only sales data at the budget granularity
+
+    '''
     class Meta:
         verbose_name = 'Budget Forecast, Sales'
         verbose_name_plural = 'Budget Forcast, Sales'
