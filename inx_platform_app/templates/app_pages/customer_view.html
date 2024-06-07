@@ -36,8 +36,11 @@
       <div class="container-xl">
         <div class="card mb-3">
           <div class="card-header d-flex justify-content-between">
-            <h3 class="card-title">Basic information</h3>
-            <a href="{% url 'customer-edit' customer.pk %}" class="btn btn-outline-info">Edit</a>
+            <div><h3 class="card-title">Basic information</h3></div>
+            <div>
+              <a href="{% url 'forecast-customer' customer.pk %}" class="btn btn-outline-info">Forecast</a>
+              <a href="{% url 'customer-edit' customer.pk %}" class="btn btn-outline-info">Edit</a>
+            </div>
           </div>
           <div class="card-body">
             <div class="datagrid">
@@ -64,7 +67,7 @@
               <div class="datagrid-item">
                 <div class="datagrid-title">Currency</div>
                 <div class="datagrid-content">
-                  {{ customer.currency }}
+                  {{ customer.currency.svg_symbol|safe }}
                 </div>
               </div>
               <div class="datagrid-item">

@@ -139,6 +139,7 @@
                               <a href="{% url "customer-view" c.pk %}"class="align-middle">{{ c.number }} {{ c.name }}</a>
                             </h3>
                           </div>
+                          <div class="col text-end">{{ c.currency.svg_symbol|safe }}</div>
                         </div>
                         <div class="row">
                           <div class="col-md">

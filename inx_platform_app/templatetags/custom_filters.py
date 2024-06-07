@@ -37,4 +37,12 @@ def round_up(value):
 
 @register.filter
 def get_item(dictionary, key):
-    return dictionary.get(key)
+    try:
+        returned_value = dictionary.get(key)
+        if not returned_value:
+            key = int(key)
+        returned_value = dictionary.get(key)
+        # print(f"dictionary: {dictionary}, key: {key}, returned value: {returned_value}")
+        return returned_value
+    except (TypeError, ValueError, AttributeError):
+        return None

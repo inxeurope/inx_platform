@@ -1,7 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm, AuthenticationForm, UsernameField, PasswordResetForm, SetPasswordForm
-from .models import Customer, Product, Color, CustomerType, Industry, MajorLabel, Brand, Division, InkTechnology, NSFDivision, MarketSegment, MaterialGroup, User
-from .models import MadeIn, Packaging, ProductLine, ProductStatus
+from .models import *
 
 # class CustomerForm(forms.ModelForm):
 #     class Meta:
@@ -26,6 +25,7 @@ class EditMajorLabelForm(forms.ModelForm):
             'sqlapp_id': forms.TextInput(attrs={'class': 'form-control'}),
             'svg_logo': forms.Textarea(attrs={'class': 'form-control'}),
         }
+
 
 class EditBrandForm(forms.ModelForm):
     class Meta:
@@ -55,6 +55,7 @@ class EditBrandForm(forms.ModelForm):
         market_segment = forms.ModelChoiceField(queryset=MarketSegment.objects.all(), widget=forms.Select(attrs={'class': 'form-control'}))
         materal_group = forms.ModelChoiceField(queryset=MaterialGroup.objects.all(), widget=forms.Select(attrs={'class': 'form-control'}))
 
+
 class EditCustomerForm(forms.ModelForm):
     class Meta:
         model = Customer
@@ -79,7 +80,6 @@ class EditCustomerForm(forms.ModelForm):
         widgets = {
             'number': forms.NumberInput(attrs={'class': 'form-control'}),
             'name': forms.TextInput(attrs={'class': 'form-control'}),
-            'currency': forms.TextInput(attrs={'class': 'form-control'}),
             'active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'insurance': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'insurance_value': forms.TextInput(attrs={'class': 'form-control'}),
@@ -94,11 +94,13 @@ class EditCustomerForm(forms.ModelForm):
         sales_employee = forms.ModelChoiceField(queryset=User.objects.all(), widget=forms.Select(attrs={'class': 'form-control'}))
         customer_type = forms.ModelChoiceField(queryset=CustomerType.objects.all(), widget=forms.Select(attrs={'class': 'form-control'}))
         industry = forms.ModelChoiceField(queryset=Industry.objects.all(), widget=forms.Select(attrs={'class': 'form-control'}))
+        currency = forms.ModelChoiceField(queryset=Currency.objects.all(), widget=forms.Select(attrs={'class': 'form-control'}))
     
     # this below replaces the email of the user with teh full name
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['sales_employee'].label_from_instance = lambda obj: obj.get_full_name()
+
 
 class EditProductForm(forms.ModelForm):
     class Meta:
@@ -132,6 +134,7 @@ class EditProductForm(forms.ModelForm):
         product_line = forms.ModelChoiceField(queryset=ProductLine.objects.all(), widget=forms.Select(attrs={'class': 'form-control'}))
         product_status = forms.ModelChoiceField(queryset=ProductStatus.objects.all(), widget=forms.Select(attrs={'class': 'form-control'}))
 
+
 class CustomUserCreationForm(UserCreationForm):
     class Meta:
         model = User
@@ -158,6 +161,7 @@ class CustomUserCreationForm(UserCreationForm):
             'is_superuser': forms.CheckboxInput(attrs={'class': 'form-check-input'})
         }
 
+
 class UserPasswordChangeForm(PasswordChangeForm):
     old_password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={
         'class': 'form-control',
@@ -171,6 +175,7 @@ class UserPasswordChangeForm(PasswordChangeForm):
         'class': 'form-control',
         "placeholder": "Confirm New Password"
     }), label="Confirm New Password")
+
 
 class RegistrationForm(UserCreationForm):
   password1 = forms.CharField(
@@ -197,6 +202,7 @@ class RegistrationForm(UserCreationForm):
       })
     }
 
+
 class LoginForm(AuthenticationForm):
   username = UsernameField(widget=forms.TextInput(attrs={"class": "form-control", "placeholder": "Your email"}))
   password = forms.CharField(
@@ -205,11 +211,13 @@ class LoginForm(AuthenticationForm):
       widget=forms.PasswordInput(attrs={"class": "form-control", "placeholder": "Your password"}),
   )
 
+
 class UserPasswordResetForm(PasswordResetForm):
     email = forms.EmailField(widget=forms.EmailInput(attrs={
         'class': 'form-control',
         "placeholder": "Email address",
     }))
+
 
 class UserSetPasswordForm(SetPasswordForm):
     new_password1 = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={
@@ -221,6 +229,7 @@ class UserSetPasswordForm(SetPasswordForm):
         "placeholder": "Confirm New Password"
     }), label="Confirm New Password")
 
+
 class CustomerForm(forms.ModelForm):
     class Meta:
         model = Customer
@@ -228,7 +237,7 @@ class CustomerForm(forms.ModelForm):
         widgets = {
             'number': forms.TextInput(attrs={'class': 'form-control'}),
             'name': forms.TextInput(attrs={'class': 'form-control'}),
-            'currency': forms.TextInput(attrs={'class': 'form-control'}),
+            'currency': forms.Select(attrs={'class': 'form-select'}),
             'vat': forms.TextInput(attrs={'class': 'form-control'}),
             'email': forms.TextInput(attrs={'class': 'form-control'}),
             'approved_by_old': forms.TextInput(attrs={'class': 'form-control'}),
@@ -247,12 +256,6 @@ class CustomerForm(forms.ModelForm):
             'customer_service_rep': forms.Select(attrs={'class': 'form-select'}),
         }
 
-def get_generic_model_form(model_class):
-    class GenericModelForm(forms.ModelForm):
-        class Meta:
-            model = model_class
-            fields = '__all__'
-    return GenericModelForm
 
 class ProductForm(forms.ModelForm):
     class Meta:

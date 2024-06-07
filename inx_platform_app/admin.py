@@ -117,7 +117,7 @@ class ProductAdmin(admin.ModelAdmin):
 
 
 class CustomerAdmin(admin.ModelAdmin):
-    list_display = ['id', 'number', 'name', 'get_countrycode']
+    list_display = ['id', 'number', 'name', 'get_countrycode', 'get_currency_alpha_3']
     search_fields = ['name']
 
     def get_countrycode(self, obj):
@@ -127,7 +127,15 @@ class CustomerAdmin(admin.ModelAdmin):
             value_to_return = 'N/A'
         return value_to_return
     
+    def get_currency_alpha_3(self, obj):
+        if obj.currency:
+            return_value = obj.currency.alpha_3
+        else:
+            return_value = "N/A"
+        return return_value
+    
     get_countrycode.short_description = 'country'
+    get_currency_alpha_3.short_description = "currency"
 
 
 class RateToLTAdmin(admin.ModelAdmin):
@@ -266,8 +274,6 @@ class UploadedFileAdmin(admin.ModelAdmin):
     list_display=['id', 'created_at', 'process_status', 'owner', 'file_type', 'file_name', 'file_color']
 
 
-
-
 class UploadedFileLogAdmin(admin.ModelAdmin):
     class Meta:
         ordering = ['-date']
@@ -281,6 +287,10 @@ class UploadedFileLogAdmin(admin.ModelAdmin):
     
     get_user_email.short_description = 'User email'
 
+
+class CurrencyAdmin(admin.ModelAdmin):
+    list_display = ['id', 'name', 'alpha_3', 'symbol']
+    ordering = ['name']
 
 admin.site.register(ColorGroup, ColorGroupAdmin)
 admin.site.register(Color, ColorAdmin)
@@ -325,4 +335,5 @@ admin.site.register(Contact, ContactAdmin)
 admin.site.register(Fert, FertAdmin)
 admin.site.register(BudgetForecastDetail, BudgetForecastDetailAdmin)
 admin.site.register(BudgetForecastDetail_sales, BudgetForecastDetail_salesAdmin)
+admin.site.register(Currency, CurrencyAdmin)
 

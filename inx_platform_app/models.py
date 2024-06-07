@@ -97,6 +97,19 @@ class User(AbstractBaseUser, PermissionsMixin):
 # -----------------------------------------------------
 # Models with no Foreign Keys
 # -----------------------------------------------------
+class Currency(models.Model):
+
+    class Meta:
+        verbose_name_plural = "Currencies"
+
+    name = models.CharField(max_length=30)
+    alpha_3 = models.CharField(max_length=3)
+    symbol = models.CharField(max_length=2)
+    svg_symbol = models.TextField(null=True)
+    
+    def __str__(self):
+        return self.alpha_3
+
 
 class ProductLine(models.Model):
     name = models.CharField(max_length=50, blank=True)
@@ -223,7 +236,7 @@ class UnitOfMeasure(models.Model):
 
 
 class ExchangeRate(models.Model):
-    currency = models.CharField(max_length=3)
+    currency = models.CharField(max_length=3, null=True)
     year = models.IntegerField()
     rate = models.FloatField()
     sqlapp_id = models.IntegerField(default=0, null=True)
@@ -904,7 +917,8 @@ class Customer(models.Model):
 
     number = models.CharField(max_length=100)
     name = models.CharField(max_length=255)
-    currency = models.CharField(max_length=10, null=True, blank=True)
+    currency_text = models.CharField(max_length=10, null=True, blank=True)
+    currency = models.ForeignKey(Currency, on_delete=models.PROTECT, null=True, blank=True)
     active = models.BooleanField(default=False, null=True)
     insurance = models.BooleanField(default=False, null=True)
     insurance_value = models.IntegerField(null=True, blank=True, default=0)
