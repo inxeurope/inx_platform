@@ -6,6 +6,7 @@ import numpy as np
 import django
 from django.apps import apps
 from django.db import models, transaction
+from django.db.models import Count
 from django.core.validators import RegexValidator
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, UserManager
@@ -980,6 +981,12 @@ class BudForLine(models.Model):
     def get_customer_lines(self, customer_id):
         return self.objects.filter(customer_id=customer_id).select_related('customer', 'brand', 'color_group').order_by('brand__name')
 
+    @classmethod
+    def get_customer_brands(self, customer_id):
+        # Use annotate to group by brand and get distinct brand ids
+        brand_ids = self.objects.filter(customer_id=customer_id).values('brand').annotate(count=Count('brand')).values_list('brand', flat=True)
+        # Fetch the actual brand objects
+        return Brand.objects.filter(id__in=brand_ids).order_by('name')
 
 class BudForNote(models.Model):
     note = models.CharField(max_length=255)

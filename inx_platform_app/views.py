@@ -81,11 +81,12 @@ def forecast(request, customer_id=None, brand_colorgroup_id=None):
         2. Preparare i dati del 2023
         '''
         separator = '+-' * 40
-        # Extract triplets
-        triplets = BudForLine.get_customer_lines(customer_id)
-        print('TRIPLETS', separator)
-        for t in triplets:
-            print(t.id, t.customer.name, t.brand.name, t.color_group.name)
+        # Extract list_of_brands_per_customer
+        list_of_brands_of_customer = BudForLine.get_customer_brands(customer_id)
+        pprint.pprint(list_of_brands_of_customer)
+        print('LIST OF BRANDS PER CUSTOMER', separator)
+        for b in list_of_brands_of_customer:
+            print(b.id, b.customer.name, b.brand.name, b.color_group.name)
         print(separator)
 
         # Get sales of previous year of specific customer
@@ -105,6 +106,7 @@ def forecast(request, customer_id=None, brand_colorgroup_id=None):
             total_volume=Sum('volume'),
             total_value=Sum('value')
         )
+        logger.info("last_year_sals queryset was extracted")
         
         # print('PREVIOUS YEAR SALES', separator)
         # for r in last_year_sales:
@@ -126,6 +128,7 @@ def forecast(request, customer_id=None, brand_colorgroup_id=None):
             total_volume=Sum('volume'),
             total_value=Sum('value')
         )
+        logger.info("ytd_sales queryset was extracted")
 
         # print('YTD SALES', separator)
         # for r in ytd_sales:
@@ -134,30 +137,41 @@ def forecast(request, customer_id=None, brand_colorgroup_id=None):
 
         '''
         Example of the dictionary of dictionaries
-        {
-        POPFlex: {
+        sales_data: {
+        'POPFlex': {
                 last_year: {
                     1: {'volume': 0, 'price': 0, 'value': 0},
                     2: {'volume': 10, 'price': 10, 'value': 100}
                     .
                     .
+                    'brand_total': {'volume': 10, 'price': 10, 'value': 100}
 
                 } ,
                 ytd: {
                     1: {'volume': 0, 'price': 0, 'value': 0},
                     2: {'volume': 0, 'price': 0, 'value': 0}
+                    .
+                    .
+                    'brand_total': {'volume': 10, 'price': 10, 'value': 100}
                 }
             }
         }
         '''
         sales_data = {}
-        # Loop trhgouh triplets
-        for line in triplets:
-            brand_name = line.brand.name
-
+        logger.info("Start filling dictionary of dictionaries sales_data")
+        logger.info(f"Getting all triplets od customer {customer.name}")
+        # Loop trhgouh list_of_brands_per_customer
+        for line in list_of_brands_of_customer:
+            brand_name = line.name
+            logger.info(f"Working on brand: {brand_name}")
             # If brand is not in the dictionary yet, add it and prepare empty buckets
             if brand_name not in sales_data:
-                sales_data[brand_name] = {'last_year': {}, 'ytd': {}}
+                logger.info(f"Brand {brand_name} was not in the sales_data dict, adding with last_year and ytd empty dict")
+                sales_data[brand_name] = {
+                    'last_year': {},
+                    'ytd': {}
+                    }
+                logger.info(f"Adding {brand_name} brand_total empty buckets")
                 sales_data[brand_name]['last_year'] = {'brand_total': {'value': 0, 'volume': 0, 'price': 0}}
                 sales_data[brand_name]['ytd'] = {'brand_total': {'value': 0, 'volume': 0, 'price': 0}}
             
@@ -167,7 +181,7 @@ def forecast(request, customer_id=None, brand_colorgroup_id=None):
             ytd_data = [entry for entry in ytd_sales if entry['budforline__brand__name'] == brand_name]
 
             # Now fixing price and total_value / total_volume
-            for entry in last_year_data:
+            for entry in last_year_data: # Qui arrivo con già dei valori ma non va bene, dovrei già avere i brand totals
                 month = entry['month']
                 volume = entry['total_volume']
                 value = entry['total_value']
@@ -177,17 +191,13 @@ def forecast(request, customer_id=None, brand_colorgroup_id=None):
                     'price': price,
                     'value': value
                 }
+                # Calculation of brand totals
                 sales_data[brand_name]['last_year']['brand_total']['volume'] += volume
                 sales_data[brand_name]['last_year']['brand_total']['value'] += value
             if sales_data[brand_name]['last_year']['brand_total']['volume'] == 0:
                 sales_data[brand_name]['last_year']['brand_total']['price'] = 0
             else:
                 sales_data[brand_name]['last_year']['brand_total']['price'] = sales_data[brand_name]['last_year']['brand_total']['value']/sales_data[brand_name]['last_year']['brand_total']['volume']
-
-            # Removing line if all 3 total values are zero
-            # vo = sales_data[brand_name]['last_year']['brand_total']['volume']
-            # va = sales_data[brand_name]['last_year']['brand_total']['value']
-            # if vo == 0 and va == 0: del sales_data[brand_name]['last_year']
 
             for entry in ytd_data:
                 month = entry['month']
@@ -199,23 +209,14 @@ def forecast(request, customer_id=None, brand_colorgroup_id=None):
                     'price': price,
                     'value': value
                 }
+                #Calculation of brand totals
                 sales_data[brand_name]['ytd']['brand_total']['volume'] += volume
                 sales_data[brand_name]['ytd']['brand_total']['value'] += value
             if sales_data[brand_name]['ytd']['brand_total']['volume'] == 0:
                 sales_data[brand_name]['ytd']['brand_total']['price'] = 0
             else:
                 sales_data[brand_name]['ytd']['brand_total']['price'] = sales_data[brand_name]['ytd']['brand_total']['value']/sales_data[brand_name]['ytd']['brand_total']['volume']
-            
-            # Filter out brands with all zero volumes and values
-            filtered_sales_data = {}
-            # for brand, data in sales_data.items():
-            #     last_year_non_zero = any(entry['volume'] != 0 or entry['value'] != 0 for entry in data['last_year'].values())
-            #     print(f"{brand} - last_year_non_zero: {last_year_non_zero}")
-            #     ytd_non_zero = any(entry['volume'] != 0 or entry['value'] != 0 for entry in data['ytd'].values())
-            #     print(f"{brand} - last_year_non_zero: {ytd_non_zero}")
-            #     if last_year_non_zero or ytd_non_zero:
-            #         filtered_sales_data[brand] = data
-            # sales_data = filtered_sales_data
+
         pprint.pprint(sales_data)
 
 
@@ -257,7 +258,7 @@ def forecast(request, customer_id=None, brand_colorgroup_id=None):
         pprint.pprint("TOTALS")
         pprint.pprint(totals)
 
-        # Removing brands that are all zeros
+        # Removing brands with brand totals that are all zeros
         brands_to_remove = []
         for brand, data in sales_data.items():
             logger.info(f"Working on totals of {brand}")
@@ -271,11 +272,13 @@ def forecast(request, customer_id=None, brand_colorgroup_id=None):
                 logger.info(f"Removing: {brand}['ytd']")
             if not data.get('last_year') and not data.get('ytd'):
                 brands_to_remove.append(brand)
-                logger.info(f"Removed brand {brand}")
+                logger.info(f"Brand {brand} listed for further removal")
         # pprint.pprint(sales_data)
         print('*'*90)
+        logger.info("Removing brands with no data")
         pprint.pprint(brands_to_remove)
         for b in brands_to_remove:
+            logger.info(f"Brand: {b}")
             del sales_data[b]
         print('*'*90)
         pprint.pprint(sales_data)
