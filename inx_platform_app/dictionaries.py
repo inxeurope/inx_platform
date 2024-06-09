@@ -689,7 +689,7 @@ tables_list = [
     
     ("_BudFor", 'ID', models.BudForLine, mapping_BudFor),
     ("_BudForDetails", "ID", models.BudForDetailLine, mapping_BudForDetails),
-    ("_BudForDetails", "ID", models.BudgetForecastDetail, mapping_BudForDetails),
+    ("BudgetForecastDetails", "ID", models.BudgetForecastDetail, mapping_BudForDetails),
 
     ("Sales.KE24", None, models.Ke24Line, mapping_Ke24Line),
     ("Sales.ZAQCODMI9", None, models.ZAQCODMI9_line, mapping_ZACODMI9_line),

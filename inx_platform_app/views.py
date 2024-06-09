@@ -36,6 +36,7 @@ import pprint
 def index(request):
     return render(request, "app_pages/index.html", {})
 
+
 def forecast(request, customer_id=None, brand_colorgroup_id=None):
     
     months = {
@@ -492,7 +493,7 @@ def import_single_table(request):
             messages.success(request, f"Import done on {table_name}")
         if submit_action == 'Clean':
             clean_the_table(filtered_tuple)
-            messages.success(request, f"Clean done on {table_name}")
+            messages.success(request, f"Clean done on {filtered_tuple[0][2]}")
         return render(request, "app_pages/import_single_table.html", context)
     else:
         return render(request, "app_pages/import_single_table.html", context)
@@ -512,13 +513,15 @@ def import_from_SQL(table_tuples):
    
     connection_string = f"DRIVER={driver};SERVER={host};DATABASE={database};UID={username};PWD={password};TrustServerCertificate=yes;Connection Timeout=30;"
     # print(connection_string)
-    try:        
+    try:
         conn = pyodbc.connect(connection_string)
         cursor = conn.cursor()
     except Exception as e:
         print(f"Connection Error: {str(e)}")
     # Working to import
     for table_name, field_name, model_class, mapping in table_tuples:
+        if table_name == 'BudgetForecastDetails':
+            table_name = '_BudForDetails'
         # Query to get all records of the table
         if table_name == '_BudForDetails':
             query = f"SELECT * FROM {table_name} WHERE ScenarioID <> 6"
@@ -720,6 +723,9 @@ def import_from_SQL(table_tuples):
                         print()                 
                 except Exception as e:
                     print(e)
+                    filename = f"error_{chunk_index}of{num_chunks}.xlsx"
+                    file_path = f"{settings.MEDIA_ROOT}/{filename}"
+                    chunk_df.to_excel(file_path, index=False)
     conn.close() 
 
 
@@ -753,6 +759,12 @@ def clean_the_table(tuple_list):
     # Take the name of the model from the tuple passed as argument
     model_to_clean = tuple_list[0][2]
     model_to_clean.objects.all().delete()
+    table_name = model_to_clean._meta.db_table
+
+    with connection.cursor() as cursor:
+        cursor.execute(f"DBCC CHECKIDENT ({table_name}, RESEED, 0)")    
+    
+    print(f"Deleted all fom {model_to_clean}")
 
 @login_required
 def clean_db(request):
