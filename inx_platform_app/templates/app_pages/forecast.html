@@ -188,19 +188,22 @@
                       {% endfor %}
                       <!-- Totals row -->
                         <tr>
-                          <td class="text-end fw-bold align-top bg-red-lt">Total</td>
+                          <td class="text-end fw-bold align-top bg-red-lt">Total</td> 
                           <td class="text-center align-top bg-red-lt"> {{ customer.currency.symbol }} <br> L <br> {{ customer.currency.symbol }}/L </td>
                           {% for month_key in months.keys %}
                               <td class="align-top bg-red-lt" style="text-align: right; width: 8%">
-                                  {{ totals.ytd|get_item:month_key|get_item:"value"|intcomma }}<br>
+                                {{ totals.ytd|get_month_total:month_key|get_month_total:"value"|intcomma }}<br>
+                                {{ totals.ytd|get_month_total:month_key|get_month_total:"volume"|intcomma }}<br>
+                                <span class="fw-light">{{ totals.ytd|get_month_total:month_key|get_month_total:"price"|floatformat:2 }}</span>
+                                  {% comment %} {{ totals.ytd|get_item:month_key|get_item:"value"|intcomma }}<br>
                                   {{ totals.ytd|get_item:month_key|get_item:"volume"|intcomma }}<br>
-                                  <span class="fw-light">{{ totals.ytd|get_item:month_key|get_item:"price"|floatformat:2 }}</span>
+                                  <span class="fw-light">{{ totals.ytd|get_item:month_key|get_item:"price"|floatformat:2 }}</span> {% endcomment %}
                               </td>
                           {% endfor %}
                           <td class="text-end align-top fw-bold bg-red-lt" style="text-align: right; width: 8%">
-                              {{ totals.py_grand_totals|get_item:"value"|intcomma }}<br>
-                              {{ totals.py_grand_totals|get_item:"volume"|intcomma }}<br>
-                              <span class="fw-lighter">{{ totals.py_grand_totals|get_item:"price"|floatformat:2 }}</span>
+                              {{ totals.ytd_grand_totals|get_grand_total:"value"|intcomma }}<br>
+                              {{ totals.ytd_grand_totals|get_grand_total:"volume"|intcomma }}<br>
+                              <span class="fw-lighter">{{ totals.ytd_grand_totals|get_grand_total:"price"|floatformat:2 }}</span>
                           </td>
                       </tr>
                     </tbody>

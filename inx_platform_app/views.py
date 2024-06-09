@@ -83,11 +83,9 @@ def forecast(request, customer_id=None, brand_colorgroup_id=None):
         separator = '+-' * 40
         # Extract list_of_brands_per_customer
         list_of_brands_of_customer = BudForLine.get_customer_brands(customer_id)
-        pprint.pprint(list_of_brands_of_customer)
-        print('LIST OF BRANDS PER CUSTOMER', separator)
-        for b in list_of_brands_of_customer:
-            print(b.id, b.customer.name, b.brand.name, b.color_group.name)
-        print(separator)
+        for c, b in list_of_brands_of_customer:
+            logger.info(f"{c.name} {b.name}")
+            
 
         # Get sales of previous year of specific customer
         # All brands and color group.
@@ -161,8 +159,8 @@ def forecast(request, customer_id=None, brand_colorgroup_id=None):
         logger.info("Start filling dictionary of dictionaries sales_data")
         logger.info(f"Getting all triplets od customer {customer.name}")
         # Loop trhgouh list_of_brands_per_customer
-        for line in list_of_brands_of_customer:
-            brand_name = line.name
+        for the_customer, the_brand in list_of_brands_of_customer:
+            brand_name = the_brand.name
             logger.info(f"Working on brand: {brand_name}")
             # If brand is not in the dictionary yet, add it and prepare empty buckets
             if brand_name not in sales_data:
@@ -228,18 +226,22 @@ def forecast(request, customer_id=None, brand_colorgroup_id=None):
             'ytd_grand_totals': {'volume':0, 'value': 0, 'price':0}
             }
         for month_key in months.keys():
-            #Making sure month is an integer
+            # Making sure month is an integer
             month_key = int(month_key)
+            # Calculating last year value and volume totals
             totals['last_year'][month_key] = {
                 'volume': sum(sales_data[brand]['last_year'].get(month_key, {}).get('volume', 0) for brand in sales_data),
                 'value': sum(sales_data[brand]['last_year'].get(month_key, {}).get('value', 0) for brand in sales_data),
             }
+            # Calculating last_year price total of the month (columns)
             totals['last_year'][month_key]['price'] = totals['last_year'][month_key]['value']/totals['last_year'][month_key]['volume'] if totals['last_year'][month_key]['volume'] != 0 else 0
             
+            # Calculating ytd value and volume totals
             totals['ytd'][month_key] = {
                 'volume': sum(sales_data[brand]['ytd'].get(month_key, {}).get('volume', 0) for brand in sales_data),
                 'value': sum(sales_data[brand]['ytd'].get(month_key, {}).get('value', 0) for brand in sales_data),
             }
+            # Calculating ytd price totals of the month (columns)
             totals['ytd'][month_key]['price'] = totals['ytd'][month_key]['value']/totals['ytd'][month_key]['volume'] if totals['ytd'][month_key]['volume'] != 0 else 0
             
             # Taking care of the totals of those months that still have to come
@@ -254,9 +256,6 @@ def forecast(request, customer_id=None, brand_colorgroup_id=None):
             totals['ytd_grand_totals']['value'] += totals['ytd'][month_key]['value']
         totals['ly_grand_totals']['price'] = totals['ly_grand_totals']['value']/totals['ly_grand_totals']['volume'] if totals['ly_grand_totals']['volume'] != 0 else 0
         totals['ytd_grand_totals']['price'] = totals['ytd_grand_totals']['value']/totals['ytd_grand_totals']['volume'] if totals['ytd_grand_totals']['volume'] != 0 else 0
-        print()
-        pprint.pprint("TOTALS")
-        pprint.pprint(totals)
 
         # Removing brands with brand totals that are all zeros
         brands_to_remove = []
@@ -276,18 +275,23 @@ def forecast(request, customer_id=None, brand_colorgroup_id=None):
         # pprint.pprint(sales_data)
         print('*'*90)
         logger.info("Removing brands with no data")
-        pprint.pprint(brands_to_remove)
         for b in brands_to_remove:
             logger.info(f"Brand: {b}")
             del sales_data[b]
-        print('*'*90)
+        pprint.pprint('*'*90)
+        pprint.pprint('SALES_DATA')
+        pprint.pprint('*'*90)
         pprint.pprint(sales_data)
+        pprint.pprint('*'*90)
+        pprint.pprint("TOTALS")
+        pprint.pprint('*'*90)
+        pprint.pprint(totals)
         
     
     
     context = {
         'customer': customer,
-        'triplets': triplets,
+        'brands_of_customer': list_of_brands_of_customer,
         'sales_data': sales_data,
         'current_year': current_year,
         'previous_year': previous_year,

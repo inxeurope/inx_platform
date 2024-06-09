@@ -981,12 +981,17 @@ class BudForLine(models.Model):
     def get_customer_lines(self, customer_id):
         return self.objects.filter(customer_id=customer_id).select_related('customer', 'brand', 'color_group').order_by('brand__name')
 
+
     @classmethod
     def get_customer_brands(self, customer_id):
-        # Use annotate to group by brand and get distinct brand ids
-        brand_ids = self.objects.filter(customer_id=customer_id).values('brand').annotate(count=Count('brand')).values_list('brand', flat=True)
-        # Fetch the actual brand objects
-        return Brand.objects.filter(id__in=brand_ids).order_by('name')
+        # Use distinct to get unique customer-brand pairs
+        customer_brand = self.objects.filter(customer_id=customer_id).values('customer_id', 'brand_id').distinct()
+        result = []
+        for cb in customer_brand:
+            customer = Customer.objects.get(id=cb['customer_id'])
+            brand = Brand.objects.get(id=cb['brand_id'])
+            result.append((customer, brand))
+        return result
 
 class BudForNote(models.Model):
     note = models.CharField(max_length=255)
