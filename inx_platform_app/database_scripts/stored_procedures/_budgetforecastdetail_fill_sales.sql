@@ -48,7 +48,7 @@ BEGIN
             FROM
                 [04_view_budforsales_temporary] AS v
             INNER JOIN
-                dbo.inx_platform_app_budforline AS bl ON
+                inx_platform_app_budforline AS bl ON
                 v.brand_id = bl.brand_id AND
                 v.colorgroup_id = bl.color_group_id AND
                 v._view_customers_id = bl.customer_id

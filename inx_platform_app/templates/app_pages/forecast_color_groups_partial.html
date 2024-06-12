@@ -1,0 +1,12 @@
+<!-- app_pages/forecast_color_groups_partial.html -->
+<div class="form-selectgroup">
+    {% for color_group in color_groups %}
+      <label class="form-selectgroup-item">
+        <input type="radio" name="budforline_id" value="{{ color_group.color_group__id }}" class="form-selectgroup-input" />
+        <span class="form-selectgroup-label">
+          {{ color_group.color_group__name }} {{ color_group.id }}
+        </span>
+      </label>
+    {% endfor %}
+  </div>
+  

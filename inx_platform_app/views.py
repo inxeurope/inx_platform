@@ -67,27 +67,39 @@ def forecast(request, customer_id=None, brand_colorgroup_id=None):
 
     if request.htmx:
         print("This is an htmx request!")
-        '''
-        Estrarre i dati vendita di quest'anno
-        Estrarre i dati di forecast
-        Predisporre nel formato giusto
-        rendere il partial
-        '''
+        if 'brand_id' in request.GET:
+            brand_id = request.GET.get('brand_id')
+            print(f"brand_id: {brand_id}")
+            color_groups = BudForLine.objects.filter(customer_id=customer_id, brand_id=brand_id).select_related('color_group').values('id', 'color_group__id', 'color_group__name')
+            return render(request, 'app_pages/forecast_color_groups_partial.html', {'color_groups': color_groups})
+        elif 'budforline_id' in request.GET:
+            budforline_id = request.GET.get('budforline_id')
+            forecast = BudgetForecastDetail.objects.filter(
+                budforline__customer_id = customer_id,
+                year = forecast_year,
+                month__gt = current_month,
+                scenario__is_forecast = True
+            ).select_related(
+                'budforline',
+                'scenario'
+            ).values(
+                'budforline__brand__name',
+                'year',
+                'month'
+            ).annotate(
+                total_volume=Sum('volume'),
+                total_value=Sum('value')
+            )
         
 
     else:
         print("This is a REGULAR request")
-        '''
-        1. Estrarre le triplets
-        2. Preparare i dati del 2023
-        '''
-        separator = '+-' * 40
+
         # Extract list_of_brands_per_customer
         list_of_brands_of_customer = BudForLine.get_customer_brands(customer_id)
         for c, b in list_of_brands_of_customer:
             logger.info(f"{c.name} {b.name}")
             
-
         # Get sales of previous year of specific customer
         # All brands and color group.
         # Calculation of total volume and value per customer-brand
@@ -115,7 +127,7 @@ def forecast(request, customer_id=None, brand_colorgroup_id=None):
         ytd_sales = BudgetForecastDetail_sales.objects.filter(
             budforline__customer_id = customer_id,
             year = current_year,
-            month__lt = current_month
+            month__lte = current_month
         ).select_related(
             'budforline',
             'scenario'
@@ -133,6 +145,29 @@ def forecast(request, customer_id=None, brand_colorgroup_id=None):
         # for r in ytd_sales:
         #     print(customer.name, r['budforline__brand__name'], r['year'], r['month'], r['total_volume'], r['total_value'])
         # print(separator)
+
+        forecast = BudgetForecastDetail.objects.filter(
+            budforline__customer_id = customer_id,
+            year = forecast_year,
+            month__gt = current_month,
+            scenario__is_forecast = True
+        ).select_related(
+            'budforline',
+            'scenario'
+        ).values(
+            'budforline__brand__name',
+            'year',
+            'month'
+        ).annotate(
+            total_volume=Sum('volume'),
+            total_value=Sum('value')
+        )
+        logger.info("forecast was extracted")
+        print('FORECAST', '-+'*40)
+        for r in forecast:
+            print(customer.name, r['budforline__brand__name'], r['year'], r['month'], r['total_volume'], r['total_value'])
+        print('-+'*40)
+
 
         '''
         Example of the dictionary of dictionaries
@@ -156,9 +191,11 @@ def forecast(request, customer_id=None, brand_colorgroup_id=None):
             }
         }
         '''
+        # Preparing the data container
         sales_data = {}
+
         logger.info("Start filling dictionary of dictionaries sales_data")
-        logger.info(f"Getting all triplets od customer {customer.name}")
+        logger.info(f"Getting all brands of customer {customer.name}")
         # Loop trhgouh list_of_brands_per_customer
         for the_customer, the_brand in list_of_brands_of_customer:
             brand_name = the_brand.name
@@ -178,9 +215,10 @@ def forecast(request, customer_id=None, brand_colorgroup_id=None):
             # we are filtering and taking only the brand currently in consideration in the loop
             last_year_data = [entry for entry in last_year_sales if entry['budforline__brand__name'] == brand_name]
             ytd_data = [entry for entry in ytd_sales if entry['budforline__brand__name'] == brand_name]
+            forecast_data = [entry for entry in forecast if entry['budforline__brand__name'] == brand_name]
 
-            # Now fixing price and total_value / total_volume
-            for entry in last_year_data: # Qui arrivo con già dei valori ma non va bene, dovrei già avere i brand totals
+            # working on last_year data
+            for entry in last_year_data: 
                 month = entry['month']
                 volume = entry['total_volume']
                 value = entry['total_value']
@@ -190,7 +228,7 @@ def forecast(request, customer_id=None, brand_colorgroup_id=None):
                     'price': price,
                     'value': value
                 }
-                # Calculation of brand totals
+                # Calculation of brand totals for last_year
                 sales_data[brand_name]['last_year']['brand_total']['volume'] += volume
                 sales_data[brand_name]['last_year']['brand_total']['value'] += value
             if sales_data[brand_name]['last_year']['brand_total']['volume'] == 0:
@@ -198,6 +236,7 @@ def forecast(request, customer_id=None, brand_colorgroup_id=None):
             else:
                 sales_data[brand_name]['last_year']['brand_total']['price'] = sales_data[brand_name]['last_year']['brand_total']['value']/sales_data[brand_name]['last_year']['brand_total']['volume']
 
+            # working on ytd data
             for entry in ytd_data:
                 month = entry['month']
                 volume = entry['total_volume']
@@ -208,7 +247,28 @@ def forecast(request, customer_id=None, brand_colorgroup_id=None):
                     'price': price,
                     'value': value
                 }
-                #Calculation of brand totals
+                #Calculation of brand totals for ytd
+                sales_data[brand_name]['ytd']['brand_total']['volume'] += volume
+                sales_data[brand_name]['ytd']['brand_total']['value'] += value
+            if sales_data[brand_name]['ytd']['brand_total']['volume'] == 0:
+                sales_data[brand_name]['ytd']['brand_total']['price'] = 0
+            else:
+                sales_data[brand_name]['ytd']['brand_total']['price'] = sales_data[brand_name]['ytd']['brand_total']['value']/sales_data[brand_name]['ytd']['brand_total']['volume']
+
+            # working on forecast data
+            for entry in forecast_data:
+                month = entry['month']
+                volume = entry['total_volume']
+                value = entry['total_value']
+                price = round(value / volume, 2) if volume != 0 else 0
+                print(f"FCST - {customer.name} - {brand_name} - year {forecast_year} month {month} vol {volume} - val {value}")
+                # Months are in the future
+                sales_data[brand_name]['ytd'][month] = {
+                    'volume': volume,
+                    'price': price,
+                    'value': value
+                }
+                #Calculation of brand totals for ytd
                 sales_data[brand_name]['ytd']['brand_total']['volume'] += volume
                 sales_data[brand_name]['ytd']['brand_total']['value'] += value
             if sales_data[brand_name]['ytd']['brand_total']['volume'] == 0:
@@ -247,9 +307,11 @@ def forecast(request, customer_id=None, brand_colorgroup_id=None):
             
             # Taking care of the totals of those months that still have to come
             if month_key >= current_month:
-                totals['ytd'][month_key]['value'] = 0
-                totals['ytd'][month_key]['volume'] = 0
-                totals['ytd'][month_key]['price'] = 0
+                # We inserted forecast, we shold have data
+                # totals['ytd'][month_key]['value'] = 0
+                # totals['ytd'][month_key]['volume'] = 0
+                # totals['ytd'][month_key]['price'] = 0
+                pass
 
             totals['ly_grand_totals']['volume'] += totals['last_year'][month_key]['volume']
             totals['ly_grand_totals']['value'] += totals['last_year'][month_key]['value']
@@ -289,12 +351,13 @@ def forecast(request, customer_id=None, brand_colorgroup_id=None):
         pprint.pprint(totals)
         
     
-    
+    print(type(list_of_brands_of_customer))
     context = {
         'customer': customer,
         'brands_of_customer': list_of_brands_of_customer,
         'sales_data': sales_data,
         'current_year': current_year,
+        'current_month': current_month,
         'previous_year': previous_year,
         'months': months,
         'totals': totals

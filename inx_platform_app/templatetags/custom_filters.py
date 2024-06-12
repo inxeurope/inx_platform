@@ -75,3 +75,6 @@ def get_grand_total(dictionary, key):
     returned_v = dictionary.get(key)
     return returned_v
     
+@register.filter
+def transform_int(value):
+    return int(value)

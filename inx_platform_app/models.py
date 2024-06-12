@@ -993,6 +993,7 @@ class BudForLine(models.Model):
             result.append((customer, brand))
         return result
 
+
 class BudForNote(models.Model):
     note = models.CharField(max_length=255)
     note_date = models.DateTimeField(auto_now=True)
