@@ -4,7 +4,7 @@ from django.db.models import Sum, Avg, Case, DecimalField, ExpressionWrapper, Wh
 from django.db import connection
 from django.urls import reverse_lazy, reverse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse, StreamingHttpResponse, HttpResponseRedirect, HttpResponseBadRequest, QueryDict
+from django.http import JsonResponse, StreamingHttpResponse, HttpResponseRedirect, HttpResponseBadRequest, HttpResponse
 from django.conf import settings
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
@@ -67,14 +67,18 @@ def forecast(request, customer_id=None, brand_colorgroup_id=None):
 
     if request.htmx:
         print("This is an htmx request!")
-        if 'brand_id' in request.GET:
+        brand_id = request.GET.get('brand_id')
+        budforline_id = request.GET.get('budforline_id')
+        print(f"brand_id: {brand_id}, budforline_id: {budforline_id}")
+        if brand_id and not budforline_id:
             brand_id = request.GET.get('brand_id')
             print(f"brand_id: {brand_id}")
-            color_groups = BudForLine.objects.filter(customer_id=customer_id, brand_id=brand_id).select_related('color_group').values('id', 'color_group__id', 'color_group__name')
-            return render(request, 'app_pages/forecast_color_groups_partial.html', {'color_groups': color_groups})
-        elif 'budforline_id' in request.GET:
-            budforline_id = request.GET.get('budforline_id')
-            forecast = BudgetForecastDetail.objects.filter(
+            budforline_colorgroups = BudForLine.objects.filter(customer_id=customer_id, brand_id=brand_id).select_related('color_group').values('id', 'color_group__id', 'color_group__name')
+            return render(request, 'app_pages/forecast_color_groups_partial.html', {'budforline_colorgroups': budforline_colorgroups, 'customer': customer})
+        elif budforline_id:
+            print(f"You clicked a brand-colorgroup with id: {budforline_id}")
+            forecast_data = BudgetForecastDetail.objects.filter(
+                budforline_id = budforline_id,
                 budforline__customer_id = customer_id,
                 year = forecast_year,
                 month__gt = current_month,
@@ -84,13 +88,30 @@ def forecast(request, customer_id=None, brand_colorgroup_id=None):
                 'scenario'
             ).values(
                 'budforline__brand__name',
+                'budforline__color_group__name',
                 'year',
-                'month'
-            ).annotate(
-                total_volume=Sum('volume'),
-                total_value=Sum('value')
+                'month',
+                'volume',
+                'price',
+                'value'
             )
-        
+
+            forecast_forms = []
+            for entry in forecast_data:
+                form = ForecastForm(initial={
+                    'budforline_id': budforline_id,
+                    'month': entry['month'],
+                    'volume': entry['volume'],
+                    'price': entry['price'],
+                    'value':entry['value']
+                })
+                forecast_forms.append(form)
+
+            context = {
+                'budforline_id': budforline_id,
+                'forecast_forms': forecast_forms
+            }
+            return render(request, "app_pages/forecast_data_partial.html", context)
 
     else:
         print("This is a REGULAR request")
@@ -364,6 +385,29 @@ def forecast(request, customer_id=None, brand_colorgroup_id=None):
     }
 
     return render(request, "app_pages/forecast.html", context)
+
+
+def forecast_save(request):
+    if request.method == 'POST':
+        form = ForecastForm(request.POST)
+        if form.is_valid():
+            budforline_id = form.cleaned_data['budforline_id']
+            month = form.cleaned_data['month']
+            volume = form.cleaned_data['volume']
+            price = form.cleaned_data['price']
+            value = volume * price
+            
+            # Retrieve or create the BudgetForecastDetail object
+            forecast_detail, created = BudgetForecastDetail.objects.update_or_create(
+                budforline_id=budforline_id,
+                month=month,
+                defaults={'volume': volume, 'price': price, 'value': value}
+            )
+            
+            # Return a response or redirect as needed
+            return HttpResponse("Saved!", status=200)
+    
+    return HttpResponse("Invalid data", status=400)
 
 
 @login_required
@@ -962,7 +1006,7 @@ def start_file_processing(request, file_id):
         file = get_object_or_404(UploadedFile, id = file_id)
         yield from process_this_file(file)
         
-    response = StreamingHttpResponse(event_stream(), content_type="text/event-stream")
+    # response = StreamingHttpResponse(event_stream(), content_type="text/event-stream")
     return response
 
 

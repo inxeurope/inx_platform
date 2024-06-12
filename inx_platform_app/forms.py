@@ -301,6 +301,16 @@ class BrandForm(forms.ModelForm):
         }
 
 
-# class ProductFilterForm(forms.Form):
-#     name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control'}))
-#     number = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control'}))
+class ForecastForm(forms.Form):
+    budforline_id = forms.IntegerField(widget=forms.HiddenInput())
+    # budforline_id = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control p-1','readonly': 'readonly'}))
+    # month = forms.IntegerField(widget=forms.HiddenInput())
+    month = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control p-1', 'readonly': 'readonly'}))
+    # month_display = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control p-1','readonly': 'readonly'}))
+    volume = forms.FloatField(widget=forms.NumberInput(attrs={'class': 'form-control p-1'}))
+    price = forms.FloatField(widget=forms.NumberInput(attrs={'class': 'form-control p-1'}))
+    value = forms.FloatField(widget=forms.NumberInput(attrs={'class': 'form-control p-1', 'readonly': 'readonly'}))
+
+    class Meta:
+        model = BudgetForecastDetail
+        fields = ['budforline_id', 'month', 'volume', 'price']

@@ -216,7 +216,7 @@
           </div>
         </div>
         <div class="row">
-          <div class="col-2 mb-3 border">
+          <div class="col-2 mb-3">
             <label class="form-label">Brands and Color Groups</label>
             <div class="form-selectgroup">
               <form hx-get="{% url 'forecast-customer' customer.id %}" hx-trigger="change" hx-target="#color-groups" hx-swap="innerHTML">
@@ -232,8 +232,11 @@
               </form>
             </div>
           </div>
-          <div class="col-1 mb-3 border" id="color-groups">
+          <div class="col-1 mb-3" id="color-groups">
             <!-- Color groups will be dynamically loaded here -->
+          </div>
+          <div class="col border" id="forecast-area">
+
           </div>
         </div>        
       </div>

@@ -1,12 +1,19 @@
 <!-- app_pages/forecast_color_groups_partial.html -->
 <div class="form-selectgroup">
-    {% for color_group in color_groups %}
+  
+    {% for budforline_colorgroup in budforline_colorgroups %}
       <label class="form-selectgroup-item">
-        <input type="radio" name="budforline_id" value="{{ color_group.color_group__id }}" class="form-selectgroup-input" />
+        <input type="radio" name="budforline_id" value="{{ budforline_colorgroup.id }}" class="form-selectgroup-input" 
+            hx-get="{% url 'forecast-customer-brand-color-group' customer.id budforline_colorgroup.id %}"
+            hx-target="#forecast-area"
+            hx-swap="innerHTML" />
+        {% comment %} <input type="radio" name="budforline_id" value="{{ budforline_colorgroup.color_group__id }}" class="form-selectgroup-input" /> {% endcomment %}
         <span class="form-selectgroup-label">
-          {{ color_group.color_group__name }} {{ color_group.id }}
+          {{ budforline_colorgroup.color_group__name }}
         </span>
       </label>
     {% endfor %}
-  </div>
+
+
+</div>
   
