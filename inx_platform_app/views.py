@@ -773,6 +773,7 @@ def fetch_cg(request, customer_id, brand_id):
 def fetch_forecast(request, budforline_id):
     forecast_year = datetime.now().year
     current_month = datetime.now().month
+
     forecast_lines = BudgetForecastDetail.objects.filter(
         budforline_id = budforline_id,
         scenario__is_forecast = True,
@@ -780,7 +781,7 @@ def fetch_forecast(request, budforline_id):
         month__gt = current_month
     )
     print(f"There are {len(forecast_lines)} records with the budforline_id {budforline_id}")
-    print(forecast_lines)
+    print(forecast_lines.query)
 
     if forecast_lines:
         first_record = forecast_lines.first()
