@@ -12,3 +12,5 @@ static_files
 media_root/uploads/
 venv/
 Procfile
+.DS_Store
+**/.DS_Store
