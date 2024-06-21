@@ -779,6 +779,8 @@ def fetch_forecast(request, budforline_id):
         year = forecast_year,
         month__gt = current_month
     )
+    print(f"There are {len(forecast_lines)} records with the budforline_id {budforline_id}")
+    print(forecast_lines)
 
     if forecast_lines:
         first_record = forecast_lines.first()
