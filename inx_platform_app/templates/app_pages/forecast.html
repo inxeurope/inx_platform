@@ -221,6 +221,7 @@
             <div class="form-selectgroup">
               <form hx-get="{% url 'forecast-customer' customer.id %}" hx-trigger="change" hx-target="#color-groups" hx-swap="innerHTML">
                 {% csrf_token %}
+                <input type="hidden" name="customer_id" value="{{ customer.id }}" />
                 {% for c, b in brands_of_customer %}
                   <label class="form-selectgroup-item">
                     <input type="radio" name="brand_id" value="{{ b.id }}" class="form-selectgroup-input" />

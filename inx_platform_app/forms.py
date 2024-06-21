@@ -301,16 +301,19 @@ class BrandForm(forms.ModelForm):
         }
 
 
-class ForecastForm(forms.Form):
-    budforline_id = forms.IntegerField(widget=forms.HiddenInput())
-    # budforline_id = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control p-1','readonly': 'readonly'}))
-    # month = forms.IntegerField(widget=forms.HiddenInput())
-    month = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control p-1', 'readonly': 'readonly'}))
-    # month_display = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control p-1','readonly': 'readonly'}))
-    volume = forms.FloatField(widget=forms.NumberInput(attrs={'class': 'form-control p-1'}))
-    price = forms.FloatField(widget=forms.NumberInput(attrs={'class': 'form-control p-1'}))
-    value = forms.FloatField(widget=forms.NumberInput(attrs={'class': 'form-control p-1', 'readonly': 'readonly'}))
+class ForecastForm(forms.ModelForm):
+    id = forms.IntegerField(widget=forms.HiddenInput(), required=True)
+    budforline_id = forms.IntegerField(widget=forms.HiddenInput(), required=True)
 
     class Meta:
         model = BudgetForecastDetail
-        fields = ['budforline_id', 'month', 'volume', 'price']
+        fields = ['id', 'budforline_id', 'month', 'volume', 'price', 'value']
+        widgets = {
+            'id': forms.HiddenInput(),
+            'budforline_id': forms.HiddenInput(),
+            'budforline_id': forms.TextInput(attrs={'class': 'form-control p-1', 'readonly': 'readonly'}),
+            'month': forms.TextInput(attrs={'class': 'form-control p-1', 'readonly': 'readonly'}),
+            'volume': forms.NumberInput(attrs={'class': 'form-control p-1'}),
+            'price': forms.NumberInput(attrs={'class': 'form-control p-1'}),
+            'value': forms.NumberInput(attrs={'class': 'form-control p-1', 'readonly': 'readonly'}),
+        }

@@ -38,7 +38,8 @@
           <div class="card-header d-flex justify-content-between">
             <div><h3 class="card-title">Basic information</h3></div>
             <div>
-              <a href="{% url 'forecast-customer' customer.pk %}" class="btn btn-outline-info">Forecast</a>
+              <a href="{% url 'forecast-2' customer.pk %}" class="btn btn-outline-info">Forecast</a>
+              {% comment %} <a href="{% url 'forecast-customer' customer.pk %}" class="btn btn-outline-info">Forecast</a> {% endcomment %}
               <a href="{% url 'customer-edit' customer.pk %}" class="btn btn-outline-info">Edit</a>
             </div>
           </div>

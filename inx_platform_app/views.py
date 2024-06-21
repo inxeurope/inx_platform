@@ -57,13 +57,10 @@ def forecast(request, customer_id=None, brand_colorgroup_id=None):
     c_id = customer_id
     customer = Customer.objects.filter(id=c_id).first()
 
-    date_of_today = datetime.today().date()
     current_year = datetime.today().year
     current_month = datetime.today().month
     previous_year = current_year - 1 
     forecast_year = datetime.now().year
-    forecast_month = datetime.now().month
-    budget_year = datetime.now().year + 1
 
     if request.htmx:
         print("This is an htmx request!")
@@ -71,9 +68,10 @@ def forecast(request, customer_id=None, brand_colorgroup_id=None):
         budforline_id = request.GET.get('budforline_id')
         print(f"brand_id: {brand_id}, budforline_id: {budforline_id}")
         if brand_id and not budforline_id:
-            brand_id = request.GET.get('brand_id')
             print(f"brand_id: {brand_id}")
             budforline_colorgroups = BudForLine.objects.filter(customer_id=customer_id, brand_id=brand_id).select_related('color_group').values('id', 'color_group__id', 'color_group__name')
+            # brand_selected = get_object_or_404(Brand, pk=brand_id)
+            # print(f"Brand selected: {brand_selected.name}")
             return render(request, 'app_pages/forecast_color_groups_partial.html', {'budforline_colorgroups': budforline_colorgroups, 'customer': customer})
         elif budforline_id:
             print(f"You clicked a brand-colorgroup with id: {budforline_id}")
@@ -87,6 +85,7 @@ def forecast(request, customer_id=None, brand_colorgroup_id=None):
                 'budforline',
                 'scenario'
             ).values(
+                'id',
                 'budforline__brand__name',
                 'budforline__color_group__name',
                 'year',
@@ -94,20 +93,31 @@ def forecast(request, customer_id=None, brand_colorgroup_id=None):
                 'volume',
                 'price',
                 'value'
-            )
+            ). order_by('month')
+            
 
-            forecast_forms = []
-            for entry in forecast_data:
-                form = ForecastForm(initial={
-                    'budforline_id': budforline_id,
-                    'month': entry['month'],
-                    'volume': entry['volume'],
-                    'price': entry['price'],
-                    'value':entry['value']
-                })
-                forecast_forms.append(form)
+            if forecast_data:
+                selected_brand = forecast_data[0]['budforline__brand__name']
+                color_group = forecast_data[0]['budforline__color_group__name']
+                forecast_forms = []
+                for entry in forecast_data:
+                    form = ForecastForm(initial={
+                        'id': entry['id'],
+                        'budforline_id': budforline_id,
+                        'month': entry['month'],
+                        'volume': entry['volume'],
+                        'price': entry['price'],
+                        'value':entry['value']
+                    })
+                    forecast_forms.append(form)
+            else:
+                selected_brand = None
+                color_group = None
+                forecast_forms = None
 
             context = {
+                'brand_name': selected_brand,
+                'color_group_name': color_group,
                 'budforline_id': budforline_id,
                 'forecast_forms': forecast_forms
             }
@@ -139,11 +149,6 @@ def forecast(request, customer_id=None, brand_colorgroup_id=None):
             total_value=Sum('value')
         )
         logger.info("last_year_sals queryset was extracted")
-        
-        # print('PREVIOUS YEAR SALES', separator)
-        # for r in last_year_sales:
-        #     print(customer.name, r['budforline__brand__name'], r['year'], r['month'], r['total_volume'], r['total_value'])
-        # print(separator)
 
         ytd_sales = BudgetForecastDetail_sales.objects.filter(
             budforline__customer_id = customer_id,
@@ -161,11 +166,6 @@ def forecast(request, customer_id=None, brand_colorgroup_id=None):
             total_value=Sum('value')
         )
         logger.info("ytd_sales queryset was extracted")
-
-        # print('YTD SALES', separator)
-        # for r in ytd_sales:
-        #     print(customer.name, r['budforline__brand__name'], r['year'], r['month'], r['total_volume'], r['total_value'])
-        # print(separator)
 
         forecast = BudgetForecastDetail.objects.filter(
             budforline__customer_id = customer_id,
@@ -362,17 +362,17 @@ def forecast(request, customer_id=None, brand_colorgroup_id=None):
         for b in brands_to_remove:
             logger.info(f"Brand: {b}")
             del sales_data[b]
-        pprint.pprint('*'*90)
-        pprint.pprint('SALES_DATA')
-        pprint.pprint('*'*90)
-        pprint.pprint(sales_data)
-        pprint.pprint('*'*90)
-        pprint.pprint("TOTALS")
-        pprint.pprint('*'*90)
-        pprint.pprint(totals)
+        # pprint.pprint('*'*90)
+        # pprint.pprint('SALES_DATA')
+        # pprint.pprint('*'*90)
+        # pprint.pprint(sales_data)
+        # pprint.pprint('*'*90)
+        # pprint.pprint("TOTALS")
+        # pprint.pprint('*'*90)
+        # pprint.pprint(totals)
         
     
-    print(type(list_of_brands_of_customer))
+    # print(type(list_of_brands_of_customer))
     context = {
         'customer': customer,
         'brands_of_customer': list_of_brands_of_customer,
@@ -388,27 +388,425 @@ def forecast(request, customer_id=None, brand_colorgroup_id=None):
 
 
 def forecast_save(request):
+    forecast_year = datetime.now().year
+    forecast_month = datetime.now().month
+    forecast_scenario = get_object_or_404(Scenario, is_forecast=True)
     if request.method == 'POST':
-        form = ForecastForm(request.POST)
-        if form.is_valid():
-            budforline_id = form.cleaned_data['budforline_id']
-            month = form.cleaned_data['month']
-            volume = form.cleaned_data['volume']
-            price = form.cleaned_data['price']
-            value = volume * price
-            
-            # Retrieve or create the BudgetForecastDetail object
-            forecast_detail, created = BudgetForecastDetail.objects.update_or_create(
-                budforline_id=budforline_id,
-                month=month,
-                defaults={'volume': volume, 'price': price, 'value': value}
-            )
-            
-            # Return a response or redirect as needed
-            return HttpResponse("Saved!", status=200)
+        form_data = request.POST.copy()
+        forecast_id = form_data.get('id')
+        budforline_id = form_data.get('budforline_id', None)
+
+        if forecast_id:
+            print(f"forecast_id: {forecast_id}")
+            this_instance = get_object_or_404(BudgetForecastDetail, pk=forecast_id)
+            if this_instance:
+                if not budforline_id:
+                    budforline_id = this_instance.budforline.id
+                    form_data['budforline_id'] = budforline_id
+            f = ForecastForm(form_data, instance=this_instance)
+            f.budforline_id = budforline_id
+        else:
+            f = ForecastForm(form_data)
+
+        if f.is_valid():
+            the_forecast = f.save(commit=False)
+            the_forecast.value = the_forecast.volume * the_forecast.price
+            the_forecast.budforline_id = budforline_id
+            the_forecast.save()
+            messages.success(request, f"Forecast month {the_forecast.month} volume: {the_forecast.volume}, price: {the_forecast.price}, value: {the_forecast.value} - saved")
+            # Retrieve all related BudgetForecastDetails instances
+            forecast_instances = BudgetForecastDetail.objects.filter(
+                budforline_id=the_forecast.budforline_id,
+                year=forecast_year,
+                month__gt=forecast_month,
+                scenario_id=forecast_scenario)
+            forecast_forms = [ForecastForm(instance=forecast) for forecast in forecast_instances]
+            context = {
+                'forecast_forms': forecast_forms,
+                'brand_name': form_data.get('brand_name'),
+                'color_group_name': form_data.get('color_group_name')
+            }
+            return render(request, "app_pages/forecast_2_fcst.html", context)
+        else:
+            print("form is not valid")
+            print(f"form errors: {f.errors}")
+            return render(request, "app_pages/forecast_data_partial.html", {'form': f})
     
     return HttpResponse("Invalid data", status=400)
 
+
+def fetch_empty_forecast(request):
+    return render(request, "app_pages/forecast_2_fcst_empty_partial.html", {})
+
+def forecast_2(request, customer_id=None):
+    c_id = customer_id
+    customer = Customer.objects.filter(id=c_id).first()
+
+    if request.htmx:
+        print("HTMX request")
+    else:
+        current_year = datetime.now().year
+        forecast_year = datetime.now().year
+        current_month = datetime.now().month
+
+        print("Forecast view - standard request")
+        list_of_brands_of_customer = BudForLine.get_customer_brands(customer_id)
+
+        # Getting data of ytd and forecast
+        ytd_sales = BudgetForecastDetail_sales.objects.filter(
+            budforline__customer_id = customer_id,
+            year = current_year,
+            month__lte = current_month
+        ).select_related(
+            'budforline',
+            'scenario'
+        ).values(
+            'budforline__brand__name',
+            'year',
+            'month'
+        ).annotate(
+            total_volume=Sum('volume'),
+            total_value=Sum('value')
+        ).order_by('month')
+        logger.info("ytd_sales queryset was extracted")
+        print('\n'* 2 )
+        print("YTD")
+        pprint.pprint(ytd_sales)
+
+        forecast = BudgetForecastDetail.objects.filter(
+            budforline__customer_id = customer_id,
+            year = forecast_year,
+            month__gt = current_month,
+            scenario__is_forecast = True
+        ).select_related(
+            'budforline',
+            'scenario'
+        ).values(
+            'budforline__brand__name',
+            'year',
+            'month'
+        ).annotate(
+            total_volume=Sum('volume'),
+            total_value=Sum('value')
+        )
+        print('\n'* 2 )
+        print("FORECAST")
+        pprint.pprint(forecast)
+        logger.info("forecast was extracted")
+        
+        '''
+        Example of the dictionary of dictionaries
+        sales_data: {
+            'POPFlex': {
+                    ytd: {
+                        1: {'volume': 0, 'price': 0, 'value': 0},
+                        2: {'volume': 0, 'price': 0, 'value': 0}
+                        .
+                        .
+                        'brand_total': {'volume': 10, 'price': 10, 'value': 100}
+                    }
+                },
+            'OEM (RD1272)': {
+                    ytd: {
+                        1: {'volume': 0, 'price': 0, 'value': 0},
+                        2: {'volume': 0, 'price': 0, 'value': 0}
+                        .
+                        .
+                        'brand_total': {'volume': 10, 'price': 10, 'value': 100}
+                    }
+                },
+
+        }
+        '''
+        ytd_sales_data_dict = {}
+        logger.info("Start filling dictionary of dictionaries YTD sales_data")
+        logger.info(f"Getting all brands of customer {customer.name}")
+        for the_customer, the_brand in list_of_brands_of_customer:
+            brand_name = the_brand.name
+            logger.info(f"Working on brand: {brand_name}")
+            # If brand is not in the dictionary yet, add it and prepare empty buckets
+            if brand_name not in ytd_sales_data_dict:
+                # logger.info(f"Brand {brand_name} was not in the sales_data dict, adding with last_year and ytd empty dict")
+                ytd_sales_data_dict[brand_name] = {
+                    'ytd': {}
+                    }
+                logger.info(f"Adding {brand_name} brand_total empty buckets")
+                ytd_sales_data_dict[brand_name]['ytd'] = {'brand_total': {'value': 0, 'volume': 0, 'price': 0}}
+            # pprint.pprint("ytd_sales_data_dict")
+            # pprint.pprint(ytd_sales_data_dict)
+            # Filter data using the budforline id, it's the triplet customer, brand, colorgroup
+            # we are filtering and taking only the brand currently in consideration in the loop
+            ytd_data = [entry for entry in ytd_sales if entry['budforline__brand__name'] == brand_name]
+            forecast_data = [entry for entry in forecast if entry['budforline__brand__name'] == brand_name]
+
+            # working on ytd data
+            for entry in ytd_data:
+                month = entry['month']
+                volume = entry['total_volume']
+                value = entry['total_value']
+                price = round(value / volume, 2) if volume != 0 else 0
+                # logger.info(f"YTD - {customer.name} - {brand_name} - year {datetime.now().year + 1} month {month} vol {volume} - val {value}")
+                ytd_sales_data_dict[brand_name]['ytd'][month] = {
+                    'volume': volume,
+                    'price': price,
+                    'value': value
+                }
+                #Calculation of brand totals for ytd
+                ytd_sales_data_dict[brand_name]['ytd']['brand_total']['volume'] += volume
+                ytd_sales_data_dict[brand_name]['ytd']['brand_total']['value'] += value
+            if ytd_sales_data_dict[brand_name]['ytd']['brand_total']['volume'] == 0:
+                ytd_sales_data_dict[brand_name]['ytd']['brand_total']['price'] = 0
+            else:
+                ytd_sales_data_dict[brand_name]['ytd']['brand_total']['price'] = ytd_sales_data_dict[brand_name]['ytd']['brand_total']['value']/ytd_sales_data_dict[brand_name]['ytd']['brand_total']['volume']
+
+            # working on forecast data
+            for entry in forecast_data:
+                month = entry['month']
+                volume = entry['total_volume']
+                value = entry['total_value']
+                price = round(value / volume, 2) if volume != 0 else 0
+                # logger.info(f"FCST - {customer.name} - {brand_name} - year {datetime.now().year + 1} month {month} vol {volume} - val {value}")
+                # Months are in the future
+                ytd_sales_data_dict[brand_name]['ytd'][month] = {
+                    'volume': volume,
+                    'price': price,
+                    'value': value
+                }
+                #Calculation of brand totals for ytd
+                ytd_sales_data_dict[brand_name]['ytd']['brand_total']['volume'] += volume
+                ytd_sales_data_dict[brand_name]['ytd']['brand_total']['value'] += value
+            if ytd_sales_data_dict[brand_name]['ytd']['brand_total']['volume'] == 0:
+                ytd_sales_data_dict[brand_name]['ytd']['brand_total']['price'] = 0
+            else:
+                ytd_sales_data_dict[brand_name]['ytd']['brand_total']['price'] = ytd_sales_data_dict[brand_name]['ytd']['brand_total']['value']/ytd_sales_data_dict[brand_name]['ytd']['brand_total']['volume']
+        
+        # Calculating column totals and grand totals of YTD
+        totals = {
+            'ytd': {},
+            'ytd_grand_totals': {'volume':0, 'value': 0, 'price':0}
+            }
+        for month_key in months.keys():
+            # Making sure month is an integer
+            month_key = int(month_key)
+
+            # Calculating ytd value and volume totals
+            totals['ytd'][month_key] = {
+                'volume': sum(ytd_sales_data_dict[brand]['ytd'].get(month_key, {}).get('volume', 0) for brand in ytd_sales_data_dict),
+                'value': sum(ytd_sales_data_dict[brand]['ytd'].get(month_key, {}).get('value', 0) for brand in ytd_sales_data_dict),
+            }
+            # Calculating ytd price totals of the month (columns)
+            totals['ytd'][month_key]['price'] = totals['ytd'][month_key]['value']/totals['ytd'][month_key]['volume'] if totals['ytd'][month_key]['volume'] != 0 else 0
+            
+            # Taking care of the totals of those months that still have to come
+            if month_key >= datetime.now().month:
+                pass
+
+            totals['ytd_grand_totals']['volume'] += totals['ytd'][month_key]['volume']
+            totals['ytd_grand_totals']['value'] += totals['ytd'][month_key]['value']
+        totals['ytd_grand_totals']['price'] = totals['ytd_grand_totals']['value']/totals['ytd_grand_totals']['volume'] if totals['ytd_grand_totals']['volume'] != 0 else 0
+        
+        # Removing brands with brand totals that are all zeros
+        brands_to_remove = []
+        for brand, data in ytd_sales_data_dict.items():
+            logger.info(f"Working on totals of {brand}")
+            ytd_brand_total = data['ytd']['brand_total']
+            if ytd_brand_total['volume'] == 0 and ytd_brand_total['value'] == 0:
+                del ytd_sales_data_dict[brand]['ytd']
+                logger.info(f"Removing: {brand}['ytd']")
+            if not data.get('ytd'):
+                brands_to_remove.append(brand)
+                logger.info(f"Brand {brand} listed for further removal")
+        logger.info("Removing brands with no data")
+        for b in brands_to_remove:
+            logger.info(f"Brand to delete: {b}")
+            del ytd_sales_data_dict[b]
+
+        pprint.pprint(ytd_sales_data_dict)
+
+    context = {
+        'customer': customer,
+        'brands_of_customer': list_of_brands_of_customer,
+        'previous_year': datetime.now().year - 1,
+        'current_month': current_month,
+        'months': months,
+        'sales_data': ytd_sales_data_dict,
+        'totals': totals
+    }
+
+    return render(request, "app_pages/forecast_2.html", context)
+
+
+def fetch_previous_year_sales(request, customer_id):
+    c = get_object_or_404(Customer, pk=customer_id)
+    p_year = datetime.now().year - 1
+
+    # Extract list_of_brands_per_customer
+    list_of_brands_of_customer = BudForLine.get_customer_brands(customer_id)
+        
+    # Get sales of previous year of specific customer
+    # All brands and color group.
+    # Calculation of total volume and value per customer-brand
+    last_year_sales = BudgetForecastDetail_sales.objects.filter(
+        budforline__customer_id = customer_id,
+        year = p_year
+    ).select_related(
+        'budforline',
+        'scenario'
+    ).values(
+        'budforline__brand__name',
+        'year',
+        'month'
+    ).annotate(
+        total_volume=Sum('volume'),
+        total_value=Sum('value')
+    ).order_by('month')
+    logger.info("last_year_sals queryset was extracted")
+
+    last_year_sales_data_dict = {}
+    logger.info("Start filling dictionary of dictionaries sales_data")
+    logger.info(f"Getting all brands of customer {c.name}")
+    for the_customer, the_brand in list_of_brands_of_customer:
+        brand_name = the_brand.name
+        logger.info(f"Working on brand: {brand_name}")
+        # If brand is not in the dictionary yet, add it and prepare empty buckets
+        if brand_name not in last_year_sales_data_dict:
+            logger.info(f"Brand {brand_name} was not in the sales_data dict, adding with last_year and ytd empty dict")
+            last_year_sales_data_dict[brand_name] = {
+                'last_year': {}
+                }
+            logger.info(f"Adding {brand_name} brand_total empty buckets")
+            last_year_sales_data_dict[brand_name]['last_year'] = {'brand_total': {'value': 0, 'volume': 0, 'price': 0}}
+            
+        last_year_data = [entry for entry in last_year_sales if entry['budforline__brand__name'] == brand_name]
+        for entry in last_year_data: 
+            month = entry['month']
+            volume = entry['total_volume']
+            value = entry['total_value']
+            price = round(value / volume, 2) if volume != 0 else 0
+            last_year_sales_data_dict[brand_name]['last_year'][month] = {
+                'volume': volume,
+                'price': price,
+                'value': value
+            }
+            # Calculation of brand totals for last_year
+            last_year_sales_data_dict[brand_name]['last_year']['brand_total']['volume'] += volume
+            last_year_sales_data_dict[brand_name]['last_year']['brand_total']['value'] += value
+        if last_year_sales_data_dict[brand_name]['last_year']['brand_total']['volume'] == 0:
+            last_year_sales_data_dict[brand_name]['last_year']['brand_total']['price'] = 0
+        else:
+            last_year_sales_data_dict[brand_name]['last_year']['brand_total']['price'] = last_year_sales_data_dict[brand_name]['last_year']['brand_total']['value']/last_year_sales_data_dict[brand_name]['last_year']['brand_total']['volume']
+    # Calculating column totals and grand totals
+    totals = {
+        'last_year': {},
+        'ly_grand_totals': {'volume':0, 'value': 0, 'price':0}
+        }
+    for month_key in months.keys():
+        # Making sure month is an integer
+        month_key = int(month_key)
+        # Calculating last year value and volume totals
+        totals['last_year'][month_key] = {
+            'volume': sum(last_year_sales_data_dict[brand]['last_year'].get(month_key, {}).get('volume', 0) for brand in last_year_sales_data_dict),
+            'value': sum(last_year_sales_data_dict[brand]['last_year'].get(month_key, {}).get('value', 0) for brand in last_year_sales_data_dict),
+        }
+        # Calculating last_year price total of the month (columns)
+        totals['last_year'][month_key]['price'] = totals['last_year'][month_key]['value']/totals['last_year'][month_key]['volume'] if totals['last_year'][month_key]['volume'] != 0 else 0
+
+
+        totals['ly_grand_totals']['volume'] += totals['last_year'][month_key]['volume']
+        totals['ly_grand_totals']['value'] += totals['last_year'][month_key]['value']
+    totals['ly_grand_totals']['price'] = totals['ly_grand_totals']['value']/totals['ly_grand_totals']['volume'] if totals['ly_grand_totals']['volume'] != 0 else 0
+
+    # Removing brands with brand totals that are all zeros
+    brands_to_remove = []
+    for brand, data in last_year_sales_data_dict.items():
+        logger.info(f"Working on totals of {brand}")
+        last_year_brand_total = data['last_year']['brand_total']
+        if last_year_brand_total['volume'] == 0 and last_year_brand_total['value'] == 0:
+            del last_year_sales_data_dict[brand]['last_year']
+            logger.info(f"Removing: {brand}['last_year']")
+        if not data.get('last_year'):
+            brands_to_remove.append(brand)
+            logger.info(f"Brand {brand} listed for further removal")
+    logger.info("Removing brands with no data")
+    for b in brands_to_remove:
+        logger.info(f"Brand to delete: {b}")
+        del last_year_sales_data_dict[b]
+
+    pprint.pprint(last_year_sales_data_dict)
+
+    context = {
+        'months': months,
+        'customer': c,
+        'previous_year': p_year,
+        'sales_data': last_year_sales_data_dict,
+        'totals': totals
+    }
+    return render(request, "app_pages/forecast_2_py_data_partial.html", context)
+
+
+def fetch_no_previous_year_sales(request, customer_id):
+    c = get_object_or_404(Customer, pk=customer_id)
+    p_year = datetime.now().year - 1
+    context = {
+        'customer': c,
+        'previous_year': p_year
+    }
+    return render(request, "app_pages/forecast_2_py_no_data_partial.html", context)
+
+
+def fetch_cg(request, customer_id, brand_id):
+    budforlines = BudForLine.objects.filter(
+        customer_id = customer_id,
+        brand_id = brand_id
+    )
+    brand_name = budforlines.first().brand.name
+    print(brand_name)
+    context = {
+        'customer_id': customer_id,
+        'brand_id': brand_id,
+        'budforlines': budforlines,
+        'brand_name': brand_name
+    }
+    return render(request, "app_pages/forecast_2_cg_fcst_partial.html", context)
+
+
+def fetch_forecast(request, budforline_id):
+    forecast_year = datetime.now().year
+    current_month = datetime.now().month
+    forecast_lines = BudgetForecastDetail.objects.filter(
+        budforline_id = budforline_id,
+        scenario__is_forecast = True,
+        year = forecast_year,
+        month__gt = current_month
+    )
+
+    if forecast_lines:
+        first_record = forecast_lines.first()
+        print("first rec", first_record)
+        brand_name = first_record.budforline.brand.name
+        color_group_name = first_record.budforline.color_group.name
+        print("chek values: ", brand_name, color_group_name)
+
+    forecast_forms = []
+    for line in forecast_lines:
+        form = ForecastForm(initial={
+            'id': line.id,
+            'budforline_id': budforline_id,
+            'month': line.month,
+            'volume': line.volume,
+            'price': line.price,
+            'value':line.value
+        })
+        forecast_forms.append(form)
+
+    context = {
+        'budforline_id': budforline_id,
+        'forecast_lines': forecast_lines,
+        'forecast_forms': forecast_forms,
+        'brand_name': brand_name,
+        'color_group_name': color_group_name,
+    }
+    return render(request, "app_pages/forecast_2_fcst.html", context)
 
 @login_required
 def loader(request):

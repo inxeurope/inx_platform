@@ -1,8 +1,20 @@
-import os, sys
+import os, sys, calendar
 from django.db import connection
 import json
 from django.core.cache import cache
 from .models import CountryCode
+
+
+quarters = {1: 'Q1', 2: 'Q1', 3: 'Q1', 4: 'Q2', 5: 'Q2', 6: 'Q2', 7: 'Q3', 8: 'Q3', 9: 'Q3', 10: 'Q4', 11: 'Q4', 12: 'Q4'}
+halves = {1: 'H1', 2: 'H1', 3: 'H1', 4: 'H1', 5: 'H1', 6: 'H1', 7: 'H2', 8: 'H2', 9: 'H2', 10: 'H2', 11: 'H2', 12: 'H2'}
+months = {
+    str(i): {
+        'name': calendar.month_name[i],
+        'abbreviated_name': calendar.month_abbr[i],
+        'quarter': quarters[i],
+        'half': halves[i]
+    } for i in range(1, 13)
+}
 
 def check_and_create_views_and_procs(app_folder):
     table_names = connection.introspection.table_names()

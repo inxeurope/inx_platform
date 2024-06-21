@@ -8,47 +8,68 @@
     <!-- Page body -->
     <div class="page-body">
       <div class="container-xl d-flex flex-column justify-content-center">
-        <div class="row g-2 align-items-center mb-2">
+        <div class="row g-2 align-items-center mb-2 sticky-top" style="background-color: var(--tblr-body-bg);">
+          <div class="col-auto">
+            <a href="{% url "customer-view" customer.pk %}">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Customers" width="64" height="64" viewBox="0 0 24 24" stroke-width="1.5" stroke="#0071ce" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <path d="M5 12l14 0" />
+                <path d="M5 12l6 6" />
+                <path d="M5 12l6 -6" />
+              </svg>
+            </a>
+          </div>
           <div class="col">
             <h2 class="page-title">{{ customer.name }}</h2>
           </div>
         </div>
 
-        <table class="table table-vcenter table-nowrap">
-          <thead>
-              <tr>
-                  <th class="text-end">Brand</th>
-                  {% for month in months.values %}
-                      <th class="text-end fw-bold">{{ month.abbreviated_name }}</th>
+        <div class="row mb-3">
+          <div class="col">
+            {% include 'app_pages/forecast_2_py_no_data_partial.html' %}
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col">
+            {% include 'app_pages/forecast_2_ytd_data_partial.html' %}
+            {% comment %} <div class="card">
+              <div class="card-body">YTD year</div>
+            </div> {% endcomment %}
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-1">
+            <div class="card p-1">
+              <div class="card-body p-1">
+                <div class="d-grid gap-2">
+                  <div class="text-center">BRANDS</div>
+                  {% for customer, brand in brands_of_customer %}
+                  <button
+                    class="btn btn-primary fs-5 text-wrap p-1"
+                    type="button"
+                    hx-get="{% url 'fetch-cg-forecast' customer.id  brand.id %}"
+                    hx-target="#cg-fcst"
+                    hx-swap="innerHTML">
+                    {{brand}}
+                  </button>
                   {% endfor %}
-              </tr>
-          </thead>
-          <tbody>
-              {% for brand, monthly_data in sales_data.items %}
-                  <tr>
-                      <td class="text-end fw-bold">{{ brand }}</td>
-                      {% for month_key in months.keys %}
-                          {% if monthly_data.last_year|get_item:month_key %}
-                              <td style="text-align: right; width: 8%">
-                                  {{ monthly_data.last_year|get_item:month_key|get_item:"value"|floatformat:0|intcomma }}
-                              </td>
-                          {% else %}
-                              <td style="text-align: right; width: 8%">0</td>
-                          {% endif %}
-                      {% endfor %}
-                  </tr>
-              {% endfor %}
-          </tbody>
-        </table>
 
-
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col">
+            <div id="cg-fcst" >
+              {% include 'app_pages/forecast_2_cg_fcst_empty_partial.html' %}
+            </div>
+          </div>
+        </div>
+        
       </div>
     </div>
     {% include 'app_includes/footer.html' %}
   </div>
-
-  
-
-
 
 {% endblock %}

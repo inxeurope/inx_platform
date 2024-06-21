@@ -1059,7 +1059,7 @@ class BudgetForecastDetail(BudForDetail_Abstract):
         verbose_name_plural = 'Budget Forecast Details'
 
     def __str__(self):
-        return_string = f"detail line - budforline.id:{self.budforline.id}"
+        return_string = f"detail line - id: {self.id} budforline.id:{self.budforline.id}"
         return return_string
 
 
