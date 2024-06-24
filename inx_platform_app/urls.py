@@ -15,6 +15,8 @@ urlpatterns = [
     path("forecast_2/fetch_empty_forecast/", views.fetch_empty_forecast, name="fetch-empty-forecast-area"),
     # path("forecast/<int:customer_id>/<int:brand_colorgroup_id>/", views.forecast, name="forecast-customer-brand-color-group"),
     path("forecast/save/", views.forecast_save, name="forecast-save"),
+    path("budget/save/", views.budget_save, name="budget-save"),
+
 
 
     path("loader/", views.loader, name="loader"),
