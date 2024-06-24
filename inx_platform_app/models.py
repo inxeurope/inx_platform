@@ -68,7 +68,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     sqlapp_id = models.IntegerField(default=0, null=True)
 
-    photo = models.CharField(default='', max_length=255, blank=True, null=True)    
+    photo = models.CharField(default='', max_length=255, blank=True, null=True)
+
+    budget_open = models.BooleanField(default=False)
 
     objects = CustomUserManager()
 
@@ -1327,6 +1329,12 @@ class UploadedFileLog(models.Model):
     log_text = models.TextField(null=True, blank=True)
 
 
+class ContactType(models.Model):
+    name = models.CharField(max_length=100, blank=True)
+
+    def __str__(self):
+        return self.name
+
 class Contact(models.Model):
     TITLE_CHOICES = [
         ('NO_TITLE', ''),
@@ -1346,6 +1354,7 @@ class Contact(models.Model):
     email = models.EmailField(max_length=254, null=True, blank=True)
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, blank=True)
     title = models.CharField(max_length=10, choices=TITLE_CHOICES, default='NO_TITLE')
+    contact_type = models.ForeignKey(ContactType, on_delete=models.PROTECT, null=True, blank=True)
 
     class Meta:
         ordering = ["last_name"]

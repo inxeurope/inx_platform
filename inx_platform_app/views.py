@@ -435,8 +435,21 @@ def forecast_save(request):
     return HttpResponse("Invalid data", status=400)
 
 
+def budget_save(request):
+    budget_year = datetime.now().year + 1
+    budget_month = datetime.now().month
+    budget_scenario = get_object_or_404(Scenario, is_budget=True)
+    if request.method == 'POST':
+        form_data = request.POST.copy()
+        budget_id = form_data.get('id')
+        budforline_id = form_data.get('budforline_id', None)
+        pass
+    pass
+
+
 def fetch_empty_forecast(request):
     return render(request, "app_pages/forecast_2_fcst_empty_partial.html", {})
+
 
 def forecast_2(request, customer_id=None):
     c_id = customer_id
@@ -446,7 +459,8 @@ def forecast_2(request, customer_id=None):
         print("HTMX request")
     else:
         current_year = datetime.now().year
-        forecast_year = datetime.now().year
+        forecast_year = current_year
+        budget_year = current_year + 1
         current_month = datetime.now().month
 
         print("Forecast view - standard request")
@@ -922,6 +936,7 @@ def fetch_cg(request, customer_id, brand_id):
 
 def fetch_forecast(request, budforline_id):
     forecast_year = datetime.now().year
+    budget_year = forecast_year + 1
     current_month = datetime.now().month
 
     forecast_lines = BudgetForecastDetail.objects.filter(
@@ -931,7 +946,17 @@ def fetch_forecast(request, budforline_id):
         month__gt = current_month
     ).order_by('month')
     print(f"There are {len(forecast_lines)} records with the budforline_id {budforline_id}")
-    print(forecast_lines.query)
+    
+    budget_lines = BudgetForecastDetail.objects.filter(
+        budforline_id = budforline_id,
+        scenario__is_forecast = True,
+        year = budget_year
+        # month__gt = current_month
+    ).order_by('month')
+    print("BUDGET")
+    pprint.pprint(budget_lines)
+    logger.info("budeget was extracted")
+
 
     if forecast_lines:
         first_record = forecast_lines.first()
@@ -939,7 +964,7 @@ def fetch_forecast(request, budforline_id):
         brand_name = first_record.budforline.brand.name
         color_group_name = first_record.budforline.color_group.name
         print("chek values: ", brand_name, color_group_name)
-
+    
     forecast_forms = []
     for line in forecast_lines:
         form = ForecastForm(initial={
@@ -951,11 +976,24 @@ def fetch_forecast(request, budforline_id):
             'value':line.value
         })
         forecast_forms.append(form)
+    
+    budget_forms = []
+    for number in range(1,13):
+        form = ForecastForm(initial={
+            'id': number,
+            'budforline_id': budforline_id,
+            'month': number,
+            'volume': 0,
+            'price': 0,
+            'value':0
+        })
+        budget_forms.append(form)
 
     context = {
         'budforline_id': budforline_id,
         'forecast_lines': forecast_lines,
         'forecast_forms': forecast_forms,
+        'budget_forms': budget_forms,
         'brand_name': brand_name,
         'color_group_name': color_group_name,
     }

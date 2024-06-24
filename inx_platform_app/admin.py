@@ -161,7 +161,17 @@ class PriceAdmin(admin.ModelAdmin):
 
 
 class ContactAdmin(admin.ModelAdmin):
-    list_display = ['id', 'title', 'first_name', 'last_name', 'job_position', 'email', 'mobile_number']
+    list_display = ['id', 'get_contact_type_name', 'title', 'first_name', 'last_name', 'job_position', 'email', 'mobile_number']
+    search_fields = ['last_name', 'first_name']
+
+    def get_contact_type_name(self, obj):
+        if obj.contact_type:
+            return_value = obj.contact_type.name
+        else:
+            return_value = ''
+        return return_value
+
+    get_contact_type_name.short_description = 'type'
 
 
 class FertAdmin(admin.ModelAdmin):
@@ -352,7 +362,7 @@ class UserAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
         ('Personal info', {'fields': ('first_name', 'last_name', 'mobile_number', 'photo')}),
-        ('Permissions', {'fields': ('is_staff', 'is_superuser', 'is_active')}),
+        ('Permissions', {'fields': ('is_staff', 'is_superuser', 'is_active', 'budget_open')}),
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
     )
     add_fieldsets = (
@@ -426,6 +436,12 @@ class UserAdmin(admin.ModelAdmin):
         extra_context['show_delete_link'] = self.has_delete_permission(request)
         return super().change_view(request, object_id, form_url, extra_context=extra_context)
 
+
+class ContactTypeAdmin(admin.ModelAdmin):
+    list_display = ['id', 'name']
+    ordering = ['id']
+
+
 admin.site.register(ColorGroup, ColorGroupAdmin)
 admin.site.register(Color, ColorAdmin)
 admin.site.register(MadeIn, MadeInAdmin)
@@ -470,4 +486,5 @@ admin.site.register(Fert, FertAdmin)
 admin.site.register(BudgetForecastDetail, BudgetForecastDetailAdmin)
 admin.site.register(BudgetForecastDetail_sales, BudgetForecastDetail_salesAdmin)
 admin.site.register(Currency, CurrencyAdmin)
+admin.site.register(ContactType, ContactTypeAdmin)
 
