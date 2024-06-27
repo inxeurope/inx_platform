@@ -1085,6 +1085,11 @@ def fetch_forecast(request, budforline_id):
     budget_year = forecast_year + 1
     current_month = datetime.now().month
 
+    budforline_object = get_object_or_404(BudForLine, id=budforline_id)
+    if budforline_object:
+        brand_name = budforline_object.brand.name
+        color_group_name = budforline_object.color_group.name
+
     forecast_lines = BudgetForecastDetail.objects.filter(
         budforline_id = budforline_id,
         scenario__is_forecast = True,
