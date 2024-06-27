@@ -64,9 +64,11 @@
         </div>
         
         <div class="row mb-3"> <!-- Area of budget -->
+          {% if request.user.budget_open %}
           <div class="col">
             {% include 'app_pages/forecast_2_bdg_data_partial.html' %}
           </div>
+          {% endif %}
         </div>
 
       </div>

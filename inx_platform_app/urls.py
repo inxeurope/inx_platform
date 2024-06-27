@@ -4,18 +4,18 @@ from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path("", views.index, name="index"),
-    # path("forecast/", views.forecast, name="forecast"),
-    # path("forecast/<int:customer_id>/", views.forecast, name="forecast-customer"),
     path("forecast_2/<int:customer_id>/", views.forecast_2, name="forecast-2"),
     path("forecast_2/fetch_previous_years_sales/<int:customer_id>/", views.fetch_previous_year_sales, name="fetch-py-sales"),
     path("forecast_2/fetch_ytd_sales/<int:customer_id>", views.fetch_ytd_sales, name="fetch-ytd-sales"),
+    path("forecast_2/fetch_bdg_sales/<int:customer_id>", views.fetch_bdg_sales, name="fetch-bdg-sales"),
     path("forecast_2/fetch_no_previous_years_sales/<int:customer_id>/", views.fetch_no_previous_year_sales, name="fetch-no-py-sales"),
     path("forecast_2/fetch_cg_forecast_data/<int:customer_id>/<int:brand_id>", views.fetch_cg, name="fetch-cg-forecast"),
     path("forecast_2/fetch_forecast/<int:budforline_id>", views.fetch_forecast, name="fetch-forecast"),
     path("forecast_2/fetch_empty_forecast/", views.fetch_empty_forecast, name="fetch-empty-forecast-area"),
-    # path("forecast/<int:customer_id>/<int:brand_colorgroup_id>/", views.forecast, name="forecast-customer-brand-color-group"),
     path("forecast/save/", views.forecast_save, name="forecast-save"),
-    path("budget/save/", views.budget_save, name="budget-save"),
+    path("budget/save/", views.forecast_save, name="budget-save"),
+
+    path("test/<int:customer_id>", views.fetch_bdg_sales, name="test"),
 
 
 

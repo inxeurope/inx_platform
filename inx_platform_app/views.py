@@ -13,6 +13,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.views import LoginView, PasswordResetView, PasswordChangeView, PasswordResetConfirmView
 from django.contrib.auth.decorators import login_required
+from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.db import models, transaction
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -390,15 +391,23 @@ def forecast(request, customer_id=None, brand_colorgroup_id=None):
 def forecast_save(request):
     forecast_year = datetime.now().year
     forecast_month = datetime.now().month
+    budget_year = forecast_year + 1
     forecast_scenario = get_object_or_404(Scenario, is_forecast=True)
+    budget_scenario = get_object_or_404(Scenario, is_budget=True)
     if request.method == 'POST':
         form_data = request.POST.copy()
-        forecast_id = form_data.get('id')
+        forecast_budget_id = form_data.get('id')
+        form_type = form_data.get('form_type')
         budforline_id = form_data.get('budforline_id', None)
 
-        if forecast_id:
-            print(f"forecast_id: {forecast_id}")
-            this_instance = get_object_or_404(BudgetForecastDetail, pk=forecast_id)
+        if form_type == 'forecast':
+            scenario = forecast_scenario
+        elif form_type == 'budget':
+            scenario = budget_scenario
+
+        if forecast_budget_id:
+            print(f"forecast_budget_id: {forecast_budget_id}")
+            this_instance = get_object_or_404(BudgetForecastDetail, pk=forecast_budget_id)
             if this_instance:
                 if not budforline_id:
                     budforline_id = this_instance.budforline.id
@@ -409,23 +418,45 @@ def forecast_save(request):
             f = ForecastForm(form_data)
 
         if f.is_valid():
-            the_forecast = f.save(commit=False)
-            the_forecast.value = the_forecast.volume * the_forecast.price
-            the_forecast.budforline_id = budforline_id
-            the_forecast.save()
-            messages.success(request, f"Forecast month {the_forecast.month} volume: {the_forecast.volume}, price: {the_forecast.price}, value: {the_forecast.value} - saved")
+            the_forecast_budget = f.save(commit=False)
+            the_forecast_budget.value = the_forecast_budget.volume * the_forecast_budget.price
+            the_forecast_budget.budforline_id = budforline_id
+            the_forecast_budget.save()
+            messages.success(request, f"{form_type.capitalize()} month {the_forecast_budget.month} volume: {the_forecast_budget.volume}, price: {the_forecast_budget.price}, value: {the_forecast_budget.value} - saved")
             # Retrieve all related BudgetForecastDetails instances
             forecast_instances = BudgetForecastDetail.objects.filter(
-                budforline_id=the_forecast.budforline_id,
+                budforline_id=budforline_id,
                 year=forecast_year,
                 month__gt=forecast_month,
                 scenario_id=forecast_scenario)
+            budget_instances = BudgetForecastDetail.objects.filter(
+                budforline_id = budforline_id,
+                scenario_id = budget_scenario,
+                year = budget_year
+            ).order_by('month')
             forecast_forms = [ForecastForm(instance=forecast) for forecast in forecast_instances]
+            budget_forms = [ForecastForm(instance=budget) for budget in budget_instances]
             context = {
                 'forecast_forms': forecast_forms,
+                'budget_forms': budget_forms,
                 'brand_name': form_data.get('brand_name'),
-                'color_group_name': form_data.get('color_group_name')
+                'color_group_name': form_data.get('color_group_name'),
+                'customer': the_forecast_budget.budforline.customer
             }
+
+            # # Render the main forecast/budget forms
+            # main_content = render_to_string("app_pages/forecast_2_fcst.html", context, request=request)
+            # pprint.pprint(main_content)
+            
+            # # Render the YTD data partial
+            # ytd_data_partial = render_to_string("app_pages/forecast_2_ytd_data_partial.html", context, request=request)
+            # pprint.pprint(ytd_data_partial)
+
+            # return JsonResponse({
+            #     'main_content': main_content,
+            #     'ytd_data_partial': ytd_data_partial,
+            # })
+
             return render(request, "app_pages/forecast_2_fcst.html", context)
         else:
             print("form is not valid")
@@ -788,7 +819,8 @@ def fetch_ytd_sales(request, customer_id=None):
         for b in brands_to_remove:
             logger.info(f"Brand to delete: {b}")
             del ytd_sales_data_dict[b]
-
+    print("YTD")
+    pprint.pprint(ytd_sales_data_dict)
     context = {
         'customer': customer,
         'brands_of_customer': list_of_brands_of_customer,
@@ -798,6 +830,120 @@ def fetch_ytd_sales(request, customer_id=None):
         'totals': totals
     }
     return render(request, "app_pages/forecast_2_ytd_data_partial.html", context)
+
+
+def fetch_bdg_sales(request, customer_id=None):
+    customer = Customer.objects.filter(id=customer_id).first()
+    current_year = datetime.now().year
+    budget_year = current_year + 1
+    list_of_brands_of_customer = BudForLine.get_customer_brands(customer.id)
+    logger.info(f"Getting all brands of customer {customer.name}")
+    bdg_sales = BudgetForecastDetail.objects.filter(
+        budforline__customer_id = customer_id,
+        year = budget_year,
+        scenario__is_budget = True
+    ).select_related(
+        'budforline',
+        'scenario'
+    ).values(
+        'budforline__brand__name',
+        'year',
+        'month'
+    ).annotate(
+        total_volume=Sum('volume'),
+        total_value=Sum('value')
+    ).order_by('month')
+    pprint.pprint("-----BDG sales")
+    pprint.pprint(bdg_sales)
+    logger.info("Start filling dictionary of dictionaries BDG sales data")
+    bdg_sales_data_dict = {}
+    for the_customer, the_brand in list_of_brands_of_customer:
+        brand_name = the_brand.name
+        logger.info(f"Working on brand: {brand_name}")
+        # If brand is not in the dictionary yet, add it and prepare empty buckets
+        if brand_name not in bdg_sales_data_dict:
+            logger.info(f"Brand {brand_name} was not in the bdg_sales_data dict,adding bdg empty dict")
+            bdg_sales_data_dict[brand_name] = {
+                'bdg': {}
+                }
+            logger.info(f"Adding {brand_name} brand_total empty buckets")
+            bdg_sales_data_dict[brand_name]['bdg'] = {'brand_total': {'value': 0, 'volume': 0, 'price': 0}}
+        # Filter data using the budforline id, it's the triplet customer, brand, colorgroup
+        # we are filtering and taking only the brand currently in consideration in the loop
+        bdg_data = [entry for entry in bdg_sales if entry['budforline__brand__name'] == brand_name]
+        # working on bdg data
+        for entry in bdg_data:
+            month = entry['month']
+            volume = entry['total_volume']
+            value = entry['total_value']
+            price = round(value / volume, 2) if volume != 0 else 0
+            logger.info(f"BDG - {customer.name} - {brand_name} - year {datetime.now().year + 1} month {month} vol {volume} - val {value}")
+            bdg_sales_data_dict[brand_name]['bdg'][month] = {
+                'volume': volume,
+                'price': price,
+                'value': value
+            }
+            #Calculation of brand totals for bdg
+            bdg_sales_data_dict[brand_name]['bdg']['brand_total']['volume'] += volume
+            bdg_sales_data_dict[brand_name]['bdg']['brand_total']['value'] += value
+        if bdg_sales_data_dict[brand_name]['bdg']['brand_total']['volume'] == 0:
+            bdg_sales_data_dict[brand_name]['bdg']['brand_total']['price'] = 0
+        else:
+            bdg_sales_data_dict[brand_name]['bdg']['brand_total']['price'] = bdg_sales_data_dict[brand_name]['bdg']['brand_total']['value']/bdg_sales_data_dict[brand_name]['bdg']['brand_total']['volume']
+
+        
+    # Calculating column totals and grand totals of BDG
+        totals = {
+            'bdg': {},
+            'bdg_grand_totals': {'volume':0, 'value': 0, 'price':0}
+            }
+        for month_key in months.keys():
+            # Making sure month is an integer
+            month_key = int(month_key)
+
+            # Calculating ytd value and volume totals
+            totals['bdg'][month_key] = {
+                'volume': sum(bdg_sales_data_dict[brand]['bdg'].get(month_key, {}).get('volume', 0) for brand in bdg_sales_data_dict),
+                'value': sum(bdg_sales_data_dict[brand]['bdg'].get(month_key, {}).get('value', 0) for brand in bdg_sales_data_dict),
+            }
+            # Calculating ytd price totals of the month (columns)
+            totals['bdg'][month_key]['price'] = totals['bdg'][month_key]['value']/totals['bdg'][month_key]['volume'] if totals['bdg'][month_key]['volume'] != 0 else 0
+            
+            # Taking care of the totals of those months that still have to come
+            if month_key >= datetime.now().month:
+                pass
+
+            totals['bdg_grand_totals']['volume'] += totals['bdg'][month_key]['volume']
+            totals['bdg_grand_totals']['value'] += totals['bdg'][month_key]['value']
+        totals['bdg_grand_totals']['price'] = totals['bdg_grand_totals']['value']/totals['bdg_grand_totals']['volume'] if totals['bdg_grand_totals']['volume'] != 0 else 0
+        
+        # Removing brands with brand totals that are all zeros
+        brands_to_remove = []
+        for brand, data in bdg_sales_data_dict.items():
+            logger.info(f"Working on totals of {brand}")
+            bdg_brand_total = data['bdg']['brand_total']
+            if bdg_brand_total['volume'] == 0 and bdg_brand_total['value'] == 0:
+                del bdg_sales_data_dict[brand]['bdg']
+                logger.info(f"Removing: {brand}['bdg']")
+            if not data.get('bdg'):
+                brands_to_remove.append(brand)
+                logger.info(f"Brand {brand} listed for further removal")
+        logger.info("Removing brands with no data")
+        for b in brands_to_remove:
+            logger.info(f"Brand to delete: {b}")
+            del bdg_sales_data_dict[b]
+    print("*"*50)
+    pprint.pprint(bdg_sales_data_dict)
+
+    context = {
+        'customer': customer,
+        'brands_of_customer': list_of_brands_of_customer,
+        'months': months,
+        'budget_data': bdg_sales_data_dict,
+        'budget_totals': totals
+    }
+    return render(request, "app_pages/test.html", context)
+    return render(request, "app_pages/forecast_2_bdg_data_partial.html", context)
 
 
 def fetch_previous_year_sales(request, customer_id):
@@ -949,13 +1095,37 @@ def fetch_forecast(request, budforline_id):
     
     budget_lines = BudgetForecastDetail.objects.filter(
         budforline_id = budforline_id,
-        scenario__is_forecast = True,
+        scenario__is_budget = True,
         year = budget_year
         # month__gt = current_month
     ).order_by('month')
-    print("BUDGET")
-    pprint.pprint(budget_lines)
+    print("budget_lines queryset count", budget_lines.count())
+    scenario_budget = Scenario.objects.filter(is_budget=True).first().id
+    print(f"scenario of budget {scenario_budget}")
     logger.info("budeget was extracted")
+
+    missing_months = set()
+    if budget_lines.count() < 12:
+        print("Months are less than 12")
+        existing_months = set(budget_lines.values_list('month', flat=True))
+        print("existing months:", existing_months)
+        missing_months = set(range(1, 13)) - existing_months
+        print("missing months:", missing_months)
+
+    budget_lines = list(budget_lines)
+    if missing_months:
+        for month in missing_months:
+            new_line = BudgetForecastDetail.objects.create(
+                budforline_id=budforline_id,
+                scenario_id=scenario_budget,
+                year=budget_year,
+                month=month,
+                volume=0,
+                price=0,
+                value=0
+            )
+            budget_lines.append(new_line)
+    budget_lines.sort(key=lambda x: x.month)
 
 
     if forecast_lines:
@@ -978,14 +1148,14 @@ def fetch_forecast(request, budforline_id):
         forecast_forms.append(form)
     
     budget_forms = []
-    for number in range(1,13):
+    for line in budget_lines:
         form = ForecastForm(initial={
-            'id': number,
+            'id': line.id,
             'budforline_id': budforline_id,
-            'month': number,
-            'volume': 0,
-            'price': 0,
-            'value':0
+            'month': line.month,
+            'volume': line.volume,
+            'price': line.price,
+            'value':line.value
         })
         budget_forms.append(form)
 

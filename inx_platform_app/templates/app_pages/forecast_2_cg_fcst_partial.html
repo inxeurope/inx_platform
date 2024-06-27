@@ -23,3 +23,25 @@
         </div>
     </div>
 </div>
+<script>
+
+    document.addEventListener("htmx:afterOnLoad", (event) => {
+        if (event.detail.xhr.responseJSON) {
+            const response = event.detail.xhr.responseJSON;
+    
+            // Update the main content
+            const forecastArea = document.querySelector("#forecast-area");
+            if (forecastArea) {
+                forecastArea.innerHTML = response.main_content;
+            }
+    
+            // Update the YTD data partial
+            const ytdSales = document.querySelector("#ytd_sales");
+            if (ytdSales) {
+                ytdSales.innerHTML = response.ytd_data_partial;
+            }
+        }
+      });
+  
+      
+  </script>

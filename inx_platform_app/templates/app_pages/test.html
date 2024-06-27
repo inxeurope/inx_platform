@@ -1,0 +1,54 @@
+{% load custom_filters %}
+{% load static %}
+{% load humanize %}
+<div class="card">
+    <div class="card-body">
+        <div class="row mb-1">
+            <div class="col d-flex align-items-center fw-bold">BDG Sales data</div>
+            <div class="col text-end">
+              <button 
+                class="btn btn-primary" 
+                hx-get="{% url 'fetch-bdg-sales' customer.id %}" 
+                hx-target="#bdg_sales" 
+                hx-swap="innerHTML">
+                refresh BDG
+                </button>
+            </div>
+        </div>
+        <div class="d-flex flex-row">
+            ciao
+        </div>
+    </div>
+</div>
+
+
+<table>
+    <thead>
+        <th>brand</th>
+        {% for m in months.values %}
+            <th>
+                {{ m.abbreviated_name }}
+            </th>
+        {% endfor %}
+    </thead>
+    <tbody>
+        {% for b, bdg_data in budget_data.items %}
+            <tr>
+                <td>
+                    {{ b }}
+                </td>
+                {% for month_key in months.keys %}
+                    <td>
+                        {{ bdg_data.bdg|dict_lookup:month_key|dict_lookup:"volume" }}<br>
+                        {{ bdg_data.bdg|dict_lookup:month_key|dict_lookup:"price" }}<br>
+                        {{ bdg_data.bdg|dict_lookup:month_key|dict_lookup:"value" }}<br>
+                    </td>
+                {% endfor %}
+                <td>{{ bdg_data.bdg.brand_total.volume }}<br>
+                {{ bdg_data.bdg.brand_total.value }}<br>
+                {{ bdg_data.bdg.brand_total.price }}
+            </tr>
+        {% endfor %}
+
+    </tbody>
+</table>
