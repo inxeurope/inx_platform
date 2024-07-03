@@ -388,6 +388,7 @@ def forecast(request, customer_id=None, brand_colorgroup_id=None):
     return render(request, "app_pages/forecast.html", context)
 
 
+@login_required
 def forecast_save(request):
     forecast_year = datetime.now().year
     forecast_month = datetime.now().month
@@ -404,6 +405,35 @@ def forecast_save(request):
             scenario = forecast_scenario
         elif form_type == 'budget':
             scenario = budget_scenario
+        elif form_type == 'budget-flat':
+            scenario = budget_scenario
+            flat_budget_form = FlatBudgetForm(form_data)
+            if flat_budget_form.is_valid():
+                print("flat budget form is valid")
+                volume = flat_budget_form.cleaned_data['volume']
+                price = round(float(flat_budget_form.cleaned_data['price']), 2)
+                monthly_volume = volume / 12
+                print(budforline_id)
+                # Remove budget lines
+                BudgetForecastDetail.objects.filter(
+                    scenario__is_budget = True,
+                    year = budget_year,
+                    budforline_id = budforline_id
+                ).delete()
+                # Inserting new lines
+                for m in months:
+                    value = monthly_volume * price
+                    BudgetForecastDetail.objects.create(
+                        budforline_id=budforline_id,
+                        scenario=budget_scenario,
+                        year=budget_year,
+                        month=m,
+                        volume=monthly_volume,
+                        price=price,
+                        value=value
+                    )
+                messages.success(request, "Flat budget saved successfully")
+                
 
         if forecast_budget_id:
             print(f"forecast_budget_id: {forecast_budget_id}")
@@ -423,49 +453,80 @@ def forecast_save(request):
             the_forecast_budget.budforline_id = budforline_id
             the_forecast_budget.save()
             messages.success(request, f"{form_type.capitalize()} month {the_forecast_budget.month} volume: {the_forecast_budget.volume}, price: {the_forecast_budget.price}, value: {the_forecast_budget.value} - saved")
-            # Retrieve all related BudgetForecastDetails instances
-            forecast_instances = BudgetForecastDetail.objects.filter(
-                budforline_id=budforline_id,
-                year=forecast_year,
-                month__gt=forecast_month,
-                scenario_id=forecast_scenario)
-            budget_instances = BudgetForecastDetail.objects.filter(
-                budforline_id = budforline_id,
-                scenario_id = budget_scenario,
-                year = budget_year
-            ).order_by('month')
-            forecast_forms = [ForecastForm(instance=forecast) for forecast in forecast_instances]
-            budget_forms = [ForecastForm(instance=budget) for budget in budget_instances]
-            context = {
-                'forecast_forms': forecast_forms,
-                'budget_forms': budget_forms,
-                'brand_name': form_data.get('brand_name'),
-                'color_group_name': form_data.get('color_group_name'),
-                'customer': the_forecast_budget.budforline.customer
-            }
-
-            # # Render the main forecast/budget forms
-            # main_content = render_to_string("app_pages/forecast_2_fcst.html", context, request=request)
-            # pprint.pprint(main_content)
             
-            # # Render the YTD data partial
-            # ytd_data_partial = render_to_string("app_pages/forecast_2_ytd_data_partial.html", context, request=request)
-            # pprint.pprint(ytd_data_partial)
-
-            # return JsonResponse({
-            #     'main_content': main_content,
-            #     'ytd_data_partial': ytd_data_partial,
-            # })
-
-            return render(request, "app_pages/forecast_2_fcst.html", context)
         else:
             print("form is not valid")
             print(f"form errors: {f.errors}")
+            # print(f)
             return render(request, "app_pages/forecast_data_partial.html", {'form': f})
-    
+
+        # Retrieve all related BudgetForecastDetails instances
+        forecast_instances = BudgetForecastDetail.objects.filter(
+            budforline_id=budforline_id,
+            year=forecast_year,
+            month__gt=forecast_month,
+            scenario_id=forecast_scenario)
+        budget_instances = BudgetForecastDetail.objects.filter(
+            budforline_id = budforline_id,
+            scenario_id = budget_scenario,
+            year = budget_year
+        ).order_by('month')
+        forecast_forms = [ForecastForm(instance=forecast) for forecast in forecast_instances]
+        budget_forms = [ForecastForm(instance=budget) for budget in budget_instances]
+        flat_budget_form = ForecastForm()
+        context = {
+            'budforline_id': budforline_id,
+            'forecast_forms': forecast_forms,
+            'budget_forms': budget_forms,
+            'flat_budget_form': flat_budget_form,
+            'brand_name': form_data.get('brand_name'),
+            'color_group_name': form_data.get('color_group_name'),
+            'customer': the_forecast_budget.budforline.customer
+        }
+        return render(request, "app_pages/forecast_2_fcst.html", context)
+
     return HttpResponse("Invalid data", status=400)
 
 
+@login_required
+def budget_flat_save(request):
+    budget_year = datetime.now().year + 1
+    budget_scenario = get_object_or_404(Scenario, is_budget=True)
+    pprint.pprint(request.POST)
+    if request.method == 'POST':
+        form_data = request.POST.copy()
+        budforline_id = form_data.get('budforline_id', None)
+        budforline_object = get_object_or_404(BudForLine, pk=budforline_id)
+        customer_id = budforline_object.customer.id
+        brand_id = budforline_object.brand.id
+        color_group_id = budforline_object.color_group.id
+
+        print(f"the budforline_id: {budforline_id}")
+        # Remove all budget lines with budforline_id
+        records_to_delete = BudgetForecastDetail.objects.filter(budforline_id=budforline_id)
+        count, _ = records_to_delete.delete()
+        print(f"deleted {count} records")
+
+        # Add lines to budget
+        volume = 30000
+        price = 24
+        volume_per_month = volume / 12
+        for m in months:
+            BudgetForecastDetail.objects.create(
+                budforline_id = budforline_id,
+                detail_date = datetime.now().date,
+                scenario=budget_scenario,
+                year = budget_year,
+                month = m,
+                volume = volume_per_month,
+                price = price,
+                value = volume_per_month * price
+                )
+        pass
+    pass
+
+
+@login_required
 def budget_save(request):
     budget_year = datetime.now().year + 1
     budget_month = datetime.now().month
@@ -478,10 +539,12 @@ def budget_save(request):
     pass
 
 
+@login_required
 def fetch_empty_forecast(request):
     return render(request, "app_pages/forecast_2_fcst_empty_partial.html", {})
 
 
+@login_required
 def forecast_2(request, customer_id=None):
     c_id = customer_id
     customer = Customer.objects.filter(id=c_id).first()
@@ -681,6 +744,7 @@ def forecast_2(request, customer_id=None):
     return render(request, "app_pages/forecast_2.html", context)
 
 
+@login_required
 def fetch_ytd_sales(request, customer_id=None):
     customer = Customer.objects.filter(id=customer_id).first()
     current_year = datetime.now().year
@@ -832,6 +896,7 @@ def fetch_ytd_sales(request, customer_id=None):
     return render(request, "app_pages/forecast_2_ytd_data_partial.html", context)
 
 
+@login_required
 def fetch_bdg_sales(request, customer_id=None):
     customer = Customer.objects.filter(id=customer_id).first()
     current_year = datetime.now().year
@@ -946,6 +1011,7 @@ def fetch_bdg_sales(request, customer_id=None):
     return render(request, "app_pages/forecast_2_bdg_data_partial.html", context)
 
 
+@login_required
 def fetch_previous_year_sales(request, customer_id):
     c = get_object_or_404(Customer, pk=customer_id)
     p_year = datetime.now().year - 1
@@ -1054,6 +1120,7 @@ def fetch_previous_year_sales(request, customer_id):
     return render(request, "app_pages/forecast_2_py_data_partial.html", context)
 
 
+@login_required
 def fetch_no_previous_year_sales(request, customer_id):
     c = get_object_or_404(Customer, pk=customer_id)
     p_year = datetime.now().year - 1
@@ -1064,6 +1131,7 @@ def fetch_no_previous_year_sales(request, customer_id):
     return render(request, "app_pages/forecast_2_py_no_data_partial.html", context)
 
 
+@login_required
 def fetch_cg(request, customer_id, brand_id):
     budforlines = BudForLine.objects.filter(
         customer_id = customer_id,
@@ -1080,7 +1148,14 @@ def fetch_cg(request, customer_id, brand_id):
     return render(request, "app_pages/forecast_2_cg_fcst_partial.html", context)
 
 
+@login_required
 def fetch_forecast(request, budforline_id):
+    print("fetch_forecast view")
+    if budforline_id is None:
+        budforline_id = request.GET.get('budforline_id')
+        print(f"budforline_id {budforline_id} comes from GET")
+    else:
+        print(f"budforline_id {budforline_id} comes as an argument")
     forecast_year = datetime.now().year
     budget_year = forecast_year + 1
     current_month = datetime.now().month
@@ -1089,6 +1164,8 @@ def fetch_forecast(request, budforline_id):
     if budforline_object:
         brand_name = budforline_object.brand.name
         color_group_name = budforline_object.color_group.name
+        logger.info(f"brand_name: {brand_name}")
+        logger.info(f"color_group_name: {color_group_name}")
 
     forecast_lines = BudgetForecastDetail.objects.filter(
         budforline_id = budforline_id,
@@ -1096,7 +1173,10 @@ def fetch_forecast(request, budforline_id):
         year = forecast_year,
         month__gt = current_month
     ).order_by('month')
-    print(f"There are {len(forecast_lines)} records with the budforline_id {budforline_id}")
+    logger.info(f"There are {len(forecast_lines)} records in forecast with the budforline_id {budforline_id}")
+    scenario_forecast = get_object_or_404(Scenario, is_forecast=True)
+    logger.info(f"scenario of forecast {scenario_forecast}")
+    logger.info("forecast was extracted")
     
     budget_lines = BudgetForecastDetail.objects.filter(
         budforline_id = budforline_id,
@@ -1104,25 +1184,54 @@ def fetch_forecast(request, budforline_id):
         year = budget_year
         # month__gt = current_month
     ).order_by('month')
-    print("budget_lines queryset count", budget_lines.count())
-    scenario_budget = Scenario.objects.filter(is_budget=True).first().id
-    print(f"scenario of budget {scenario_budget}")
+    logger.info(f"There are {len(budget_lines)} records in budget with the budforline_id {budforline_id}")
+    scenario_budget = get_object_or_404(Scenario, is_budget=True)
+    logger.info(f"scenario of budget {scenario_budget}")
     logger.info("budeget was extracted")
 
-    missing_months = set()
-    if budget_lines.count() < 12:
-        print("Months are less than 12")
-        existing_months = set(budget_lines.values_list('month', flat=True))
-        print("existing months:", existing_months)
-        missing_months = set(range(1, 13)) - existing_months
-        print("missing months:", missing_months)
+    missing_forecast_months = set()
+    existing_forecast_months = set(line.month for line in forecast_lines)
+    missing_forecast_months = set(range(current_month + 1, 13)) - existing_forecast_months
+    logger.info(f"existing forecast months: {existing_forecast_months}")
+    logger.info(f"missing forecast months: {missing_forecast_months}")
 
-    budget_lines = list(budget_lines)
-    if missing_months:
-        for month in missing_months:
+    # if forecast_lines.count() < 12:
+    #     logger.info(f"Forecast months are less than 12 - filling")
+    #     existing_forecast_months = set(forecast_lines.values_list('month', flat=True))
+    #     logger.info(f"existing forecast months: {existing_forecast_months}")
+    #     missing_forecast_months = set(range(1,13)) - existing_forecast_months
+    #     logger.info("missing forecast months:", missing_forecast_months)
+
+    forecast_lines = list(forecast_lines)
+    if missing_forecast_months:
+        for month in missing_forecast_months:
             new_line = BudgetForecastDetail.objects.create(
                 budforline_id=budforline_id,
-                scenario_id=scenario_budget,
+                scenario_id=scenario_forecast.id,
+                year=forecast_year,
+                month=month,
+                volume=0,
+                price=0,
+                value=0
+            )
+            forecast_lines.append(new_line)
+    forecast_lines.sort(key=lambda x: x.month)
+
+
+    missing_budget_months = set()
+    if budget_lines.count() < 12:
+        logger.info("Budget months are less than 12")
+        existing_budget_months = set(budget_lines.values_list('month', flat=True))
+        logger.info(f"existing forecast months: {existing_budget_months}")
+        missing_budget_months = set(range(1, 13)) - existing_budget_months
+        logger.info("missing budget months:", missing_budget_months)
+
+    budget_lines = list(budget_lines)
+    if missing_budget_months:
+        for month in missing_budget_months:
+            new_line = BudgetForecastDetail.objects.create(
+                budforline_id=budforline_id,
+                scenario_id=scenario_budget.id,
                 year=budget_year,
                 month=month,
                 volume=0,
@@ -1131,14 +1240,6 @@ def fetch_forecast(request, budforline_id):
             )
             budget_lines.append(new_line)
     budget_lines.sort(key=lambda x: x.month)
-
-
-    if forecast_lines:
-        first_record = forecast_lines.first()
-        print("first rec", first_record)
-        brand_name = first_record.budforline.brand.name
-        color_group_name = first_record.budforline.color_group.name
-        print("chek values: ", brand_name, color_group_name)
     
     forecast_forms = []
     for line in forecast_lines:
@@ -1164,15 +1265,19 @@ def fetch_forecast(request, budforline_id):
         })
         budget_forms.append(form)
 
+    flat_budget_form = FlatBudgetForm()
+
     context = {
         'budforline_id': budforline_id,
         'forecast_lines': forecast_lines,
         'forecast_forms': forecast_forms,
         'budget_forms': budget_forms,
+        'flat_budget_form': flat_budget_form,
         'brand_name': brand_name,
         'color_group_name': color_group_name,
     }
     return render(request, "app_pages/forecast_2_fcst.html", context)
+
 
 @login_required
 def loader(request):

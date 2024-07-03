@@ -14,6 +14,8 @@ urlpatterns = [
     path("forecast_2/fetch_empty_forecast/", views.fetch_empty_forecast, name="fetch-empty-forecast-area"),
     path("forecast/save/", views.forecast_save, name="forecast-save"),
     path("budget/save/", views.forecast_save, name="budget-save"),
+    # path("budget/flat_save/", views.budget_flat_save, name="flat-budget-save"),
+    path("budget/flat_save/", views.forecast_save, name="flat-budget-save"),
 
     path("test/<int:customer_id>", views.fetch_bdg_sales, name="test"),
 

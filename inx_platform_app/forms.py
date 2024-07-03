@@ -1,4 +1,5 @@
 from django import forms
+from django.utils.formats import number_format
 from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm, AuthenticationForm, UsernameField, PasswordResetForm, SetPasswordForm
 from .models import *
 
@@ -301,6 +302,18 @@ class BrandForm(forms.ModelForm):
         }
 
 
+
+
+
+class NumberInputWithThousandsSeparator(forms.TextInput):
+    input_type = 'text'
+
+    def format_value(self, value):
+        if value is None:
+            return ''
+        return number_format(value, use_l10n=True, force_grouping=True)
+
+
 class ForecastForm(forms.ModelForm):
     id = forms.IntegerField(widget=forms.HiddenInput(), required=True)
     budforline_id = forms.IntegerField(widget=forms.HiddenInput(), required=True)
@@ -312,8 +325,37 @@ class ForecastForm(forms.ModelForm):
             'id': forms.HiddenInput(),
             'budforline_id': forms.HiddenInput(),
             'budforline_id': forms.TextInput(attrs={'class': 'form-control p-1', 'readonly': 'readonly'}),
-            'month': forms.TextInput(attrs={'class': 'form-control p-1', 'readonly': 'readonly'}),
+            'month': forms.TextInput(attrs={'class': 'form-control p-1 text-center', 'readonly': 'readonly', 'disabled': 'disabled'}),
             'volume': forms.NumberInput(attrs={'class': 'form-control p-1'}),
+            # 'volume': NumberInputWithThousandsSeparator(attrs={'class': 'form-control p-1'}),
             'price': forms.NumberInput(attrs={'class': 'form-control p-1'}),
-            'value': forms.NumberInput(attrs={'class': 'form-control p-1', 'readonly': 'readonly'}),
+            # 'value': forms.NumberInput(attrs={'class': 'form-control p-0', 'readonly': 'readonly', 'disabled':'disabled'}),
+            'value': NumberInputWithThousandsSeparator(attrs={'class': 'form-control ps-1 pe-0', 'readonly': 'readonly', 'disabled':'disabled'}),
         }
+    
+    def __init__(self, *args, **kwargs):
+        super(ForecastForm, self).__init__(*args, **kwargs)
+        self.fields['value'].required = False
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        instance.value = instance.volume * instance.price
+        if commit:
+            instance.save()
+        return instance
+
+class FlatBudgetForm(forms.Form):
+    volume = forms.FloatField(
+        label='Volume',
+        min_value=0,
+        widget=forms.NumberInput(attrs={'class': 'form-control p-1', 'placeholder': 'Enter full year volume'})
+        )
+    
+    price = forms.DecimalField(
+        label='Price',
+        min_value=0,
+        max_digits=10,
+        decimal_places=2,
+        widget=forms.NumberInput(attrs={'class': 'form-control p-1', 'placeholder': 'Enter a valid price through the year'})
+        )
+    

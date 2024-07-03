@@ -64,16 +64,29 @@
         </div>
         
         <div class="row mb-3"> <!-- Area of budget -->
-          {% if request.user.budget_open %}
+          {% comment %} {% if request.user.budget_open %} {% endcomment %}
           <div class="col">
             {% include 'app_pages/forecast_2_bdg_data_partial.html' %}
           </div>
-          {% endif %}
+          {% comment %} {% endif %} {% endcomment %}
         </div>
 
       </div>
     </div>
     {% include 'app_includes/footer.html' %}
   </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Find the "refresh BDG" button by its text content or by any unique identifier
+      var refreshButton = document.getElementById('refresh-BDG');
+      
+      if (refreshButton) {
+        refreshButton.click();
+      }
+    });
+  </script>
+
+
 
 {% endblock %}
