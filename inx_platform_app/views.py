@@ -453,7 +453,8 @@ def forecast_save(request):
             the_forecast_budget.budforline_id = budforline_id
             the_forecast_budget.save()
             messages.success(request, f"{form_type.capitalize()} month {the_forecast_budget.month} volume: {the_forecast_budget.volume}, price: {the_forecast_budget.price}, value: {the_forecast_budget.value} - saved")
-            
+        elif form_type == 'budget-flat':
+            print('ugo')
         else:
             print("form is not valid")
             print(f"form errors: {f.errors}")
@@ -475,13 +476,14 @@ def forecast_save(request):
         budget_forms = [ForecastForm(instance=budget) for budget in budget_instances]
         flat_budget_form = ForecastForm()
         context = {
+            'form_type': form_type,
             'budforline_id': budforline_id,
             'forecast_forms': forecast_forms,
             'budget_forms': budget_forms,
             'flat_budget_form': flat_budget_form,
             'brand_name': form_data.get('brand_name'),
-            'color_group_name': form_data.get('color_group_name'),
-            'customer': the_forecast_budget.budforline.customer
+            'color_group_name': form_data.get('color_group_name')
+            # 'customer': the_forecast_budget.budforline.customer
         }
         return render(request, "app_pages/forecast_2_fcst.html", context)
 
