@@ -31,9 +31,7 @@
         <div class="row g-4">
           <!-- Parameters bar -->
           <div>
-            <h3>Filters
-              <span><button type="submit" name= "reset_filters" class="ms-3 btn btn-sm btn-outline-primary btn-pill">Reset</button></span>
-            </h3>
+            <h3>Filters</h3>
           </div>
           <div class="col-md-3">
             <form action="{% url 'products' %}" method="get">
@@ -48,7 +46,7 @@
           <!-- End of parameters bar -->
           <!-- Main part -->
           <div class="col-md-9">
-            <div class="col-md-9 d-flex align-items-end mb-4">
+            <div class="col-md-9 d-flex mb-4">
               {% include 'app_includes/pagination.html' %}
             </div>
             <div class="row row-cards">
