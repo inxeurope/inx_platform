@@ -25,6 +25,7 @@ from .forms import *
 from .filters import *
 from .tasks import ticker_task, very_long_task, file_processor
 from . import dictionaries, import_dictionaries
+from decimal import Decimal, ROUND_HALF_UP
 from loguru import logger
 import pyodbc, math
 import pandas as pd
@@ -2736,7 +2737,22 @@ def products(request):
 
 @login_required
 def sales_forecast_budget(request):
+    # Setting time variables
     current_year = datetime.now().year
+    last_year = current_year - 1
+    current_month = datetime.now().month
+    budget_year = current_year + 1
+
+    from django.shortcuts import render
+from django.db.models import OuterRef, Subquery, Sum
+from datetime import datetime
+from collections import defaultdict
+from .models import Product, ZAQCODMI9_line
+
+def sales_forecast_budget(request):
+    # Setting time variables
+    current_year = datetime.now().year
+    forecast_year = current_year
     last_year = current_year - 1
     current_month = datetime.now().month
     budget_year = current_year + 1
@@ -2746,34 +2762,162 @@ def sales_forecast_budget(request):
         number=OuterRef('material')
     ).values('brand__nsf_division__name')[:1]
 
-
-    # Sales last year
-    last_year_sales = ZAQCODMI9_line.objects.filter(
+    ## Working on Last year
+    # Annotate the ZAQCODMI9_line with the NSF division
+    last_year_annotated_lines = ZAQCODMI9_line.objects.filter(
         billing_date__year=last_year
     ).annotate(
         nsf_division=Subquery(nsf_division_subquery)
     ).values(
-        'nsf_division'
+        'nsf_division', 'invoice_qty', 'invoice_sales'
+    )
+
+    # Transform the queryset into a dictionary
+    last_year_sales_data = defaultdict(lambda: {'vol': 0, 'val': 0})
+
+    for line in last_year_annotated_lines:
+        nsf_division = line['nsf_division'] or 'ZZ_missing_NSFDivision'
+        last_year_sales_data[nsf_division]['vol'] += int(line['invoice_qty'])
+        last_year_sales_data[nsf_division]['val'] += int(line['invoice_sales'])
+
+    # Calculate the price per nsf_division
+    for nsf_division, data in last_year_sales_data.items():
+        if nsf_division is None:
+            nsf_division = 'ZZ__missing NSFDivision'
+        data['price'] = (Decimal(data['val']) / Decimal(data['vol'])).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP) if data['vol'] != 0 else Decimal('0.00')
+
+    # Output the results to the console
+    print("* LAST YEAR *")
+    for nsf_division, data in sorted(last_year_sales_data.items()):
+        print(f"NSF Division: {nsf_division}, Volume: {data['vol']}, Value: {data['val']}, Price: {data['price']}")
+
+    ## Working on this year
+    # Annotate the ZAQCODMI9_line with the NSF division
+    this_year_annotated_lines = ZAQCODMI9_line.objects.filter(
+        billing_date__year=current_year,
+        billing_date__month__lt = current_month
     ).annotate(
-        total_volume=Sum('invoice_qty'),
-        total_value=Sum('invoice_sales'),
-        average_price=Sum('invoice_sales') / Sum('invoice_qty')
-    ).order_by('nsf_division')
+        nsf_division=Subquery(nsf_division_subquery)
+    ).values(
+        'nsf_division', 'invoice_qty', 'invoice_sales'
+    )
 
-    final_aggregates = last_year_sales.values(
-        'nsf_division'
-    ).annotate(
-        total_volume=Sum('total_volume'),
-        total_value=Sum('total_value'),
-        average_price=Sum('total_value') / Sum('total_volume')
-    ).order_by('nsf_division')
+    # Transform the queryset into a dictionary
+    this_year_sales_data = defaultdict(lambda: {'vol': 0, 'val': 0})
 
-    for item in final_aggregates:
-        print(item)
-    
+    for line in this_year_annotated_lines:
+        nsf_division = line['nsf_division'] or 'ZZ_missing_NSFDivision'
+        this_year_sales_data[nsf_division]['vol'] += int(line['invoice_qty'])
+        this_year_sales_data[nsf_division]['val'] += int(line['invoice_sales'])
 
+    # Calculate the price per nsf_division
+    for nsf_division, data in this_year_sales_data.items():
+        data['price'] = (Decimal(data['val']) / Decimal(data['vol'])).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP) if data['vol'] != 0 else Decimal('0.00')
+
+    # Output the results to the console
+    print("* THIS YEAR *")
+    for nsf_division, data in sorted(this_year_sales_data.items()):
+        print(f"NSF Division: {nsf_division}, Volume: {data['vol']}, Value: {data['val']}, Price: {data['price']}")
+
+
+    ## Forecast
+    # Get the BudgetForecastDetail data aggregated by nsf_division
+    forecast_lines = BudgetForecastDetail.objects.filter(
+        scenario__is_forecast=True,
+        year=forecast_year
+    ).select_related('budforline__brand__nsf_division')
+
+    # Transform the queryset into a dictionary for budget forecast data
+    forecast_data = defaultdict(lambda: {'vol': 0, 'val': 0})
+
+    for line in forecast_lines:
+        nsf_division = line.budforline.brand.nsf_division.name or 'ZZ_missing_NSFDivision'
+        forecast_data[nsf_division]['vol'] += line.volume
+        forecast_data[nsf_division]['val'] += int(line.value)
+
+    # Calculate the price per nsf_division for budget forecast data
+    for nsf_division, data in forecast_data.items():
+        if nsf_division is None:
+            nsf_division = 'ZZ__missing NSFDivision'        
+        data['price'] = (Decimal(data['val']) / Decimal(data['vol'])).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP) if data['vol'] != 0 else Decimal('0.00')
+
+    # Output the budget forecast results to the console
+    print("* FORECAST *")
+    for nsf_division, data in sorted(forecast_data.items()):
+        print(f"NSF Division: {nsf_division}, Volume: {data['vol']}, Value: {data['val']}, Price: {data['price']}")
+
+
+    ## Budget
+    # Get the BudgetForecastDetail data aggregated by nsf_division
+    budget_lines = BudgetForecastDetail.objects.filter(
+        scenario__is_budget=True,
+        year=budget_year
+    ).select_related('budforline__brand__nsf_division')
+
+    # Transform the queryset into a dictionary for budget forecast data
+    budget_data = defaultdict(lambda: {'vol': 0, 'val': 0})
+
+    for line in budget_lines:
+        nsf_division = line.budforline.brand.nsf_division.name or 'ZZ_missing_NSFDivision'
+        budget_data[nsf_division]['vol'] += line.volume
+        budget_data[nsf_division]['val'] += int(line.value)
+
+    # Calculate the price per nsf_division for budget forecast data
+    for nsf_division, data in budget_data.items():
+        if nsf_division is None:
+            nsf_division = 'ZZ__missing NSFDivision'
+        data['price'] = (Decimal(data['val']) / Decimal(data['vol'])).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP) if data['vol'] != 0 else Decimal('0.00')
+
+    # Output the budget forecast results to the console
+    print("* BUDGET *")
+    for nsf_division, data in sorted(budget_data.items()):
+        print(f"NSF Division: {nsf_division}, Volume: {data['vol']}, Value: {data['val']}, Price: {data['price']}")
+
+
+    ## Combine this year and forecast
+    forecast_full_data = defaultdict(lambda: {'vol': 0, 'val': 0})
+
+    # Combine this year's sales data
+    for nsf_division, data in this_year_sales_data.items():
+        forecast_full_data[nsf_division]['vol'] += data['vol']
+        forecast_full_data[nsf_division]['val'] += data['val']
+
+    # Combine forecast data
+    for nsf_division, data in forecast_data.items():
+        forecast_full_data[nsf_division]['vol'] += data['vol']
+        forecast_full_data[nsf_division]['val'] += data['val']
+
+    # Calculate the combined price per nsf_division
+    for nsf_division, data in forecast_full_data.items():
+        data['price'] = (Decimal(data['val']) / Decimal(data['vol'])).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP) if data['vol'] != 0 else Decimal('0.00')
+
+    # Output the combined results to the console
+    print("* COMBINED THIS YEAR AND FORECAST *")
+    for nsf_division, data in sorted(forecast_full_data.items()):
+        print(f"NSF Division: {nsf_division}, Volume: {data['vol']}, Value: {data['val']}, Price: {data['price']}")
+
+    all_nsf_divisions = set(last_year_sales_data.keys()) | set(this_year_sales_data.keys()) | set(forecast_data.keys()) | set(budget_data.keys())
+    consolidated_data = []
+    for nsf_division in sorted(all_nsf_divisions):
+        consolidated_data.append({
+            'nsf_division': nsf_division,
+            'last': last_year_sales_data.get(nsf_division, {'vol': 0, 'price': 0, 'val': 0}),
+            'this': this_year_sales_data.get(nsf_division, {'vol': 0, 'price': 0, 'val': 0}),
+            'forecast': forecast_data.get(nsf_division, {'vol': 0, 'price': 0, 'val': 0}),
+            'forecast_full': forecast_full_data.get(nsf_division, {'vol': 0, 'price': 0, 'val': 0}),
+            'budget': budget_data.get(nsf_division, {'vol': 0, 'price': 0, 'val': 0}),
+        })
+    print()
+    pprint.pprint(consolidated_data)
+
+    # Prepare the context (if you want to pass this to the template later)
     context = {
-        'last_year_sales': last_year_sales
+        'consolidated_data': consolidated_data
     }
 
-    return render(request, 'app_pages/sales_forecast_budget.html', context)
+    return render(request, 'app_pages/sfb.html', context)
+
+
+
+
+##

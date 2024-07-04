@@ -20,7 +20,7 @@ urlpatterns = [
     path("test/<int:customer_id>", views.fetch_bdg_sales, name="test"),
     
     
-    path("sales_forecast_budget", views.sales_forecast_budget, name="sales-forecast-budget"),
+    path("sfb/", views.sales_forecast_budget, name="sales-forecast-budget"),
 
 
     path("loader/", views.loader, name="loader"),
