@@ -1,6 +1,6 @@
 from typing import Any
 from django.apps import apps
-from django.db.models import Sum, Avg, Case, DecimalField, ExpressionWrapper, When, F
+from django.db.models import Sum, OuterRef, Subquery
 from django.db import connection
 from django.urls import reverse_lazy, reverse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -2732,3 +2732,48 @@ def products(request):
     }
 
     return render(request, "app_pages/products.html", context)
+
+
+@login_required
+def sales_forecast_budget(request):
+    current_year = datetime.now().year
+    last_year = current_year - 1
+    current_month = datetime.now().month
+    budget_year = current_year + 1
+
+    # Subquery to get the NSFDivision related to the product's name
+    nsf_division_subquery = Product.objects.filter(
+        number=OuterRef('material')
+    ).values('brand__nsf_division__name')[:1]
+
+
+    # Sales last year
+    last_year_sales = ZAQCODMI9_line.objects.filter(
+        billing_date__year=last_year
+    ).annotate(
+        nsf_division=Subquery(nsf_division_subquery)
+    ).values(
+        'nsf_division'
+    ).annotate(
+        total_volume=Sum('invoice_qty'),
+        total_value=Sum('invoice_sales'),
+        average_price=Sum('invoice_sales') / Sum('invoice_qty')
+    ).order_by('nsf_division')
+
+    final_aggregates = last_year_sales.values(
+        'nsf_division'
+    ).annotate(
+        total_volume=Sum('total_volume'),
+        total_value=Sum('total_value'),
+        average_price=Sum('total_value') / Sum('total_volume')
+    ).order_by('nsf_division')
+
+    for item in final_aggregates:
+        print(item)
+    
+
+    context = {
+        'last_year_sales': last_year_sales
+    }
+
+    return render(request, 'app_pages/sales_forecast_budget.html', context)

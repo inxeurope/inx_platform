@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sales, Forecast, and Budget</title>
+    
+</head>
+<body>
+    <h1>Sales, Forecast, and Budget</h1>
+
+    <h2>Sales Last Year</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>NSF Division</th>
+                <th>Total Volume</th>
+                <th>Total Value</th>
+                <th>Average Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in last_year_sales %}
+                <tr>
+                    <td>{{ item.nsf_division__name }}</td>
+                    <td>{{ item.total_volume }}</td>
+                    <td>{{ item.total_value }}</td>
+                    <td>{{ item.average_price }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>Sales Current Year Until Last Month</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>NSF Division</th>
+                <th>Total Volume</th>
+                <th>Total Value</th>
+                <th>Average Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in current_year_sales %}
+                <tr>
+                    <td>{{ item.nsf_division__name }}</td>
+                    <td>{{ item.total_volume }}</td>
+                    <td>{{ item.total_value }}</td>
+                    <td>{{ item.average_price }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>Forecast for Current Year</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>NSF Division</th>
+                <th>Total Volume</th>
+                <th>Total Value</th>
+                <th>Average Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in forecast %}
+                <tr>
+                    <td>{{ item.nsf_division__name }}</td>
+                    <td>{{ item.total_volume }}</td>
+                    <td>{{ item.total_value }}</td>
+                    <td>{{ item.average_price }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>Budget for Next Year</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>NSF Division</th>
+                <th>Total Volume</th>
+                <th>Total Value</th>
+                <th>Average Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in budget %}
+                <tr>
+                    <td>{{ item.nsf_division__name }}</td>
+                    <td>{{ item.total_volume }}</td>
+                    <td>{{ item.total_value }}</td>
+                    <td>{{ item.average_price }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</body>
+</html>
