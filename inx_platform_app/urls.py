@@ -19,9 +19,9 @@ urlpatterns = [
 
     path("test/<int:customer_id>", views.fetch_bdg_sales, name="test"),
     
-    
     path("sfb/", views.sales_forecast_budget, name="sales-forecast-budget"),
 
+    path("get_exchange_rates", views.get_exchange_rates, name="get-exchange-rates"),
 
     path("loader/", views.loader, name="loader"),
     path("loading", views.loading, name="loading"),

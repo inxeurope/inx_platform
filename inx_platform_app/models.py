@@ -14,7 +14,7 @@ from . import import_dictionaries
 from django.core.exceptions import ValidationError
 
 
-# Field validators
+# Field validators ---------------------------------------------
 def xls_xlsx_file_validator(value):
     ext = os.path.splitext(value.name)[1]  # Get file extension
     valid_extensions = ['.xlsx', '.XLSX']
@@ -26,6 +26,8 @@ def xls_xlsx_file_validator(value):
 # ----------------------------------------------------------
 # The following classes are for managing a custom User model
 # ----------------------------------------------------------
+
+
 class CustomUserManager(UserManager):
     def _create_user(self, email, password, **extra_fields):
         if not email:
@@ -97,9 +99,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     def get_all_users(cls):
         return cls.objects.all()
 
+
 # -----------------------------------------------------
 # Models with no Foreign Keys
 # -----------------------------------------------------
+
+
 class Currency(models.Model):
 
     class Meta:
@@ -112,6 +117,16 @@ class Currency(models.Model):
     
     def __str__(self):
         return self.alpha_3
+
+
+class CurrencyRate(models.Model):
+
+    class Mata:
+        verbose_name_plural = 'Currency Rates'
+    
+    currency = models.ForeignKey(Currency, on_delete=models.PROTECT)
+    year = models.SmallIntegerField()
+    rate = models.DecimalField(max_digits=6, decimal_places=2)
 
 
 class ProductLine(models.Model):
@@ -318,9 +333,11 @@ class PaymentTerm(models.Model):
     name=models.CharField(max_length=255)
     days_term = models.SmallIntegerField(null=True)
 
+
 # -----------------------------------------------------
 # Models with no FK and no index
 # -----------------------------------------------------
+
 
 class Fbl5nArrImport(models.Model):
     document_date = models.DateField()
@@ -839,9 +856,11 @@ class Order(models.Model):
         return_tring = self.invoice_number or "" + " " + self.customer_name or ""
         return return_tring
 
+
 # -----------------------------------------------------
 # Models with Foreign Keys
 # -----------------------------------------------------
+
 
 class Color(models.Model):
     name = models.CharField(max_length=30)
@@ -1335,6 +1354,7 @@ class ContactType(models.Model):
     def __str__(self):
         return self.name
 
+
 class Contact(models.Model):
     TITLE_CHOICES = [
         ('NO_TITLE', ''),
@@ -1387,4 +1407,16 @@ class Fert(models.Model):
     def get_fert_and_brand(self):
         return_string = self.number + self.brand.name
         return return_string
-    
+
+
+class EuroExchangeRate(models.Model):
+    currency = models.ForeignKey(Currency, on_delete=models.CASCADE)
+    year = models.IntegerField()
+    month = models.IntegerField()
+    rate = models.DecimalField(max_digits=10, decimal_places=4)
+
+    class Meta:
+        unique_together = ('currency', 'year', 'month')
+
+    def __str__(self):
+        return f"{self.currency.alpha_3} - {self.year}-{self.month}: {self.rate}"

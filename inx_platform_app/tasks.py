@@ -4,11 +4,15 @@ from celery.utils.log import get_task_logger
 from django.shortcuts import get_object_or_404
 from django.db import connection
 from .models import *
-from . import dictionaries, import_dictionaries
+from . import import_dictionaries
+from decimal import Decimal, ROUND_HALF_UP
 import pandas as pd
 import time
 import os
+import pprint
+import requests
 from loguru import logger as django_logger
+import xml.etree.ElementTree as ET
 
 
 # app = Celery('core_app', broker='redis://localhost:6379/0')
@@ -230,7 +234,6 @@ def read_this_file(the_file, user, conversion_dictionary, celery_task_id):
         return False
 
 
-
 @shared_task
 def ticker_task(pippo):
     for iteration in range(3):
@@ -245,3 +248,64 @@ def very_long_task():
         celery_logger.info(f"number: {number}")
     return"task 50x completed!"
 
+
+@shared_task
+def fetch_euro_exchange_rates():
+    url = 'https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist.xml'
+    response = requests.get(url)
+    if response.status_code == 200:
+        root = ET.fromstring(response.content)
+        celery_logger.info(f"root:{root}")
+        namespaces = {'gesmes': 'http://www.gesmes.org/xml/2002-08-01',
+                      '': 'http://www.ecb.int/vocabulary/2002-08-01/eurofxref'}
+
+        celery_logger.info(f"namespaces: {namespaces}")
+
+        valid_currency_codes = set(Currency.objects.values_list('alpha_3', flat=True))
+        rates_data = {}
+        for cube in root.findall('.//Cube[@time]', namespaces):
+            date_str = cube.attrib['time']
+            date = datetime.strptime(date_str, '%Y-%m-%d')
+            year, month = date.year, date.month
+
+            for rate in cube.findall('.//Cube[@currency]', namespaces):
+                currency_code = rate.attrib['currency']
+                if currency_code not in valid_currency_codes:
+                    continue
+                
+                exchange_rate = Decimal(rate.attrib['rate']).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
+                # Initialize nested dictionaries if not already present
+                if year not in rates_data:
+                    rates_data[year] = {}
+                if month not in rates_data[year]:
+                    rates_data[year][month] = {}
+                if currency_code not in rates_data[year][month]:
+                    rates_data[year][month][currency_code] = {'sum': 0, 'count': 0}
+
+                print(f"year: {year} month: {month} currency: {currency_code}; exchange rate: {exchange_rate}")
+                rates_data[year][month][currency_code]['sum'] += exchange_rate
+                rates_data[year][month][currency_code]['count'] += 1
+
+        for year in rates_data:
+            for month in rates_data[year]:
+                for currency_code in rates_data[year][month]:
+                    total_sum = rates_data[year][month][currency_code]['sum']
+                    count = rates_data[year][month][currency_code]['count']
+                    average_rate = total_sum / count if count else 0
+
+                    try:
+                        currency = Currency.objects.get(alpha_3=currency_code)
+                        EuroExchangeRate.objects.update_or_create(
+                            currency=currency,
+                            year=year,
+                            month=month,
+                            defaults={'rate': average_rate}
+                        )
+                        celery_logger.info(f"{year}-{month}-{currency_code}-avg: {average_rate}")
+                    except Currency.DoesNotExist:
+                        celery_logger.warning(f"Currency with code {currency_code} does not exist.")
+                        continue
+        celery_logger.info("EUR exchange rates update completed")
+    else:
+        celery_logger.info(f"Failed to fetch data: {response.status_code}")

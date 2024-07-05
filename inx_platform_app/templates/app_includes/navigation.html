@@ -169,13 +169,12 @@
             </a>
             <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
             {% if request.user.is_authenticated %}
-                {% comment %}<a href="{% url 'profile' %}" class="dropdown-item">Profile</a>{% endcomment %}
-                {% comment %} <a href="{% url 'account_settings' %}" class="dropdown-item">Account Settings</a> {% endcomment %}
                 <a href="{% url 'change_password' %}" class="dropdown-item">Change Password</a>
                 <a href="{% url 'logout' %}" class="dropdown-item">Logout</a>
                 {% if request.user.is_superuser %}
                 <a href="{% url 'import-single-table' %}" class="dropdown-item">Import from old SQL tables</a>
-                <a href="{% url 'admin:index' %}" class="dropdown-item" >Admin inteface</a>
+                <a href="{% url 'admin:index' %}" class="dropdown-item">Admin inteface</a>
+                <a href="{% url 'get-exchange-rates' %}" class="dropdown-item">Get EUR exchange rates from ECB</a>
                 {% endif %}
             {% else %}    
                 <a href="{% url 'login' %}" class="dropdown-item">Sign In</a>

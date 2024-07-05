@@ -1,10 +1,11 @@
 from typing import Any
 from django.apps import apps
-from django.db.models import Sum, OuterRef, Subquery
+from django.db.models import Sum, OuterRef, Subquery, DecimalField, F, Value, Case, When
+from django.db.models.functions import Coalesce, Round
 from django.db import connection
 from django.urls import reverse_lazy, reverse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse, StreamingHttpResponse, HttpResponseRedirect, HttpResponseBadRequest, HttpResponse
+from django.http import JsonResponse, HttpResponseRedirect, HttpResponseBadRequest, HttpResponse
 from django.conf import settings
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
@@ -23,7 +24,7 @@ from .models import *
 from .utils import *
 from .forms import *
 from .filters import *
-from .tasks import ticker_task, very_long_task, file_processor
+from .tasks import ticker_task, very_long_task, file_processor, fetch_euro_exchange_rates
 from . import dictionaries, import_dictionaries
 from decimal import Decimal, ROUND_HALF_UP
 from loguru import logger
@@ -2762,20 +2763,42 @@ def sales_forecast_budget(request):
         number=OuterRef('material')
     ).values('brand__nsf_division__name')[:1]
 
+    # Subquery to get the exchange rate
+    exchange_rate_subquery = EuroExchangeRate.objects.filter(
+        currency__alpha_3=OuterRef('curr'),
+        year=last_year,
+        month=OuterRef('billing_date__month')
+    ).values('rate')[:1]
+
     ## Working on Last year
     # Annotate the ZAQCODMI9_line with the NSF division
+    last_year_exchange_rates = EuroExchangeRate.objects.filter(
+        year=last_year
+    )
+
     last_year_annotated_lines = ZAQCODMI9_line.objects.filter(
         billing_date__year=last_year
     ).annotate(
-        nsf_division=Subquery(nsf_division_subquery)
+        nsf_division=Subquery(nsf_division_subquery),
+        exchange_rate=Coalesce(Subquery(exchange_rate_subquery), Value(1, output_field=DecimalField(max_digits=10, decimal_places=2))
+        ),
+        adjusted_sales=Round(Case(
+            When(curr='EUR', then=F('invoice_sales')),
+            default=F('invoice_sales')/F('exchange_rate'),
+            output_field=DecimalField(max_digits=20, decimal_places=2)
+        ), 2)
     ).values(
-        'nsf_division', 'invoice_qty', 'invoice_sales'
+        'billing_date', 'nsf_division', 'invoice_qty', 'curr', 'invoice_sales', 'exchange_rate', 'adjusted_sales'
     )
+    for l in last_year_annotated_lines:
+        if not l['curr'] == 'EUR':
+            print(f"{l['billing_date']}, {l['nsf_division']}, {l['invoice_qty']}, {l['curr']}, {l['invoice_sales']}, -Exchengae rate:{l['exchange_rate']}--, {l['adjusted_sales']}")
 
     # Transform the queryset into a dictionary
     last_year_sales_data = defaultdict(lambda: {'vol': 0, 'val': 0})
 
     for line in last_year_annotated_lines:
+        # print(f"{line['billing_date'].year} {line['billing_date'].month}  {line['nsf_division']} {line['invoice_qty']} {line['curr']} {line['invoice_sales']}")
         nsf_division = line['nsf_division'] or 'ZZ_missing_NSFDivision'
         last_year_sales_data[nsf_division]['vol'] += int(line['invoice_qty'])
         last_year_sales_data[nsf_division]['val'] += int(line['invoice_sales'])
@@ -2789,7 +2812,8 @@ def sales_forecast_budget(request):
     # Output the results to the console
     print("* LAST YEAR *")
     for nsf_division, data in sorted(last_year_sales_data.items()):
-        print(f"NSF Division: {nsf_division}, Volume: {data['vol']}, Value: {data['val']}, Price: {data['price']}")
+        pass
+        # print(f"NSF Division: {nsf_division}, Volume: {data['vol']}, Value: {data['val']}, Price: {data['price']}")
 
     ## Working on this year
     # Annotate the ZAQCODMI9_line with the NSF division
@@ -2817,7 +2841,8 @@ def sales_forecast_budget(request):
     # Output the results to the console
     print("* THIS YEAR *")
     for nsf_division, data in sorted(this_year_sales_data.items()):
-        print(f"NSF Division: {nsf_division}, Volume: {data['vol']}, Value: {data['val']}, Price: {data['price']}")
+        pass
+        # print(f"NSF Division: {nsf_division}, Volume: {data['vol']}, Value: {data['val']}, Price: {data['price']}")
 
 
     ## Forecast
@@ -2844,7 +2869,8 @@ def sales_forecast_budget(request):
     # Output the budget forecast results to the console
     print("* FORECAST *")
     for nsf_division, data in sorted(forecast_data.items()):
-        print(f"NSF Division: {nsf_division}, Volume: {data['vol']}, Value: {data['val']}, Price: {data['price']}")
+        pass
+        # print(f"NSF Division: {nsf_division}, Volume: {data['vol']}, Value: {data['val']}, Price: {data['price']}")
 
 
     ## Budget
@@ -2871,7 +2897,8 @@ def sales_forecast_budget(request):
     # Output the budget forecast results to the console
     print("* BUDGET *")
     for nsf_division, data in sorted(budget_data.items()):
-        print(f"NSF Division: {nsf_division}, Volume: {data['vol']}, Value: {data['val']}, Price: {data['price']}")
+        pass
+        # print(f"NSF Division: {nsf_division}, Volume: {data['vol']}, Value: {data['val']}, Price: {data['price']}")
 
 
     ## Combine this year and forecast
@@ -2894,7 +2921,8 @@ def sales_forecast_budget(request):
     # Output the combined results to the console
     print("* COMBINED THIS YEAR AND FORECAST *")
     for nsf_division, data in sorted(forecast_full_data.items()):
-        print(f"NSF Division: {nsf_division}, Volume: {data['vol']}, Value: {data['val']}, Price: {data['price']}")
+        pass
+        # print(f"NSF Division: {nsf_division}, Volume: {data['vol']}, Value: {data['val']}, Price: {data['price']}")
 
     all_nsf_divisions = set(last_year_sales_data.keys()) | set(this_year_sales_data.keys()) | set(forecast_data.keys()) | set(budget_data.keys())
     consolidated_data = []
@@ -2907,10 +2935,7 @@ def sales_forecast_budget(request):
             'forecast_full': forecast_full_data.get(nsf_division, {'vol': 0, 'price': 0, 'val': 0}),
             'budget': budget_data.get(nsf_division, {'vol': 0, 'price': 0, 'val': 0}),
         })
-    print()
-    pprint.pprint(consolidated_data)
 
-    # Prepare the context (if you want to pass this to the template later)
     context = {
         'consolidated_data': consolidated_data
     }
@@ -2918,6 +2943,10 @@ def sales_forecast_budget(request):
     return render(request, 'app_pages/sfb.html', context)
 
 
+def get_exchange_rates(request):
+    print("start the task")
+    fetch_euro_exchange_rates.delay()
+    return render(request, "app_pages/index.html", {})
 
 
 ##

@@ -442,6 +442,11 @@ class ContactTypeAdmin(admin.ModelAdmin):
     ordering = ['id']
 
 
+class CurrencyRateAdmin(admin.ModelAdmin):
+    list_display = ['id', 'currency', 'year', 'rate']
+    ordering = ['currency', 'year']
+
+
 admin.site.register(ColorGroup, ColorGroupAdmin)
 admin.site.register(Color, ColorAdmin)
 admin.site.register(MadeIn, MadeInAdmin)
@@ -487,4 +492,5 @@ admin.site.register(BudgetForecastDetail, BudgetForecastDetailAdmin)
 admin.site.register(BudgetForecastDetail_sales, BudgetForecastDetail_salesAdmin)
 admin.site.register(Currency, CurrencyAdmin)
 admin.site.register(ContactType, ContactTypeAdmin)
-
+admin.site.register(CurrencyRate, CurrencyRateAdmin)
+admin.site.register(EuroExchangeRate)
