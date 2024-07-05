@@ -66,7 +66,7 @@ class UnitOfMeasureAdmin(admin.ModelAdmin):
 
 
 class ExchangeRateAdmin(admin.ModelAdmin):
-    list_display = ['id', 'currency']
+    list_display = ['id', 'currency', 'year', 'rate']
 
 
 class ScenarioAdmin(admin.ModelAdmin):
