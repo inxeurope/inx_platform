@@ -1,5 +1,4 @@
-from typing import Any
-from django.apps import apps
+from collections import defaultdict
 from django.db.models import Sum, OuterRef, Subquery, DecimalField, F, Value, Case, When
 from django.db.models.functions import Coalesce, Round
 from django.db import connection
@@ -31,6 +30,7 @@ from loguru import logger
 import pyodbc, math
 import pandas as pd
 import numpy as np
+import openpyxl
 import os, time
 from datetime import datetime
 from time import perf_counter
@@ -2740,25 +2740,18 @@ def products(request):
 def sales_forecast_budget(request):
     # Setting time variables
     current_year = datetime.now().year
-    last_year = current_year - 1
-    current_month = datetime.now().month
-    budget_year = current_year + 1
-
-    from django.shortcuts import render
-from django.db.models import OuterRef, Subquery, Sum
-from datetime import datetime
-from collections import defaultdict
-from .models import Product, ZAQCODMI9_line
-
-def sales_forecast_budget(request):
-    # Setting time variables
-    current_year = datetime.now().year
     forecast_year = current_year
     last_year = current_year - 1
     current_month = datetime.now().month
     budget_year = current_year + 1
 
+    # Missing division string
+    missing_division = 'Z missing division'
+    # Total string
+    total_text = 'ZZ Total'
+
     # Subquery to get the NSFDivision related to the product's name
+    # this is used with last_year, this_year, forecast, budget
     nsf_division_subquery = Product.objects.filter(
         number=OuterRef('material')
     ).values('brand__nsf_division__name')[:1]
@@ -2771,17 +2764,13 @@ def sales_forecast_budget(request):
     ).values('rate')[:1]
 
     ## Working on Last year
-    # Annotate the ZAQCODMI9_line with the NSF division
-    last_year_exchange_rates = EuroExchangeRate.objects.filter(
-        year=last_year
-    )
-
+    # Annotate the ZAQCODMI9_line with the NSF division and EUR exchange rates
+    # for those lines that are not in EUR
     last_year_annotated_lines = ZAQCODMI9_line.objects.filter(
         billing_date__year=last_year
     ).annotate(
         nsf_division=Subquery(nsf_division_subquery),
-        exchange_rate=Coalesce(Subquery(exchange_rate_subquery), Value(1, output_field=DecimalField(max_digits=10, decimal_places=2))
-        ),
+        exchange_rate=Coalesce(Subquery(exchange_rate_subquery), Value(1, output_field=DecimalField(max_digits=10, decimal_places=2))),
         adjusted_sales=Round(Case(
             When(curr='EUR', then=F('invoice_sales')),
             default=F('invoice_sales')/F('exchange_rate'),
@@ -2790,115 +2779,188 @@ def sales_forecast_budget(request):
     ).values(
         'billing_date', 'nsf_division', 'invoice_qty', 'curr', 'invoice_sales', 'exchange_rate', 'adjusted_sales'
     )
-    for l in last_year_annotated_lines:
-        if not l['curr'] == 'EUR':
-            print(f"{l['billing_date']}, {l['nsf_division']}, {l['invoice_qty']}, {l['curr']}, {l['invoice_sales']}, -Exchengae rate:{l['exchange_rate']}--, {l['adjusted_sales']}")
 
-    # Transform the queryset into a dictionary
+    # Transform the queryset in a dictionary that grows automatically
     last_year_sales_data = defaultdict(lambda: {'vol': 0, 'val': 0})
-
     for line in last_year_annotated_lines:
-        # print(f"{line['billing_date'].year} {line['billing_date'].month}  {line['nsf_division']} {line['invoice_qty']} {line['curr']} {line['invoice_sales']}")
-        nsf_division = line['nsf_division'] or 'ZZ_missing_NSFDivision'
+        nsf_division = line['nsf_division'] or missing_division
         last_year_sales_data[nsf_division]['vol'] += int(line['invoice_qty'])
-        last_year_sales_data[nsf_division]['val'] += int(line['invoice_sales'])
+        last_year_sales_data[nsf_division]['val'] += int(line['adjusted_sales'])
 
     # Calculate the price per nsf_division
     for nsf_division, data in last_year_sales_data.items():
-        if nsf_division is None:
-            nsf_division = 'ZZ__missing NSFDivision'
         data['price'] = (Decimal(data['val']) / Decimal(data['vol'])).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP) if data['vol'] != 0 else Decimal('0.00')
 
-    # Output the results to the console
-    print("* LAST YEAR *")
-    for nsf_division, data in sorted(last_year_sales_data.items()):
-        pass
-        # print(f"NSF Division: {nsf_division}, Volume: {data['vol']}, Value: {data['val']}, Price: {data['price']}")
+    # Calculating the total of last_year
+    total_last_year = {'vol': 0, 'val': 0, 'price': Decimal('0.00')}
+    for data in last_year_sales_data.values():
+        total_last_year['vol'] += data['vol']
+        total_last_year['val'] += data['val']
+    total_last_year['price'] = (Decimal(total_last_year['val']) / Decimal(total_last_year['vol'])).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP) if total_last_year['vol'] != 0 else Decimal('0.00')
+    last_year_sales_data[total_text] = total_last_year
 
     ## Working on this year
-    # Annotate the ZAQCODMI9_line with the NSF division
+    # Subquery to get the exchange rate
+    exchange_rate_subquery = EuroExchangeRate.objects.filter(
+        currency__alpha_3=OuterRef('curr'),
+        year=current_year,
+        month=OuterRef('billing_date__month')
+    ).values('rate')[:1]
+
+    # Annotate the ZAQCODMI9_line with the NSF division and EUR exchange rates
+    # for those lines that are not in EUR
     this_year_annotated_lines = ZAQCODMI9_line.objects.filter(
         billing_date__year=current_year,
         billing_date__month__lt = current_month
     ).annotate(
-        nsf_division=Subquery(nsf_division_subquery)
+        nsf_division=Subquery(nsf_division_subquery),
+        exchange_rate=Coalesce(Subquery(exchange_rate_subquery), Value(1, output_field=DecimalField(max_digits=10, decimal_places=2))),
+        adjusted_sales=Round(Case(
+            When(curr='EUR', then=F('invoice_sales')),
+            default=F('invoice_sales')/F('exchange_rate'),
+            output_field=DecimalField(max_digits=20, decimal_places=2)
+        ), 2)
     ).values(
-        'nsf_division', 'invoice_qty', 'invoice_sales'
+        'billing_date', 'nsf_division', 'invoice_qty', 'curr', 'invoice_sales', 'exchange_rate', 'adjusted_sales'
     )
 
     # Transform the queryset into a dictionary
     this_year_sales_data = defaultdict(lambda: {'vol': 0, 'val': 0})
-
     for line in this_year_annotated_lines:
-        nsf_division = line['nsf_division'] or 'ZZ_missing_NSFDivision'
+        nsf_division = line['nsf_division'] or missing_division
         this_year_sales_data[nsf_division]['vol'] += int(line['invoice_qty'])
-        this_year_sales_data[nsf_division]['val'] += int(line['invoice_sales'])
+        this_year_sales_data[nsf_division]['val'] += int(line['adjusted_sales'])
 
     # Calculate the price per nsf_division
     for nsf_division, data in this_year_sales_data.items():
         data['price'] = (Decimal(data['val']) / Decimal(data['vol'])).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP) if data['vol'] != 0 else Decimal('0.00')
 
-    # Output the results to the console
-    print("* THIS YEAR *")
-    for nsf_division, data in sorted(this_year_sales_data.items()):
+    # Calculate total for this year
+    total_this_year = {'vol': 0, 'val': 0, 'price': Decimal('0.00')}
+    for data in this_year_sales_data.values():
+        total_this_year['vol'] += data['vol']
+        total_this_year['val'] += data['val']
+    total_this_year['price'] = (Decimal(total_this_year['val']) / Decimal(total_this_year['vol'])).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP) if total_this_year['vol'] != 0 else Decimal('0.00')
+    this_year_sales_data[total_text] = total_this_year
+
+    print("Control loop this_year")
+    for l in this_year_sales_data.items():
+        pprint.pprint(l)
         pass
-        # print(f"NSF Division: {nsf_division}, Volume: {data['vol']}, Value: {data['val']}, Price: {data['price']}")
+    print("end of control loop")
 
+    # For the forecast and the budget I need to convert those values where customer currency is not EUR
+    # Subquery to get the fixed exchange rate, it will be used below 
+    currency_rate_subquery = CurrencyRate.objects.filter(
+        currency_id=OuterRef('budforline__customer__currency_id'),
+        year=current_year
+    ).values('rate')[:1]
 
-    ## Forecast
-    # Get the BudgetForecastDetail data aggregated by nsf_division
     forecast_lines = BudgetForecastDetail.objects.filter(
         scenario__is_forecast=True,
-        year=forecast_year
-    ).select_related('budforline__brand__nsf_division')
+        year=current_year,
+        month__gte=current_month
+    ).select_related(
+        'budforline__brand__nsf_division',
+        'budforline__customer__currency'
+    ).annotate(
+        currency_alpha3=F('budforline__customer__currency__alpha_3'),
+        currency_rate=Coalesce(Subquery(currency_rate_subquery), Value(1, output_field=DecimalField(max_digits=10, decimal_places=2))),
+        adjusted_value=Case(
+            When(budforline__customer__currency__alpha_3='EUR', then=F('value')),
+            default=F('value') / F('currency_rate'),
+            output_field=DecimalField(max_digits=20, decimal_places=2)
+        )
+    ).values(
+        'budforline__brand__nsf_division__name',
+        'volume',
+        'adjusted_value'
+    )
 
     # Transform the queryset into a dictionary for budget forecast data
     forecast_data = defaultdict(lambda: {'vol': 0, 'val': 0})
 
     for line in forecast_lines:
-        nsf_division = line.budforline.brand.nsf_division.name or 'ZZ_missing_NSFDivision'
-        forecast_data[nsf_division]['vol'] += line.volume
-        forecast_data[nsf_division]['val'] += int(line.value)
+        nsf_division = line['budforline__brand__nsf_division__name'] or missing_division
+        forecast_data[nsf_division]['vol'] += line['volume']
+        forecast_data[nsf_division]['val'] += line['adjusted_value']
 
     # Calculate the price per nsf_division for budget forecast data
     for nsf_division, data in forecast_data.items():
+        data['val'] = int(data['val'])
         if nsf_division is None:
-            nsf_division = 'ZZ__missing NSFDivision'        
+            nsf_division = missing_division       
         data['price'] = (Decimal(data['val']) / Decimal(data['vol'])).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP) if data['vol'] != 0 else Decimal('0.00')
 
-    # Output the budget forecast results to the console
-    print("* FORECAST *")
-    for nsf_division, data in sorted(forecast_data.items()):
-        pass
-        # print(f"NSF Division: {nsf_division}, Volume: {data['vol']}, Value: {data['val']}, Price: {data['price']}")
+    # Calculate total for forecast
+    total_forecast = {'vol': 0, 'val': 0, 'price': Decimal('0.00')}
+    for data in forecast_data.values():
+        total_forecast['vol'] += data['vol']
+        total_forecast['val'] += data['val']
+    total_forecast['price'] = (Decimal(total_forecast['val']) / Decimal(total_forecast['vol'])).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP) if total_forecast['vol'] != 0 else Decimal('0.00')
+    forecast_data[total_text] = total_forecast
 
+    print("Control loop forecast")
+    for l in forecast_data.items():
+        pprint.pprint(l)
+    print("end of control loop")
 
     ## Budget
     # Get the BudgetForecastDetail data aggregated by nsf_division
+
+    currency_rate_subquery = CurrencyRate.objects.filter(
+        currency_id=OuterRef('budforline__customer__currency_id'),
+        year=budget_year
+    ).values('rate')[:1]
+
     budget_lines = BudgetForecastDetail.objects.filter(
         scenario__is_budget=True,
         year=budget_year
-    ).select_related('budforline__brand__nsf_division')
+    ).select_related(
+        'budforline__brand__nsf_division',
+        'budforline__customer__currency'
+    ).annotate(
+        currency_alpha3=F('budforline__customer__currency__alpha_3'),
+        currency_rate=Coalesce(Subquery(currency_rate_subquery), Value(1, output_field=DecimalField(max_digits=10, decimal_places=2))),
+        adjusted_value=Case(
+            When(budforline__customer__currency__alpha_3='EUR', then=F('value')),
+            default=F('value') / F('currency_rate'),
+            output_field=DecimalField(max_digits=20, decimal_places=2)
+        )
+    ).values(
+        'budforline__brand__nsf_division__name',
+        'volume',
+        'adjusted_value'
+    )
 
     # Transform the queryset into a dictionary for budget forecast data
     budget_data = defaultdict(lambda: {'vol': 0, 'val': 0})
 
     for line in budget_lines:
-        nsf_division = line.budforline.brand.nsf_division.name or 'ZZ_missing_NSFDivision'
-        budget_data[nsf_division]['vol'] += line.volume
-        budget_data[nsf_division]['val'] += int(line.value)
+        nsf_division = line['budforline__brand__nsf_division__name'] or missing_division
+        budget_data[nsf_division]['vol'] += line['volume']
+        budget_data[nsf_division]['val'] += line['adjusted_value']
 
     # Calculate the price per nsf_division for budget forecast data
     for nsf_division, data in budget_data.items():
+        data['val'] = int(data['val'])
         if nsf_division is None:
-            nsf_division = 'ZZ__missing NSFDivision'
+            nsf_division = missing_division
         data['price'] = (Decimal(data['val']) / Decimal(data['vol'])).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP) if data['vol'] != 0 else Decimal('0.00')
+
+    # Calculate total for budget
+    total_budget = {'vol': 0, 'val': 0, 'price': Decimal('0.00')}
+    for data in budget_data.values():
+        total_budget['vol'] += data['vol']
+        total_budget['val'] += data['val']
+    total_budget['price'] = (Decimal(total_budget['val']) / Decimal(total_budget['vol'])).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP) if total_budget['vol'] != 0 else Decimal('0.00')
+    budget_data[total_text] = total_budget
 
     # Output the budget forecast results to the console
     print("* BUDGET *")
     for nsf_division, data in sorted(budget_data.items()):
         pass
-        # print(f"NSF Division: {nsf_division}, Volume: {data['vol']}, Value: {data['val']}, Price: {data['price']}")
+        print(f"NSF Division: {nsf_division}, Volume: {data['vol']}, Value: {data['val']}, Price: {data['price']}")
 
 
     ## Combine this year and forecast
@@ -2908,21 +2970,22 @@ def sales_forecast_budget(request):
     for nsf_division, data in this_year_sales_data.items():
         forecast_full_data[nsf_division]['vol'] += data['vol']
         forecast_full_data[nsf_division]['val'] += data['val']
+    pprint.pprint(this_year_sales_data)
 
     # Combine forecast data
     for nsf_division, data in forecast_data.items():
         forecast_full_data[nsf_division]['vol'] += data['vol']
         forecast_full_data[nsf_division]['val'] += data['val']
+    pprint.pprint(forecast_data)
 
     # Calculate the combined price per nsf_division
     for nsf_division, data in forecast_full_data.items():
         data['price'] = (Decimal(data['val']) / Decimal(data['vol'])).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP) if data['vol'] != 0 else Decimal('0.00')
 
-    # Output the combined results to the console
-    print("* COMBINED THIS YEAR AND FORECAST *")
-    for nsf_division, data in sorted(forecast_full_data.items()):
-        pass
-        # print(f"NSF Division: {nsf_division}, Volume: {data['vol']}, Value: {data['val']}, Price: {data['price']}")
+    # Calculate total for full_forecast
+    # The total of the full forecast is already calculated because
+    # this_year_sales_data and forecast_data already had the total, so 
+    # it was already summed.
 
     all_nsf_divisions = set(last_year_sales_data.keys()) | set(this_year_sales_data.keys()) | set(forecast_data.keys()) | set(budget_data.keys())
     consolidated_data = []
@@ -2936,7 +2999,21 @@ def sales_forecast_budget(request):
             'budget': budget_data.get(nsf_division, {'vol': 0, 'price': 0, 'val': 0}),
         })
 
+    current_month_name = months[str(current_month)]['name']
+    forecast_month_name = months[str(current_month + 1)]['name']
+
+    cache.set('sales_forecast_budget_data', consolidated_data, timeout=1800)
+
     context = {
+        'current_month': current_month,
+        'current_month_name': current_month_name,
+        'forecast_month_name': forecast_month_name,
+        'last_year': last_year,
+        'current_year': current_year,
+        'forecast_year': forecast_year,
+        'budget_year': budget_year,
+        'missing_division': missing_division,
+        'total_text': total_text,
         'consolidated_data': consolidated_data
     }
 
@@ -2949,4 +3026,56 @@ def get_exchange_rates(request):
     return render(request, "app_pages/index.html", {})
 
 
-##
+def format_decimal(value):
+    if isinstance(value, Decimal):
+        return float(value)
+    return value
+
+def download_sfb(request):
+    current_date = datetime.now().strftime('%Y%m%d_%H%M%S')
+    file_name = f'INX_Platform_Sales_Forecast_Budget_{current_date}'
+
+    data = cache.get('sales_forecast_budget_data')
+    print('-'*60)
+    pprint.pprint(data)
+
+    rows = []
+    for item in data:
+        row = {
+            'Division': item['nsf_division'],
+            'Last Volume': item['last']['vol'],
+            'Last Price': format_decimal(item['last']['price']),
+            'Last Value': item['last']['val'],
+            'This Volume': item['this']['vol'],
+            'This Price': format_decimal(item['this']['price']),
+            'This Value': item['this']['val'],
+            'Forecast Volume': item['forecast']['vol'],
+            'Forecast Price': format_decimal(item['forecast']['price']),
+            'Forecast Value': item['forecast']['val'],
+            'Forecast Full Volume': item['forecast_full']['vol'],
+            'Forecast Full Price': format_decimal(item['forecast_full']['price']),
+            'Forecast Full Value': item['forecast_full']['val'],
+            'Budget Volume': item['budget']['vol'],
+            'Budget Price': format_decimal(item['budget']['price']),
+            'Budget Value': item['budget']['val']
+        }
+        rows.append(row)
+    df = pd.DataFrame(rows)
+    
+    if not data:
+        return HttpResponse("No data available to download.", status=404)
+    
+    with pd.ExcelWriter('output.xlsx', engine='openpyxl') as writer:
+        df.to_excel(writer, sheet_name='sfb', index=False)
+
+    with open('output.xlsx', 'rb') as f:
+        file_data = f.read()
+
+    response = HttpResponse(file_data, content_type='application/vnd.openxmlformats-officedocument.spreadsheet.sheet')
+    response['Content-Disposition'] = f'attachment; filename={file_name}.xlsx'
+
+    return response
+    
+    
+    
+    ##

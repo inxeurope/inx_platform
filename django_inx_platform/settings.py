@@ -188,3 +188,4 @@ INTERNAL_IPS = [
 ]
 
 USE_L10N = True
+

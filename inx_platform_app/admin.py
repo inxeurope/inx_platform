@@ -128,7 +128,7 @@ class ProductAdmin(admin.ModelAdmin):
 
 class CustomerAdmin(admin.ModelAdmin):
     list_display = ['id', 'number', 'name', 'get_countrycode', 'get_currency_alpha_3']
-    search_fields = ['name']
+    search_fields = ['name', 'currency_text']
 
     def get_countrycode(self, obj):
         if obj.country:

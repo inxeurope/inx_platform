@@ -9,20 +9,19 @@
     <div class="page-body">
       <div class="container-xl d-flex flex-column justify-content-center">
         <div class="card">
-          
           <div class="table-responsive">
-            <table class="table table-vcenter card-table table-striped">
+            <table class="table table-vcenter">
               <thead>
                 <tr>
                   <th rowspan="2" class="text-end fw-1"> Division</th>
-                  <th colspan="3" class="text-center border-end">PY</th>
-                  <th colspan="3" class="text-center border-end">YTD</th>
-                  <th colspan="3" class="text-center border-end">Forecast</th>
-                  <th colspan="3" class="text-center border-end">YTD+Forecast</th>
-                  <th colspan="3" class="text-center border-end">BDG</th>
+                  <th colspan="3" class="text-center border-start border-end">ACT {{ last_year }}</th>
+                  <th colspan="3" class="text-center border-end">YTD {{ current_year }}</th>
+                  <th colspan="3" class="text-center border-end">FCST {{ forecast_year }}</th>
+                  <th colspan="3" class="text-center border-end">YTD+FCST {{ current_year }}</th>
+                  <th colspan="3" class="text-center border-end">BDG {{ budget_year }}</th>
                 </tr>
                 <tr>
-                  <th class="text-end border-end">Volume</th>
+                  <th class="text-end border-end border-start">Volume</th>
                   <th class="text-end border-end">Price</th>
                   <th class="text-end border-end">Value</th>
                   <th class="text-end border-end">Volume</th>
@@ -41,20 +40,20 @@
               </thead>
               <tbody>
                 {% for item in consolidated_data %}
-                <tr>
-                  <td class="fs-5 text-end">{{ item.nsf_division }}</td>
+                <tr class="{% if item.nsf_division == missing_division %} bg-purple-lt {% endif %} {% if item.nsf_division == total_text %} fw-bold {% endif %} ">
+                  <td class="fs-5 text-end border-end">{{ item.nsf_division }}</td>
                   <td class="fs-5 text-end">{{ item.last.vol|intcomma }}</td>
                   <td class="fs-5 text-end fs-6">{{ item.last.price }}</td>
-                  <td class="fs-5 text-end">{{ item.last.val|intcomma }}</td>
+                  <td class="fs-5 text-end border-end">{{ item.last.val|intcomma }}</td>
                   <td class="fs-5 text-end">{{ item.this.vol|intcomma }}</td>
                   <td class="fs-5 text-end fs-6">{{ item.this.price }}</td>
-                  <td class="fs-5 text-end">{{ item.this.val|intcomma }}</td>
+                  <td class="fs-5 text-end border-end">{{ item.this.val|intcomma }}</td>
                   <td class="fs-5 text-end">{{ item.forecast.vol|intcomma }}</td>
                   <td class="fs-5 text-end fs-6">{{ item.forecast.price }}</td>
-                  <td class="fs-5 text-end">{{ item.forecast.val|intcomma }}</td>
+                  <td class="fs-5 text-end border-end">{{ item.forecast.val|intcomma }}</td>
                   <td class="fs-5 text-end">{{ item.forecast_full.vol|intcomma }}</td>
                   <td class="fs-5 text-end fs-6">{{ item.forecast_full.price }}</td>
-                  <td class="fs-5 text-end">{{ item.forecast_full.val|intcomma }}</td>
+                  <td class="fs-5 text-end border-end">{{ item.forecast_full.val|intcomma }}</td>
                   <td class="fs-5 text-end">{{ item.budget.vol|intcomma }}</td>
                   <td class="fs-5 text-end fs-6">{{ item.budget.price }}</td>
                   <td class="fs-5 text-end">{{ item.budget.val|intcomma }}</td>
@@ -62,6 +61,17 @@
                 {% endfor %}
               </tbody>
             </table>
+          </div>
+        </div>
+        <div class="card mt-4">
+          <div class="card-body">
+            All figures are in LT (Volume) and EUR (Values)<br>
+            YTD Sales are pulled up to the end of last month <br>
+            Forecast data are taken into account from the month of {{ current_month_name }}. <br>
+
+            <br>
+            {% if missing_division %}The line {{ missing_division }} is caused by products or customers still not properly profiled {% endif %} <br>
+            <span><a class="btn" href="{% url 'download-sfb' %}">Download</a></span>
           </div>
         </div>
       </div>
