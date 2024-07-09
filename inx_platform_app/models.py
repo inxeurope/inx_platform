@@ -221,6 +221,14 @@ class MaterialGroup(models.Model):
         return self.name
 
 
+class UnitOfMeasure(models.Model):
+    name = models.CharField(max_length=15)
+    sqlapp_id = models.IntegerField(default=0, null=True)
+
+    def __str__(self):
+        return f"{self.name}"
+
+
 class Packaging(models.Model):
     name = models.CharField(max_length=20)
     # the following field is superseded by the table RateToLT, which combines Packaging ID
@@ -228,9 +236,19 @@ class Packaging(models.Model):
     rate_to_lt = models.IntegerField(default=1) 
     sold_in_lt = models.BooleanField(default=True)
     sqlapp_id = models.IntegerField(default=0)
+    base_unit_of_measure = models.ForeignKey(UnitOfMeasure, on_delete=models.PROTECT)
 
     def __str__(self):
-        return self.name
+        return f"{self.name}"
+
+
+class PackagingRateToLiter(models.Model):
+    packaging = models.ForeignKey(Packaging, on_delete=models.PROTECT)
+    unit_of_measure = models.CharField(max_length=10)
+    rate_to_liter = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+    def __str__(self):
+        return f"{self.packaging.name}, {self.unit_of_measure}, {self.rate_to_liter}"
 
 
 class ProductStatus(models.Model):
@@ -244,10 +262,6 @@ class ProductStatus(models.Model):
     def __str__(self):
         return self.name
 
-
-class UnitOfMeasure(models.Model):
-    name = models.CharField(max_length=15)
-    sqlapp_id = models.IntegerField(default=0, null=True)
 
     def __str__(self):
         return self.name

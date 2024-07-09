@@ -3,6 +3,7 @@ from django.utils import timezone
 from celery.utils.log import get_task_logger
 from django.shortcuts import get_object_or_404
 from django.db import connection
+from django.db.models import Max
 from .models import *
 from . import import_dictionaries
 from decimal import Decimal, ROUND_HALF_UP
@@ -251,6 +252,23 @@ def very_long_task():
 
 @shared_task
 def fetch_euro_exchange_rates():
+
+    # Get the latest year and month from the EuroExchangeRate model
+    latest_entry = EuroExchangeRate.objects.aggregate(
+        latest_year=Max('year'),
+        latest_month=Max('month', filter=Max('year'))
+    )
+    
+    latest_year = latest_entry['latest_year']
+    latest_month = latest_entry['latest_month']
+    
+    if latest_year is None or latest_month is None:
+        start_date = datetime(2000, 1, 1)  # If no data exists, start from a default early date
+    else:
+        start_date = datetime(latest_year, latest_month, 1)
+
+
+
     url = 'https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist.xml'
     response = requests.get(url)
     if response.status_code == 200:
@@ -266,6 +284,11 @@ def fetch_euro_exchange_rates():
         for cube in root.findall('.//Cube[@time]', namespaces):
             date_str = cube.attrib['time']
             date = datetime.strptime(date_str, '%Y-%m-%d')
+
+            # Skip dates before the start_date
+            if date < start_date:
+                continue
+
             year, month = date.year, date.month
 
             for rate in cube.findall('.//Cube[@currency]', namespaces):

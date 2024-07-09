@@ -27,6 +27,7 @@ class ColorAdmin(admin.ModelAdmin):
 
 class ProductLineAdmin(admin.ModelAdmin):
     list_display = ['id', 'name', 'sqlapp_id']
+    search_fields = ['name']
 
 
 class DivisionAdmin(admin.ModelAdmin):
@@ -54,7 +55,7 @@ class MaterialGroupAdmin(admin.ModelAdmin):
 
 
 class PackagingAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name']
+    list_display = ['id', 'name', 'base_unit_of_measure']
 
 
 class ProductStatusAdmin(admin.ModelAdmin):
@@ -447,6 +448,9 @@ class CurrencyRateAdmin(admin.ModelAdmin):
     ordering = ['currency', 'year']
 
 
+class PackagingRateToLiterAdmin(admin.ModelAdmin):
+    list_display=['id', 'packaging', 'unit_of_measure', 'rate_to_liter']
+
 admin.site.register(ColorGroup, ColorGroupAdmin)
 admin.site.register(Color, ColorAdmin)
 admin.site.register(MadeIn, MadeInAdmin)
@@ -494,3 +498,4 @@ admin.site.register(Currency, CurrencyAdmin)
 admin.site.register(ContactType, ContactTypeAdmin)
 admin.site.register(CurrencyRate, CurrencyRateAdmin)
 admin.site.register(EuroExchangeRate)
+admin.site.register(PackagingRateToLiter, PackagingRateToLiterAdmin)

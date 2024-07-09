@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 import os
 from pathlib import Path
+from celery.schedules import crontab
 
 # Load environment variables from .env
 load_dotenv()
@@ -169,6 +170,13 @@ CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 CELERY_WORKER_HIJACK_ROOT_LOGGER = False
 CELERY_TASK_ALWAYS_EAGER = False
 CELERY_WORKER_AUTORELOADER = True
+CELERY_TIMEZONE = 'UTC'
+CELERY_BEAT_SCHEDULE = {
+    'fetch-euro-exchange-rates-daily': {
+        'task': 'your_app.tasks.fetch_euro_exchange_rates',
+        'schedule': crontab(hour=2, minute=0),
+    },
+}
 
 
 CACHES = {
