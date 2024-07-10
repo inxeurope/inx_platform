@@ -3,10 +3,6 @@ from django.utils.formats import number_format
 from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm, AuthenticationForm, UsernameField, PasswordResetForm, SetPasswordForm
 from .models import *
 
-# class CustomerForm(forms.ModelForm):
-#     class Meta:
-#         model = Customer
-#         fields = ['number', 'name', 'active', 'country', 'sales_employee']
 
 class EditMajorLabelForm(forms.ModelForm):
     class Meta:
@@ -300,9 +296,6 @@ class BrandForm(forms.ModelForm):
             'material_group': forms.Select(attrs={'class': 'form-select'}),
             'market_segment': forms.Select(attrs={'class': 'form-select'})
         }
-
-
-
 
 
 class NumberInputWithThousandsSeparator(forms.TextInput):

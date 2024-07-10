@@ -302,8 +302,8 @@ pr_converters_dict = {
     "UoM": str,
     # "Volume_From": int,
     # "Volume_To": int,
-    "Start Date": datetime.date,
-    "End Date": datetime.date,
+    # "Start Date": datetime,
+    # "End Date": datetime,
     "Curr": str
 }
 

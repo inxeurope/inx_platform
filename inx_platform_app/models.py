@@ -1117,7 +1117,7 @@ class Price(models.Model):
     customer_number = models.CharField(max_length=10, blank=True, null=True)
     customer_name = models.CharField(max_length=255, blank=True, null=True)
     customer = models.ForeignKey(Customer, on_delete=models.PROTECT, null=True)
-    product_number = models.CharField(max_length=10, blank=True, null=True)
+    product_number = models.CharField(max_length=40, blank=True, null=True)
     product_name = models.CharField(max_length=255, blank=True, null=True)
     product = models.ForeignKey(Product, on_delete=models.PROTECT, null=True)
     price = models.FloatField(default=0)

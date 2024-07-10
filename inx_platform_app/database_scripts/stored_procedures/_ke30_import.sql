@@ -8,7 +8,7 @@ BEGIN
         BEGIN TRANSACTION
 
             DROP TABLE IF EXISTS #Procedure_log
-            CREATE TABLE #Procedurelog(
+            CREATE TABLE #Procedure_log(
                 Message_text TEXT NULL
             );
             DECLARE @message_text NVARCHAR(MAX);
@@ -26,17 +26,17 @@ BEGIN
             SELECT @Count_KE30_import = COUNT(*) FROM inx_platform_app_ke30importline;
             SET @message_text = N'Count/Moving in KE30_import: ' + CAST(@Count_KE30_import AS VARCHAR);
             PRINT (@message_text);
-            INSERT INTO #Procedurelog VALUES(@message_text);
+            INSERT INTO #Procedure_log VALUES(@message_text);
 
             SELECT @CountBefore = COUNT(*) FROM inx_platform_app_ke30line
             SET @message_text = N'Before: ' + CAST(@CountBefore as VARCHAR);
             PRINT (@message_text);
-            INSERT INTO #Procedurelog VALUES(@message_text);
+            INSERT INTO #Procedure_log VALUES(@message_text);
             
             -- Delete from KE30 the date that need to be replaced
             SET @message_text = 'Deleting from ' + CAST(@MinMonth_long as VARCHAR) + ' to ' + CAST(@MaxMonth_long as VARCHAR);
             PRINT (@message_text);
-            INSERT INTO #Procedurelog VALUES(@message_text);
+            INSERT INTO #Procedure_log VALUES(@message_text);
             DELETE FROM inx_platform_app_ke30line
                 WHERE [year_month]>=@MinMonth_long AND [year_month]<=@MaxMonth_long;
 
@@ -44,7 +44,7 @@ BEGIN
 
             SET @message_text = N'After: ' + CAST(@CountAfter as VARCHAR) + 'Diff Deleted: ' + CAST((@CountBefore-@CountAfter) as varchar);
             PRINT (@message_text);
-            INSERT INTO #Procedurelog VALUES(@message_text);
+            INSERT INTO #Procedure_log VALUES(@message_text);
             
             -- Need to insert data from KE30_import to Sales.KE30
             INSERT INTO inx_platform_app_ke30line (
@@ -148,10 +148,10 @@ BEGIN
         ROLLBACK TRANSACTION
         DECLARE @ErrMsg NVARCHAR(4000) = ERROR_MESSAGE()
         RAISERROR(@ErrMsg, 16, 1)
-        INSERT INTO #Procedurelog VALUES(@ErrMsg);
+        INSERT INTO #Procedure_log VALUES(@ErrMsg);
     END CATCH
 
-    SELECT [Message_text] FROM #ProcedureLog;
+    SELECT [Message_text] FROM #Procedure_Log;
 
 
 END
