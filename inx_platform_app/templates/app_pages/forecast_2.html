@@ -66,7 +66,7 @@
         <div class="row mb-3"> <!-- Area of budget -->
           {% comment %} {% if request.user.budget_open %} {% endcomment %}
           <div class="col">
-            {% include 'app_pages/forecast_2_bdg_data_partial.html' %}
+            {% include 'app_pages/forecast_2_bdg_partial.html' %}
           </div>
           {% comment %} {% endif %} {% endcomment %}
         </div>
@@ -76,16 +76,17 @@
     {% include 'app_includes/footer.html' %}
   </div>
 
-  <script>
+  <script src="{% static 'dist/js/inx.js' %}"></script>
+  {% comment %} <script>
     document.addEventListener('DOMContentLoaded', function() {
-      // Find the "refresh BDG" button by its text content or by any unique identifier
-      var refreshButton = document.getElementById('refresh-BDG');
+      console.log('forecast_2.html DOMContentLOaded triggered')
+      var refreshButton = document.getElementById('refresh-budget-button');
       
       if (refreshButton) {
         refreshButton.click();
       }
     });
-  </script>
+  </script> {% endcomment %}
 
 
 

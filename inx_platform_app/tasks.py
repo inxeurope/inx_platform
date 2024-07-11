@@ -262,6 +262,10 @@ def fetch_euro_exchange_rates():
     latest_year = latest_entry['latest_year']
     latest_month = latest_entry['latest_month']
     
+    celery_logger.info(f'latest_year {latest_year}')
+    celery_logger.info(f'latest_month {latest_month}')
+
+
     if latest_year is None or latest_month is None:
         start_date = datetime(2000, 1, 1)  # If no data exists, start from a default early date
     else:

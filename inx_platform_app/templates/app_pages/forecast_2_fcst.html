@@ -195,6 +195,7 @@
             hx-boost="true"
             hx-trigger="submit from:closest form"
             hx-target="#forecast-area"
+            hx-confirm="This will remove all your posted budget and replace with the new one. Confirm?"
             hx-swap="innerHTML">
           {% csrf_token %}
           <div class="form-group mb2">

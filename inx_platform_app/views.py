@@ -1011,8 +1011,7 @@ def fetch_bdg_sales(request, customer_id=None):
         'budget_data': bdg_sales_data_dict,
         'budget_totals': totals
     }
-    return render(request, "app_pages/test.html", context)
-    return render(request, "app_pages/forecast_2_bdg_data_partial.html", context)
+    return render(request, "app_pages/forecast_2_bdg_partial.html", context)
 
 
 @login_required
@@ -1279,6 +1278,7 @@ def fetch_forecast(request, budforline_id):
         'flat_budget_form': flat_budget_form,
         'brand_name': brand_name,
         'color_group_name': color_group_name,
+        'budget_year': budget_year
     }
     return render(request, "app_pages/forecast_2_fcst.html", context)
 

@@ -1,17 +1,18 @@
 {% load custom_filters %}
 {% load static %}
 {% load humanize %}
-<div class="card">
+<div class="card" id="bdg_sales">
     <div class="card-body">
         <div class="row mb-2">
-            <div class="col d-flex align-items-center fw-bold">BDG Sales data</div>
+            <div class="col d-flex align-items-center fw-bold">Budget Sales data</div>
             <div class="col text-end">
-              <button 
+              <button
+                id="refresh-budget-button"
                 class="btn btn-primary" 
                 hx-get="{% url 'fetch-bdg-sales' customer.id %}" 
                 hx-target="#bdg_sales" 
                 hx-swap="innerHTML">
-                refresh BDG
+                refresh
                 </button>
             </div>
         </div>
