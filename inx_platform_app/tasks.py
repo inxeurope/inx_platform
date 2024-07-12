@@ -236,10 +236,10 @@ def read_this_file(the_file, user, conversion_dictionary, celery_task_id):
 
 
 @shared_task
-def ticker_task(pippo):
-    for iteration in range(3):
-        time.sleep(7)
-        celery_logger.info("ticker_task: tick!")
+def ticker_task():
+    for iteration in range(10):
+        time.sleep(1)
+        celery_logger.info(f"ticker_task: tick {iteration}")
     return "ticker_task completed"
 
 @shared_task
@@ -253,15 +253,17 @@ def very_long_task():
 @shared_task
 def fetch_euro_exchange_rates():
 
-    # Get the latest year and month from the EuroExchangeRate model
-    latest_entry = EuroExchangeRate.objects.aggregate(
-        latest_year=Max('year'),
-        latest_month=Max('month', filter=Max('year'))
-    )
-    
-    latest_year = latest_entry['latest_year']
-    latest_month = latest_entry['latest_month']
-    
+    # Get the latest year from the EuroExchangeRate model
+    latest_year_subquery = EuroExchangeRate.objects.aggregate(latest_year=Max('year'))
+    latest_year = latest_year_subquery['latest_year']
+
+    # Get the latest month for the latest year
+    if latest_year is not None:
+        latest_month_subquery = EuroExchangeRate.objects.filter(year=latest_year).aggregate(latest_month=Max('month'))
+        latest_month = latest_month_subquery['latest_month']
+    else:
+        latest_month = None
+
     celery_logger.info(f'latest_year {latest_year}')
     celery_logger.info(f'latest_month {latest_month}')
 

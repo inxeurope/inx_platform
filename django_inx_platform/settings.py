@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "django_filters",
     "django_extensions",
     "django_htmx",
+    "django_celery_beat",
     "inx_platform_app.apps.InxPlatformAppConfig",
 ]
 
@@ -171,12 +172,10 @@ CELERY_WORKER_HIJACK_ROOT_LOGGER = False
 CELERY_TASK_ALWAYS_EAGER = False
 CELERY_WORKER_AUTORELOADER = True
 CELERY_TIMEZONE = 'UTC'
-CELERY_BEAT_SCHEDULE = {
-    'fetch-euro-exchange-rates-daily': {
-        'task': 'your_app.tasks.fetch_euro_exchange_rates',
-        'schedule': crontab(hour=2, minute=0),
-    },
-}
+CELERY_EBALE_UTC = True
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+
+CELERY_IMPORTS = ('inx_platform_app.tasks',)
 
 
 CACHES = {
