@@ -8,6 +8,29 @@
     <!-- Page body -->
     <div class="page-body">
       <div class="container-xl d-flex flex-column justify-content-center">
+        <div class="card mb-1">
+          <form method="post" action="{% url 'sales-forecast-budget' %}">
+            {% csrf_token %}
+            <div class="card-header p-2 fw-bold">
+              Filters
+            </div>
+            <div class="card-body p-2">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="id_user" class="form-label">User</label>
+                  {{ form.user }}
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="id_nsf_division" class="form-label">NSF Division</label>
+                  {{ form.nsf_division }}
+                </div>
+              </div>
+            </div>
+            <div class="card-footer p-2">
+              <button type="submit" class="btn btn-primary">Apply Filters</button>
+            </div>
+          </form>
+        </div>
         <div class="card">
           <div class="table-responsive">
             <table class="table table-vcenter">

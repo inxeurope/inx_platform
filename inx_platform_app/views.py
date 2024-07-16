@@ -2750,6 +2750,26 @@ def sales_forecast_budget(request):
     # Total string
     total_text = 'ZZ Total'
 
+    if request.method == 'POST':
+        form = SalesForecastBudgetFilterForm(request.POST)
+        if form.is_valid():
+            user_filter = form.cleaned_data['user']
+            nsf_division_filter = form.cleaned_data['nsf_division']
+            user_email = None
+            if user_filter and user_filter != 'all':
+                user = User.objects.get(id=user_filter)
+                user_email = user.email
+            if nsf_division_filter and nsf_division_filter != 'all':
+                nsf_division = NSFDivision.objects.filter(id=nsf_division_filter)
+        else:
+            user_filter = 'all'
+            nsf_division_filter = 'all'
+    else:
+        form = SalesForecastBudgetFilterForm()
+        user_filter = 'all'
+        nsf_division_filter = 'all'
+
+
     # Subquery to get the NSFDivision related to the product's name
     # this is used with last_year, this_year, forecast, budget
     nsf_division_subquery = Product.objects.filter(
@@ -2762,6 +2782,12 @@ def sales_forecast_budget(request):
         year=last_year,
         month=OuterRef('billing_date__month')
     ).values('rate')[:1]
+
+    # If the user is passed we get all managed customer of the user, in a list
+    customer_numbers = []
+    if user_filter != 'all':
+        customer_numbers = Customer.objects.filter(sales_employee=user).values_list('number', flat=True)
+
 
     ## Working on Last year
     # Annotate the ZAQCODMI9_line with the NSF division and EUR exchange rates
@@ -2779,6 +2805,10 @@ def sales_forecast_budget(request):
     ).values(
         'billing_date', 'nsf_division', 'invoice_qty', 'curr', 'invoice_sales', 'exchange_rate', 'adjusted_sales'
     )
+
+    # If there is a customer_number list, we are filtering on this
+    if customer_numbers:
+        last_year_annotated_lines = last_year_annotated_lines.filter(sold_to__in=customer_numbers)
 
     # Transform the queryset in a dictionary that grows automatically
     last_year_sales_data = defaultdict(lambda: {'vol': 0, 'val': 0})
@@ -2824,6 +2854,10 @@ def sales_forecast_budget(request):
         'billing_date', 'nsf_division', 'invoice_qty', 'curr', 'invoice_sales', 'exchange_rate', 'adjusted_sales'
     )
 
+    # If there is a customer_number list, we are filtering on this
+    if customer_numbers:
+        this_year_annotated_lines = this_year_annotated_lines.filter(sold_to__in=customer_numbers)    
+
     # Transform the queryset into a dictionary
     this_year_sales_data = defaultdict(lambda: {'vol': 0, 'val': 0})
     for line in this_year_annotated_lines:
@@ -2843,11 +2877,11 @@ def sales_forecast_budget(request):
     total_this_year['price'] = (Decimal(total_this_year['val']) / Decimal(total_this_year['vol'])).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP) if total_this_year['vol'] != 0 else Decimal('0.00')
     this_year_sales_data[total_text] = total_this_year
 
-    print("Control loop this_year")
-    for l in this_year_sales_data.items():
-        pprint.pprint(l)
-        pass
-    print("end of control loop")
+    # print("Control loop this_year")
+    # for l in this_year_sales_data.items():
+    #     pprint.pprint(l)
+    #     pass
+    # print("end of control loop")
 
     # For the forecast and the budget I need to convert those values where customer currency is not EUR
     # Subquery to get the fixed exchange rate, it will be used below 
@@ -2877,6 +2911,9 @@ def sales_forecast_budget(request):
         'adjusted_value'
     )
 
+    if customer_numbers:
+        forecast_lines = forecast_lines.filter(budforline__customer__number__in=customer_numbers)
+
     # Transform the queryset into a dictionary for budget forecast data
     forecast_data = defaultdict(lambda: {'vol': 0, 'val': 0})
 
@@ -2900,10 +2937,10 @@ def sales_forecast_budget(request):
     total_forecast['price'] = (Decimal(total_forecast['val']) / Decimal(total_forecast['vol'])).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP) if total_forecast['vol'] != 0 else Decimal('0.00')
     forecast_data[total_text] = total_forecast
 
-    print("Control loop forecast")
-    for l in forecast_data.items():
-        pprint.pprint(l)
-    print("end of control loop")
+    # print("Control loop forecast")
+    # for l in forecast_data.items():
+    #     pprint.pprint(l)
+    # print("end of control loop")
 
     ## Budget
     # Get the BudgetForecastDetail data aggregated by nsf_division
@@ -2933,6 +2970,9 @@ def sales_forecast_budget(request):
         'adjusted_value'
     )
 
+    if customer_numbers:
+        budget_lines = budget_lines.filter(budforline__customer__number__in=customer_numbers)
+
     # Transform the queryset into a dictionary for budget forecast data
     budget_data = defaultdict(lambda: {'vol': 0, 'val': 0})
 
@@ -2957,10 +2997,10 @@ def sales_forecast_budget(request):
     budget_data[total_text] = total_budget
 
     # Output the budget forecast results to the console
-    print("* BUDGET *")
-    for nsf_division, data in sorted(budget_data.items()):
-        pass
-        print(f"NSF Division: {nsf_division}, Volume: {data['vol']}, Value: {data['val']}, Price: {data['price']}")
+    # print("* BUDGET *")
+    # for nsf_division, data in sorted(budget_data.items()):
+    #     pass
+    #     print(f"NSF Division: {nsf_division}, Volume: {data['vol']}, Value: {data['val']}, Price: {data['price']}")
 
 
     ## Combine this year and forecast
@@ -2970,13 +3010,13 @@ def sales_forecast_budget(request):
     for nsf_division, data in this_year_sales_data.items():
         forecast_full_data[nsf_division]['vol'] += data['vol']
         forecast_full_data[nsf_division]['val'] += data['val']
-    pprint.pprint(this_year_sales_data)
+    # pprint.pprint(this_year_sales_data)
 
     # Combine forecast data
     for nsf_division, data in forecast_data.items():
         forecast_full_data[nsf_division]['vol'] += data['vol']
         forecast_full_data[nsf_division]['val'] += data['val']
-    pprint.pprint(forecast_data)
+    # pprint.pprint(forecast_data)
 
     # Calculate the combined price per nsf_division
     for nsf_division, data in forecast_full_data.items():
@@ -3002,7 +3042,13 @@ def sales_forecast_budget(request):
     current_month_name = months[str(current_month)]['name']
     forecast_month_name = months[str(current_month + 1)]['name']
 
-    cache.set('sales_forecast_budget_data', consolidated_data, timeout=1800)
+    # Pushing the datat set in the redis - 
+    if user_filter != 'all':
+        cache_key = f'{user_filter}_sales_forecast_budget_data'
+    else:
+        cache_key = f'all_sales_forecast_budget_data'
+    cache.set(cache_key, consolidated_data, timeout=1800)
+    cache.set('sfb_selected_user', user_filter, timeout=None)
 
     context = {
         'current_month': current_month,
@@ -3014,7 +3060,8 @@ def sales_forecast_budget(request):
         'budget_year': budget_year,
         'missing_division': missing_division,
         'total_text': total_text,
-        'consolidated_data': consolidated_data
+        'consolidated_data': consolidated_data,
+        'form': form
     }
 
     return render(request, 'app_pages/sfb.html', context)
@@ -3034,10 +3081,10 @@ def format_decimal(value):
 def download_sfb(request):
     current_date = datetime.now().strftime('%Y%m%d_%H%M%S')
     file_name = f'INX_Platform_Sales_Forecast_Budget_{current_date}'
+    user_filter = request.GET.get('user', 'all')
 
-    data = cache.get('sales_forecast_budget_data')
-    print('-'*60)
-    pprint.pprint(data)
+    data = cache.get('all_sales_forecast_budget_data')
+    
 
     rows = []
     for item in data:
