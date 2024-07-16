@@ -1077,9 +1077,9 @@ class BudForDetail_Abstract(models.Model):
     brand = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.PROTECT)
     color_group = models.ForeignKey(ColorGroup, null=True, blank=True, on_delete=models.PROTECT)
     # 3 fields to host data fro mold DB
-    volume_old = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    price_old = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    value_old = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    volume_old = models.DecimalField(max_digits=10, decimal_places=2, default=0, null=True, blank = True)
+    price_old = models.DecimalField(max_digits=10, decimal_places=2, default=0, null=True, blank = True)
+    value_old = models.DecimalField(max_digits=10, decimal_places=2, default=0, null=True, blank = True)
 
 
     class Meta:
