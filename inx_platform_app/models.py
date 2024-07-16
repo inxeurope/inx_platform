@@ -1012,6 +1012,9 @@ class BudForLine(models.Model):
     color_group = models.ForeignKey(ColorGroup, on_delete=models.PROTECT)
     sqlapp_id = models.IntegerField(default=0, null=True)
 
+    def __str__(self):
+        return f"{self.customer.name} {self.brand.name} {self.color_group.name}"
+
     @classmethod
     def get_customer_lines(self, customer_id):
         return self.objects.filter(customer_id=customer_id).select_related('customer', 'brand', 'color_group').order_by('brand__name')
@@ -1069,7 +1072,7 @@ class BudForDetail_Abstract(models.Model):
     volume = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     value = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    currency_zaq = models.CharField(max_length=3)
+    currency_zaq = models.CharField(max_length=3, null=True, blank = True)
     detail_date = models.DateField(default='2024-01-01')
     sqlapp_id = models.IntegerField(default=0, null=True)
     # Adding for an easier management (to be implemented later)
