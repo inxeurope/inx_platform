@@ -22,7 +22,7 @@
                 </div>
                 <div class="col-md-6 mb-3">
                   <label for="id_nsf_division" class="form-label">NSF Division</label>
-                  {{ form.nsf_division }}
+                  {% comment %} {{ form.nsf_division }} {% endcomment %}
                 </div>
               </div>
             </div>
@@ -94,7 +94,7 @@
 
             <br>
             {% if missing_division %}The line {{ missing_division }} is caused by products or customers still not properly profiled {% endif %} <br>
-            <span><a class="btn" href="{% url 'download-sfb' %}">Download</a></span>
+            {% comment %} <span><a class="btn" href="{% url 'download-sfb' %}">Download</a></span> {% endcomment %}
           </div>
         </div>
       </div>
