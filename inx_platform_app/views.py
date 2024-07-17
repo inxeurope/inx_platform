@@ -453,6 +453,7 @@ def forecast_save(request):
             the_forecast_budget = f.save(commit=False)
             the_forecast_budget.value = the_forecast_budget.volume * the_forecast_budget.price
             the_forecast_budget.budforline_id = budforline_id
+            the_forecast_budget.detail_date = datetime.now() 
             the_forecast_budget.save()
             messages.success(request, f"{form_type.capitalize()} month {the_forecast_budget.month} volume: {the_forecast_budget.volume}, price: {the_forecast_budget.price}, value: {the_forecast_budget.value} - saved")
         elif form_type == 'budget-flat':
