@@ -17,6 +17,8 @@ urlpatterns = [
     # path("budget/flat_save/", views.budget_flat_save, name="flat-budget-save"),
     path("budget/flat_save/", views.forecast_save, name="flat-budget-save"),
 
+    path("special_op", views.special_op, name="special-op"),
+
     path("test/<int:customer_id>", views.fetch_bdg_sales, name="test"),
     
     path("sfb/", views.sales_forecast_budget, name="sales-forecast-budget"),

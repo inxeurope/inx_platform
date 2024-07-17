@@ -1480,6 +1480,32 @@ def import_single_table(request):
         return render(request, "app_pages/import_single_table.html", context)
 
 
+def special_op(request):
+    print("Special op started")
+
+    host = os.getenv("DB_SERVER", default=None)
+    if  host == None: host = 'localhost'
+    database = os.getenv("ORIGINAL_DB_NAME", default=None)
+    if database == None: database = 'INXD_Database'
+    username = os.getenv("ORIGINAL_DB_USERNAME", default=None)
+    if  username == None: username = 'sa'
+    password = os.getenv("ORIGINAL_DB_PASSWORD", default=None)
+    if password == None: password = "dellaBiella2!"
+    driver = os.getenv("DB_DRIVER", None)
+    if driver == None: driver = '{ODBC Driver 18 for SQL Server}'
+   
+    connection_string = f"DRIVER={driver};SERVER={host};DATABASE={database};UID={username};PWD={password};TrustServerCertificate=yes;Connection Timeout=30;"
+    print(connection_string)
+    try:
+        conn = pyodbc.connect(connection_string)
+        cursor = conn.cursor()
+    except Exception as e:
+        print(f"Connection Error: {str(e)}")
+
+    print("special op finished")
+    return render(request, "app_pages/index.html", {})
+
+
 def import_from_SQL(table_tuples):
     host = os.getenv("DB_SERVER", default=None)
     if  host == None: host = 'localhost'

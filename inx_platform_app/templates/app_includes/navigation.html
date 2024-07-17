@@ -178,6 +178,7 @@
                 {% if request.user.is_superuser %}
                 <a href="{% url 'import-single-table' %}" class="dropdown-item">Import from old SQL tables</a>
                 <a href="{% url 'admin:index' %}" class="dropdown-item">Admin inteface</a>
+                <a href="{% url 'special-op' %}" class="dropdown-item">Special Op</a>
                 <a href="{% url 'get-exchange-rates' %}" class="dropdown-item">Get EUR exchange rates from ECB</a>
                 {% endif %}
             {% else %}    
