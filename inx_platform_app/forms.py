@@ -354,22 +354,29 @@ class FlatBudgetForm(forms.Form):
     
 class SalesForecastBudgetFilterForm(forms.Form):
 
-    # Get distinct NSFDivision names
-    nsf_divisions = NSFDivision.objects.all()
-
-    # Create choices for the form
-    nsf_division_choices = [('all', 'All')] + [(nsfd.id, nsfd.name) for nsfd in nsf_divisions]
-
-
     user = forms.ChoiceField(
         choices=[('all', 'All')] + [(user.id, user.email) for user in User.objects.all()],
         required=False,
         widget=forms.Select(attrs={'class': 'form-select'})
     )
 
-    nsf_division = forms.ChoiceField(
-        # choices=[('all', 'All')] + [(product.brand.nsf_division.name, product.brand.nsf_division.name) for product in Product.objects.select_related('brand__nsf_division').distinct()],
-        choices=nsf_division_choices,
-        required=False,
-        widget=forms.Select(attrs={'class': 'form-select'})
+    customer = forms.ChoiceField(
+        choices = [('all', 'All')] + [(c.id, c.name) for c in Customer.objects.all()],
+        required = False,
+        widget = forms.Select(attrs={'class': 'form-select'})
     )
+
+    def __init__(self, *args, **kwargs):
+        super(SalesForecastBudgetFilterForm, self).__init__(*args, **kwargs)
+        # Initialize user choices
+        self.fields['user'].choices = [('all', 'All')] + [(user.id, user.email) for user in User.objects.all()]
+
+        if 'user' in self.data:
+            user_id = self.data.get('user')
+            if user_id and user_id != 'all':
+                self.fields['customer'].choices = [('all', 'All')] + [(c.id, c.name) for c in Customer.objects.filter(sales_employee__id=user_id, active=True)]
+            else:
+                self.fields['customer'].choices = [('all', 'All')] + [(c.id, c.name) for c in Customer.objects.filter(active=True)]
+        else:
+            self.fields['customer'].choices = [('all', 'All')] + [(c.id, c.name) for c in Customer.objects.all()]
+

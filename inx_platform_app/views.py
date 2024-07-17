@@ -2754,20 +2754,20 @@ def sales_forecast_budget(request):
         form = SalesForecastBudgetFilterForm(request.POST)
         if form.is_valid():
             user_filter = form.cleaned_data['user']
-            nsf_division_filter = form.cleaned_data['nsf_division']
-            user_email = None
+            customer_filter = form.cleaned_data['customer']
             if user_filter and user_filter != 'all':
                 user = User.objects.get(id=user_filter)
                 user_email = user.email
-            if nsf_division_filter and nsf_division_filter != 'all':
-                nsf_division = NSFDivision.objects.filter(id=nsf_division_filter)
+            if customer_filter and customer_filter != 'all':
+                customer = Customer.objects.get(id = customer_filter)
         else:
             user_filter = 'all'
-            nsf_division_filter = 'all'
+            customer_filter = 'all'
     else:
         form = SalesForecastBudgetFilterForm()
         user_filter = 'all'
-        nsf_division_filter = 'all'
+        customer_filter = 'all'
+        
 
 
     # Subquery to get the NSFDivision related to the product's name
@@ -2787,6 +2787,10 @@ def sales_forecast_budget(request):
     customer_numbers = []
     if user_filter != 'all':
         customer_numbers = Customer.objects.filter(sales_employee=user).values_list('number', flat=True)
+    
+    # If the customer is appased the customer_numbers only contains the single sap number
+    if customer_filter != 'all':
+        customer_numbers = Customer.objects.filter(id=customer_filter).values_list('number', flat=True)
 
 
     ## Working on Last year

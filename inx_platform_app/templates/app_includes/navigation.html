@@ -7,7 +7,11 @@
         </button>
         <h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
         <a href="{% url 'index' %}">
-            <img src="{% static 'static/plat_logo.svg' %}" width="110" height="32" alt="Tabler" class="navbar-brand-image">
+            {% if is_local %}
+                <img src="{% static 'static/plat_logo_local.svg' %}" width="110" height="32" alt="Tabler" class="navbar-brand-image">
+            {% else %}
+                <img src="{% static 'static/plat_logo.svg' %}" width="110" height="32" alt="Tabler" class="navbar-brand-image">
+            {% endif %}
         </a>
         {% if is_local %}
             <div class="badge bg-orange text-orange-fg">Local</div>

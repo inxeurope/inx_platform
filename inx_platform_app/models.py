@@ -1012,8 +1012,6 @@ class BudForLine(models.Model):
     color_group = models.ForeignKey(ColorGroup, on_delete=models.PROTECT)
     sqlapp_id = models.IntegerField(default=0, null=True)
 
-    def __str__(self):
-        return f"{self.customer.name} {self.brand.name} {self.color_group.name}"
 
     @classmethod
     def get_customer_lines(self, customer_id):

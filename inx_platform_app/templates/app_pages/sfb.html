@@ -9,7 +9,7 @@
     <div class="page-body">
       <div class="container-xl d-flex flex-column justify-content-center">
         <div class="card mb-1">
-          <form method="post" action="{% url 'sales-forecast-budget' %}">
+          <form method="post" action="{% url 'sales-forecast-budget' %}" id="filter-form">
             {% csrf_token %}
             <div class="card-header p-2 fw-bold">
               Filters
@@ -21,12 +21,12 @@
                   {{ form.user }}
                 </div>
                 <div class="col-md-6 mb-3">
-                  <label for="id_nsf_division" class="form-label">NSF Division</label>
-                  {% comment %} {{ form.nsf_division }} {% endcomment %}
+                  <label for="id_customer" class="form-label">Customer</label>
+                  {{ form.customer }}
                 </div>
               </div>
             </div>
-            <div class="card-footer p-2">
+            <div class="card-footer p-2" id="submit-button-container">
               <button type="submit" class="btn btn-primary">Apply Filters</button>
             </div>
           </form>
@@ -101,4 +101,34 @@
     </div>
     {% include 'app_includes/footer.html' %}
   </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const userSelect = document.getElementById('id_user');
+      const customerSelect = document.getElementById('id_customer');
+      const submitButtonContainer = document.getElementById('submit-button-container');
+      const form = document.getElementById('filter-form');
+  
+      // Hide the submit button
+      if (submitButtonContainer) {
+        submitButtonContainer.style.display = 'none';
+      }
+  
+      // Function to submit the form
+      function submitForm() {
+        console.log('submit form')
+        form.submit();
+      }
+  
+      // Add event listeners to the select fields
+      if (userSelect) {
+        userSelect.addEventListener('change', submitForm);
+      }
+      if (customerSelect) {
+        customerSelect.addEventListener('change', submitForm);
+      }
+    });
+  </script>
+  
+
 {% endblock content %}
