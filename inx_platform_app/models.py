@@ -273,6 +273,11 @@ class ExchangeRate(models.Model):
     rate = models.FloatField()
     sqlapp_id = models.IntegerField(default=0, null=True)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['currency', 'year'], name='unique_currency_year')
+        ]
+
     def __str__(self):
         return self.currency + self.year
 
@@ -1012,6 +1017,11 @@ class BudForLine(models.Model):
     color_group = models.ForeignKey(ColorGroup, on_delete=models.PROTECT)
     sqlapp_id = models.IntegerField(default=0, null=True)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['customer', 'brand', 'color_group'], name='unique_Customer_brand_colorgroup')
+        ]
+
 
     @classmethod
     def get_customer_lines(self, customer_id):
@@ -1435,7 +1445,10 @@ class EuroExchangeRate(models.Model):
     rate = models.DecimalField(max_digits=10, decimal_places=4)
 
     class Meta:
-        unique_together = ('currency', 'year', 'month')
+        constraints = [
+            models.UniqueConstraint(fields=['currency', 'year', 'month'], name='unique_currency_year_month')
+        ]
+        # unique_together = ('currency', 'year', 'month')
 
     def __str__(self):
         return f"{self.currency.alpha_3} - {self.year}-{self.month}: {self.rate}"
