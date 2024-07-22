@@ -3,13 +3,13 @@
 SERVICES=("platform.service" "platform_celery.service" "platform_beat.service")
 
 for SERVICE in "${SERVICES[@]}"; do
-    echo "Restarting $SERVICE..."
-    sudo systemctl restart $SERVICE
+    echo "Stopping $SERVICE..."
+    sudo systemctl stop $SERVICE
 
-    # Check if the service restarted successfully
-    if systemctl is-active --quiet $SERVICE; then
-        echo "$SERVICE restarted successfully."
+    sudo systemctl stop $service
+    if [ $? -eq 0 ]; then
+        echo "$service stopped successfully."
     else
-        echo "Failed to restart $SERVICE."
+        echo "Failed to stop $service."
     fi
 done
