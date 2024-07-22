@@ -440,11 +440,18 @@ def forecast_save(request):
         if forecast_budget_id:
             print(f"forecast_budget_id: {forecast_budget_id}")
             this_instance = get_object_or_404(BudgetForecastDetail, pk=forecast_budget_id)
+            old_values = this_instance.__dict__.copy()
             if this_instance:
                 if not budforline_id:
                     budforline_id = this_instance.budforline.id
                     form_data['budforline_id'] = budforline_id
             f = ForecastForm(form_data, instance=this_instance)
+            old_volume = f['volume'].initial
+            new_volume = f['volume'].data
+            old_price = f['price'].initial
+            new_price = f['price'].data
+            print(f"volume: old-{old_volume} new-{new_volume}")
+            print(f"price: old-{old_price} new-{new_price}")
             f.budforline_id = budforline_id
         else:
             f = ForecastForm(form_data)
@@ -455,6 +462,22 @@ def forecast_save(request):
             the_forecast_budget.budforline_id = budforline_id
             the_forecast_budget.detail_date = datetime.now() 
             the_forecast_budget.save()
+            change_message = []
+            for field in f.changed_data:
+                if field == 'budforline_id': continue
+                old_value = Decimal(old_values[field])
+                if f.cleaned_data[field]:
+                    new_value = Decimal(f.cleaned_data[field])
+                else:
+                    new_value = ''
+                change_message.append(f'{field}: "{old_value}" -> "{new_value}"')
+            # if old_volume != new_volume:
+            #     change_message += f'volume changed from {old_volume} to {new_volume}'
+            # if old_price != new_price:
+            #     change_message += f' price changed from {old_price} to {new_price}'
+            create_log_entry(request.user, this_instance, CHANGE, ', '.join(change_message))
+            # We want to post a log in LogEntry to keep a trace of what was changed
+
             messages.success(request, f"{form_type.capitalize()} month {the_forecast_budget.month} volume: {the_forecast_budget.volume}, price: {the_forecast_budget.price}, value: {the_forecast_budget.value} - saved")
         elif form_type == 'budget-flat':
             print('ugo')
@@ -1499,6 +1522,44 @@ def special_op(request):
     try:
         conn = pyodbc.connect(connection_string)
         cursor = conn.cursor()
+        print ("connected")
+
+        table_name="_BudForDetails"
+        field_name="ID"
+        model_class = BudgetForecastDetail
+        mapping = {
+            'ID': 'ID',
+            'BudForID': 'budforline_id',
+            'ScenarioID': 'scenario_id',
+            'DetailDate': 'detail_date',
+            'Year': 'year',
+            'MonthNumber': 'month',
+            'Price': 'price',
+            'Volume': 'volume',
+            'Value': 'value',
+            'Currency_zaq': 'currency_zaq'
+        }
+        query = f"SELECT * FROM {table_name} WHERE Year = 2024 AND ScenarioID = 2"
+        msg = "starting to get rows ..."
+        print(msg, end="")
+        cursor.execute(query)
+        records = cursor.fetchall()
+        print(f"reading {query} - completed")
+        if not records:
+            print("no rows")
+        else:
+            how_many_records = len(records)
+            print('SQL table name:', table_name, '-', how_many_records, "records")
+            # Making a Dataframe
+            data_dicts = [dict(zip(row.cursor_description, row)) for row in records]
+            df = pd.DataFrame(data_dicts)
+            df.columns = [column[0] for column in cursor.description]
+            df_length = len(df)
+            print(df_length)
+            print(f"Dataframe creation completed- length {df_length}")
+        
+
+
     except Exception as e:
         print(f"Connection Error: {str(e)}")
 

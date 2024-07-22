@@ -3,6 +3,10 @@ from django.db import connection
 import json
 from django.core.cache import cache
 from .models import CountryCode
+from django.contrib.admin.models import LogEntry, ADDITION, CHANGE
+from django.contrib.contenttypes.models import ContentType
+# from django.contrib.auth.models import User
+from inx_platform_app.models import User
 
 
 quarters = {1: 'Q1', 2: 'Q1', 3: 'Q1', 4: 'Q2', 5: 'Q2', 6: 'Q2', 7: 'Q3', 8: 'Q3', 9: 'Q3', 10: 'Q4', 11: 'Q4', 12: 'Q4'}
@@ -93,3 +97,13 @@ def get_cache_country_codes():
     else:
         country_codes = json.loads(country_codes)
     return country_codes
+
+def create_log_entry(user, obj, action_flag, change_message):
+    LogEntry.objects.log_action(
+        user_id=user.id,
+        content_type_id=ContentType.objects.get_for_model(obj).pk,
+        object_id=obj.id,
+        object_repr=str(obj),
+        action_flag=action_flag,
+        change_message=change_message
+    )

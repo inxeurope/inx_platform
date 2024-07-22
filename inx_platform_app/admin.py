@@ -247,7 +247,7 @@ class BudgetForecastDetailAdmin_abs(admin.ModelAdmin):
     With 2 different tables (BudgetForecast and Sales), we can manage Sales in a better way
     '''
     list_display = ['id', 'get_budforline_id', 'get_budforline_info', 'get_scenario_name', 'year', 'month', 'volume', 'price', 'value', 'get_value']
-    search_fields = ['scenario__name', 'budforline__customer__name', 'budforline__brand__name', 'budforline__color_group__name', 'year', 'month']
+    search_fields = ['id', 'scenario__name', 'budforline__customer__name', 'budforline__brand__name', 'budforline__color_group__name', 'year', 'month']
 
     class Meta:
         abstract = True
