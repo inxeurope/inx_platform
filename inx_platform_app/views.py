@@ -13,6 +13,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.views import LoginView, PasswordResetView, PasswordChangeView, PasswordResetConfirmView
 from django.contrib.auth.decorators import login_required
+from django.template import loader
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.db import models, transaction
@@ -398,6 +399,8 @@ def forecast_save(request):
     forecast_scenario = get_object_or_404(Scenario, is_forecast=True)
     budget_scenario = get_object_or_404(Scenario, is_budget=True)
     if request.method == 'POST':
+        csrf_token = request.META.get('CSRF_COOKIE', 'Not set')
+        print(f"forecast save - csrf token: {csrf_token}")
         form_data = request.POST.copy()
         forecast_budget_id = form_data.get('id')
         form_type = form_data.get('form_type')
@@ -522,6 +525,8 @@ def budget_flat_save(request):
     budget_scenario = get_object_or_404(Scenario, is_budget=True)
     pprint.pprint(request.POST)
     if request.method == 'POST':
+        csrf_token = request.META.get('CSRF_COOKIE', 'Not set')
+        print(f"budget flat save - csrf token: {csrf_token}")
         form_data = request.POST.copy()
         budforline_id = form_data.get('budforline_id', None)
         budforline_object = get_object_or_404(BudForLine, pk=budforline_id)
@@ -560,6 +565,8 @@ def budget_save(request):
     budget_month = datetime.now().month
     budget_scenario = get_object_or_404(Scenario, is_budget=True)
     if request.method == 'POST':
+        csrf_token = request.META.get('CSRF_COOKIE', 'Not set')
+        print(f"budget save - csrf token: {csrf_token}")
         form_data = request.POST.copy()
         budget_id = form_data.get('id')
         budforline_id = form_data.get('budforline_id', None)
@@ -1360,6 +1367,8 @@ def loader(request):
 @login_required
 def update_profile(request):
     if request.method == 'POST':
+        csrf_token = request.META.get('CSRF_COOKIE', 'Not set')
+        print(f"update profile - csrf token: {csrf_token}")
         user = request.user
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
@@ -1472,6 +1481,8 @@ def import_data(request):
 def import_single(request):
     context = {'options': dictionaries.tables_list}
     if request.method == 'POST':
+        csrf_token = request.META.get('CSRF_COOKIE', 'Not set')
+        print(f"import_single - csrf token: {csrf_token}")
         submit_action = request.POST.get('submit_type')
         table_name = request.POST.get('table_name')
         filtered_tuple = [(t1, t2, t3, t4) for t1, t2, t3, t4 in dictionaries.tables_list if t1 == table_name]
@@ -1489,6 +1500,8 @@ def import_single(request):
 def import_single_table(request):
     context = {'options': dictionaries.tables_list}
     if request.method == 'POST':
+        csrf_token = request.META.get('CSRF_COOKIE', 'Not set')
+        print(f"import single table - csrf token: {csrf_token}")
         submit_action = request.POST.get('submit_type')
         table_name = request.POST.get('table_name')
         filtered_tuple = [(t1, t2, t3, t4) for t1, t2, t3, t4 in dictionaries.tables_list if t1 == table_name]
@@ -1813,6 +1826,8 @@ def get_pk_from_sqlapp_id(model_class, sqlapp_id_value):
 def clean_single(request):
     context = {'options': dictionaries.tables_list}
     if request.method == 'POST':
+        csrf_token = request.META.get('CSRF_COOKIE', 'Not set')
+        print(f"clean single - csrf token: {csrf_token}")
         selected_table = request.POST.get('selected_option', None)
         if selected_table:
             # filter the list of tuples and leave only the selected one
@@ -2383,6 +2398,8 @@ def customer_edit(request, pk):
     # form template, or it is disabled
     is_new_value = c.is_new 
     if request.method == 'POST':
+        csrf_token = request.META.get('CSRF_COOKIE', 'Not set')
+        print(f"customer_edit - csrf token: {csrf_token}")
         form = CustomerForm(request.POST, instance = c)
         if form.is_valid():
             print ("c.is_new", c.is_new)
@@ -2548,6 +2565,8 @@ def product_edit(request, pk):
     p = get_object_or_404(Product, id=pk)
     django_filters_params = request.GET.urlencode()
     if request.method == 'POST':
+        csrf_token = request.META.get('CSRF_COOKIE', 'Not set')
+        print(f"product_edit - csrf token: {csrf_token}")
         form = ProductForm(request.POST, instance = p)
         if form.is_valid():
             form.save()
@@ -2658,6 +2677,8 @@ def brand_view(request, pk):
 def brand_edit(request, pk):
     b = get_object_or_404(Brand, id=pk)
     if request.method == 'POST':
+        csrf_token = request.META.get('CSRF_COOKIE', 'Not set')
+        print(f"brand_edit - csrf token: {csrf_token}")
         form = BrandForm(request.POST, instance = b)
         if form.is_valid():
             form.save()
@@ -2691,6 +2712,8 @@ def push_and_execute(request, pk):
 # For User Management
 def create_user(request):
     if request.method == 'POST':
+        csrf_token = request.META.get('CSRF_COOKIE', 'Not set')
+        print(f"create user - csrf token: {csrf_token}")
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             form.save()
@@ -2750,9 +2773,14 @@ class RegistrationView(CreateView):
   form_class = RegistrationForm
   success_url = '/accounts/login/'
 
+
+
 class LoginView(LoginView):
   template_name = 'app_pages/sign-in.html'
   form_class = LoginForm
+
+
+
 
 class LoginViewIllustrator(LoginView):
   template_name = 'app_pages/sign-in-illustration.html'
@@ -2839,6 +2867,8 @@ def sales_forecast_budget(request):
     total_text = 'ZZ Total'
 
     if request.method == 'POST':
+        csrf_token = request.META.get('CSRF_COOKIE', 'Not set')
+        print(f"sbf - csrf token: {csrf_token}")
         form = SalesForecastBudgetFilterForm(request.POST)
         if form.is_valid():
             user_filter = form.cleaned_data['user']
@@ -3214,7 +3244,6 @@ def download_sfb(request):
     response['Content-Disposition'] = f'attachment; filename={file_name}.xlsx'
 
     return response
-    
-    
+
     
     ##

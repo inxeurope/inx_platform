@@ -51,7 +51,6 @@ ASGI_APPLICATION = "django_inx_platform.asgi.application"
 AUTH_USER_MODEL = 'inx_platform_app.User'
 
 MIDDLEWARE = [
-    
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -197,3 +196,6 @@ INTERNAL_IPS = [
 
 USE_L10N = True
 
+# The following setting is importnat to avoid the 403 error
+# and csrf token saving in the browser Storage
+CSRF_COOKIE_SAMESITE = 'Lax'

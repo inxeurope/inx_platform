@@ -15,7 +15,8 @@
       <div class="card card-md">
         <div class="card-body">
           <h2 class="h2 text-center mb-4">Login to your account</h2>
-          <form method="post">
+          <form method="POST">
+            
             {% csrf_token %}
 
             {% if form.non_field_errors %}
