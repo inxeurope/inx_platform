@@ -97,6 +97,12 @@
             {% comment %} <span><a class="btn" href="{% url 'download-sfb' %}">Download</a></span> {% endcomment %}
           </div>
         </div>
+        <div class="card mt-4">
+          <div class="card-body">
+            {% comment %} <span><a id="download-button" class="btn" href="{% url 'download-sfb' %}">Download</a></span> {% endcomment %}
+            <span><a id="download-button" class="btn" href="#">Download</a></span>
+          </div>
+        </div>
       </div>
     </div>
     {% include 'app_includes/footer.html' %}
@@ -104,28 +110,52 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
+      console.log('start')
       const userSelect = document.getElementById('id_user');
       const customerSelect = document.getElementById('id_customer');
       const submitButtonContainer = document.getElementById('submit-button-container');
       const form = document.getElementById('filter-form');
+      const downloadButton = document.getElementById('download-button');
+      console.log('got everything')
   
       // Hide the submit button
       if (submitButtonContainer) {
+        console.log('submitButtonContainer thus setting display to none')
         submitButtonContainer.style.display = 'none';
       }
   
       // Function to submit the form
       function submitForm() {
-        console.log('submit form')
+        console.log('submitting the form')
         form.submit();
       }
+
+      function updateDownloadLink() {
+        const userFilter = userSelect ? userSelect.value : 'all';
+        console.log(userFilter);
+        const customerFilter = customerSelect ? customerSelect.value : 'all';
+        console.log(customerFilter);
+        const downloadUrl = `{% url 'download-sfb' %}?user=${userFilter}&customer=${customerFilter}`;
+        downloadButton.href = downloadUrl;
+        console.log('updated Download link')
+      }
+      // Do the above mentioned function once to push the url
+      updateDownloadLink();
   
       // Add event listeners to the select fields
       if (userSelect) {
-        userSelect.addEventListener('change', submitForm);
+        userSelect.addEventListener('change', function() {
+          submitForm();
+          updateDownloadLink();
+          console.log('added listender to userSelect and updated DownloadLink');
+        });
       }
       if (customerSelect) {
-        customerSelect.addEventListener('change', submitForm);
+        customerSelect.addEventListener('change', function() {
+          submitForm();
+          updateDownlaodLink();
+          console.log('added listener to customerSelect and updated DownloadLink');
+        });
       }
     });
   </script>

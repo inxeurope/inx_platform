@@ -3164,13 +3164,16 @@ def sales_forecast_budget(request):
     current_month_name = months[str(current_month)]['name']
     forecast_month_name = months[str(current_month + 1)]['name']
 
-    # Pushing the datat set in the redis - 
+    # Pushing the datat set in the redis
+    cache_key = 'u_all_c_all_sales_forecast_budget_data'
     if user_filter != 'all':
-        cache_key = f'{user_filter}_sales_forecast_budget_data'
-    else:
-        cache_key = f'all_sales_forecast_budget_data'
+        cache_key = cache_key.replace('u_all', f'u_{user_filter}')
+    if customer_filter != 'all':
+        cache_key = cache_key.replace('c_all', f'c_{customer_filter}')
+    print("cache_key:", cache_key)
+
     cache.set(cache_key, consolidated_data, timeout=1800)
-    cache.set('sfb_selected_user', user_filter, timeout=None)
+    # cache.set('sfb_selected_user', user_filter, timeout=None)
 
     context = {
         'current_month': current_month,
@@ -3202,12 +3205,30 @@ def format_decimal(value):
 
 def download_sfb(request):
     current_date = datetime.now().strftime('%Y%m%d_%H%M%S')
-    file_name = f'INX_Platform_Sales_Forecast_Budget_{current_date}'
+    file_name = f'INX_Platform_SFB_{current_date}'
     user_filter = request.GET.get('user', 'all')
+    customer_filter = request.GET.get('customer', 'all')
+    print(f"user: {user_filter};  customer: {customer_filter}")
+    header_line = f'Sales + forecast + Budget (sales manager: all, customer: all)'
 
-    data = cache.get('all_sales_forecast_budget_data')
+    # We had pushed the data in the cach, now here we recover
+    cache_key = 'u_all_c_all_sales_forecast_budget_data'
+    if user_filter != 'all':
+        cache_key = cache_key.replace('u_all', f'u_{user_filter}')
+        u = get_object_or_404(User, pk=user_filter)
+        if u:
+            file_name += f'_{u.first_name}'
+            header_line = header_line.replace('sales manager: all', f'sales manager: {u.first_name}')
+    if customer_filter != 'all':
+        cache_key = cache_key.replace('c_all', f'c_{customer_filter}')
+        c = get_object_or_404(Customer, pk=customer_filter)
+        if c:
+            c_name = c.name.replace(' ', '_')
+            file_name += f'_{c_name}'
+            header_line = header_line.replace('customer: all', f'customer: {c.name}')
+    header_line += f', date:{current_date}'
     
-
+    data = cache.get(cache_key)
     rows = []
     for item in data:
         row = {
@@ -3235,7 +3256,10 @@ def download_sfb(request):
         return HttpResponse("No data available to download.", status=404)
     
     with pd.ExcelWriter('output.xlsx', engine='openpyxl') as writer:
-        df.to_excel(writer, sheet_name='sfb', index=False)
+        workbook = writer.book
+        worksheet = workbook.create_sheet(title='sfb')
+        worksheet['A1'] = header_line
+        df.to_excel(writer, sheet_name='sfb', startrow=1, index=False)
 
     with open('output.xlsx', 'rb') as f:
         file_data = f.read()

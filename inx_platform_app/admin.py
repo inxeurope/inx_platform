@@ -10,6 +10,7 @@ from django.utils.translation import gettext, gettext_lazy as _
 from django.utils.html import escape
 from django.contrib.admin import helpers
 from django.contrib import messages
+from django.contrib.admin import SimpleListFilter
 from .models import *
 
 
@@ -99,6 +100,7 @@ class BrandAdmin(admin.ModelAdmin):
 class ProductAdmin(admin.ModelAdmin):
     # list_display = ['id', 'number', 'name', 'get_brand_name']
     list_display = ['id', 'number', 'name','get_color_name', 'get_colorgroup_name', 'get_brand_name']
+    list_filter = ['is_new', 'is_ink']
     search_fields = ['number', 'name']
 
     def get_brand_name(self, obj):
@@ -129,6 +131,7 @@ class ProductAdmin(admin.ModelAdmin):
 
 class CustomerAdmin(admin.ModelAdmin):
     list_display = ['id', 'number', 'name', 'get_countrycode', 'get_currency_alpha_3']
+    list_filter = ['active', 'customer_type', 'currency']
     search_fields = ['name', 'currency_text']
 
     def get_countrycode(self, obj):
