@@ -193,6 +193,9 @@ class ZACODMI9_lineAdmin(admin.ModelAdmin):
 
 class BudForLineAdmin(admin.ModelAdmin):
     list_display = ['id', 'get_customer_name', 'get_brand_name', 'get_colorgroup_name']
+    # list_display = ['id', 'customer__name']
+    ordering = ['id', 'customer__name', 'brand__name', 'color_group__name']
+    search_fields = ['customer__name']
 
     def get_customer_name(self, obj):
         return obj.customer.name
@@ -203,8 +206,10 @@ class BudForLineAdmin(admin.ModelAdmin):
     def get_colorgroup_name(self, obj):
         return obj.color_group.name
     
-    get_customer_name.short_description = 'customer_name'
-    get_brand_name.short_description = 'brand_name'
+    get_customer_name.short_description = 'customer name'
+    get_customer_name.admin_order_field = 'customer__name'
+    get_brand_name.short_description = 'brand name'
+    get_brand_name.admin_order_field = 'brand__name'
     get_colorgroup_name.short_description = 'color_group_name'
 
 
@@ -247,7 +252,8 @@ class BudgetForecastDetailAdmin_abs(admin.ModelAdmin):
     With 2 different tables (BudgetForecast and Sales), we can manage Sales in a better way
     '''
     list_display = ['id', 'get_budforline_id', 'get_budforline_info', 'get_scenario_name', 'year', 'month', 'volume', 'price', 'value', 'get_value']
-    search_fields = ['id', 'scenario__name', 'budforline__customer__name', 'budforline__brand__name', 'budforline__color_group__name', 'year', 'month']
+    search_fields = ['id', 'budforline__id', 'scenario__name', 'budforline__customer__name', 'budforline__brand__name', 'budforline__color_group__name', 'year', 'month']
+    ordering = ['id', 'budforline__id', 'scenario__name']
 
     class Meta:
         abstract = True
@@ -268,7 +274,9 @@ class BudgetForecastDetailAdmin_abs(admin.ModelAdmin):
         return obj.scenario.name
     
     get_budforline_id.short_description = 'budforline_id'
+    get_budforline_id.admin_order_field = 'budforline__id'
     get_scenario_name.short_description = 'scenario'
+    get_scenario_name.admin_order_field = 'scenario__name'
     get_budforline_info.short_description = 'additional info'
 
 
