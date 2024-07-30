@@ -933,6 +933,7 @@ def fetch_ytd_sales(request, customer_id=None):
 
 @login_required
 def fetch_bdg_sales(request, customer_id=None):
+    print("fetch_bdg_sales started ...")
     customer = Customer.objects.filter(id=customer_id).first()
     current_year = datetime.now().year
     budget_year = current_year + 1
@@ -953,8 +954,8 @@ def fetch_bdg_sales(request, customer_id=None):
         total_volume=Sum('volume'),
         total_value=Sum('value')
     ).order_by('month')
-    pprint.pprint("-----BDG sales")
-    pprint.pprint(bdg_sales)
+    # pprint.pprint("-----BDG sales")
+    # pprint.pprint(bdg_sales)
     logger.info("Start filling dictionary of dictionaries BDG sales data")
     bdg_sales_data_dict = {}
     for the_customer, the_brand in list_of_brands_of_customer:
@@ -1032,15 +1033,19 @@ def fetch_bdg_sales(request, customer_id=None):
         for b in brands_to_remove:
             logger.info(f"Brand to delete: {b}")
             del bdg_sales_data_dict[b]
-    print("*"*50)
-    pprint.pprint(bdg_sales_data_dict)
+    gt_volume = totals['bdg_grand_totals']['volume']
+    gt_value = totals['bdg_grand_totals']['value']
+    gt_price = totals['bdg_grand_totals']['price']
 
     context = {
         'customer': customer,
         'brands_of_customer': list_of_brands_of_customer,
         'months': months,
         'budget_data': bdg_sales_data_dict,
-        'budget_totals': totals
+        'budget_totals': totals,
+        'gt_volume': gt_volume,
+        'gt_value': gt_value,
+        'gt_price': gt_price
     }
     return render(request, "app_pages/forecast_2_bdg_partial.html", context)
 

@@ -179,7 +179,7 @@
                               {% if c.insurance %}
                               <span href="#" class="badge badge-outline text-muted border fw-normal badge-pill" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{ c.insurance_value|format_large_number }}">Insurance</span>
                               {% endif %}
-
+                              <a class="badge badge-outline badge-pill bg-primary" href="{% url 'forecast-2' c.id %}">_FORECAST_</a>
                               {% comment %} <a href="#" class="badge badge-outline text-muted border fw-normal badge-pill">Tag</a> {% endcomment %}
                             </div>
                           </div>

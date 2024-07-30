@@ -49,6 +49,24 @@
                             </td>
                         </tr>
                     {% endfor %}
+                    <tr>
+                        <td class="text-end fw-bold align-top bg-red-lt">
+                            TOTAL
+                        </td>
+                        <td class="text-center align-top bg-red-lt"> {{ customer.currency.symbol }} <br> L <br> {{ customer.currency.symbol }}/L </td>
+                        {% for total_month, total_data in budget_totals.bdg.items %}
+                            <td class="text-end align-top bg-red-lt">
+                                {{ total_data|dict_lookup:'value'|intcomma }}<br>
+                                {{ total_data|dict_lookup:'volume'|intcomma }}<br>
+                                <span class="fw-light fs-5">{{ total_data|dict_lookup:'price'|floatformat:2 }}</span>
+                            </td>
+                        {% endfor %}
+                        <td class="text-end align-top bg-red-lt">
+                            {{ gt_value|intcomma }}<br>
+                            {{ gt_volume|intcomma}}<br>
+                            <span class="fw-light fs-5">{{ gt_price|floatformat:2 }}</span>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
