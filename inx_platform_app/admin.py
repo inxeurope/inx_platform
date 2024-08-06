@@ -60,7 +60,12 @@ class PackagingAdmin(admin.ModelAdmin):
 
 
 class ProductStatusAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'sqlapp_id']
+    list_display = ['id', 'name', 'sqlapp_id', 'marked_for_deletion']
+
+    def save_model(self, request, obj, form, change):
+        if obj.marked_for_deletion:
+            ProductStatus.objects.exclude(pk=obj.pk).update(marked_for_deletion=False)
+        super().save_model(request, obj, form, change)
 
 
 class UnitOfMeasureAdmin(admin.ModelAdmin):
@@ -73,6 +78,15 @@ class ExchangeRateAdmin(admin.ModelAdmin):
 
 class ScenarioAdmin(admin.ModelAdmin):
     list_display = ['id', 'is_sales', 'is_forecast', 'is_budget', 'name', 'sqlapp_id']
+
+    def save_model(self, request, obj, form, change):
+        if obj.is_sales:
+            Scenario.objects.exclude(pk=obj.id).update(is_sales=False)
+        if obj.is_forecast:
+            Scenario.objects.exclude(pk=obj.id).update(is_forecast=False)
+        if obj.is_budget:
+            Scenario.objects.exclude(pk=obj.id).update(is_budget=False)
+        super().save_model(request, obj, form, change)
 
 
 class CountryCodeAdmin(admin.ModelAdmin):
@@ -99,8 +113,8 @@ class BrandAdmin(admin.ModelAdmin):
 
 class ProductAdmin(admin.ModelAdmin):
     # list_display = ['id', 'number', 'name', 'get_brand_name']
-    list_display = ['id', 'number', 'name','get_color_name', 'get_colorgroup_name', 'get_brand_name']
-    list_filter = ['is_new', 'is_ink']
+    list_display = ['id', 'number', 'name','get_color_name', 'get_colorgroup_name', 'get_brand_name', 'is_fert', 'is_ink']
+    list_filter = ['is_new', 'is_ink', 'is_fert', 'color__name']
     search_fields = ['number', 'name']
 
     def get_brand_name(self, obj):
@@ -127,6 +141,8 @@ class ProductAdmin(admin.ModelAdmin):
     get_brand_name.short_description = 'brand name'
     get_color_name.short_description = 'color name'
     get_colorgroup_name.short_description = 'color group'
+    get_color_name.admin_order_field = 'color__name'
+    get_colorgroup_name.admin_order_field = 'color_group__name'
 
 
 class CustomerAdmin(admin.ModelAdmin):
@@ -462,6 +478,46 @@ class CurrencyRateAdmin(admin.ModelAdmin):
 class PackagingRateToLiterAdmin(admin.ModelAdmin):
     list_display=['id', 'packaging', 'unit_of_measure', 'rate_to_liter']
 
+
+class BomHeaderAdmin(admin.ModelAdmin):
+    list_display = ['id','get_product_number', 'get_product_name', 'alt_bom', 'header_base_quantity', 'header_base_quantity_uom']
+    search_fields = ['product__name', 'product__number']
+
+    def get_product_number(self, obj):
+        return f"({obj.product.id}) {obj.product.number}"
+    get_product_number.admin_order_field = 'product__number'  # Allows column order sorting
+    get_product_number.short_description = 'Product Number'  # Renames column head
+
+    def get_product_name(self, obj):
+        return obj.product.name
+    get_product_name.admin_order_field = 'product__name'
+    get_product_name.short_description = 'Product Name'
+
+
+class BomComponentAdmin(admin.ModelAdmin):
+    list_display = ['id', 'component_material', 'component_material_description', 'component_base_uom']
+    search_fields = ['component_material', 'component_material_description']
+
+
+class BomAdmin(admin.ModelAdmin):
+    list_display = ['id', 'bom_header_id', 'get_product_name', 'get_alt_bom', 'item_number', 'get_component_material_description', 'component_quantity', 'component_uom_in_bom', 'price_unit', 'standard_price_per_unit']
+    search_fields = ['bom_header__product__name', 'bom_header__alt_bom']
+
+    def get_product_name(self, obj):
+        return obj.bom_header.product.name
+    get_product_name.admin_order_field = 'bom_header__product__name'
+    get_product_name.short_description = 'Product Name'
+
+    def get_alt_bom(self, obj):
+        return obj.bom_header.alt_bom
+    get_alt_bom.admin_order_field = 'bom_header__alt_bom'
+    get_alt_bom.short_description = 'Alt BOM'
+    
+    def get_component_material_description(self, obj):
+        return f"({obj.bom_component.component_material}) {obj.bom_component.component_material_description}"
+    get_component_material_description.short_description = 'Component'
+
+
 admin.site.register(ColorGroup, ColorGroupAdmin)
 admin.site.register(Color, ColorAdmin)
 admin.site.register(MadeIn, MadeInAdmin)
@@ -510,3 +566,6 @@ admin.site.register(ContactType, ContactTypeAdmin)
 admin.site.register(CurrencyRate, CurrencyRateAdmin)
 admin.site.register(EuroExchangeRate)
 admin.site.register(PackagingRateToLiter, PackagingRateToLiterAdmin)
+admin.site.register(BomHeader, BomHeaderAdmin)
+admin.site.register(BomComponent, BomComponentAdmin)
+admin.site.register(Bom, BomAdmin)

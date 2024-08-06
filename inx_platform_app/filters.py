@@ -9,10 +9,12 @@ class ProductFilterForm(forms.Form):
         for field_name, field in self.fields.items():
             if isinstance(field, forms.ModelChoiceField):
                 field.widget.attrs.update({'class': 'form-select'})
-            elif field_name == 'is_ink' or field_name == 'is_new':
+            elif field_name == 'is_ink' or field_name == 'is_new' or field_name == 'is_fert':
                 field.widget = forms.CheckboxInput(attrs={'class': 'form-check-input'})
+                # field.widget = forms.CheckboxInput(attrs={'class': 'form-group form-check form-switch'})
             else:
                 field.widget.attrs.update({'class': 'form-control'})
+
 
 class ProductFilter(django_filters.FilterSet):
     number = django_filters.CharFilter(
@@ -53,10 +55,13 @@ class ProductFilter(django_filters.FilterSet):
     is_new=django_filters.BooleanFilter(
         lookup_expr="iexact"
     )
+    is_fert=django_filters.BooleanFilter(
+        lookup_expr="iexact"
+    )
 
     class Meta:
         model = Product
-        fields = ['is_new', 'is_ink', 'name', 'number', 'brand_name', 'products_status', 'major_label', 'packaging']
+        fields = ['is_new', 'is_ink', 'is_fert', 'name', 'number', 'brand_name', 'products_status', 'major_label', 'packaging']
         form = ProductFilterForm
     
     def filter_queryset(self, queryset):

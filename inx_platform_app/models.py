@@ -253,15 +253,12 @@ class PackagingRateToLiter(models.Model):
 
 class ProductStatus(models.Model):
     name = models.CharField(max_length=50)
-    color_r = models.IntegerField(null=True)
-    color_g = models.IntegerField(null=True)
-    color_b = models.IntegerField(null=True)
-    color_a = models.IntegerField(null=True)
-    sqlapp_id = models.IntegerField(default=0, null=True)
-
-    def __str__(self):
-        return self.name
-
+    color_r = models.IntegerField(null=True, blank=True)
+    color_g = models.IntegerField(null=True, blank=True)
+    color_b = models.IntegerField(null=True, blank=True)
+    color_a = models.IntegerField(null=True, blank=True)
+    sqlapp_id = models.IntegerField(default=0, null=True, blank=True)
+    marked_for_deletion = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
@@ -922,7 +919,7 @@ class Product(models.Model):
 
     name = models.CharField(max_length=100)
     number = models.CharField(max_length=30)
-    is_ink = models.BooleanField(default = True)
+    
     import_note = models.CharField(max_length=255, null=True, blank=True)
     import_status = models.CharField(max_length=255, null=True, blank=True)
     color = models.ForeignKey(Color, on_delete=models.PROTECT, null=True, blank=True)
@@ -932,7 +929,12 @@ class Product(models.Model):
     product_line = models.ForeignKey(ProductLine, on_delete=models.PROTECT, null=True, blank=True)
     product_status = models.ForeignKey(ProductStatus, on_delete=models.PROTECT, null=True, blank=True)
     sqlapp_id = models.IntegerField(default=0, null=True)
+    
+    is_ink = models.BooleanField(default = True)
     is_new = models.BooleanField(default=True)
+    is_fert = models.BooleanField(default=False)
+    # is_active = models.BooleanField(default=False)
+
     approved_on = models.DateField(null=True)
     approved_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
 
@@ -1455,3 +1457,40 @@ class EuroExchangeRate(models.Model):
 
     def __str__(self):
         return f"{self.currency.alpha_3} - {self.year}-{self.month}: {self.rate}"
+
+# -----------------------------------------------------
+# Models for BOMs
+# -----------------------------------------------------
+
+class BomHeader(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    alt_bom = models.CharField(max_length=5, null=True, blank=True)
+    header_base_quantity = models.DecimalField(max_digits=10, decimal_places=2)
+    header_base_quantity_uom = models.CharField(max_length=5)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['product', 'alt_bom'], name='unique_product_altbom')
+        ]
+    
+    def __str__(self):
+        return f"{self.product.number} {self.product.name} ({self.alt_bom})"
+
+
+class BomComponent(models.Model):
+    component_material = models.CharField(max_length=30, unique=True)
+    component_material_description = models.CharField(max_length=100, null=True, blank=True)
+    component_base_uom = models.CharField(max_length=5)
+
+    def __str__(self):
+        return f"{self.component_material} {self.component_material_description}"
+
+
+class Bom(models.Model):
+    bom_header = models.ForeignKey(BomHeader, on_delete=models.CASCADE)
+    bom_component = models.ForeignKey(BomComponent, on_delete=models.CASCADE)
+    item_number = models.CharField(max_length=10, null=True, blank=True)
+    component_quantity = models.DecimalField(max_digits=10, decimal_places=2)
+    component_uom_in_bom = models.CharField(max_length=5)
+    price_unit = models.IntegerField()
+    standard_price_per_unit = models.DecimalField(max_digits=10, decimal_places=2)

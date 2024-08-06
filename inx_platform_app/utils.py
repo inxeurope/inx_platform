@@ -5,7 +5,6 @@ from django.core.cache import cache
 from .models import CountryCode
 from django.contrib.admin.models import LogEntry, ADDITION, CHANGE
 from django.contrib.contenttypes.models import ContentType
-# from django.contrib.auth.models import User
 from inx_platform_app.models import User
 
 
@@ -107,3 +106,16 @@ def create_log_entry(user, obj, action_flag, change_message):
         action_flag=action_flag,
         change_message=change_message
     )
+
+def is_fert(s):
+    if '-' in s or '.' in s:
+        return False
+    
+    if len(s) != 7:
+        return False
+
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False

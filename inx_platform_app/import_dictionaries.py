@@ -290,9 +290,7 @@ arr_converters_dict = {
 pr_converters_dict = {
     "SOrg": str,
     "Customer": str,
-    # "CustomerNumber": int,
     "Customer Name": str,
-    # "ProductID": int,
     "Material": str,
     "Material Description": str,
     "Scale Qty From": int,
@@ -300,11 +298,24 @@ pr_converters_dict = {
     "Price": float,
     "Per": int,
     "UoM": str,
-    # "Volume_From": int,
-    # "Volume_To": int,
-    # "Start Date": datetime,
-    # "End Date": datetime,
     "Curr": str
+}
+
+boms_converters_dict = {
+    'Plant': str,
+    'Finished Material': str,
+    'Finished Material Desc': str,
+    'Alt BOM': str,
+    'Header Base Qty': str,
+    'Header Base Qty UoM': str,
+    'Item Number': str,
+    'Component Material': str,
+    'Component Material Desc': str,
+    'Comp Qty': float,
+    'Comp UoM in BOM': str,
+    'comp Base UoM': str,
+    'Price Unit': str,
+    'Std Pr Per Unit/Comp': float
 }
 
 # Mappings section

@@ -9,6 +9,7 @@ from django.conf import settings
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.contrib import messages
+from django.contrib.admin.models import ADDITION, CHANGE
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.views import LoginView, PasswordResetView, PasswordChangeView, PasswordResetConfirmView
@@ -1459,7 +1460,9 @@ def loading(request):
                     case 'arr':
                         file_color = 'indigo'
                     case 'pr':
-                        file_color = 'indigo'
+                        file_color = 'azure'
+                    case 'boms':
+                        file_color = 'yellow'
                     case _:
                         file_color = 'muted'
 
@@ -2759,11 +2762,10 @@ def products(request):
         if is_reset_button and 'Reset' in is_reset_button:
             return redirect('products')
     
-    product_filter = ProductFilter(
-        request.GET, Product.objects.select_related(
+    products_queryset = Product.objects.select_related(
         'color', 'made_in', 'brand', 'packaging', 'product_line', 'product_status', 'approved_by'
-        )
-        )
+        ).exclude(product_status__marked_for_deletion = True)
+    product_filter = ProductFilter(request.GET, products_queryset)
     
     paginator = Paginator(product_filter.qs, 10)
     
@@ -3138,12 +3140,13 @@ def get_exchange_rates(request):
     fetch_euro_exchange_rates.delay()
     return render(request, "app_pages/index.html", {})
 
-
+@login_required
 def format_decimal(value):
     if isinstance(value, Decimal):
         return float(value)
     return value
 
+@login_required
 def download_sfb(request):
     current_date = datetime.now().strftime('%Y%m%d_%H%M%S')
     file_name = f'INX_Platform_SFB_{current_date}'

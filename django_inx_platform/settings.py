@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     "inx_platform_app.apps.InxPlatformAppConfig",
 ]
 
-CSRF_COOKIE_SAMESITE = 'None'
+# CSRF_COOKIE_SAMESITE = 'None'
 
 ASGI_APPLICATION = "django_inx_platform.asgi.application"
 
@@ -199,3 +199,7 @@ USE_L10N = True
 # The following setting is importnat to avoid the 403 error
 # and csrf token saving in the browser Storage
 CSRF_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SECURE = True
+
+# This below may be a solution for the login when using https and domain name
+CSRF_TRUSTED_ORIGINS = ['https://platform.inxeurope.dev']

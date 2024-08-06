@@ -59,7 +59,7 @@
                     <form action="{% url 'push-file-to-file-processor' %}" method="get" class="ms-auto">
                       {% csrf_token %}
                       <input type="hidden" name="file_id" value="{{ file.id }}">
-                      <button type="submit" class="btn btn-primary">Submit Process</button>
+                      <button type="submit" class="btn btn-primary">Submit Task</button>
                     </form>
                   </div>
                 </div>
