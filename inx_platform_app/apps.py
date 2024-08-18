@@ -6,7 +6,7 @@ class InxPlatformAppConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
     name = "inx_platform_app"
 
-    def ready(self):
-        from .utils import check_and_create_views_and_procs
-        app_folder = os.path.dirname(__file__)
-        check_and_create_views_and_procs(app_folder)
+    # def ready(self):
+    #     from .utils import check_and_create_views_and_procs
+    #     app_folder = os.path.dirname(__file__)
+    #     check_and_create_views_and_procs(app_folder)
