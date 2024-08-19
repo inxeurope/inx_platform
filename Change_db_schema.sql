@@ -1,0 +1,7 @@
+DECLARE @sql NVARCHAR(MAX) = N'';
+
+SELECT @sql += 'ALTER SCHEMA dbo TRANSFER db_owner.' + QUOTENAME(TABLE_NAME) + ';'
+FROM INFORMATION_SCHEMA.TABLES
+WHERE TABLE_SCHEMA = 'db_owner';
+
+EXEC sp_executesql @sql;
