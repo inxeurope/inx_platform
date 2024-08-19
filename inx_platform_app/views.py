@@ -1920,18 +1920,6 @@ def push_file_to_file_processor(request):
     return redirect("files-to-import")
 
 
-@login_required
-def start_file_processing(request, file_id):
-    # Landing here when the user clicks on the button of the imported file
-    def event_stream():
-        print("we are in the event_stream function")
-        yield f'data:start yielding\n\n'
-        file = get_object_or_404(UploadedFile, id = file_id)
-        yield from process_this_file(file)
-        
-    # response = StreamingHttpResponse(event_stream(), content_type="text/event-stream")
-    return response
-
 
 def delete_this_file_to_import(request, file_id):
     file = get_object_or_404(UploadedFile, id = file_id)
@@ -2698,59 +2686,27 @@ def logout_user(request):
     return redirect('index')
 
 
-class UserListView(ListView):
-    model = User
-    template_name = "list_users.html"
-    context_object_name = "users"
-
-class UserUpdateView(UpdateView):
-    model = User
-    form_class = CustomUserCreationForm
-    template_name = 'edit_user.html'
-    success_url = reverse_lazy('list_users')
-
 class UserPasswordChangeView(PasswordChangeView):
   template_name = 'app_pages/password-change.html'
   form_class = UserPasswordChangeForm
 
 
 # Authentication
-class RegistrationView(CreateView):
-  template_name = 'app_pages/sign-up.html'
-  form_class = RegistrationForm
-  success_url = '/accounts/login/'
-
-
 
 class LoginView(LoginView):
   template_name = 'app_pages/sign-in.html'
   form_class = LoginForm
 
 
-
-
-class LoginViewIllustrator(LoginView):
-  template_name = 'app_pages/sign-in-illustration.html'
-  form_class = LoginForm
-
 class LoginViewCover(LoginView):
   template_name = 'app_pages/sign-in-cover.html'
   form_class = LoginForm
+
 
 def logout_view(request):
     logout(request)
     return redirect('/accounts/login/')
 
-def login_link(request):
-    return render(request, 'app_pages/sign-in-link.html')
-
-class PasswordReset(PasswordResetView):
-  template_name = 'app_pages/forgot-password.html'
-  form_class = UserPasswordResetForm
-
-class UserPasswordResetConfirmView(PasswordResetConfirmView):
-  template_name = 'app_pages/password-reset-confirm.html'
-  form_class = UserSetPasswordForm
 
 class UserPasswordChangeView(PasswordChangeView):
   template_name = 'app_pages/password-change.html'
@@ -3143,7 +3099,7 @@ def get_exchange_rates(request):
     fetch_euro_exchange_rates.delay()
     return render(request, "app_pages/index.html", {})
 
-@login_required
+# no need for login_required
 def format_decimal(value):
     if isinstance(value, Decimal):
         return float(value)

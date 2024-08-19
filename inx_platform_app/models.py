@@ -1459,7 +1459,7 @@ class EuroExchangeRate(models.Model):
         # unique_together = ('currency', 'year', 'month')
 
     def __str__(self):
-        return f"{self.currency.alpha_3} - {self.year}-{self.month}: {self.rate}"
+        return f"{self.id} {self.currency.alpha_3} - {self.year}-{self.month}: {self.rate}"
 
 # -----------------------------------------------------
 # Models for BOMs
