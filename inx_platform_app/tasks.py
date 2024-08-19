@@ -167,7 +167,9 @@ def file_processor(id_of_UploadedFile, user_id):
                         if is_fert(material):
                             product.is_fert = True
                         product.save()
-                        create_log_entry(user, product, ADDITION, f'Product imported by importing BOMs file: {product.id} {product.name}')
+                        logmessage = f'Product imported by importing BOMs file: {product.id} {product.name}'
+                        create_log_entry(user, product, ADDITION, logmessage)
+                        post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, logmessage)
                     else:
                         if is_fert(material):
                             product.is_fert = True
@@ -178,16 +180,21 @@ def file_processor(id_of_UploadedFile, user_id):
                             product.save()
                             logmessage = f'Product name changed by importing BOMs from {old_value} to {description}'
                             create_log_entry(user,product, CHANGE, logmessage)
+                            post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, logmessage)
                     if product.name.startswith('+'):
                         product.product_status = mark_for_del
                         product.save()
                     if material_counter % 100 == 0:
                         celery_logger.info(f"materials: {material_counter}/{len(unique_materials)}")
-                celery_logger.info(f"Materials completed")
+                        log_mess = f"Materials completed"
+                celery_logger.info(log_mess)
+                post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, log_mess)
                 # Adding new component or updating current ones
                 # Count unique bom_component_sap_num values
                 unique_component_count = df['Component Material'].nunique()
-                celery_logger.info(f"Unique component materials count: {unique_component_count}")
+                log_mess = f"Unique component materials count: {unique_component_count}"
+                celery_logger.info(log_mess)
+                post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, log_mess)
                 component_counter = 0
                 for bom_component_sap_num in df['Component Material'].unique():
                     component_counter += 1
@@ -200,6 +207,7 @@ def file_processor(id_of_UploadedFile, user_id):
                         bom_component.save()
                         logmessage = f'BOM component imported by importing BOMs file: {bom_component.id} {bom_component.component_material} {bom_component.component_material_description}'
                         create_log_entry(user, bom_component, ADDITION, logmessage)
+                        post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, logmessage)
                     else:
                         if bom_component.component_material_description != bom_comp_description:
                             old_value = bom_component.component_material_description
@@ -207,14 +215,19 @@ def file_processor(id_of_UploadedFile, user_id):
                             bom_component.save()
                             logmessage = f'BOM component desc changed by importing BOMs from {old_value} to {bom_comp_description}'
                             create_log_entry(user,bom_component, CHANGE, logmessage)
+                            post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, logmessage)
                     if component_counter % 100 == 0:
                         celery_logger.info(f"BOM Component: {component_counter}/{unique_component_count}")
-                celery_logger.info(f"BOM Component completed")
-                
+                        log_mess = f"BOM Component completed"
+                celery_logger.info(log_mess)
+                post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, log_mess)
+
                 # Working on BOM Headers
                 unique_headers = df.drop_duplicates(subset=['Finished Material', 'Finished Material Desc', 'Alt BOM'])
                 all_unique_headers = len(unique_headers)
-                celery_logger.info(f"len of unique_headers: {all_unique_headers}")
+                log_mess = f"len of unique_headers: {all_unique_headers}"
+                celery_logger.info(log_mess)
+                post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, log_mess)
                 count_of_unique_headers = 0
                 for _, header in unique_headers.iterrows():
                     count_of_unique_headers += 1
@@ -237,54 +250,33 @@ def file_processor(id_of_UploadedFile, user_id):
                         if created:
                             logmessage = f'BOM header created for {bom_header.product.number} {bom_header.product.name} alt_bom: {alt_bom}'
                             create_log_entry(user, bom_header, ADDITION, logmessage)
+                            post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, logmessage)
+                        else:
+                            logmessage = f'BOM header changed for {bom_header.product.number} {bom_header.product.name} alt_bom: {alt_bom}'
+                            create_log_entry(user, bom_header, CHANGE, logmessage)
+                            # post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, logmessage)
                     if count_of_unique_headers % 100 == 0:
                         celery_logger.info(f"BOM headers: {count_of_unique_headers}/{all_unique_headers}")
-                celery_logger.info(f"Bom headers completed")
+                        log_mess = f"Bom headers job completed"
+                celery_logger.info(log_mess)
+                post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, log_mess)
                 # Finished working on BOM headers
                 # Start working on BOMs
                 # slice the file
                 bom_chunk_size = 3000
                 df_chunks = slice_dataframe(df, bom_chunk_size)
-                celery_logger.info(f"Total number of bom_chunks: {len(df_chunks)}")
+                log_mess = f"Total number of bom_chunks: {len(df_chunks)}"
+                celery_logger.info(log_mess)
+                post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, log_mess)
                 chunk_counter = 0
                 number_of_chunks = len(df_chunks)
                 for df_chunk in df_chunks:
                     chunk_counter += 1
                     chunk_dict = df_chunk.to_dict(orient='records')
-                    process_the_bom_slice_task.delay(chunk_dict, user.id, chunk_counter, number_of_chunks)
-                # Adding or updating Bom records
-                # for _, row in df.iterrows():
-                #     product_number = row['Finished Material']
-                #     alt_bom = row['Alt BOM']
-                #     item_number = row['Item Number']
-                #     component_material = row['Component Material']
-                #     component_quantity = row['Comp Qty']
-                #     component_uom_in_bom = row['Comp UoM in BOM']
-                #     price_unit = row['Price Unit']
-                #     standard_price_per_unit = row['Std Pr Per Unit/Comp']
+                    process_the_bom_slice_task.delay(chunk_dict, user.id, chunk_counter, number_of_chunks, uploaded_file_record.id, celery_task_id)
+                uploaded_file_record.is_processed = True
+                uploaded_file_record.processed_at = timezone.make_aware(datetime.now())
 
-                #     product = get_object_or_404(Product, number=product_number)
-                #     bom_header = get_object_or_404(BomHeader, product=product, alt_bom=alt_bom)
-                #     bom_component = get_object_or_404(BomComponent, component_material=component_material)
-
-                #     bom, created = Bom.objects.update_or_create(
-                #         bom_header=bom_header,
-                #         bom_component=bom_component,
-                #         defaults={
-                #             'item_number': item_number,
-                #             'component_quantity': component_quantity,
-                #             'component_uom_in_bom': component_uom_in_bom,
-                #             'price_unit': price_unit,
-                #             'standard_price_per_unit': standard_price_per_unit
-                #         }
-                #     )
-                #     if created:
-                #         logmessage = f'BOM record created for {bom_header.product.number} {bom_header.product.name} component: {bom_component.component_material}'
-                #         create_log_entry(user, bom, ADDITION, logmessage)
-                #     else:
-                #         logmessage = f'BOM record updated for {bom_header.product.number} {bom_header.product.name} component: {bom_component.component_material}'
-                #         create_log_entry(user, bom, CHANGE, logmessage)
-                # # Finished working on Boms
             else:
                 print("error reading the file")
             pass
@@ -370,10 +362,10 @@ def post_a_log_message(id_of_UploadedFile, user_id, celery_task_id, message, lev
         celery_task_id = celery_task_id,
         log_text = message
     )
-    if level == "info":
-        celery_logger.info(message)
-    else:
-        celery_logger.error(message)
+    # if level == "info":
+    #     celery_logger.info(message)
+    # else:
+    #     celery_logger.error(message)
 
 
 def read_this_file(the_file, user, conversion_dictionary, celery_task_id):
@@ -387,22 +379,6 @@ def read_this_file(the_file, user, conversion_dictionary, celery_task_id):
         return df
     else:
         return False
-
-
-@shared_task
-def ticker_task():
-    for iteration in range(10):
-        time.sleep(1)
-        celery_logger.info(f"ticker_task: tick {iteration}")
-    return "ticker_task completed"
-
-
-@shared_task
-def very_long_task():
-    for number in range(50):
-        time.sleep(.3)
-        celery_logger.info(f"number: {number}")
-    return"task 50x completed!"
 
 
 @shared_task
@@ -496,9 +472,11 @@ def fetch_euro_exchange_rates():
 
 
 @shared_task
-def process_the_bom_slice_task(chunk_dict, user_id, counter, all_chunks):
+def process_the_bom_slice_task(chunk_dict, user_id, counter, all_chunks, id_of_uploaded_file, celery_task_id):
     stamp = f"{counter}/{all_chunks}"
-    celery_logger.warning(f"process_the_bom_slice_task started - {stamp}")
+    log_mess = f"task id {celery_task_id} - process_the_bom_slice_task started - {stamp}"
+    celery_logger.warning(log_mess)
+    post_a_log_message(id_of_uploaded_file, user_id, celery_task_id, log_mess)
     df = pd.DataFrame(chunk_dict)
     len_df = len(df)
     user = get_object_or_404(User, pk=user_id)
@@ -515,7 +493,6 @@ def process_the_bom_slice_task(chunk_dict, user_id, counter, all_chunks):
         component_uom_in_bom = row['Comp UoM in BOM']
         price_unit = row['Price Unit']
         standard_price_per_unit = row['Std Pr Per Unit/Comp']
-        # celery_logger.info(f"{stamp}|{product_number}|{alt_bom}|{item_number}|{component_material}|{component_quantity}|{component_uom_in_bom}")
 
         product = get_object_or_404(Product, number=product_number)
         bom_header = get_object_or_404(BomHeader, product=product, alt_bom=alt_bom)
@@ -532,16 +509,20 @@ def process_the_bom_slice_task(chunk_dict, user_id, counter, all_chunks):
                 'standard_price_per_unit': standard_price_per_unit
             }
         )
-        # if slice_row % 100 == 00:
-        #     celery_logger.error(f"process {stamp}: {slice_row}/{len_df}")
-        # if created:
-        #     logmessage = f'BOM record created for {bom_header.product.number} {bom_header.product.name} component: {bom_component.component_material}'
-        #     # create_log_entry(user, bom, ADDITION, logmessage)
-        # else:
-        #     logmessage = f'BOM record updated for {bom_header.product.number} {bom_header.product.name} component: {bom_component.component_material}'
-        #     # create_log_entry(user, bom, CHANGE, logmessage)
+        if slice_row % 100 == 00:
+            celery_logger.warning(f"process {stamp}: {slice_row}/{len_df}")
+        if created:
+            logmessage = f'BOM record created for {bom_header.product.number} {bom_header.product.name} component: {bom_component.component_material}'
+            create_log_entry(user, bom, ADDITION, logmessage)
+            post_a_log_message(id_of_uploaded_file, user_id, celery_task_id, logmessage)
+        else:
+            logmessage = f'BOM record updated for {bom_header.product.number} {bom_header.product.name} component: {bom_component.component_material}'
+            create_log_entry(user, bom, CHANGE, logmessage)
     # Finished working on Boms
-    celery_logger.warning(f"process_the_bom_slice_task stopped - {stamp}")
+    log_mess = f"task id {celery_task_id} - process_the_bom_slice_task finished - {stamp}"
+    celery_logger.warning(log_mess)
+    post_a_log_message(id_of_uploaded_file, user_id, celery_task_id, log_mess)
+
 
 def slice_dataframe(dataframe, chunk_size):
     chunks = [dataframe.iloc[i:i + chunk_size] for i in range(0, dataframe.shape[0], chunk_size)]

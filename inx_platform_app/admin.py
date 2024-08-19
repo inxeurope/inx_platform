@@ -314,7 +314,7 @@ class BudgetForecastDetail_salesAdmin(BudgetForecastDetailAdmin_abs):
 
 
 class UploadedFileAdmin(admin.ModelAdmin):
-    list_display=['id', 'created_at', 'process_status', 'owner', 'file_type', 'file_name', 'file_color']
+    list_display=['id', 'created_at', 'is_processed', 'process_status', 'owner', 'file_type', 'file_name', 'file_color']
 
 
 class UploadedFileLogAdmin(admin.ModelAdmin):

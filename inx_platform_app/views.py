@@ -25,7 +25,7 @@ from .models import *
 from .utils import *
 from .forms import *
 from .filters import *
-from .tasks import ticker_task, very_long_task, file_processor, fetch_euro_exchange_rates
+from .tasks import file_processor, fetch_euro_exchange_rates
 from . import dictionaries, import_dictionaries
 from decimal import Decimal, ROUND_HALF_UP
 from loguru import logger
@@ -1868,7 +1868,10 @@ def files_to_import(request):
 @login_required
 def imported_files(request, page=0):
     user = request.user
-    user_files = UploadedFile.objects.filter(owner=user, is_processed=True).order_by('-processed_at')
+    if user.is_superuser:
+        user_files = UploadedFile.objects.filter(is_processed=True).order_by('-processed_at')
+    else:
+        user_files = UploadedFile.objects.filter(owner=user, is_processed=True).order_by('-processed_at')
     
     items_per_page = 10
 

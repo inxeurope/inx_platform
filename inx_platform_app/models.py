@@ -260,6 +260,9 @@ class ProductStatus(models.Model):
     sqlapp_id = models.IntegerField(default=0, null=True, blank=True)
     marked_for_deletion = models.BooleanField(default=False)
 
+    class Meta:
+        verbose_name_plural = "Product Statuses"
+
     def __str__(self):
         return self.name
 
