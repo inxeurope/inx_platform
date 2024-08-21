@@ -1,4 +1,6 @@
+from django import forms
 from django.contrib import admin
+from django.contrib.admin.widgets import ForeignKeyRawIdWidget
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField, AdminPasswordChangeForm
 from urllib.parse import unquote
@@ -479,14 +481,32 @@ class PackagingRateToLiterAdmin(admin.ModelAdmin):
     list_display=['id', 'packaging', 'unit_of_measure', 'rate_to_liter']
 
 
+class BomHeaderWidget(ForeignKeyRawIdWidget):
+    def label_for_value(self, value):
+        try:
+            obj = self.rel.model.objects.get(pk=value)
+            return f"{obj.product.name} ({obj.alt_bom})"
+        except (self.rel.model.DoesNotExist, ValueError):
+            return super().label_for_value(value)
+
+
+class BomForm(forms.ModelForm):
+    class Meta:
+        model = Bom
+        fields = '__all__'
+        widgets = {
+            'bom_header': BomHeaderWidget(Bom._meta.get_field('bom_header').remote_field, admin.site),
+        }
+
+
 class BomHeaderAdmin(admin.ModelAdmin):
     list_display = ['id','get_product_number', 'get_product_name', 'alt_bom', 'header_base_quantity', 'header_base_quantity_uom']
     search_fields = ['product__name', 'product__number']
 
     def get_product_number(self, obj):
         return f"({obj.product.id}) {obj.product.number}"
-    get_product_number.admin_order_field = 'product__number'  # Allows column order sorting
-    get_product_number.short_description = 'Product Number'  # Renames column head
+    get_product_number.admin_order_field = 'product__number'
+    get_product_number.short_description = 'Product Number'
 
     def get_product_name(self, obj):
         return obj.product.name
@@ -500,7 +520,8 @@ class BomComponentAdmin(admin.ModelAdmin):
 
 
 class BomAdmin(admin.ModelAdmin):
-    list_display = ['id', 'bom_header_id', 'get_product_name', 'get_alt_bom', 'item_number', 'get_component_material_description', 'component_quantity', 'component_uom_in_bom', 'price_unit', 'standard_price_per_unit']
+    form = BomForm
+    list_display = ['id', 'bom_header_id', 'get_product_name', 'get_alt_bom', 'item_number', 'get_component_material_description', 'component_quantity', 'component_uom_in_bom', 'component_base_uom', 'price_unit', 'standard_price_per_unit', 'standard_price_per_unit_EUR']
     search_fields = ['bom_header__product__name', 'bom_header__alt_bom']
 
     def get_product_name(self, obj):

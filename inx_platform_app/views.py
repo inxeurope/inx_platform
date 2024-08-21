@@ -1371,38 +1371,6 @@ def loader(request):
 
 
 @login_required
-def update_profile(request):
-    if request.method == 'POST':
-        csrf_token = request.META.get('CSRF_COOKIE', 'Not set')
-        print(f"update profile - csrf token: {csrf_token}")
-        user = request.user
-        first_name = request.POST.get('first_name')
-        last_name = request.POST.get('last_name')
-        email = request.POST.get('email')
-
-        if not first_name or not last_name or not email:
-            messages.error(request, 'Please fill out all fields.')
-            return redirect('account_settings')
-        
-        try:
-            validate_email(email)
-        except ValidationError:
-            messages.error(request, 'Invalid email address.')
-            return redirect('account_settings')
-        
-
-        user.first_name = first_name
-        user.last_name = last_name
-        user.email = email
-        user.save()
-
-        messages.success(request, 'Your profile was successfully updated!')
-        return redirect('index') 
-    else:
-        return redirect('account_settings')
-
-
-@login_required
 def loading(request):
     if request.method == "POST":
         timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
@@ -1793,6 +1761,7 @@ def clean_the_table(tuple_list):
     
     print(f"Deleted all fom {model_to_clean}")
 
+
 @login_required
 def clean_db(request):
 
@@ -1910,6 +1879,7 @@ def imported_file_log(request, pk):
 def start_processing(request, file_id):
     pass
 
+
 @login_required
 def push_file_to_file_processor(request):
     id = request.GET.get("file_id")
@@ -1918,7 +1888,6 @@ def push_file_to_file_processor(request):
     file.save()
     file_processor.delay(id, request.user.id)
     return redirect("files-to-import")
-
 
 
 def delete_this_file_to_import(request, file_id):

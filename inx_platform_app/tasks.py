@@ -186,7 +186,7 @@ def file_processor(id_of_UploadedFile, user_id):
                         product.save()
                     if material_counter % 100 == 0:
                         celery_logger.info(f"materials: {material_counter}/{len(unique_materials)}")
-                        log_mess = f"Materials completed"
+                log_mess = f"Materials completed"
                 celery_logger.info(log_mess)
                 post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, log_mess)
                 # Adding new component or updating current ones
@@ -471,6 +471,23 @@ def fetch_euro_exchange_rates():
         celery_logger.info(f"Failed to fetch data: {response.status_code}")
 
 
+def get_latest_exchange_rate(currency):
+    
+    latest_year = EuroExchangeRate.objects.filter(currency=currency).aggregate(latest_year=Max('year'))['latest_year']
+    if latest_year:
+        latest_month = EuroExchangeRate.objects.filter(currency=currency, year=latest_year).aggregate(latest_month=Max('month'))['latest_month']
+        
+        # Fetch the exchange rate for the latest year and month
+        exchange_rate = EuroExchangeRate.objects.filter(
+            currency=currency,
+            year=latest_year,
+            month=latest_month
+        ).first()
+
+        return exchange_rate.rate if exchange_rate else None
+    return None
+
+
 @shared_task
 def process_the_bom_slice_task(chunk_dict, user_id, counter, all_chunks, id_of_uploaded_file, celery_task_id):
     stamp = f"{counter}/{all_chunks}"
@@ -480,6 +497,11 @@ def process_the_bom_slice_task(chunk_dict, user_id, counter, all_chunks, id_of_u
     df = pd.DataFrame(chunk_dict)
     len_df = len(df)
     user = get_object_or_404(User, pk=user_id)
+    # Getting the latest exchange rate
+    czk_currency = get_object_or_404(Currency, alpha_3='CZK')
+    latest_exchange_rate = get_latest_exchange_rate(czk_currency)
+    celery_logger.info(f"latest czk exchange rate: {latest_exchange_rate}")
+
     # Start working on BOMs
     # Adding or updating Bom records
     slice_row = 0
@@ -491,8 +513,10 @@ def process_the_bom_slice_task(chunk_dict, user_id, counter, all_chunks, id_of_u
         component_material = row['Component Material']
         component_quantity = row['Comp Qty']
         component_uom_in_bom = row['Comp UoM in BOM']
+        component_base_uom = row['Comp Base UoM']
         price_unit = row['Price Unit']
-        standard_price_per_unit = row['Std Pr Per Unit/Comp']
+        standard_price_per_unit = Decimal(row['Std Pr Per Unit/Comp'])
+        standard_price_per_unit_EUR = standard_price_per_unit / latest_exchange_rate
 
         product = get_object_or_404(Product, number=product_number)
         bom_header = get_object_or_404(BomHeader, product=product, alt_bom=alt_bom)
@@ -505,8 +529,10 @@ def process_the_bom_slice_task(chunk_dict, user_id, counter, all_chunks, id_of_u
                 'item_number': item_number,
                 'component_quantity': component_quantity,
                 'component_uom_in_bom': component_uom_in_bom,
+                'component_base_uom': component_base_uom,
                 'price_unit': price_unit,
-                'standard_price_per_unit': standard_price_per_unit
+                'standard_price_per_unit': standard_price_per_unit,
+                'standard_price_per_unit_EUR': standard_price_per_unit_EUR
             }
         )
         if slice_row % 100 == 00:

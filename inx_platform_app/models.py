@@ -279,7 +279,7 @@ class ExchangeRate(models.Model):
         ]
 
     def __str__(self):
-        return self.currency + self.year
+        return str(self.currency) + " " + str(self.year)
 
 
 class Scenario(models.Model):
@@ -1477,7 +1477,9 @@ class BomHeader(models.Model):
         ]
     
     def __str__(self):
-        return f"{self.product.number} {self.product.name} ({self.alt_bom})"
+        # Safely access the product name
+        # product_name = self.product.name if self.product_id else "Unknown Product"
+        return f"{self.id} ({self.alt_bom})"
 
 
 class BomComponent(models.Model):
@@ -1494,6 +1496,8 @@ class Bom(models.Model):
     bom_component = models.ForeignKey(BomComponent, on_delete=models.CASCADE)
     item_number = models.CharField(max_length=10, null=True, blank=True)
     component_quantity = models.DecimalField(max_digits=10, decimal_places=2)
-    component_uom_in_bom = models.CharField(max_length=5)
+    component_uom_in_bom = models.CharField(max_length=5, null=True, blank=True)
+    component_base_uom = models.CharField(max_length=5, null=True, blank=True)
     price_unit = models.IntegerField()
     standard_price_per_unit = models.DecimalField(max_digits=10, decimal_places=2)
+    standard_price_per_unit_EUR = models.DecimalField(max_digits=10, decimal_places=2)

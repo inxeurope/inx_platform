@@ -67,44 +67,33 @@
             </div>
           {% endfor %}
         </div>
-        {% if user_files %}
-        <div class="row row-cards">
-          <div class="col">
-            <div class="card">
-              <div id="log" class="card-body text-muted">
-                Log messages here ...
-              </div>
-            </div>
-          </div>
-          <script>
-            document.addEventListener('DOMContentLoaded', function() {
-              let eventSource;
-              const sseData = document.getElementById('log');
-              const processButtons = document.querySelectorAll('.process-button');
-              
-              processButtons.forEach(button => {
-                button.addEventListener('click', function(event) {
-                    event.preventDefault(); // Prevent any default action.
-                    const fileId = this.getAttribute('data-file-id');
-                    console.log('fileID: ' + fileId);
-                    startSSE(fileId);
-                });
-              });
-
-              
-              function removeFileDiv(fileId) {
-                const fileDiv = document.getElementById(fileId);
-                if (fileDiv) {
-                    fileDiv.parentNode.removeChild(fileDiv);
-                    console.log(`Removed div for fileID: ${fileId}`);
-                }
-              }
-
-            });
-          </script>
-        </div>
-        {% endif %}
       </div>
+      <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          let eventSource;
+          const sseData = document.getElementById('log');
+          const processButtons = document.querySelectorAll('.process-button');
+          
+          processButtons.forEach(button => {
+            button.addEventListener('click', function(event) {
+                event.preventDefault(); // Prevent any default action.
+                const fileId = this.getAttribute('data-file-id');
+                console.log('fileID: ' + fileId);
+                startSSE(fileId);
+            });
+          });
+
+          
+          function removeFileDiv(fileId) {
+            const fileDiv = document.getElementById(fileId);
+            if (fileDiv) {
+                fileDiv.parentNode.removeChild(fileDiv);
+                console.log(`Removed div for fileID: ${fileId}`);
+            }
+          }
+
+        });
+      </script>
     </div>
     {% include 'app_includes/footer.html' %}
   </div>
