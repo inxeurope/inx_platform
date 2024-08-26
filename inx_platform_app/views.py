@@ -13,7 +13,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.views import LoginView, PasswordChangeView
 from django.contrib.auth.decorators import login_required
-from django.template import loader
+# from django.template import loader
 from django.db import models, transaction
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .models import *
@@ -560,21 +560,6 @@ def budget_flat_save(request):
 
 
 @login_required
-def budget_save(request):
-    # budget_year = datetime.now().year + 1
-    # budget_month = datetime.now().month
-    # budget_scenario = get_object_or_404(Scenario, is_budget=True)
-    if request.method == 'POST':
-        csrf_token = request.META.get('CSRF_COOKIE', 'Not set')
-        print(f"budget save - csrf token: {csrf_token}")
-        form_data = request.POST.copy()
-        # budget_id = form_data.get('id')
-        # budforline_id = form_data.get('budforline_id', None)
-        pass
-    pass
-
-
-@login_required
 def fetch_empty_forecast(request):
     return render(request, "app_pages/forecast_2_fcst_empty_partial.html", {})
 
@@ -589,7 +574,7 @@ def forecast_2(request, customer_id=None):
     else:
         current_year = datetime.now().year
         forecast_year = current_year
-        budget_year = current_year + 1
+        # budget_year = current_year + 1
         current_month = datetime.now().month
 
         print("Forecast view - standard request")
@@ -1317,56 +1302,6 @@ def fetch_forecast(request, budforline_id):
         'budget_year': budget_year
     }
     return render(request, "app_pages/forecast_2_fcst.html", context)
-
-
-@login_required
-def loader(request):
-    if request.method == "POST":
-
-        timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
-
-        ke30_file = request.FILES.get('ke30_file')
-        ke24_file = request.FILES.get('ke24_file')
-        zaq_file = request.FILES.get('zaq_file')
-        oo_file = request.FILES.get('oo_file')
-        oh_file = request.FILES.get('oh_file')
-        oi_file = request.FILES.get('oi_file')
-        arr_file = request.FILES.get('arr_file')
-        pr_file = request.FILES.get('pr_file')
-        boms_file = request.FILES.get('boms_file')
-
-        user_name = request.user.get_snakecase_name()
-
-        files_list = [
-            ('ke30_file', ke30_file),
-            ('ke24_file', ke24_file),
-            ('zaq_file', zaq_file),
-            ('oo_file', oo_file),
-            ('oh_file', oh_file),
-            ('oi_file', oi_file),
-            ('arr_file', arr_file),
-            ('pr_file', pr_file),
-            ('boms_file', boms_file),
-        ]
-
-        for file_field, original_file in files_list:
-            if original_file is not None:
-                original_file_nane = original_file.name.lower()
-                prefix = file_field.split('_')[0]
-                original_file_nane = prefix +"_" + user_name + "_" + timestamp + "_" + original_file_nane
-                upload_dir = os.path.join(settings.MEDIA_ROOT, "uploads")
-                if not os.path.exists(upload_dir):
-                    os.makedirs(upload_dir)
-                with open(os.path.join(upload_dir, original_file_nane), 'wb+') as destination:
-                    # for chunk in ke30_file.chunks():
-                    for chunk in original_file.chunks():
-                        destination.write(chunk)
-                    # here it's done, update the database
-                    uploaded_file = UploadedFile(owner=request.user, file_type=prefix, file_path=upload_dir, file_name=original_file_nane)
-                    uploaded_file.save()
-        return redirect('display_files')
-    else:
-        return render(request, "loader.html", {})
 
 
 @login_required
@@ -2595,24 +2530,6 @@ def brand_edit(request, pk):
         form = BrandForm(instance=b)
     context = {'form': form}
     return render(request, "app_pages/brand_edit.html", context)
-
-
-def push_and_execute(request, pk):
-    procedure = get_object_or_404(StoredProcedure, pk=pk)
-    with connection.cursor() as cursor:
-        cursor.execute(f"SELECT COUNT(*) FROM information_schema.routines WHERE routine_name = '{procedure.name}'")
-        exists = cursor.fetchone()[0]
-    
-    if exists:
-        # If it exists, drop the existing stored procedure
-        with connection.cursor() as cursor:
-            cursor.execute(f"DROP PROCEDURE {procedure.name}")
-            
-    with connection.cursor() as cursor:
-        cursor.execute(procedure.script)
-        cursor.execute(f"EXEC {cursor.name}")
-
-    return redirect('procedure_list')
     
 
 # For User Management

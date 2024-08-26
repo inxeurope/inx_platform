@@ -24,7 +24,6 @@ urlpatterns = [
 
     path("get_exchange_rates", views.get_exchange_rates, name="get-exchange-rates"),
 
-    path("loader/", views.loader, name="loader"),
     path("loading", views.loading, name="loading"),
 
     path("import_data/", views.import_data, name='import_data'),
