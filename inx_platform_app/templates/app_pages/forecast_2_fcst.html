@@ -41,7 +41,7 @@
 </div>
 
 <div class="row"> <!-- Forecast forms -->
-  <div>budforline_id: {{ budforline_id }} </div>
+  {% comment %} <div>budforline_id: {{ budforline_id }} </div> {% endcomment %}
     {% for form in forecast_forms %}
       <div class="col">
         <form method="post"

@@ -2,25 +2,20 @@ from collections import defaultdict
 from django.db.models import Sum, OuterRef, Subquery, DecimalField, F, Value, Case, When
 from django.db.models.functions import Coalesce, Round
 from django.db import connection
-from django.urls import reverse_lazy, reverse
+from django.urls import reverse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse, HttpResponseRedirect, HttpResponseBadRequest, HttpResponse
 from django.conf import settings
-from django.core.validators import validate_email
-from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import messages
-from django.contrib.admin.models import ADDITION, CHANGE
+from django.contrib.admin.models import CHANGE
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User, Group
-from django.contrib.auth.views import LoginView, PasswordResetView, PasswordChangeView, PasswordResetConfirmView
+from django.contrib.auth.views import LoginView, PasswordChangeView
 from django.contrib.auth.decorators import login_required
 from django.template import loader
-from django.template.loader import render_to_string
-from django.utils.decorators import method_decorator
 from django.db import models, transaction
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.views.generic.list import ListView
-from django.views.generic.edit import UpdateView, CreateView
 from .models import *
 from .utils import *
 from .forms import *
@@ -29,11 +24,12 @@ from .tasks import file_processor, fetch_euro_exchange_rates
 from . import dictionaries, import_dictionaries
 from decimal import Decimal, ROUND_HALF_UP
 from loguru import logger
-import pyodbc, math
+import pyodbc
+import math
 import pandas as pd
 import numpy as np
-import openpyxl
-import os, time
+import os
+import time
 from datetime import datetime
 from time import perf_counter
 import pprint
@@ -408,11 +404,13 @@ def forecast_save(request):
         budforline_id = form_data.get('budforline_id', None)
 
         if form_type == 'forecast':
-            scenario = forecast_scenario
+            # scenario = forecast_scenario
+            pass
         elif form_type == 'budget':
-            scenario = budget_scenario
+            # scenario = budget_scenario
+            pass
         elif form_type == 'budget-flat':
-            scenario = budget_scenario
+            # scenario = budget_scenario
             flat_budget_form = FlatBudgetForm(form_data)
             if flat_budget_form.is_valid():
                 print("flat budget form is valid")
@@ -468,7 +466,8 @@ def forecast_save(request):
             the_forecast_budget.save()
             change_message = []
             for field in f.changed_data:
-                if field == 'budforline_id': continue
+                if field == 'budforline_id':
+                    continue
                 old_value = Decimal(old_values[field])
                 if f.cleaned_data[field]:
                     new_value = Decimal(f.cleaned_data[field])
@@ -530,10 +529,10 @@ def budget_flat_save(request):
         print(f"budget flat save - csrf token: {csrf_token}")
         form_data = request.POST.copy()
         budforline_id = form_data.get('budforline_id', None)
-        budforline_object = get_object_or_404(BudForLine, pk=budforline_id)
-        customer_id = budforline_object.customer.id
-        brand_id = budforline_object.brand.id
-        color_group_id = budforline_object.color_group.id
+        # budforline_object = get_object_or_404(BudForLine, pk=budforline_id)
+        # customer_id = budforline_object.customer.id
+        # brand_id = budforline_object.brand.id
+        # color_group_id = budforline_object.color_group.id
 
         print(f"the budforline_id: {budforline_id}")
         # Remove all budget lines with budforline_id
@@ -562,15 +561,15 @@ def budget_flat_save(request):
 
 @login_required
 def budget_save(request):
-    budget_year = datetime.now().year + 1
-    budget_month = datetime.now().month
-    budget_scenario = get_object_or_404(Scenario, is_budget=True)
+    # budget_year = datetime.now().year + 1
+    # budget_month = datetime.now().month
+    # budget_scenario = get_object_or_404(Scenario, is_budget=True)
     if request.method == 'POST':
         csrf_token = request.META.get('CSRF_COOKIE', 'Not set')
         print(f"budget save - csrf token: {csrf_token}")
         form_data = request.POST.copy()
-        budget_id = form_data.get('id')
-        budforline_id = form_data.get('budforline_id', None)
+        # budget_id = form_data.get('id')
+        # budforline_id = form_data.get('budforline_id', None)
         pass
     pass
 
@@ -1610,7 +1609,7 @@ def import_from_SQL(table_tuples):
         # This is a dictionary of foreign keys
         # key: name of the field
         # value: model_class referenced
-        model_fks_dict = {}
+        # model_fks_dict = {}
         other_model_fks_dict = {}
         t_start = perf_counter()
         for field in model_class._meta.get_fields():
@@ -2086,7 +2085,7 @@ def process_this_file(file):
         log_text += log_message + '\n'
         file.log = log_text
         file.save()
-        yield f'data:basta\n\n'
+        yield 'data:basta\n\n'
 
 
 @login_required
@@ -2354,11 +2353,14 @@ def products_list(request, page=0):
     search_term = request.GET.get('search')
     entries = request.GET.get('entries') # how many rows to show
     category = request.GET.get('product_category')
-    if category == '' or category == None: category = 'all'
+    if category == '' or category is None:
+        category = 'all'
     status = request.GET.get('product_status_selected')
-    if status == '' or status == None: status = 'all'
+    if status == '' or status is None:
+        status = 'all'
     made_in = request.GET.get('made_in_country_selected')
-    if made_in == '' or made_in == None: made_in = 'all'
+    if made_in == '' or made_in is None:
+        made_in = 'all'
 
     if search_term:
         products = Product.objects.filter(
@@ -2677,10 +2679,6 @@ def logout_view(request):
     return redirect('/accounts/login/')
 
 
-class UserPasswordChangeView(PasswordChangeView):
-  template_name = 'app_pages/password-change.html'
-  form_class = UserPasswordChangeForm
-
 
 def products(request):
     
@@ -2746,9 +2744,10 @@ def sales_forecast_budget(request):
             customer_filter = form.cleaned_data['customer']
             if user_filter and user_filter != 'all':
                 user = User.objects.get(id=user_filter)
-                user_email = user.email
+                # user_email = user.email
             if customer_filter and customer_filter != 'all':
-                customer = Customer.objects.get(id = customer_filter)
+                # customer = Customer.objects.get(id = customer_filter)
+                pass
         else:
             user_filter = 'all'
             customer_filter = 'all'
@@ -3081,7 +3080,7 @@ def download_sfb(request):
     user_filter = request.GET.get('user', 'all')
     customer_filter = request.GET.get('customer', 'all')
     print(f"user: {user_filter};  customer: {customer_filter}")
-    header_line = f'Sales + forecast + Budget (sales manager: all, customer: all)'
+    header_line = 'Sales + forecast + Budget (sales manager: all, customer: all)'
 
     # We had pushed the data in the cach, now here we recover
     cache_key = 'u_all_c_all_sales_forecast_budget_data'

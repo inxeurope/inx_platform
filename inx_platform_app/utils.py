@@ -1,9 +1,11 @@
-import os, sys, calendar
+import os
+import sys
+import calendar
 from django.db import connection
 import json
 from django.core.cache import cache
 from .models import CountryCode
-from django.contrib.admin.models import LogEntry, ADDITION, CHANGE
+from django.contrib.admin.models import LogEntry
 from django.contrib.contenttypes.models import ContentType
 
 

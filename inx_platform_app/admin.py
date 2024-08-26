@@ -1,19 +1,68 @@
 from django import forms
 from django.contrib import admin
 from django.contrib.admin.widgets import ForeignKeyRawIdWidget
-from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField, AdminPasswordChangeForm
 from urllib.parse import unquote
 from django.core.exceptions import PermissionDenied
-from django import forms
 from django.urls import path
 from django.shortcuts import render, redirect
-from django.utils.translation import gettext, gettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.utils.html import escape
 from django.contrib.admin import helpers
 from django.contrib import messages
-from django.contrib.admin import SimpleListFilter
-from .models import *
+from .models import (
+    ProductStatus,
+    Scenario,
+    User,
+    Bom,
+    BomHeader,
+    BomComponent,
+    Color,
+    ColorGroup,
+    MadeIn,
+    ProductLine,
+    Division,
+    Brand,
+    MajorLabel,
+    InkTechnology,
+    NSFDivision,
+    MarketSegment,
+    MaterialGroup,
+    Packaging,
+    UnitOfMeasure,
+    Industry,
+    Customer,
+    CountryCode,
+    RateToLT,
+    Currency,
+    CurrencyRate,
+    Contact,
+    ExchangeRate,
+    EuroExchangeRate,
+    CustomerType,
+    CustomerNote,
+    Product,
+    BudForDetailLine,
+    BudForNote,
+    BudForLine,
+    Ke24ImportLine,
+    Ke24Line,
+    Ke30ImportLine,
+    Ke30Line,
+    ZAQCODMI9_import_line,
+    ZAQCODMI9_line,
+    Fbl5nArrImport,
+    Fbl5nOpenImport,
+    Order,
+    UploadedFile,
+    UploadedFileLog,
+    Price,
+    Fert,
+    BudgetForecastDetail,
+    BudgetForecastDetail_sales,
+    ContactType,
+    PackagingRateToLiter
+)
 
 
 class ColorGroupAdmin(admin.ModelAdmin):
@@ -447,8 +496,6 @@ class UserAdmin(admin.ModelAdmin):
             'has_view_permission': self.has_view_permission(request, user),
             'has_editable_inline_admin_formsets': False,
             'has_add_permission': self.has_add_permission(request),
-            'has_change_permission': self.has_change_permission(request, user),
-            'has_delete_permission': self.has_delete_permission(request, user),
             'has_change_permission': self.has_change_permission(request, user),
         }
 

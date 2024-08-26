@@ -1,7 +1,20 @@
 from django import forms
 from django.utils.formats import number_format
 from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm, AuthenticationForm, UsernameField, PasswordResetForm, SetPasswordForm
-from .models import *
+# from .models import *
+from .models import (
+    Brand,
+    MajorLabel,
+    Division,
+    InkTechnology,
+    NSFDivision,
+    MarketSegment,
+    Customer,
+    MaterialGroup,
+    User,
+    CustomerType,
+    Currency,
+    Industry,Product, Color, MadeIn, Packaging, ProductLine, ProductStatus, BudgetForecastDetail)
 
 
 class EditMajorLabelForm(forms.ModelForm):
@@ -318,7 +331,7 @@ class ForecastForm(forms.ModelForm):
         widgets = {
             'id': forms.HiddenInput(),
             'budforline_id': forms.HiddenInput(),
-            'budforline_id': forms.TextInput(attrs={'class': 'form-control p-1', 'readonly': 'readonly'}),
+            # 'budforline_id': forms.TextInput(attrs={'class': 'form-control p-1', 'readonly': 'readonly'}),
             'month': forms.TextInput(attrs={'class': 'form-control p-1 text-center', 'readonly': 'readonly', 'disabled': 'disabled'}),
             'volume': forms.NumberInput(attrs={'class': 'form-control p-1'}),
             # 'volume': NumberInputWithThousandsSeparator(attrs={'class': 'form-control p-1'}),

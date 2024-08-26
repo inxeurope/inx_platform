@@ -1,6 +1,13 @@
 import django_filters
 from django import forms
-from .models import *
+# from .models import *
+from .models import (
+    Brand,
+    ProductStatus,
+    MajorLabel,
+    Packaging,
+    Product
+    )
 
 
 class ProductFilterForm(forms.Form):

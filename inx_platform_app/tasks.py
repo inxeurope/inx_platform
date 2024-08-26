@@ -1,21 +1,42 @@
-from celery import Celery, shared_task, current_task, group, chord
+from celery import shared_task, current_task
 from django.utils import timezone
 from celery.utils.log import get_task_logger
 from django.shortcuts import get_object_or_404
-from django.db import connection
+from django.db import connection, transaction
 from django.db.models import Max
 from django.contrib.admin.models import ADDITION, CHANGE
-from .models import *
-from .utils import *
+from .models import (
+    User,
+    UploadedFile,
+    UploadedFileLog,
+    Ke24ImportLine,
+    Ke30ImportLine,
+    ZAQCODMI9_import_line,
+    Order,
+    Fbl5nArrImport,
+    Fbl5nOpenImport,
+    Price,
+    Product,
+    ProductStatus,
+    BomComponent,
+    BomHeader,
+    Bom,
+    EuroExchangeRate,
+    Currency
+)
+from .utils import (
+    is_fert,
+    create_log_entry
+)
 from . import import_dictionaries
 from decimal import Decimal, ROUND_HALF_UP
 import pandas as pd
+import numpy as np
 import time
 import os
-import pprint
 import requests
-from loguru import logger as django_logger
 import xml.etree.ElementTree as ET
+from datetime import datetime
 
 
 # app = Celery('core_app', broker='redis://localhost:6379/0')
@@ -35,7 +56,7 @@ def file_processor(id_of_UploadedFile, user_id):
         celery_logger.error(f"No UploadedFile record with id: {id_of_UploadedFile}")
         return
     if not os.path.exists(uploaded_file_record.file_path + "/" + uploaded_file_record.file_name):
-        celery_logger.error(f"File does not exist.")
+        celery_logger.error("File does not exist.")
         return
     
     celery_logger.info(
@@ -152,7 +173,6 @@ def file_processor(id_of_UploadedFile, user_id):
                 df = df[df['Plant'] == '8800']
                 # Adding new products or updating current ones
                 unique_materials = df['Finished Material'].unique()
-                all_unique_materials = len(unique_materials)
                 material_counter = 0
                 # get the marked for deletion product status
                 mark_for_del = get_object_or_404(ProductStatus, marked_for_deletion = True)
@@ -186,7 +206,7 @@ def file_processor(id_of_UploadedFile, user_id):
                         product.save()
                     if material_counter % 100 == 0:
                         celery_logger.info(f"materials: {material_counter}/{len(unique_materials)}")
-                log_mess = f"Materials completed"
+                log_mess = "Materials completed"
                 celery_logger.info(log_mess)
                 post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, log_mess)
                 # Adding new component or updating current ones
@@ -218,7 +238,7 @@ def file_processor(id_of_UploadedFile, user_id):
                             post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, logmessage)
                     if component_counter % 100 == 0:
                         celery_logger.info(f"BOM Component: {component_counter}/{unique_component_count}")
-                        log_mess = f"BOM Component completed"
+                        log_mess = "BOM Component completed"
                 celery_logger.info(log_mess)
                 post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, log_mess)
 
@@ -257,7 +277,7 @@ def file_processor(id_of_UploadedFile, user_id):
                             # post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, logmessage)
                     if count_of_unique_headers % 100 == 0:
                         celery_logger.info(f"BOM headers: {count_of_unique_headers}/{all_unique_headers}")
-                        log_mess = f"Bom headers job completed"
+                        log_mess = "Bom headers job completed"
                 celery_logger.info(log_mess)
                 post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, log_mess)
                 # Finished working on BOM headers
@@ -285,10 +305,9 @@ def file_processor(id_of_UploadedFile, user_id):
     ####################################################################################
     # Start inserting
     ####################################################################################
-    if bom_work == False:
+    if not bom_work:
         model.objects.all().delete()
         post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, f"deleting rows from {model._meta.model_name}")
-        df_length = len(df)
         df = df.replace(np.nan, '')
         chunk_size = 500
         chunks = [df[i:i + chunk_size] for i in range(0, len(df), chunk_size)]
@@ -316,7 +335,7 @@ def file_processor(id_of_UploadedFile, user_id):
                 # Handle the exception
                 post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, f"An error occurred during the transaction: {e}")
         # All chunks are processed
-        post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, f"All chuncks are processed")
+        post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, "All chuncks are processed")
         uploaded_file_record.is_processed = True
         uploaded_file_record.processed_at = timezone.make_aware(datetime.now())
         # Working on the stored procedures now
@@ -354,7 +373,7 @@ def file_processor(id_of_UploadedFile, user_id):
 def post_a_log_message(id_of_UploadedFile, user_id, celery_task_id, message, level="info"):
     uploaded_file_record = get_object_or_404(UploadedFile, pk=id_of_UploadedFile)
     user = get_object_or_404(User, pk=user_id)
-    log = UploadedFileLog.objects.create(
+    UploadedFileLog.objects.create(
         uploaded_file = uploaded_file_record,
         user = user,
         file_path = uploaded_file_record.file_path,

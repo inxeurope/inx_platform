@@ -6,7 +6,6 @@ import numpy as np
 import django
 from django.apps import apps
 from django.db import models, transaction
-from django.db.models import Count
 from django.core.validators import RegexValidator
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, UserManager
@@ -18,7 +17,7 @@ from django.core.exceptions import ValidationError
 def xls_xlsx_file_validator(value):
     ext = os.path.splitext(value.name)[1]  # Get file extension
     valid_extensions = ['.xlsx', '.XLSX']
-    if not ext.lower() in valid_extensions:
+    if  ext.lower() not in valid_extensions:
         raise ValidationError('Only .xlsx and .XLSX files are allowed.')
 #--------------------------------------------- End of validators
 
@@ -1232,7 +1231,7 @@ class UploadedFile(models.Model):
                     unique_curr = df['Curr.'].nunique()
                     rows_to_remove = max(unique_curr, unique_uom)
                     df = df.head(len(df) - rows_to_remove) 
-                    model = ZACODMI9_import_line
+                    model = ZAQCODMI9_import_line
                     field_mapping = import_dictionaries.zaq_mapping_dict
                 case "oo":
                     convert_dict = import_dictionaries.oo_converters_dict

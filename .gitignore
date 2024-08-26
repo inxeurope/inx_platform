@@ -2,6 +2,7 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
+*.toml
 db.sqlite3
 env/
 .vscode
