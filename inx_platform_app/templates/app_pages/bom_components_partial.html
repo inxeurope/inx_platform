@@ -28,7 +28,7 @@
                             <th>Quantity</th>
                             <th>UoM</th>
                             <th>Price Unit</th>
-                            <th>Std.Price per Unit EUR</th>
+                            <th class="text-end">Std.Price per Unit EUR</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -39,7 +39,7 @@
                             <td>{{ component.component_quantity }}</td>
                             <td>{{ component.component_uom_in_bom }}</td>
                             <td>{{ component.price_unit }}</td>
-                            <td>{{ component.standard_price_per_unit_EUR }}</td>
+                            <td class="text-end">{{ component.standard_price_per_unit_EUR }}</td>
                         </tr>
                         {% endfor %}
                         <tr>
@@ -48,7 +48,7 @@
                             <td></td>
                             <td></td>
                             <td></td>
-                            <td>{{ total_RMC }}</td>
+                            <td class="text-end"><strong>{{ total_RMC }}</strong></td>
                         </tr>
                     </tbody>
                 </table>
