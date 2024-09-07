@@ -11,6 +11,30 @@
 /* prettier-ignore */
 :root,
 [data-bs-theme=light] {
+
+  --platform-cyan: #0db1ff;
+  --platform-magenta: #df2edf;
+  --platform-yellow: #ffff00;
+  --platform-black: #000000;
+  --platform-deep-black: #000000;
+  --platform-light-cyan: #aae4ff;
+  --platform-light-magenta: #d9a1d9;
+  --platform-light-yellow: #fbfbba;
+  --platform-light-black: #959595;
+  --platform-orange: #ff9500;
+  --platform-green: #00b536;
+  --platform-violet: #a101dc;
+  --platform-blue: #0059b2;
+  --platform-red: #ff0000;
+  --platform-light-red: #ffa5a5;
+  --platform-white: #ffffff;
+  --platform-grey: #6b6b6b;
+  --platform-light-grey: #c9c9c9;
+  --platform-clear: #c2ecec;
+  --platform-primer: #c2ecec;
+  --platform-cleaner: #c2ecec;
+  --platform-fluo: #c2ecec;
+
   --tblr-blue: #206bc4;
   --tblr-indigo: #4263eb;
   --tblr-purple: #ae3ec9;
@@ -11358,6 +11382,50 @@ textarea.form-control-lg {
 .bg-gradient {
   background-image: var(--tblr-gradient) !important;
 }
+
+
+.bg-platform-c{
+  --tblr-bg-opacity: 1;
+  background-color: rgba(var(--platform-cyan), var(--tblr-bg-opacity)) !important;
+}
+
+.bg-platform-m{
+  --tblr-bg-opacity: 1;
+  background-color: rgba(var(--platform-magenta), var(--tblr-bg-opacity)) !important;
+}
+
+.bg-platform-y{
+  --tblr-bg-opacity: 1;
+  background-color: rgba(var(--platform-yellow), var(--tblr-bg-opacity)) !important;
+}
+
+.bg-platform-k{
+  --tblr-bg-opacity: 1;
+  background-color: rgba(var(--platform-black), var(--tblr-bg-opacity)) !important;
+}
+
+.bg-platform-lc{
+  --tblr-bg-opacity: 1;
+  background-color: rgba(var(--platform-light-cyan), var(--tblr-bg-opacity)) !important;
+}
+
+.bg-platform-lm{
+  --tblr-bg-opacity: 1;
+  background-color: rgba(var(--platform-light-magenta), var(--tblr-bg-opacity)) !important;
+}
+
+.bg-platform-ly{
+  --tblr-bg-opacity: 1;
+  background-color: rgba(var(--platform-light-yellow), var(--tblr-bg-opacity)) !important;
+}
+
+.bg-platform-lk{
+  --tblr-bg-opacity: 1;
+  background-color: rgba(var(--platform-light-black), var(--tblr-bg-opacity)) !important;
+}
+
+
+
 
 .user-select-all {
   -webkit-user-select: all !important;

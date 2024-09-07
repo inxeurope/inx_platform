@@ -26,7 +26,6 @@
               {% endif %}
               {{ product.name }}
             </h2>
-            <p class="muted">SAP nr.({{ product.number }})</p>
           </div>
         </div>
       </div>
@@ -89,7 +88,7 @@
         </div>
       </div>
 
-      <div class="container-xl  mb-3">
+      <div class="container-xl mb-3">
         <div class="card">
           <div class="card-header">
             <h3 class="card-title">Additional info</h3>
@@ -104,7 +103,7 @@
               <div class="datagrid-item">
                 <div class="datagrid-title">Color</div>
                 <div class="datagrid-content">
-                  <div class="avatar bg-dark text-dark-fg" data-demo-color>
+                  <div class="avatar bg-platform-{{ product.color.name_short|lower}}">
                     {{ product.color.name_short }}
                   </div>
                 </div>
@@ -123,7 +122,7 @@
         </div>
       </div>
       
-      <div class="container-xl  mb-3">
+      <div class="container-xl mb-3">
         <div class="card">
           <div class="card-header">
             <h3 class="card-title">Approval</h3>
@@ -131,13 +130,40 @@
           <div class="card-body">
             <div class="datagrid">
               <div class="datagrid-item">
-                <div class="datagrid-title">Approved on</div>
-                <div class="datagrid-content">{{ product.approved_on}}</div>
+                <div class="datagrid-title">Approved On</div>
+                <div class="datagrid-content">{{ product.approved_on }}</div>
               </div>
               <div class="datagrid-item">
                 <div class="datagrid-title">Approved By</div>
                 <div class="datagrid-content"> {{ product.approved_by }}</div>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="container-xl mb-3">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"> Bill of Materials ({{ bom_header_count }}) </div>
+          </div>
+          <div class="card-body">
+            {% if bom_header_count > 0 %}
+              <div class="btn-group w-100 mb-2" role="group">
+                {% for bom_header in bom_headers %}
+                  <input type="radio" class="btn-check" name="btn-radio-basic" id="{{ bom_header.alt_bom }}"
+                    hx-get="{% url 'fetch-bom-components' bom_header.id %}" 
+                    hx-target="#bom-components-section"
+                    hx-trigger="click"
+                    hx-swap="innerHTML"
+                  >
+                  <label for="{{ bom_header.alt_bom }}" type="button" class="btn">AltBOM: {{ bom_header.alt_bom }}</label>
+                {% endfor %}
+              </div>
+              <div class="container">
+                <div id="bom-components-section">Select an Alt BOM</div>
+              </div>
+            {% endif %}
           </div>
         </div>
       </div>

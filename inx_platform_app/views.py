@@ -1,5 +1,5 @@
 from collections import defaultdict
-from django.db.models import Sum, OuterRef, Subquery, DecimalField, F, Value, Case, When
+from django.db.models import Sum, OuterRef, Subquery, DecimalField, F, Value, Case, When, Count
 from django.db.models.functions import Coalesce, Round
 from django.db import connection
 from django.urls import reverse
@@ -2378,25 +2378,25 @@ def products_list(request, page=0):
 
 @login_required
 def product_view(request, pk):
-    product = Product.objects.filter(id=pk).first()
-  
+    
+    product = get_object_or_404(Product, id=pk)
+    bom_header_count = BomHeader.objects.filter(product_id=product.id).count()
+    bom_headers = BomHeader.objects.filter(product_id = product.id)
 
     if 'page' in request.GET:
-        print(request.GET)
         django_filters_page = request.GET.get('page')
         query_dict = request.GET.copy()
         query_dict.pop('page', None)
         query_dict['return_page'] = django_filters_page
-        print(query_dict)
         django_filters_params = query_dict.urlencode()
     else:
-        print("no page")
         django_filters_params = request.GET.urlencode()
-    print(django_filters_params)
 
     context = {
         'product': product,
-        'dj_filters_params': django_filters_params
+        'dj_filters_params': django_filters_params,
+        'bom_header_count': bom_header_count,
+        'bom_headers': bom_headers
     }
     return render(request, "app_pages/product_view.html", context)
 
@@ -2596,7 +2596,6 @@ def logout_view(request):
     return redirect('/accounts/login/')
 
 
-
 def products(request):
     
     if request.method == 'GET':
@@ -2607,7 +2606,7 @@ def products(request):
     
     products_queryset = Product.objects.select_related(
         'color', 'made_in', 'brand', 'packaging', 'product_line', 'product_status', 'approved_by'
-        ).exclude(product_status__marked_for_deletion = True)
+        ).exclude(product_status__marked_for_deletion = True).annotate(bom_count=Count('bomheader'))
     product_filter = ProductFilter(request.GET, products_queryset)
     
     paginator = Paginator(product_filter.qs, 10)
@@ -3057,5 +3056,66 @@ def download_sfb(request):
 
     return response
 
+
+def production_requirements(request):
+    scenario = Scenario.objects.filter(is_forecast=True).first()
+    current_month = datetime.now().month
+    if scenario:
+        aggregation = BudgetForecastDetail.objects.filter(
+            scenario=scenario,
+            year=2024,
+            month__gt=current_month
+        ).values(
+            'budforline__brand__name',
+            'budforline__brand',
+            'budforline__color_group__name',
+            'budforline__color_group'
+        ).annotate(
+            total_volume=Sum('volume')
+        ).order_by(
+            'budforline__brand__name',
+            'color_group__name'
+        )
+        
+        aggregation = aggregation.filter(total_volume__gt=0)
+        
+        for entry in aggregation:
+            brand_id = entry['budforline__brand']
+            color_group_id = entry['budforline__color_group']
+            active_products = Product.objects.filter(
+                brand_id=brand_id,
+                color__color_group_id=color_group_id,
+                product_status__marked_for_deletion=False,
+                is_fert=True
+            ).values('number', 'name')
+            entry['active_products'] = list(active_products)
+        
+        context = {
+            'forecast_aggregation': aggregation
+        }
+            
+    return render(request, "app_pages/production_requirements.html", context)
+    
+
+def fetch_bom_components(request, bom_header_id):
+    
+    bom_header = get_object_or_404(BomHeader, pk=bom_header_id)
+    print(bom_header.id, bom_header.product.name, bom_header.alt_bom)
+    boms = Bom.objects.filter(bom_header=bom_header).select_related('bom_component')
+    
+    # Calculation of total RMC
+    total_RMC = 0
+    for c in boms:
+        total_RMC += c.standard_price_per_unit_EUR
+    
+    context = {
+        'bom_header': bom_header,
+        'bom_components': boms,
+        'total_RMC': total_RMC
+    }
+    
+    return render(request, "app_pages/bom_components_partial.html", context)
+    
+    pass
     
     ##

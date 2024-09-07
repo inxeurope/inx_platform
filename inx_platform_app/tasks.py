@@ -204,7 +204,7 @@ def file_processor(id_of_UploadedFile, user_id):
                     if product.name.startswith('+'):
                         product.product_status = mark_for_del
                         product.save()
-                    if material_counter % 100 == 0:
+                    if material_counter % 200 == 0:
                         celery_logger.info(f"materials: {material_counter}/{len(unique_materials)}")
                 log_mess = "Materials completed"
                 celery_logger.info(log_mess)
@@ -236,7 +236,7 @@ def file_processor(id_of_UploadedFile, user_id):
                             logmessage = f'BOM component desc changed by importing BOMs from {old_value} to {bom_comp_description}'
                             create_log_entry(user,bom_component, CHANGE, logmessage)
                             post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, logmessage)
-                    if component_counter % 100 == 0:
+                    if component_counter % 200 == 0:
                         celery_logger.info(f"BOM Component: {component_counter}/{unique_component_count}")
                         log_mess = "BOM Component completed"
                 celery_logger.info(log_mess)
@@ -244,24 +244,27 @@ def file_processor(id_of_UploadedFile, user_id):
 
                 # Working on BOM Headers
                 unique_headers = df.drop_duplicates(subset=['Finished Material', 'Finished Material Desc', 'Alt BOM'])
+                # only keeping those columns
+                unique_headers = unique_headers.loc[:, ['Finished Material', 'Finished Material Desc', 'Alt BOM', 'Header Base Qty', 'Hdr Base Qty UoM']]
+                finished_material_numbers_list = list(unique_headers['Finished Material'].unique())
+                celery_logger.info(f"BOMHeaders - unique heders: {len(unique_headers)}")
                 all_unique_headers = len(unique_headers)
                 log_mess = f"len of unique_headers: {all_unique_headers}"
                 celery_logger.info(log_mess)
                 post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, log_mess)
                 count_of_unique_headers = 0
-                for _, header in unique_headers.iterrows():
+                
+                for index, header in unique_headers.iterrows():
                     count_of_unique_headers += 1
                     product_number = header['Finished Material']
                     alt_bom = header['Alt BOM']
                     header_base_quantity = header['Header Base Qty']
                     header_base_quantity_uom = header['Hdr Base Qty UoM']
-                    product = get_object_or_404(Product, number = product_number)
+                    product = get_object_or_404(Product, number=product_number)
                     if product:
-                        header_base_quantity = float(header_base_quantity)
-                        header_base_quantity_uom = str(header_base_quantity_uom).strip()
                         bom_header, created = BomHeader.objects.get_or_create(
-                            product=product,
-                            alt_bom=alt_bom,
+                            product = product,
+                            alt_bom = alt_bom,
                             defaults={
                                 'header_base_quantity': header_base_quantity,
                                 'header_base_quantity_uom': header_base_quantity_uom
@@ -274,10 +277,70 @@ def file_processor(id_of_UploadedFile, user_id):
                         else:
                             logmessage = f'BOM header changed for {bom_header.product.number} {bom_header.product.name} alt_bom: {alt_bom}'
                             create_log_entry(user, bom_header, CHANGE, logmessage)
-                            # post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, logmessage)
-                    if count_of_unique_headers % 100 == 0:
+                    if count_of_unique_headers % 200 == 0:
                         celery_logger.info(f"BOM headers: {count_of_unique_headers}/{all_unique_headers}")
-                        log_mess = "Bom headers job completed"
+                celery_logger.info("Finished inserting/editing BOM headers")
+                
+                # products = BomHeader.objects.values('product').distinct()
+                filtered_bom_headers = BomHeader.objects.filter(product__number__in=finished_material_numbers_list)
+                # Instead of looping through all BomHeader, we shoudl onbly loop on those in teh filtered_bom_headers
+                products = filtered_bom_headers.values('product').distinct()
+                celery_logger.info(f"Start checking on BOMHeaders and AltBOMs to try setting is_active; Products under review: {len(products)}")
+                for product_data in products:
+                    product_id = product_data['product']
+                    product = Product.objects.get(id=product_id)
+                    alt_bom_values = BomHeader.objects.filter(product=product).values_list('alt_bom', flat=True).distinct()
+                    alt_bom_list = list(alt_bom_values)                    
+                    if '1' in alt_bom_list:
+                        bh = BomHeader.objects.filter(product=product, alt_bom='1').first()
+                        bh.is_active = True
+                        bh.save()
+                        # print(f"Product: {product.name}, AltBOMs: {alt_bom_list} - set is_active to True")
+                    elif len(alt_bom_list) == 1:
+                        alt_bom_value = alt_bom_list[0]
+                        bh = BomHeader.objects.filter(product=product, alt_bom=alt_bom_value).first()
+                        bh.is_active=True
+                        bh.save()
+                    elif 'RM' in alt_bom_list:
+                        bh = BomHeader.objects.filter(product=product, alt_bom='RM').first()
+                        bh.is_active = True
+                        bh.save()
+                celery_logger.info("Finished checking on BOMHeaders and AltBOMs")
+                
+                
+                
+                # for _, header in unique_headers.iterrows():
+                #     count_of_unique_headers += 1
+                #     product_number = header['Finished Material']
+                #     alt_bom = header['Alt BOM']
+                #     header_base_quantity = header['Header Base Qty']
+                #     header_base_quantity_uom = header['Hdr Base Qty UoM']
+                #     product = get_object_or_404(Product, number = product_number)
+                #     if product:
+                #         header_base_quantity = float(header_base_quantity)
+                #         header_base_quantity_uom = str(header_base_quantity_uom).strip()
+                #         bom_header, created = BomHeader.objects.get_or_create(
+                #             product=product,
+                #             alt_bom=alt_bom,
+                #             defaults={
+                #                 'header_base_quantity': header_base_quantity,
+                #                 'header_base_quantity_uom': header_base_quantity_uom
+                #             }
+                #         )
+                #         if created:
+                #             logmessage = f'BOM header created for {bom_header.product.number} {bom_header.product.name} alt_bom: {alt_bom}'
+                #             create_log_entry(user, bom_header, ADDITION, logmessage)
+                #             post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, logmessage)
+                #         else:
+                #             logmessage = f'BOM header changed for {bom_header.product.number} {bom_header.product.name} alt_bom: {alt_bom}'
+                #             create_log_entry(user, bom_header, CHANGE, logmessage)
+                #             # post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, logmessage)
+                #     if count_of_unique_headers % 100 == 0:
+                #         celery_logger.info(f"BOM headers: {count_of_unique_headers}/{all_unique_headers}")
+                        
+                        
+                        
+                log_mess = "Bom headers job completed"
                 celery_logger.info(log_mess)
                 post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, log_mess)
                 # Finished working on BOM headers
@@ -554,7 +617,7 @@ def process_the_bom_slice_task(chunk_dict, user_id, counter, all_chunks, id_of_u
                 'standard_price_per_unit_EUR': standard_price_per_unit_EUR
             }
         )
-        if slice_row % 100 == 00:
+        if slice_row % 250 == 00:
             celery_logger.warning(f"process {stamp}: {slice_row}/{len_df}")
         if created:
             logmessage = f'BOM record created for {bom_header.product.number} {bom_header.product.name} component: {bom_component.component_material}'

@@ -1469,6 +1469,9 @@ class BomHeader(models.Model):
     alt_bom = models.CharField(max_length=5, null=True, blank=True)
     header_base_quantity = models.DecimalField(max_digits=10, decimal_places=2)
     header_base_quantity_uom = models.CharField(max_length=5)
+    # _is_active bool this is specifying which BomHeader will be considered active when
+    # listing components, for a specific product.
+    is_active = models.BooleanField(default=False)
 
     class Meta:
         constraints = [
@@ -1477,8 +1480,8 @@ class BomHeader(models.Model):
     
     def __str__(self):
         # Safely access the product name
-        # product_name = self.product.name if self.product_id else "Unknown Product"
-        return f"{self.id} ({self.alt_bom})"
+        product_name = self.product.name if self.product_id else "Unknown Product"
+        return f"id: {self.id} ({self.alt_bom}): {product_name}"
 
 
 class BomComponent(models.Model):

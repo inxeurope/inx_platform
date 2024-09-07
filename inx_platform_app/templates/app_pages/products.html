@@ -95,28 +95,38 @@
                         <div class="col-md">
                           
                           <div class="mt-3 list-inline list-inline-dots mb-0 text-muted d-sm-block d-none">
-                            <div class="list-inline-item"><!-- Download SVG icon from http://tabler-icons.io/i/building-community -->
+                            <div class="list-inline-item" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Brand"><!-- Download SVG icon from http://tabler-icons.io/i/building-community -->
                               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-shield">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                 <path d="M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3" />
                               </svg>
-                              {{ p.brand.name }}</div>
-                            <div class="list-inline-item"><!-- Download SVG icon from http://tabler-icons.io/i/license -->
+                              {{ p.brand.name }}
+                            </div>
+                            <div class="list-inline-item" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Division"><!-- Download SVG icon from http://tabler-icons.io/i/license -->
                               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-hexagons">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                 <path d="M4 18v-5l4 -2l4 2v5l-4 2z" />
                                 <path d="M8 11v-5l4 -2l4 2v5" />
                                 <path d="M12 13l4 -2l4 2v5l-4 2l-4 -2" />
                               </svg>
-                              {{ p.brand.division.name }}</div>
-                            <div class="list-inline-item"><!-- Download SVG icon from http://tabler-icons.io/i/map-pin -->
+                              {{ p.brand.division.name }}
+                            </div>
+                            <div class="list-inline-item" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Major Label"><!-- Download SVG icon from http://tabler-icons.io/i/map-pin -->
                               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-tag-starred">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                 <path d="M7.5 7.5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
                                 <path d="M3 6v5.172a2 2 0 0 0 .586 1.414l7.71 7.71a2.41 2.41 0 0 0 3.408 0l5.592 -5.592a2.41 2.41 0 0 0 0 -3.408l-7.71 -7.71a2 2 0 0 0 -1.414 -.586h-5.172a3 3 0 0 0 -3 3z" />
                                 <path d="M12.5 13.847l-1.5 1.153l.532 -1.857l-1.532 -1.143h1.902l.598 -1.8l.598 1.8h1.902l-1.532 1.143l.532 1.857z" />
                               </svg>
-                              {{ p.brand.major_label.name }}</div>
+                              {{ p.brand.major_label.name }}
+                            </div>
+                            <div class="list-inline-item" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Number of Bill of Materials"><!-- Download SVG icon from http://tabler-icons.io/i/map-pin -->
+                              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-receipt" width="44" height="44" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16l-3 -2l-2 2l-2 -2l-2 2l-2 -2l-3 2m4 -14h6m-6 4h6m-2 4h2" />
+                              </svg>
+                              {{ p.bom_count }}
+                            </div>
                           </div>
                           <div class="mt-3 list mb-0 text-muted d-block d-sm-none">
                             <div class="list-item"><!-- Download SVG icon from http://tabler-icons.io/i/building-community -->
@@ -124,7 +134,8 @@
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                 <path d="M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3" />
                               </svg>
-                              {{ p.brand.name }}</div>
+                              {{ p.brand.name }}
+                            </div>
                             <div class="list-item"><!-- Download SVG icon from http://tabler-icons.io/i/license -->
                               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-hexagons">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -132,7 +143,8 @@
                                 <path d="M8 11v-5l4 -2l4 2v5" />
                                 <path d="M12 13l4 -2l4 2v5l-4 2l-4 -2" />
                               </svg>
-                              {{ p.brand.division.name }}</div>
+                              {{ p.brand.division.name }}
+                            </div>
                             <div class="list-item"><!-- Download SVG icon from http://tabler-icons.io/i/map-pin -->
                               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-tag-starred">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -140,7 +152,15 @@
                                 <path d="M3 6v5.172a2 2 0 0 0 .586 1.414l7.71 7.71a2.41 2.41 0 0 0 3.408 0l5.592 -5.592a2.41 2.41 0 0 0 0 -3.408l-7.71 -7.71a2 2 0 0 0 -1.414 -.586h-5.172a3 3 0 0 0 -3 3z" />
                                 <path d="M12.5 13.847l-1.5 1.153l.532 -1.857l-1.532 -1.143h1.902l.598 -1.8l.598 1.8h1.902l-1.532 1.143l.532 1.857z" />
                               </svg>
-                              {{ p.brand.major_label.name }}</div>
+                              {{ p.brand.major_label.name }}
+                            </div>
+                            <div class="list-item"><!-- Download SVG icon from http://tabler-icons.io/i/map-pin -->
+                              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-receipt" width="44" height="44" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16l-3 -2l-2 2l-2 -2l-2 2l-2 -2l-3 2m4 -14h6m-6 4h6m-2 4h2" />
+                              </svg>
+                              {{ p.bom_count }}
+                            </div>
                           </div>
 
 

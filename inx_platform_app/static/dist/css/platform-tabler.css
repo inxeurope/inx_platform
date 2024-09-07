@@ -11,7 +11,7 @@
 /* prettier-ignore */
 :root,
 [data-bs-theme=light] {
-  
+
   --platform-cyan: #0db1ff;
   --platform-magenta: #df2edf;
   --platform-yellow: #ffff00;
@@ -11385,44 +11385,47 @@ textarea.form-control-lg {
 
 
 .bg-platform-c{
-  --tblr-bg-opacity: 1;
-  background-color: rgba(var(--platform-cyan), var(--tblr-bg-opacity)) !important;
+  background-color: var(--platform-cyan) !important;
+  color: var(--tblr-light) !important;
 }
 
 .bg-platform-m{
-  --tblr-bg-opacity: 1;
-  background-color: rgba(var(--platform-magenta), var(--tblr-bg-opacity)) !important;
+  background-color: var(--platform-magenta) !important;
+  color: var(--tblr-light) !important;
 }
 
 .bg-platform-y{
-  --tblr-bg-opacity: 1;
-  background-color: rgba(var(--platform-yellow), var(--tblr-bg-opacity)) !important;
+  background-color: var(--platform-yellow) !important;
+  color: var(--tblr-light) !important;
 }
 
 .bg-platform-k{
-  --tblr-bg-opacity: 1;
-  background-color: rgba(var(--platform-black), var(--tblr-bg-opacity)) !important;
+  background-color: var(--platform-black) !important;
+  color: var(--tblr-light) !important;
 }
 
 .bg-platform-lc{
-  --tblr-bg-opacity: 1;
-  background-color: rgba(var(--platform-light-cyan), var(--tblr-bg-opacity)) !important;
+  background-color: var(--platform-light-cyan) !important;
+  color: var(--tblr-dark) !important;
 }
 
 .bg-platform-lm{
-  --tblr-bg-opacity: 1;
-  background-color: rgba(var(--platform-light-magenta), var(--tblr-bg-opacity)) !important;
+  background-color: var(--platform-light-magenta) !important;
+  color: var(--tblr-dark) !important;
 }
 
-.bg-platform-ugo{
-  --tblr-bg-opacity: 1;
-  background-color: rgba(var(--platform-light-yellow), var(--tblr-bg-opacity)) !important;
+.bg-platform-ly{
+  background-color: var(--platform-light-yellow) !important;
+  color: var(--tblr-dark) !important;
 }
 
 .bg-platform-lk{
-  --tblr-bg-opacity: 1;
-  background-color: rgba(var(--platform-light-black), var(--tblr-bg-opacity)) !important;
+  background-color: var(--platform-light-black) !important;
+  color: var(--tblr-dark) !important;
 }
+
+
+
 
 .user-select-all {
   -webkit-user-select: all !important;

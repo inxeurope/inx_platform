@@ -51,10 +51,13 @@ urlpatterns = [
     path("products_list/", views.products_list, name="products-list"),
     path("product_view/<int:pk>", views.product_view, name="product-view"),
     path("product_edit/<int:pk>", views.product_edit, name="product-edit"),
+    path('fetch_bom_components/<int:bom_header_id>/', views.fetch_bom_components, name='fetch-bom-components'),
 
     path("brands_list/", views.brands_list, name="brands-list"),
     path("brand_view/<int:pk>", views.brand_view, name="brand-view"),
     path("brand_edit/<int:pk>", views.brand_edit, name="brand-edit"),
+    
+    path("production_requirements/", views.production_requirements, name="production-requirements"),
     
 
     # Authentication
