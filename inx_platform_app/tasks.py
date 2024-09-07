@@ -222,13 +222,18 @@ def file_processor(id_of_UploadedFile, user_id):
                     bom_comp_base_uom = df.loc[df['Component Material'] == bom_component_sap_num, 'Comp Base UoM'].values[0]
                     bom_component, created = BomComponent.objects.get_or_create(component_material=bom_component_sap_num)
                     if created:
+                        # This component does not exixts in the BomComponent records
                         bom_component.component_material_description = bom_comp_description
                         bom_component.component_base_uom = bom_comp_base_uom
+                        # Check if this component may be a fert
+                        if is_fert(bom_component.component_material):
+                            bom_component.is_fert = True
                         bom_component.save()
                         logmessage = f'BOM component imported by importing BOMs file: {bom_component.id} {bom_component.component_material} {bom_component.component_material_description}'
                         create_log_entry(user, bom_component, ADDITION, logmessage)
                         post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, logmessage)
                     else:
+                        # This component already exixts in the BomComponent records
                         if bom_component.component_material_description != bom_comp_description:
                             old_value = bom_component.component_material_description
                             bom_component.component_material_description = bom_comp_description
@@ -238,7 +243,7 @@ def file_processor(id_of_UploadedFile, user_id):
                             post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, logmessage)
                     if component_counter % 200 == 0:
                         celery_logger.info(f"BOM Component: {component_counter}/{unique_component_count}")
-                        log_mess = "BOM Component completed"
+                log_mess = "BOM Component review is completed"
                 celery_logger.info(log_mess)
                 post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, log_mess)
 

@@ -1,7 +1,16 @@
 <div class="card card-sm">
-    <div class="card-status-top bg-green"></div>
+    {% if bom_header.is_active %}
+    <div class="card-status-top bg-azure"></div>
+    {% else %}
+    <div class="card-status-top bg-muted"></div>
+    {% endif %}
     <div class="card-body">
-        <div class="card-title">Alt BOM: {{ bom_header.alt_bom}}</div>
+        <div class="card-title">
+            Alt BOM: {{ bom_header.alt_bom}}
+            {% if bom_header.is_active %}
+            <span class="badge bg-azure-lt">active</span>
+            {% endif %}
+        </div>
         <div class="mt-4">
             <div class="row">
                 <div class="col">
@@ -20,7 +29,7 @@
         </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-vcenter card-table">
+                <table class="table table-striped table-vcenter card-table border">
                     <thead>
                         <tr>
                             <th>Component</th>
@@ -34,7 +43,12 @@
                     <tbody>
                         {% for component in bom_components %}
                         <tr>
-                            <td>{{ component.bom_component.component_material }}</td>
+                            <td>
+                                {{ component.bom_component.component_material }}
+                                {% if component.bom_component.is_fert %}
+                                    <span class="badge bg-azure-lt">FERT</span>
+                                {% endif %}
+                            </td>
                             <td>{{ component.bom_component.component_material_description }}</td>
                             <td>{{ component.component_quantity }}</td>
                             <td>{{ component.component_uom_in_bom }}</td>

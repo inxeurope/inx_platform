@@ -3100,12 +3100,12 @@ def production_requirements(request):
 def fetch_bom_components(request, bom_header_id):
     
     bom_header = get_object_or_404(BomHeader, pk=bom_header_id)
-    print(bom_header.id, bom_header.product.name, bom_header.alt_bom)
     boms = Bom.objects.filter(bom_header=bom_header).select_related('bom_component')
     
     # Calculation of total RMC
     total_RMC = 0
     for c in boms:
+        # print(c.bom_component.component_material, c.bom_component.component_material_description, c.bom_component.is_fert)
         total_RMC += c.standard_price_per_unit_EUR
     
     context = {
