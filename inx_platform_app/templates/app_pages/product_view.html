@@ -157,7 +157,12 @@
                     hx-trigger="click"
                     hx-swap="innerHTML"
                   >
-                  <label for="{{ bom_header.alt_bom }}" type="button" class="btn">AltBOM: {{ bom_header.alt_bom }}</label>
+                  <label for="{{ bom_header.alt_bom }}" type="button" class="btn">
+                    {% if bom_header.is_active %}
+                    <span class="badge bg-azure-lt me-2">active</span>
+                    {% endif %}
+                    AltBOM: {{ bom_header.alt_bom }}
+                  </label>
                 {% endfor %}
               </div>
               <div class="container">

@@ -17,3 +17,5 @@ Procfile
 **/.DS_Store
 *.log
 *.xlsx
+.ruff_cache
+*.toml
