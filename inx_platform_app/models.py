@@ -1488,6 +1488,9 @@ class BomComponent(models.Model):
     component_material = models.CharField(max_length=30, unique=True)
     component_material_description = models.CharField(max_length=100, null=True, blank=True)
     component_base_uom = models.CharField(max_length=5)
+    # The following field is populated by a Celery task, the first time when the record is created
+    # It is True if the component_material code looks to be a fert (7-digit long code)
+    is_fert = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.component_material} {self.component_material_description}"
