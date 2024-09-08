@@ -79,7 +79,9 @@ def file_processor(id_of_UploadedFile, user_id):
                 field_mapping = import_dictionaries.ke30_mapping_dict
                 list_of_sp =['_ke30_import', '_ke30_import_add_new_customers', '_ke30_import_add_new_products']
             else:
-                celery_logger.error(f"file could not be read - {uploaded_file_record}")
+                log_message = f"file could not be read - {uploaded_file_record}"
+                create_log_entry(user, uploaded_file_record, CHANGE, log_message)
+                celery_logger.error(log_message)
                 return
         case "ke24":
             df = read_this_file(uploaded_file_record,user, import_dictionaries.ke24_converters_dict, celery_task_id)
@@ -398,7 +400,7 @@ def file_processor(id_of_UploadedFile, user_id):
                     instances = [] # resetting
                 end_time = time.perf_counter()
                 elapsed_time = end_time - start_time
-                post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, f"working on chunk {chunk_counter} of {len(chunks)}  -  it took {elapsed_time} seconds")
+                post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, f"work on chunk {chunk_counter}/{len(chunks)} in {elapsed_time} sec")
             except Exception as e:
                 # Handle the exception
                 post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, f"An error occurred during the transaction: {e}")
@@ -415,6 +417,8 @@ def file_processor(id_of_UploadedFile, user_id):
                         sql_command = f"EXECUTE {sp}"
                         try:
                             curs.execute(sql_command)
+                            message = f"executed {sp}"
+                            post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, message, "info")
                         except Exception as e:
                             message = f"Error during execution of {sp}. {e}" 
                             post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, message, "error")
@@ -425,6 +429,10 @@ def file_processor(id_of_UploadedFile, user_id):
                             for row in resulting_rows:
                                 row_text = ', '.join(map(str, row))
                                 post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, row_text)
+                        else:
+                            message = f"no resulting rows from sp {sp}"
+                            post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, message, "info")
+                            
         
     # Delete the file
     post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, f"deleting ... {uploaded_file_record.file_name}")
