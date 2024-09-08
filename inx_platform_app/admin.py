@@ -64,6 +64,9 @@ from .models import (
     PackagingRateToLiter
 )
 
+admin.site.site_header = "INX Platform Administration"
+admin.site.site_title = "INX Platform Admin"
+admin.site.index_title = "Welcome to INX Platform Admin Panel"
 
 class ColorGroupAdmin(admin.ModelAdmin):
     list_display = ['id', 'name', 'sqlapp_id']
@@ -75,6 +78,7 @@ class MadeInAdmin(admin.ModelAdmin):
 
 class ColorAdmin(admin.ModelAdmin):
     list_display = ['id', 'name', 'sqlapp_id', 'name_short', 'color_weight', 'hex_value', 'color_number', 'color_group']
+    list_filter = ['color_group']
 
 
 class ProductLineAdmin(admin.ModelAdmin):
@@ -563,6 +567,7 @@ class BomHeaderAdmin(admin.ModelAdmin):
 
 class BomComponentAdmin(admin.ModelAdmin):
     list_display = ['id', 'component_material', 'component_material_description', 'component_base_uom', 'is_fert']
+    list_filter = ['is_fert']
     search_fields = ['id', 'component_material', 'component_material_description']
 
 

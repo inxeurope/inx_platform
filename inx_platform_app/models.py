@@ -67,7 +67,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField(auto_now_add=True)
     last_login = models.DateTimeField(blank=True, null=True)
 
-    sqlapp_id = models.IntegerField(default=0, null=True)
+    sqlapp_id = models.IntegerField(default=0, null=True, blank=True)
 
     photo = models.CharField(default='', max_length=255, blank=True, null=True)
 
@@ -139,7 +139,7 @@ class ProductLine(models.Model):
 
 class ColorGroup(models.Model):
     name = models.CharField(max_length=50)
-    sqlapp_id = models.IntegerField(default=0)
+    sqlapp_id = models.IntegerField(default=0, blank=True)
 
     def __str__(self):
         return_value = f"{self.name}"
@@ -150,7 +150,7 @@ class MadeIn(models.Model):
     name = models.CharField(max_length=10)
     plant_name = models.CharField(max_length=40)
     plant_number = models.CharField(max_length=4) # example 8800
-    sqlapp_id = models.IntegerField(default=0)
+    sqlapp_id = models.IntegerField(default=0, blank=True)
 
     def __str__(self):
         return_value = f"{self.name}"
@@ -161,7 +161,7 @@ class Division(models.Model):
     name = models.CharField(max_length=40)
     sap_id = models.CharField(max_length=10, blank=True, null=True)
     sap_name = models.CharField(max_length=50, blank=True, null=True)
-    sqlapp_id = models.IntegerField(default=0)
+    sqlapp_id = models.IntegerField(default=0, blank=True)
 
     def __str__(self):
         return self.name
@@ -194,7 +194,7 @@ class NSFDivision(models.Model):
     name = models.CharField(max_length=40)
     sap_id = models.CharField(max_length=10)
     sap_name = models.CharField(max_length=50)
-    sqlapp_id = models.IntegerField(default=0)
+    sqlapp_id = models.IntegerField(default=0, blank=True)
 
     def __str__(self):
         return self.name
@@ -204,7 +204,7 @@ class MarketSegment(models.Model):
     name = models.CharField(max_length=40)
     sap_id = models.CharField(max_length=10)
     sap_name = models.CharField(max_length=50)
-    sqlapp_id = models.IntegerField(default=0)
+    sqlapp_id = models.IntegerField(default=0, blank=True)
 
     def __str__(self):
         return self.name
@@ -214,7 +214,7 @@ class MaterialGroup(models.Model):
     name = models.CharField(max_length=40)
     sap_id = models.CharField(max_length=10)
     sap_name = models.CharField(max_length=50)
-    sqlapp_id = models.IntegerField(default=0)
+    sqlapp_id = models.IntegerField(default=0, blank=True)
 
     def __str__(self):
         return self.name
@@ -222,7 +222,7 @@ class MaterialGroup(models.Model):
 
 class UnitOfMeasure(models.Model):
     name = models.CharField(max_length=15)
-    sqlapp_id = models.IntegerField(default=0, null=True)
+    sqlapp_id = models.IntegerField(default=0, null=True, blank=True)
 
     def __str__(self):
         return f"{self.name}"
@@ -234,7 +234,7 @@ class Packaging(models.Model):
     # and UoM ID (if I am selling -440ML as EA)
     rate_to_lt = models.IntegerField(default=1) 
     sold_in_lt = models.BooleanField(default=True)
-    sqlapp_id = models.IntegerField(default=0)
+    sqlapp_id = models.IntegerField(default=0, blank=True)
     base_unit_of_measure = models.ForeignKey(UnitOfMeasure, on_delete=models.PROTECT)
 
     def __str__(self):
@@ -270,7 +270,7 @@ class ExchangeRate(models.Model):
     currency = models.CharField(max_length=3, null=True)
     year = models.IntegerField()
     rate = models.FloatField()
-    sqlapp_id = models.IntegerField(default=0, null=True)
+    sqlapp_id = models.IntegerField(default=0, null=True, blank=True)
 
     class Meta:
         constraints = [
@@ -287,7 +287,7 @@ class Scenario(models.Model):
     is_forecast = models.BooleanField(default=False, null=True)
     is_budget = models.BooleanField(default=False, null=True)
     is_mtp = models.BooleanField(default=False, null=True)
-    sqlapp_id = models.IntegerField(default=0, null=True)
+    sqlapp_id = models.IntegerField(default=0, null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -326,7 +326,7 @@ class CountryCode(models.Model):
 
 class CustomerType(models.Model):
     name = models.CharField(max_length=20)
-    sqlapp_id = models.IntegerField(default=0, null=True)
+    sqlapp_id = models.IntegerField(default=0, null=True, blank=True)
     
     def __str__(self):
         return self.name
@@ -337,7 +337,7 @@ class Industry(models.Model):
     name = models.CharField(max_length=30)
     sap_id = models.CharField(max_length=20, blank=True)
     sap_name = models.CharField(max_length=40, blank=True)
-    sqlapp_id = models.IntegerField(default=0, null=True)
+    sqlapp_id = models.IntegerField(default=0, null=True, blank=True)
 
     class Meta:
         verbose_name = 'Industry'
@@ -885,9 +885,9 @@ class Color(models.Model):
     color_weight = models.IntegerField(default=0, null=True)
     hex_value = models.CharField(max_length=7, null=True)
     name_short = models.CharField(max_length=3, null=True)
-    color_number = models.CharField(max_length=10, null=True)
+    color_number = models.CharField(max_length=10, null=True, blank=True)
     color_group = models.ForeignKey(ColorGroup, on_delete=models.PROTECT) # PROTECT avoid deletion if there are refrenced object
-    sqlapp_id = models.IntegerField(default=0, null=True)
+    sqlapp_id = models.IntegerField(default=0, null=True, blank=True)
 
     def __str__(self):
         return_value = f"{self.name}"
@@ -930,7 +930,7 @@ class Product(models.Model):
     packaging = models.ForeignKey(Packaging, on_delete=models.PROTECT, null=True, blank=True)
     product_line = models.ForeignKey(ProductLine, on_delete=models.PROTECT, null=True, blank=True)
     product_status = models.ForeignKey(ProductStatus, on_delete=models.PROTECT, null=True, blank=True)
-    sqlapp_id = models.IntegerField(default=0, null=True)
+    sqlapp_id = models.IntegerField(default=0, null=True, blank=True)
     
     is_ink = models.BooleanField(default = True)
     is_new = models.BooleanField(default=True)
@@ -949,7 +949,7 @@ class RateToLT(models.Model):
     uom = models.ForeignKey(UnitOfMeasure, on_delete=models.PROTECT)
     packaging = models.ForeignKey(Packaging, on_delete=models.PROTECT)
     rate_to_lt = models.FloatField()
-    sqlapp_id = models.IntegerField(default=0, null=True)
+    sqlapp_id = models.IntegerField(default=0, null=True, blank=True)
 
     def __str__(self):
         return self.uom + self.packaging
@@ -1022,7 +1022,7 @@ class BudForLine(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.PROTECT)
     brand = models.ForeignKey(Brand, on_delete=models.PROTECT)
     color_group = models.ForeignKey(ColorGroup, on_delete=models.PROTECT)
-    sqlapp_id = models.IntegerField(default=0, null=True)
+    sqlapp_id = models.IntegerField(default=0, null=True, blank=True)
 
     class Meta:
         constraints = [
@@ -1052,7 +1052,7 @@ class BudForNote(models.Model):
     note_date = models.DateTimeField(auto_now=True)
     scenario = models.ForeignKey(Scenario, on_delete=models.PROTECT)
     bud_for_id = models.ForeignKey(BudForLine, on_delete=models.PROTECT)
-    sqlapp_id = models.IntegerField(default=0, null=True)
+    sqlapp_id = models.IntegerField(default=0, null=True, blank=True)
 
     def __str__(self):
         return self.note
@@ -1068,7 +1068,7 @@ class BudForDetailLine(models.Model):
     month = models.IntegerField(default=0)
     currency_zaq = models.CharField(max_length=3)
     detail_date = models.DateField(default='2024-01-01')
-    sqlapp_id = models.IntegerField(default=0, null=True)
+    sqlapp_id = models.IntegerField(default=0, null=True, blank=True)
     
     def __str__(self):
         return_string = f"BudForDetail line - bud_for_id:{self.budforline.id} - scenario: {self.scenario.id}"
@@ -1089,7 +1089,7 @@ class BudForDetail_Abstract(models.Model):
     value = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     currency_zaq = models.CharField(max_length=3, null=True, blank = True)
     detail_date = models.DateField(default='2024-01-01')
-    sqlapp_id = models.IntegerField(default=0, null=True)
+    sqlapp_id = models.IntegerField(default=0, null=True, blank=True)
     # Adding for an easier management (to be implemented later)
     customer = models.ForeignKey(Customer, null=True, blank=True, on_delete=models.PROTECT)
     brand = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.PROTECT)
