@@ -3,8 +3,11 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
 <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
-<!--<link rel="shortcut icon" type="image/jpg" href="{% static 'static/favicon.ico' %}"/> -->
-<link rel="shortcut icon" type="image/svg+xml" href="{% static 'static/favicon.svg' %}">
+{% if is_local %}
+    <link rel="shortcut icon" type="image/svg+xml" href="{% static 'static/favicon_loc.svg' %}">
+{% else %}
+    <link rel="shortcut icon" type="image/svg+xml" href="{% static 'static/favicon.svg' %}">
+{% endif %}
 <!-- CSS files -->
 <link href="{% static 'dist/css/platform-tabler.css' %}" rel="stylesheet"/>
 <link href="{% static 'dist/css/tabler-flags.min.css' %}?1684106062" rel="stylesheet"/>
