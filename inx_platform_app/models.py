@@ -221,7 +221,7 @@ class MaterialGroup(models.Model):
 
 
 class UnitOfMeasure(models.Model):
-    name = models.CharField(max_length=15)
+    name = models.CharField(max_length=15, null=False, blank=False, unique=True)
     sqlapp_id = models.IntegerField(default=0, null=True, blank=True)
 
     def __str__(self):
@@ -1506,3 +1506,12 @@ class Bom(models.Model):
     price_unit = models.IntegerField()
     standard_price_per_unit = models.DecimalField(max_digits=10, decimal_places=2)
     standard_price_per_unit_EUR = models.DecimalField(max_digits=10, decimal_places=2)
+
+
+class UnitOfMeasureConversionFactor(models.Model):
+    uom_from = models.ForeignKey(UnitOfMeasure, related_name='uom_from',on_delete=models.CASCADE)
+    uom_to = models.ForeignKey(UnitOfMeasure, related_name='uom_to', on_delete=models.CASCADE)
+    factor = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    
+    def __str__(self):
+        return f"from {self.uom_from} -> {self.uom_to}: {self.factor}"

@@ -61,7 +61,8 @@ from .models import (
     BudgetForecastDetail,
     BudgetForecastDetail_sales,
     ContactType,
-    PackagingRateToLiter
+    PackagingRateToLiter,
+    UnitOfMeasureConversionFactor
 )
 
 admin.site.site_header = "INX Platform Administration"
@@ -592,6 +593,10 @@ class BomAdmin(admin.ModelAdmin):
     get_component_material_description.short_description = 'Component'
 
 
+class UnitOfMeasureConversionFactorAdmin(admin.ModelAdmin):
+    list_display = ['uom_from', 'uom_to', 'factor']
+    
+    
 admin.site.register(ColorGroup, ColorGroupAdmin)
 admin.site.register(Color, ColorAdmin)
 admin.site.register(MadeIn, MadeInAdmin)
@@ -643,3 +648,4 @@ admin.site.register(PackagingRateToLiter, PackagingRateToLiterAdmin)
 admin.site.register(BomHeader, BomHeaderAdmin)
 admin.site.register(BomComponent, BomComponentAdmin)
 admin.site.register(Bom, BomAdmin)
+admin.site.register(UnitOfMeasureConversionFactor, UnitOfMeasureConversionFactorAdmin)
