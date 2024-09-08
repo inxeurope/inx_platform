@@ -1,5 +1,6 @@
 {% extends 'app_layouts/base.html' %}
 {% load custom_filters %}
+{% load group_tags %}
 {% load static %}
 
 {% block content %}
@@ -141,7 +142,7 @@
           </div>
         </div>
       </div>
-
+      {% if user|has_group:"Cost viewer" %}
       <div class="container-xl mb-3">
         <div class="card">
           <div class="card-header">
@@ -172,7 +173,7 @@
           </div>
         </div>
       </div>
-
+      {% endif %}
     </div>
 
     {% include 'app_includes/footer.html' %}

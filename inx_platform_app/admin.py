@@ -441,7 +441,7 @@ class UserAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
         ('Personal info', {'fields': ('first_name', 'last_name', 'mobile_number', 'photo')}),
-        ('Permissions', {'fields': ('is_staff', 'is_superuser', 'is_active', 'budget_open')}),
+        ('Permissions', {'fields': ('is_staff', 'is_superuser', 'is_active', 'budget_open', 'groups')}),
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
     )
     add_fieldsets = (
@@ -453,7 +453,7 @@ class UserAdmin(admin.ModelAdmin):
     readonly_fields = ('date_joined',)
     search_fields = ('id', 'first_name', 'last_name', 'email')
     ordering = ('email',)
-    filter_horizontal = ()
+    filter_horizontal = ('groups',)
 
     def get_urls(self):
         urls = super().get_urls()
