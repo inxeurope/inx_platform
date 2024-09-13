@@ -388,7 +388,7 @@ def file_processor(id_of_UploadedFile, user_id):
                         try:
                             curs.execute(sql_command)
                             message = f"executed {sp}"
-                            post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, message, "info")
+                            # post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, message, "info")
                         except Exception as e:
                             message = f"Error during execution of {sp}. {e}" 
                             post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, message, "error")
