@@ -1504,14 +1504,25 @@ class Bom(models.Model):
     component_uom_in_bom = models.CharField(max_length=5, null=True, blank=True)
     component_base_uom = models.CharField(max_length=5, null=True, blank=True)
     price_unit = models.IntegerField()
-    standard_price_per_unit = models.DecimalField(max_digits=10, decimal_places=2)
+    
+    standard_price_per_unit_CZK = models.DecimalField(max_digits=10, decimal_places=2)
+    standard_price_per_kg_ea_CZK = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    weighed_price_per_kg_ea_CZK = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    
     standard_price_per_unit_EUR = models.DecimalField(max_digits=10, decimal_places=2)
+    standard_price_per_kg_ea_EUR = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    weighed_price_per_kg_ea_EUR =models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    
+    uom_factor = models.DecimalField(max_digits=15, decimal_places=6, default=0)
+    
+    def __str__(self):
+        return f"{self.bom_component} {self.component_uom_in_bom} {self.component_quantity} {self.weighed_price_per_kg_ea_EUR}"
 
 
 class UnitOfMeasureConversionFactor(models.Model):
     uom_from = models.ForeignKey(UnitOfMeasure, related_name='uom_from',on_delete=models.CASCADE)
     uom_to = models.ForeignKey(UnitOfMeasure, related_name='uom_to', on_delete=models.CASCADE)
-    factor = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    factor = models.DecimalField(max_digits=15, decimal_places=6, default=0)
     
     def __str__(self):
         return f"from {self.uom_from} -> {self.uom_to}: {self.factor}"

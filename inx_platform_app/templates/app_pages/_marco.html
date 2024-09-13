@@ -1,0 +1,18 @@
+{% extends 'app_layouts/base.html' %}
+{% load static %}
+
+{% block content %}
+
+  <div class="page-wrapper">
+    <!-- Page body -->
+    <div class="page-body">
+      <div class="container-xl d-flex flex-column">
+        <div class="col">
+          <a href="{% url 'del-bom' %}">Delete BOMs and Components</a>
+        </div>
+
+      </div>
+    </div>
+    {% include 'app_includes/footer.html' %}
+  </div>
+{% endblock content %}

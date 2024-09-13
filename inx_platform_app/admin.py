@@ -574,7 +574,7 @@ class BomComponentAdmin(admin.ModelAdmin):
 
 class BomAdmin(admin.ModelAdmin):
     form = BomForm
-    list_display = ['id', 'bom_header_id', 'get_product_name', 'get_alt_bom', 'item_number', 'get_component_material_description', 'component_quantity', 'component_uom_in_bom', 'component_base_uom', 'price_unit', 'standard_price_per_unit', 'standard_price_per_unit_EUR']
+    list_display = ['id', 'bom_header_id', 'get_product_name', 'get_alt_bom', 'item_number', 'get_component_material_description', 'component_quantity', 'component_uom_in_bom', 'component_base_uom', 'price_unit', 'standard_price_per_unit_CZK', 'standard_price_per_unit_EUR', 'weighed_price_per_kg_ea_EUR']
     search_fields = ['bom_header__product__name', 'bom_header__alt_bom']
     ordering = ['bom_header__id']
 

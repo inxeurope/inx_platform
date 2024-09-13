@@ -70,6 +70,9 @@ urlpatterns = [
     path('accounts/password-change-done/', auth_views.PasswordChangeDoneView.as_view(
         template_name='app_pages/password-change-done.html'
     ), name="password_change_done" ),
+    
+    path('_marco/', views.special_marco, name="marco"),
+    path('_marco/del_bom/', views.special_del_boms, name="del-bom")
 
 
 ]

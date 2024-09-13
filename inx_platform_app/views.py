@@ -3100,22 +3100,61 @@ def production_requirements(request):
 def fetch_bom_components(request, bom_header_id):
     
     bom_header = get_object_or_404(BomHeader, pk=bom_header_id)
-    boms = Bom.objects.filter(bom_header=bom_header).select_related('bom_component')
+    boms = Bom.objects.filter(bom_header=bom_header).select_related('bom_component').order_by('item_number')
     
     # Calculation of total RMC
-    total_RMC = 0
+    header_base_quantity = bom_header.header_base_quantity
+    specific_gravity = Decimal(100) / header_base_quantity
+    total_RMC_CZK = Decimal(0)
+    total_RMC_EUR = Decimal(0)
+    print("len:", len(boms))
     for c in boms:
-        # print(c.bom_component.component_material, c.bom_component.component_material_description, c.bom_component.is_fert)
-        total_RMC += c.standard_price_per_unit_EUR
+        old_value = total_RMC_CZK
+        if c.component_base_uom != "EA":
+            total_RMC_CZK += c.weighed_price_per_kg_ea_CZK
+            total_RMC_EUR += c.weighed_price_per_kg_ea_EUR
+        else:
+            total_RMC_CZK += c.weighed_price_per_kg_ea_CZK
+            total_RMC_EUR += c.weighed_price_per_kg_ea_EUR
+        print("***",c.component_base_uom, old_value,"+", c.weighed_price_per_kg_ea_CZK, " = ", total_RMC_CZK, type(c.weighed_price_per_kg_ea_CZK))
+    
+    total_RMC_CZK_KG = total_RMC_CZK / 100
+    total_RMC_CZK_LT = total_RMC_CZK_KG * specific_gravity
+    total_RMC_EUR_KG = total_RMC_EUR / 100
+    total_RMC_EUR_LT = total_RMC_EUR_KG * specific_gravity
     
     context = {
         'bom_header': bom_header,
         'bom_components': boms,
-        'total_RMC': total_RMC
+        'total_RMC_CZK': total_RMC_CZK,
+        'total_RMC_CZK_KG': total_RMC_CZK_KG,
+        'total_RMC_CZK_LT': total_RMC_CZK_LT,
+        'total_RMC_EUR_KG': total_RMC_EUR_KG,
+        'total_RMC_EUR_LT': total_RMC_EUR_LT,
+        'total_RMC_EUR': total_RMC_EUR,
+        'specific_gravity': specific_gravity
     }
     
     return render(request, "app_pages/bom_components_partial.html", context)
+
+
+@login_required
+def special_marco(request):
+    return render(request, "app_pages/_marco.html", {})
+
+@login_required
+def special_del_boms(request):
+    Bom.objects.all().delete()
+    BomHeader.objects.all().delete()
+    BomComponent.objects.all().delete()
+    mess = 'deleted all !'
+    context = {
+        'mewssages': mess
+    }
+    return render(request, "app_pages/_marco.html", context)
     
+
     pass
     
+
     ##

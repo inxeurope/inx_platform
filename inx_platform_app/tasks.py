@@ -2,6 +2,7 @@ from celery import shared_task, current_task
 from django.utils import timezone
 from celery.utils.log import get_task_logger
 from django.shortcuts import get_object_or_404
+from django.http import Http404
 from django.db import connection, transaction
 from django.db.models import Max
 from django.contrib.admin.models import ADDITION, CHANGE
@@ -22,7 +23,9 @@ from .models import (
     BomHeader,
     Bom,
     EuroExchangeRate,
-    Currency
+    Currency,
+    UnitOfMeasure,
+    UnitOfMeasureConversionFactor
 )
 from .utils import (
     is_fert,
@@ -554,7 +557,7 @@ def get_latest_exchange_rate(currency):
 def process_the_bom_slice_task(chunk_dict, user_id, counter, all_chunks, id_of_uploaded_file, celery_task_id):
     stamp = f"{counter}/{all_chunks}"
     log_mess = f"task id {celery_task_id} - process_the_bom_slice_task started - {stamp}"
-    celery_logger.warning(log_mess)
+    celery_logger.info(log_mess)
     post_a_log_message(id_of_uploaded_file, user_id, celery_task_id, log_mess)
     df = pd.DataFrame(chunk_dict)
     len_df = len(df)
@@ -564,22 +567,56 @@ def process_the_bom_slice_task(chunk_dict, user_id, counter, all_chunks, id_of_u
     latest_exchange_rate = get_latest_exchange_rate(czk_currency)
     celery_logger.info(f"latest czk exchange rate: {latest_exchange_rate}")
 
-    # Start working on BOMs
+    # Start working on BOM model
     # Adding or updating Bom records
     slice_row = 0
     for _, row in df.iterrows():
         slice_row += 1
-        product_number = row['Finished Material']
-        alt_bom = row['Alt BOM']
-        item_number = row['Item Number']
-        component_material = row['Component Material']
-        component_quantity = row['Comp Qty']
-        component_uom_in_bom = row['Comp UoM in BOM']
-        component_base_uom = row['Comp Base UoM']
-        price_unit = row['Price Unit']
-        standard_price_per_unit = Decimal(row['Std Pr Per Unit/Comp'])
-        standard_price_per_unit_EUR = standard_price_per_unit / latest_exchange_rate
+        product_number = row['Finished Material']                       # 1671935
+        alt_bom = row['Alt BOM']                                        # 1
+        item_number = row['Item Number']                                # 0020
+        component_material = row['Component Material']                  # AV1132FR
+        component_quantity = row['Comp Qty']                            # 0.5
+        component_uom_in_bom = row['Comp UoM in BOM']                   # KG
+        component_base_uom = row['Comp Base UoM']                       # LB
+        # what is happening if component_uom_in_bom and component_base_uom are different ?
+        if component_uom_in_bom != component_base_uom:
+            # Get the 2 UnitOfMeasures
+            unit_from = get_object_or_404(UnitOfMeasure, name=component_base_uom)
+            unit_to = get_object_or_404(UnitOfMeasure, name=component_uom_in_bom)
+            # Get the conversion factor
+            # this line below do not work
+            try:
+                uom_factor = get_object_or_404(UnitOfMeasureConversionFactor, uom_from=unit_from, uom_to=unit_to)
+            except Http404:
+                print(f"******    Missing {unit_from}-{unit_to}")
+                print(f"{row['Finished Material']} {row['Finished Material Desc']} {row['Item Number']} {row['Component Material']} {row['Component Material Desc']}")
+            uom_factor = uom_factor.factor
+            # celery_logger.info(f"unit_from:{unit_from} unit_to:{unit_to} uom_factor.factor:{uom_factor}")
+        else:
+            uom_factor = 1
+        price_unit = row['Price Unit']                                  # 1
+        
+        standard_price_per_unit_CZK = Decimal(row['Std Pr Per Unit/Comp'])  # 92.96
+        # print(f"standard_price_per_unit_CZK: {standard_price_per_unit_CZK}")
+        standard_price_per_kg_ea_CZK = standard_price_per_unit_CZK / uom_factor
+        # print(f"standard_price_per_kg_ea_CZK: {standard_price_per_kg_ea_CZK}")
+        # print(f"component_quantity: {component_quantity} type: {type(component_quantity)}")
+        # print(f"Decimal(component_quantity): {Decimal(component_quantity)}")
+        weighed_price_per_kg_ea_CZK = standard_price_per_kg_ea_CZK * Decimal(component_quantity)
+        # print(f"weighed_price_per_kg_ea_CZK: {weighed_price_per_kg_ea_CZK}")
+        
+        standard_price_per_unit_EUR = standard_price_per_unit_CZK / latest_exchange_rate
+        # print(f"standard_price_per_unit_EUR: {standard_price_per_unit_EUR} type:{type(standard_price_per_unit_EUR)}")
+        standard_price_per_kg_ea_EUR = standard_price_per_kg_ea_CZK / latest_exchange_rate
+        # print(f"standard_price_per_kg_ea_EUR: {standard_price_per_kg_ea_EUR}")
+        # print(f"component_quantity: {component_quantity} type: {type(component_quantity)}")
+        # print(f"Decimal(component_quantity): {Decimal(component_quantity)}")
+        weighed_price_per_kg_ea_EUR = standard_price_per_kg_ea_EUR * Decimal(component_quantity)
+        # print(f"weighed_price_per_kg_ea_EUR: {weighed_price_per_kg_ea_EUR}")
 
+        # print(latest_exchange_rate)
+    
         product = get_object_or_404(Product, number=product_number)
         bom_header = get_object_or_404(BomHeader, product=product, alt_bom=alt_bom)
         bom_component = get_object_or_404(BomComponent, component_material=component_material)
@@ -587,14 +624,22 @@ def process_the_bom_slice_task(chunk_dict, user_id, counter, all_chunks, id_of_u
         bom, created = Bom.objects.update_or_create(
             bom_header=bom_header,
             bom_component=bom_component,
+            item_number=item_number,
             defaults={
                 'item_number': item_number,
                 'component_quantity': component_quantity,
                 'component_uom_in_bom': component_uom_in_bom,
                 'component_base_uom': component_base_uom,
                 'price_unit': price_unit,
-                'standard_price_per_unit': standard_price_per_unit,
-                'standard_price_per_unit_EUR': standard_price_per_unit_EUR
+                'standard_price_per_unit_CZK': standard_price_per_unit_CZK,
+                'standard_price_per_kg_ea_CZK':standard_price_per_kg_ea_CZK,
+                'weighed_price_per_kg_ea_CZK': weighed_price_per_kg_ea_CZK,
+                
+                'standard_price_per_unit_EUR': standard_price_per_unit_EUR,
+                'standard_price_per_kg_ea_EUR': standard_price_per_kg_ea_EUR,
+                'weighed_price_per_kg_ea_EUR': weighed_price_per_kg_ea_EUR,
+                
+                'uom_factor': uom_factor
             }
         )
         if slice_row % 250 == 00:
@@ -608,7 +653,7 @@ def process_the_bom_slice_task(chunk_dict, user_id, counter, all_chunks, id_of_u
             create_log_entry(user, bom, CHANGE, logmessage)
     # Finished working on Boms
     log_mess = f"task id {celery_task_id} - process_the_bom_slice_task finished - {stamp}"
-    celery_logger.warning(log_mess)
+    celery_logger.info(log_mess)
     post_a_log_message(id_of_uploaded_file, user_id, celery_task_id, log_mess)
 
 
