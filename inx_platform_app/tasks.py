@@ -181,6 +181,8 @@ def file_processor(id_of_UploadedFile, user_id):
                 material_counter = 0
                 # get the marked for deletion product status
                 mark_for_del = get_object_or_404(ProductStatus, marked_for_deletion = True)
+                
+                # Work on materials (product)
                 for material in unique_materials:
                     material_counter += 1
                     description = df.loc[df['Finished Material'] == material, 'Finished Material Desc'].values[0]
@@ -209,9 +211,10 @@ def file_processor(id_of_UploadedFile, user_id):
                     if product.name.startswith('+'):
                         product.product_status = mark_for_del
                         product.save()
-                    if material_counter % 200 == 0:
+                    if material_counter % 50 == 0:
                         celery_logger.info(f"materials: {material_counter}/{len(unique_materials)}")
                 log_mess = "Materials completed"
+                
                 celery_logger.info(log_mess)
                 post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, log_mess)
                 # Adding new component or updating current ones

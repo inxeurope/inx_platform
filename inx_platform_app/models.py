@@ -918,6 +918,9 @@ class Brand(models.Model):
 class Product(models.Model):
     class Meta:
         ordering = ['name']
+        constraints = [
+            models.UniqueConstraint(fields=['number'], name='unique_product_number')
+        ]
 
     name = models.CharField(max_length=100)
     number = models.CharField(max_length=30)

@@ -169,8 +169,8 @@ class BrandAdmin(admin.ModelAdmin):
 
 
 class ProductAdmin(admin.ModelAdmin):
-    # list_display = ['id', 'number', 'name', 'get_brand_name']
-    list_display = ['id', 'number', 'name','get_color_name', 'get_colorgroup_name', 'get_brand_name', 'is_fert', 'is_ink']
+
+    list_display = ['id', 'number', 'name','get_color_name', 'get_colorgroup_name', 'get_brand_name', 'is_fert', 'is_ink', 'approved_on']
     list_filter = ['is_new', 'is_ink', 'is_fert', 'color__name']
     search_fields = ['number', 'name']
     
@@ -179,7 +179,7 @@ class ProductAdmin(admin.ModelAdmin):
         # Get current filter selections from the request GET parameters
         selected_filters = request.GET.dict()
         
-                # Initialize a dictionary to hold human-readable filter values
+        # Initialize a dictionary to hold human-readable filter values
         readable_filters = {}
         
         # Loop through the selected filters
