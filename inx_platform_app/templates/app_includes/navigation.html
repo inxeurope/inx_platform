@@ -176,8 +176,9 @@
                 <a href="{% url 'change_password' %}" class="dropdown-item">Change Password</a>
                 <a href="{% url 'logout' %}" class="dropdown-item">Logout</a>
                 {% if request.user.is_superuser %}
-                <a href="{% url 'import-single-table' %}" class="dropdown-item">Import from old SQL tables</a>
+                {% comment %} <a href="{% url 'import-single-table' %}" class="dropdown-item">Import from old SQL tables</a> {% endcomment %}
                 <a href="{% url 'admin:index' %}" class="dropdown-item">Admin inteface</a>
+                <a href="{% url 'marco' %}" class="dropdown-item">Special</a>
                 <a href="{% url 'get-exchange-rates' %}" class="dropdown-item">Get EUR exchange rates from ECB</a>
                 {% endif %}
             {% else %}    

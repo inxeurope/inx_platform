@@ -349,7 +349,7 @@ def file_processor(id_of_UploadedFile, user_id):
         model.objects.all().delete()
         post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, f"deleting rows from {model._meta.model_name}")
         df = df.replace(np.nan, '')
-        chunk_size = 500
+        chunk_size = 800
         chunks = [df[i:i + chunk_size] for i in range(0, len(df), chunk_size)]
         chunk_counter = 0
         for chunk in chunks:
@@ -357,8 +357,7 @@ def file_processor(id_of_UploadedFile, user_id):
             post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, f"processing ... {chunk_counter}/{len(chunks)}")
             try:
                 start_time = time.perf_counter()
-                # List to hold model instances
-                instances = []
+                instances = [] # List to hold model instances
                 for index, row in chunk.iterrows():
                     instance = model()
                     for field, column_name in field_mapping.items():
@@ -366,7 +365,7 @@ def file_processor(id_of_UploadedFile, user_id):
                     instances.append(instance)
                 with transaction.atomic():
                     model.objects.bulk_create(instances)
-                    post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, f'bulk_create for chunk {chunk_counter} done')
+                    # post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, f'bulk_create for chunk {chunk_counter} done')
                     instances = [] # resetting
                 end_time = time.perf_counter()
                 elapsed_time = end_time - start_time
@@ -375,11 +374,12 @@ def file_processor(id_of_UploadedFile, user_id):
                 # Handle the exception
                 post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, f"An error occurred during the transaction: {e}")
         # All chunks are processed
-        post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, "All chuncks are processed")
+        post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, "All file parts are processed")
         uploaded_file_record.is_processed = True
         uploaded_file_record.processed_at = timezone.make_aware(datetime.now())
         # Working on the stored procedures now
         if list_of_sp:
+            print (list_of_sp)
             post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, f"There are {len(list_of_sp)} stored procedures. {list_of_sp}")
             with connection.cursor() as curs:
                 for index, sp in enumerate(list_of_sp):
@@ -387,10 +387,12 @@ def file_processor(id_of_UploadedFile, user_id):
                         sql_command = f"EXECUTE {sp}"
                         try:
                             curs.execute(sql_command)
+                            print(f"executed {sp}")
                             message = f"executed {sp}"
-                            # post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, message, "info")
                         except Exception as e:
-                            message = f"Error during execution of {sp}. {e}" 
+                            message = f"Error during execution of {sp}. {e}"
+                            celery_logger.error(sp)
+                            celery_logger.error(e)
                             post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, message, "error")
                             return
                         if curs.description:
@@ -403,15 +405,13 @@ def file_processor(id_of_UploadedFile, user_id):
                             message = f"no resulting rows from sp {sp}"
                             post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, message, "info")
                             
-        
     # Delete the file
-    post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, f"deleting ... {uploaded_file_record.file_name}")
     if uploaded_file_record.delete_file_soft():
         post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, f"File {uploaded_file_record.file_name} removed and db updated")
     else:
         log_message = f"There is a problem with file name {uploaded_file_record.file_name} - 'process terminated for file id: {uploaded_file_record.id}  filetye: {uploaded_file_record.file_type} file_name: {uploaded_file_record.file_name} file_path: {uploaded_file_record.file_path}"
         post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, log_message)
-    log_message = f'process terminated for file id: {uploaded_file_record.id}  filetye: {uploaded_file_record.file_type} file_name: {uploaded_file_record.file_name} file_path: {uploaded_file_record.file_path}'
+    log_message = f'process completed for file id: {uploaded_file_record.id}  filetye: {uploaded_file_record.file_type} file_name: {uploaded_file_record.file_name} file_path: {uploaded_file_record.file_path}'
     post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, log_message)
     uploaded_file_record.save()
 

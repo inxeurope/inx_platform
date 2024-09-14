@@ -19,3 +19,5 @@ Procfile
 *.xlsx
 .ruff_cache
 *.toml
+**/*.xml
+.idea
