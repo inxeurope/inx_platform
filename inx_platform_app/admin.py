@@ -1,8 +1,9 @@
+from urllib.parse import unquote
 from django import forms
+from django.db.models import ForeignKey
 from django.contrib import admin
 from django.contrib.admin.widgets import ForeignKeyRawIdWidget
 from django.contrib.auth.forms import ReadOnlyPasswordHashField, AdminPasswordChangeForm
-from urllib.parse import unquote
 from django.core.exceptions import PermissionDenied
 from django.urls import path
 from django.shortcuts import render, redirect
@@ -172,6 +173,46 @@ class ProductAdmin(admin.ModelAdmin):
     list_display = ['id', 'number', 'name','get_color_name', 'get_colorgroup_name', 'get_brand_name', 'is_fert', 'is_ink']
     list_filter = ['is_new', 'is_ink', 'is_fert', 'color__name']
     search_fields = ['number', 'name']
+    
+    # Override changelist_view to show selected filters
+    def changelist_view(self, request, extra_context=None):
+        # Get current filter selections from the request GET parameters
+        selected_filters = request.GET.dict()
+        
+                # Initialize a dictionary to hold human-readable filter values
+        readable_filters = {}
+        
+        # Loop through the selected filters
+        for filter_key, filter_value in selected_filters.items():
+            # Check if the filter is for a foreign key field (e.g., 'currency__id__exact')
+            if '__id__exact' in filter_key:
+                # Extract the model field name (e.g., 'currency')
+                field_name = filter_key.split('__id__exact')[0]
+                
+                # Check if the field is a ForeignKey field in the model
+                if field_name in [f.name for f in self.model._meta.fields if isinstance(f, ForeignKey)]:
+                    related_model = self.model._meta.get_field(field_name).related_model
+                    
+                    # Get the related object using the ID in the filter value
+                    try:
+                        related_obj = related_model.objects.get(pk=filter_value)
+                        readable_filters[field_name] = f"{field_name}: {related_obj}"
+                    except related_model.DoesNotExist:
+                        readable_filters[field_name] = f"{field_name}: Unknown"
+                else:
+                    # If it's not a foreign key, just add the filter as is
+                    readable_filters[filter_key] = f"{filter_key}: {filter_value}"
+            else:
+                # For non-ForeignKey filters, add them as is
+                readable_filters[filter_key] = f"{filter_key}: {filter_value}"
+        
+        # Add the selected filters to the extra context so that they can be used in the template
+        extra_context = extra_context or {}
+        extra_context['selected_filters'] = readable_filters
+        print(readable_filters)
+        
+        # Call the original changelist_view method
+        return super().changelist_view(request, extra_context=extra_context)
 
     def get_brand_name(self, obj):
         if obj.brand:
@@ -203,8 +244,47 @@ class ProductAdmin(admin.ModelAdmin):
 
 class CustomerAdmin(admin.ModelAdmin):
     list_display = ['id', 'number', 'name', 'get_countrycode', 'get_currency_alpha_3']
-    list_filter = ['active', 'customer_type', 'currency']
+    list_filter = ['active', 'customer_type', 'currency', 'is_new']
     search_fields = ['name', 'currency_text']
+
+    # Override changelist_view to show selected filters
+    def changelist_view(self, request, extra_context=None):
+        # Get current filter selections from the request GET parameters
+        selected_filters = request.GET.dict()
+        
+                # Initialize a dictionary to hold human-readable filter values
+        readable_filters = {}
+        
+        # Loop through the selected filters
+        for filter_key, filter_value in selected_filters.items():
+            # Check if the filter is for a foreign key field (e.g., 'currency__id__exact')
+            if '__id__exact' in filter_key:
+                # Extract the model field name (e.g., 'currency')
+                field_name = filter_key.split('__id__exact')[0]
+                
+                # Check if the field is a ForeignKey field in the model
+                if field_name in [f.name for f in self.model._meta.fields if isinstance(f, ForeignKey)]:
+                    related_model = self.model._meta.get_field(field_name).related_model
+                    
+                    # Get the related object using the ID in the filter value
+                    try:
+                        related_obj = related_model.objects.get(pk=filter_value)
+                        readable_filters[field_name] = f"{field_name}: {related_obj}"
+                    except related_model.DoesNotExist:
+                        readable_filters[field_name] = f"{field_name}: Unknown"
+                else:
+                    # If it's not a foreign key, just add the filter as is
+                    readable_filters[filter_key] = f"{filter_key}: {filter_value}"
+            else:
+                # For non-ForeignKey filters, add them as is
+                readable_filters[filter_key] = f"{filter_key}: {filter_value}"
+        
+        # Add the selected filters to the extra context so that they can be used in the template
+        extra_context = extra_context or {}
+        extra_context['selected_filters'] = readable_filters
+        
+        # Call the original changelist_view method
+        return super().changelist_view(request, extra_context=extra_context)
 
     def get_countrycode(self, obj):
         if obj.country:
@@ -327,9 +407,22 @@ class BudgetForecastDetailAdmin_abs(admin.ModelAdmin):
     With 2 different tables (BudgetForecast and Sales), we can manage Sales in a better way
     '''
     list_display = ['id', 'get_budforline_id', 'get_budforline_info', 'get_scenario_name', 'year', 'month', 'volume', 'price', 'value', 'get_value']
+    list_filter = ['scenario__name', 'year']
     search_fields = ['id', 'budforline__id', 'scenario__name', 'budforline__customer__name', 'budforline__brand__name', 'budforline__color_group__name', 'year', 'month']
     ordering = ['id', 'budforline__id', 'scenario__name']
 
+    # Override changelist_view to show selected filters
+    def changelist_view(self, request, extra_context=None):
+        # Get current filter selections from the request GET parameters
+        selected_filters = request.GET.dict()
+        
+        # Add the selected filters to the extra context so that they can be used in the template
+        extra_context = extra_context or {}
+        extra_context['selected_filters'] = selected_filters
+        
+        # Call the original changelist_view method
+        return super().changelist_view(request, extra_context=extra_context)
+    
     class Meta:
         abstract = True
 
@@ -352,7 +445,7 @@ class BudgetForecastDetailAdmin_abs(admin.ModelAdmin):
     get_budforline_id.admin_order_field = 'budforline__id'
     get_scenario_name.short_description = 'scenario'
     get_scenario_name.admin_order_field = 'scenario__name'
-    get_budforline_info.short_description = 'additional info'
+    get_budforline_info.short_description = 'Customer - Brand - ColorGroup'
 
 
 class BudgetForecastDetailAdmin(BudgetForecastDetailAdmin_abs):
@@ -526,6 +619,7 @@ class ContactTypeAdmin(admin.ModelAdmin):
 
 class CurrencyRateAdmin(admin.ModelAdmin):
     list_display = ['id', 'currency', 'year', 'rate']
+    list_filter = ['currency']
     ordering = ['currency', 'year']
 
 
