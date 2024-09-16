@@ -352,12 +352,13 @@ def file_processor(id_of_UploadedFile, user_id):
         model.objects.all().delete()
         post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, f"deleting rows from {model._meta.model_name}")
         df = df.replace(np.nan, '')
-        chunk_size = 800
+        chunk_size = 400
         chunks = [df[i:i + chunk_size] for i in range(0, len(df), chunk_size)]
         chunk_counter = 0
         for chunk in chunks:
             chunk_counter += 1
             post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, f"processing ... {chunk_counter}/{len(chunks)}")
+            celery_logger.info(f"processing ... {chunk_counter}/{len(chunks)}")
             try:
                 start_time = time.perf_counter()
                 instances = [] # List to hold model instances
@@ -368,6 +369,7 @@ def file_processor(id_of_UploadedFile, user_id):
                     instances.append(instance)
                 with transaction.atomic():
                     model.objects.bulk_create(instances)
+                    celery_logger.info("transaction atomic done")
                     # post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, f'bulk_create for chunk {chunk_counter} done')
                     instances = [] # resetting
                 end_time = time.perf_counter()
