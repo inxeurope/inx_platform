@@ -691,6 +691,10 @@ class UnitOfMeasureConversionFactorAdmin(admin.ModelAdmin):
     list_display = ['uom_from', 'uom_to', 'factor']
     
     
+class ManualCostAdmin(admin.ModelAdmin):
+    list_display = ['nsf_division', 'scenario', 'year', 'rmc_perc', 'conv_perc'] 
+    list_filter = ['scenario', 'nsf_division']
+
 admin.site.register(ColorGroup, ColorGroupAdmin)
 admin.site.register(Color, ColorAdmin)
 admin.site.register(MadeIn, MadeInAdmin)

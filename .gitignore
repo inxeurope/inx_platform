@@ -13,11 +13,10 @@ static_files
 media_root/uploads/
 venv/
 Procfile
-.DS_Store
-**/.DS_Store
 *.log
 *.xlsx
 .ruff_cache
 *.toml
 **/*.xml
 .idea
+**/.DS_Store

@@ -1529,3 +1529,17 @@ class UnitOfMeasureConversionFactor(models.Model):
     
     def __str__(self):
         return f"from {self.uom_from} -> {self.uom_to}: {self.factor}"
+
+
+class ManualCost(models.Model):
+    nsf_division = models.ForeignKey(NSFDivision, on_delete=models.CASCADE)
+    scenario = models.ForeignKey(Scenario, on_delete=models.CASCADE)
+    year = models.SmallIntegerField()
+    rmc_perc = models.DecimalField(max_digits=5, decimal_places=2)
+    conv_perc = models.DecimalField(max_digits=5, decimal_places=2)
+    active = models.BooleanField(default=False)
+    
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['nsf_division', 'year'], name='unique_nsf_division_year')
+        ]
