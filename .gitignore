@@ -19,4 +19,6 @@ Procfile
 *.toml
 **/*.xml
 .idea
+.DS_Store
 **/.DS_Store
+

@@ -25,10 +25,12 @@ from .models import (
     EuroExchangeRate,
     Currency,
     UnitOfMeasure,
-    UnitOfMeasureConversionFactor
+    UnitOfMeasureConversionFactor,
+    Brand
 )
 from .utils import (
     is_fert,
+    assign_color,
     create_log_entry
 )
 from . import import_dictionaries
@@ -177,12 +179,13 @@ def file_processor(id_of_UploadedFile, user_id):
                 df.dropna(subset=['Finished Material'], inplace=True)
                 df = df[df['Plant'] == '8800']
                 # Adding new products or updating current ones
-                unique_materials = df['Finished Material'].unique()
+                unique_materials = sorted(df['Finished Material'].unique())
                 material_counter = 0
                 # get the marked for deletion product status
                 mark_for_del = get_object_or_404(ProductStatus, marked_for_deletion = True)
                 
                 # Work on materials (product)
+                last_detected_brand = ''
                 for material in unique_materials:
                     material_counter += 1
                     description = df.loc[df['Finished Material'] == material, 'Finished Material Desc'].values[0]
@@ -193,29 +196,53 @@ def file_processor(id_of_UploadedFile, user_id):
                         product.is_new = True
                         if is_fert(material):
                             product.is_fert = True
+                            product.is_ink = True
+                        # Trying to assign colors
+                        assign_color(product)
+                        # Assign color complete
                         product.save()
-                        logmessage = f'Product imported by importing BOMs file: {product.id} {product.name}'
+                        logmessage = f'Product imported by importing BOMs file: {product.id} {product.number} {product.name}'
                         create_log_entry(user, product, ADDITION, logmessage)
                         post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, logmessage)
                     else:
                         if is_fert(material):
                             product.is_fert = True
-                            product.save()
+                            product.is_new = True
+                            assign_color(product)
                         if product.name != description:
                             old_value = product.name
                             product.name = description
-                            product.save()
                             logmessage = f'Product name changed by importing BOMs from {old_value} to {description}'
                             create_log_entry(user,product, CHANGE, logmessage)
                             post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, logmessage)
+                    # Trying to get a brand
+                    all_brands_list = list(Brand.objects.all().values_list('name', flat=True).distinct())
+                    if product.name[:3].isalpha() and product.name[:3].isupper() and product.name[3] == ' ':
+                        # the product name is like "ABC Cyan"
+                        b_string = product.name[:3]
+                        if not b_string in all_brands_list:
+                            if b_string != last_detected_brand:
+                                last_detected_brand = b_string
+                                celery_logger.info(f"* * * brand to insert: {product.name[:3]}")
+                    if product.name[:4].isalpha() and product.name[:4].isupper() and product.name[4] == ' ':
+                        # the product name is like "ABCD Cyan"
+                        b_string = product.name[:4]
+                        if not b_string in all_brands_list:
+                            if b_string != last_detected_brand:
+                                last_detected_brand = b_string
+                                celery_logger.info(f"* * * brand to insert: {product.name[:4]}")
+                        pass
                     if product.name.startswith('+'):
                         product.product_status = mark_for_del
                         product.save()
-                    if material_counter % 50 == 0:
+                    if material_counter % 500 == 0:
                         celery_logger.info(f"materials: {material_counter}/{len(unique_materials)}")
-                log_mess = "Materials completed"
+                    product.save()
                 
+                log_mess = "Materials completed"
                 celery_logger.info(log_mess)
+                """
+                # -----------------------------------------------------------------------------------------------------------------------
                 post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, log_mess)
                 # Adding new component or updating current ones
                 # Count unique bom_component_sap_num values
@@ -290,11 +317,10 @@ def file_processor(id_of_UploadedFile, user_id):
                         else:
                             logmessage = f'BOM header changed for {bom_header.product.number} {bom_header.product.name} alt_bom: {alt_bom}'
                             create_log_entry(user, bom_header, CHANGE, logmessage)
-                    if count_of_unique_headers % 200 == 0:
+                    if count_of_unique_headers % 400 == 0:
                         celery_logger.info(f"BOM headers: {count_of_unique_headers}/{all_unique_headers}")
                 celery_logger.info("Finished inserting/editing BOM headers")
                 
-                # products = BomHeader.objects.values('product').distinct()
                 filtered_bom_headers = BomHeader.objects.filter(product__number__in=finished_material_numbers_list)
                 # Instead of looping through all BomHeader, we should only loop on those in the filtered_bom_headers
                 products = filtered_bom_headers.values('product').distinct()
@@ -344,6 +370,7 @@ def file_processor(id_of_UploadedFile, user_id):
                 print("error reading the file")
             pass
     # celery_logger.info(f"model: {model}")
+    """
     
     ####################################################################################
     # Start inserting
@@ -432,10 +459,6 @@ def post_a_log_message(id_of_UploadedFile, user_id, celery_task_id, message, lev
         celery_task_id = celery_task_id,
         log_text = message
     )
-    # if level == "info":
-    #     celery_logger.info(message)
-    # else:
-    #     celery_logger.error(message)
 
 
 def read_this_file(the_file, user, conversion_dictionary, celery_task_id):
@@ -571,6 +594,9 @@ def process_the_bom_slice_task(chunk_dict, user_id, counter, all_chunks, id_of_u
     czk_currency = get_object_or_404(Currency, alpha_3='CZK')
     latest_exchange_rate = get_latest_exchange_rate(czk_currency)
     celery_logger.info(f"latest czk exchange rate: {latest_exchange_rate}")
+    
+    marked_for_deletion = get_object_or_404(ProductStatus, marked_for_deletion=True)
+    products_marked = Product.objects.filter(product_status=marked_for_deletion).values_list('number', flat=True)
 
     # Start working on BOM model
     # Adding or updating Bom records
@@ -594,33 +620,23 @@ def process_the_bom_slice_task(chunk_dict, user_id, counter, all_chunks, id_of_u
             try:
                 uom_factor = get_object_or_404(UnitOfMeasureConversionFactor, uom_from=unit_from, uom_to=unit_to)
             except Http404:
-                print(f"******    Missing {unit_from}-{unit_to}")
-                print(f"{row['Finished Material']} {row['Finished Material Desc']} {row['Item Number']} {row['Component Material']} {row['Component Material Desc']}")
-            uom_factor = uom_factor.factor
-            # celery_logger.info(f"unit_from:{unit_from} unit_to:{unit_to} uom_factor.factor:{uom_factor}")
+                if product_number not in products_marked:
+                    celery_logger.critical(f"******    Missing {unit_from}-{unit_to}")
+                    celery_logger.critical(f"{row['Finished Material']} {row['Finished Material Desc']} {row['Item Number']} {row['Component Material']} {row['Component Material Desc']}")
+                uom_factor = 1
+            else:
+                uom_factor = 1
         else:
             uom_factor = 1
-        price_unit = row['Price Unit']                                  # 1
+        price_unit = row['Price Unit']
         
-        standard_price_per_unit_CZK = Decimal(row['Std Pr Per Unit/Comp'])  # 92.96
-        # print(f"standard_price_per_unit_CZK: {standard_price_per_unit_CZK}")
+        standard_price_per_unit_CZK = Decimal(row['Std Pr Per Unit/Comp'])  
         standard_price_per_kg_ea_CZK = standard_price_per_unit_CZK / uom_factor
-        # print(f"standard_price_per_kg_ea_CZK: {standard_price_per_kg_ea_CZK}")
-        # print(f"component_quantity: {component_quantity} type: {type(component_quantity)}")
-        # print(f"Decimal(component_quantity): {Decimal(component_quantity)}")
         weighed_price_per_kg_ea_CZK = standard_price_per_kg_ea_CZK * Decimal(component_quantity)
-        # print(f"weighed_price_per_kg_ea_CZK: {weighed_price_per_kg_ea_CZK}")
-        
-        standard_price_per_unit_EUR = standard_price_per_unit_CZK / latest_exchange_rate
-        # print(f"standard_price_per_unit_EUR: {standard_price_per_unit_EUR} type:{type(standard_price_per_unit_EUR)}")
-        standard_price_per_kg_ea_EUR = standard_price_per_kg_ea_CZK / latest_exchange_rate
-        # print(f"standard_price_per_kg_ea_EUR: {standard_price_per_kg_ea_EUR}")
-        # print(f"component_quantity: {component_quantity} type: {type(component_quantity)}")
-        # print(f"Decimal(component_quantity): {Decimal(component_quantity)}")
-        weighed_price_per_kg_ea_EUR = standard_price_per_kg_ea_EUR * Decimal(component_quantity)
-        # print(f"weighed_price_per_kg_ea_EUR: {weighed_price_per_kg_ea_EUR}")
 
-        # print(latest_exchange_rate)
+        standard_price_per_unit_EUR = standard_price_per_unit_CZK / latest_exchange_rate
+        standard_price_per_kg_ea_EUR = standard_price_per_kg_ea_CZK / latest_exchange_rate
+        weighed_price_per_kg_ea_EUR = standard_price_per_kg_ea_EUR * Decimal(component_quantity)
     
         product = get_object_or_404(Product, number=product_number)
         bom_header = get_object_or_404(BomHeader, product=product, alt_bom=alt_bom)
@@ -647,8 +663,8 @@ def process_the_bom_slice_task(chunk_dict, user_id, counter, all_chunks, id_of_u
                 'uom_factor': uom_factor
             }
         )
-        if slice_row % 250 == 00:
-            celery_logger.warning(f"process {stamp}: {slice_row}/{len_df}")
+        if slice_row % 500 == 00:
+            celery_logger.info(f"p.#{stamp}: {slice_row}/{len_df}")
         if created:
             logmessage = f'BOM record created for {bom_header.product.number} {bom_header.product.name} component: {bom_component.component_material}'
             create_log_entry(user, bom, ADDITION, logmessage)
@@ -657,7 +673,7 @@ def process_the_bom_slice_task(chunk_dict, user_id, counter, all_chunks, id_of_u
             logmessage = f'BOM record updated for {bom_header.product.number} {bom_header.product.name} component: {bom_component.component_material}'
             create_log_entry(user, bom, CHANGE, logmessage)
     # Finished working on Boms
-    log_mess = f"task id {celery_task_id} - process_the_bom_slice_task finished - {stamp}"
+    log_mess = f"p.# {stamp} complete"
     celery_logger.info(log_mess)
     post_a_log_message(id_of_uploaded_file, user_id, celery_task_id, log_mess)
 

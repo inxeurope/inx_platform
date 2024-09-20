@@ -647,7 +647,7 @@ class BomForm(forms.ModelForm):
 
 
 class BomHeaderAdmin(admin.ModelAdmin):
-    list_display = ['id', 'get_product_name', 'alt_bom', 'header_base_quantity', 'header_base_quantity_uom']
+    list_display = ['id', 'get_product_number', 'get_product_name', 'alt_bom', 'header_base_quantity', 'header_base_quantity_uom']
     search_fields = ['product__name', 'product__number']
 
     def get_product_number(self, obj):
@@ -656,7 +656,7 @@ class BomHeaderAdmin(admin.ModelAdmin):
     get_product_number.short_description = 'Product Number'
 
     def get_product_name(self, obj):
-        return obj.product.name
+        return f"{obj.product.name}"
     get_product_name.admin_order_field = 'product__name'
     get_product_name.short_description = 'Product Name'
 
@@ -670,7 +670,7 @@ class BomComponentAdmin(admin.ModelAdmin):
 class BomAdmin(admin.ModelAdmin):
     form = BomForm
     list_display = ['id', 'bom_header_id', 'get_product_name', 'get_alt_bom', 'item_number', 'get_component_material_description', 'component_quantity', 'component_uom_in_bom', 'component_base_uom', 'price_unit', 'standard_price_per_unit_CZK', 'standard_price_per_unit_EUR', 'weighed_price_per_kg_ea_EUR']
-    search_fields = ['bom_header__product__name', 'bom_header__alt_bom']
+    search_fields = ['bom_header__id', 'bom_header__product__name', 'bom_header__alt_bom']
     ordering = ['bom_header__id']
 
     def get_product_name(self, obj):

@@ -287,6 +287,7 @@ class ProductForm(forms.ModelForm):
             'product_status': forms.Select(attrs={'class': 'form-select'}),
             'sqlapp_id': forms.NumberInput(attrs={'class': 'form-control'}),
             'is_new': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'is_fert': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
 
             'approved_on': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'approved_by': forms.Select(attrs={'class': 'form-select'}),

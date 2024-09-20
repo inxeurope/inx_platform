@@ -2608,6 +2608,9 @@ def products(request):
         'color', 'made_in', 'brand', 'packaging', 'product_line', 'product_status', 'approved_by'
         ).exclude(product_status__marked_for_deletion = True).annotate(bom_count=Count('bomheader'))
     product_filter = ProductFilter(request.GET, products_queryset)
+
+    this = products_queryset.filter(id=5008)
+    print(this)
     
     paginator = Paginator(product_filter.qs, 10)
     
@@ -2983,11 +2986,13 @@ def get_exchange_rates(request):
     fetch_euro_exchange_rates.delay()
     return render(request, "app_pages/index.html", {})
 
+
 # no need for login_required
 def format_decimal(value):
     if isinstance(value, Decimal):
         return float(value)
     return value
+
 
 @login_required
 def download_sfb(request):
@@ -3109,14 +3114,14 @@ def fetch_bom_components(request, bom_header_id):
     total_RMC_EUR = Decimal(0)
     print("len:", len(boms))
     for c in boms:
-        old_value = total_RMC_CZK
+        # old_value = total_RMC_CZK
         if c.component_base_uom != "EA":
             total_RMC_CZK += c.weighed_price_per_kg_ea_CZK
             total_RMC_EUR += c.weighed_price_per_kg_ea_EUR
         else:
             total_RMC_CZK += c.weighed_price_per_kg_ea_CZK
             total_RMC_EUR += c.weighed_price_per_kg_ea_EUR
-        print("***",c.component_base_uom, old_value,"+", c.weighed_price_per_kg_ea_CZK, " = ", total_RMC_CZK, type(c.weighed_price_per_kg_ea_CZK))
+        # print("***",c.component_base_uom, old_value,"+", c.weighed_price_per_kg_ea_CZK, " = ", total_RMC_CZK, type(c.weighed_price_per_kg_ea_CZK))
     
     total_RMC_CZK_KG = total_RMC_CZK / 100
     total_RMC_CZK_LT = total_RMC_CZK_KG * specific_gravity

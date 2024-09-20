@@ -1039,9 +1039,9 @@ class BudForLine(models.Model):
 
 
     @classmethod
-    def get_customer_brands(self, customer_id):
+    def get_customer_brands(cls, customer_id):
         # Use distinct to get unique customer-brand pairs
-        customer_brand = self.objects.filter(customer_id=customer_id).values('customer_id', 'brand_id').distinct()
+        customer_brand = cls.objects.filter(customer_id=customer_id).values('customer_id', 'brand_id').distinct()
         result = []
         for cb in customer_brand:
             customer = Customer.objects.get(id=cb['customer_id'])
