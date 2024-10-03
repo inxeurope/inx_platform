@@ -488,53 +488,8 @@ class CurrencyAdmin(admin.ModelAdmin):
     ordering = ['name']
 
 
-# User Forms ----------------------------------------------------------
-
-# class UserCreationForm(forms.ModelForm):
-#     password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
-#     password2 = forms.CharField(label='Password confirmation', widget=forms.PasswordInput)
-
-#     class Meta:
-#         model = User
-#         fields = ('email', 'first_name', 'last_name')
-
-#     def clean_password2(self):
-#         password1 = self.cleaned_data.get("password1")
-#         password2 = self.cleaned_data.get("password2")
-#         if password1 and password2 and password1 != password2:
-#             raise forms.ValidationError("Passwords don't match")
-#         return password2
-
-#     def save(self, commit=True):
-#         user = super().save(commit=False)
-#         user.set_password(self.cleaned_data["password1"])
-#         if commit:
-#             user.save()
-#         return user
-
-
-# class UserChangeForm(forms.ModelForm):
-
-#     password = ReadOnlyPasswordHashField()
-
-#     class Meta:
-#         model = User
-#         fields = ('email', 'password', 'first_name', 'last_name', 'is_active', 'is_staff', 'is_superuser')
-
-#     def clean_password(self):
-#         # Regardless of what the user provides, return the initial value.
-#         # This is done here, rather than on the field, because the
-#         # field does not have access to the initial value
-#         return self.initial["password"]
-
-# ---------------------------------------------------------------------
-
-
 class UserAdmin(BaseUserAdmin):
     # Forms to add and edit Users
-    # form = UserChangeForm
-    # add_user_form = UserCreationForm
-    # change_password_form = AdminPasswordChangeForm
 
     model = User
     
@@ -557,64 +512,6 @@ class UserAdmin(BaseUserAdmin):
     search_fields = ('id', 'first_name', 'last_name', 'email')
     ordering = ('email',)
     filter_horizontal = ('groups',)
-
-    # def get_urls(self):
-    #     urls = super().get_urls()
-    #     custom_urls = [
-    #         path(
-    #             '<id>/password/',
-    #             self.admin_site.admin_view(self.change_password),
-    #             name='auth_user_password_change',
-    #         ),
-    #     ]
-    #     return custom_urls + urls
-
-    # def change_password(self, request, id, form_url=''):
-    #     user = self.get_object(request, unquote(id))
-    #     if not self.has_change_permission(request, user):
-    #         raise PermissionDenied
-
-    #     if request.method == 'POST':
-    #         form = self.change_password_form(user, request.POST)
-    #         if form.is_valid():
-    #             form.save()
-    #             change_message = self.construct_change_message(request, form, None)
-    #             self.log_change(request, user, change_message)
-    #             messages.success(request, _('Password changed successfully.'))
-    #             return redirect('admin:inx_platform_app_user_change', user.pk)
-    #     else:
-    #         form = self.change_password_form(user)
-
-    #     context = {
-    #         'title': _('Change password: %s') % escape(user.get_full_name()),
-    #         'form': form,
-    #         'adminform': helpers.AdminForm(form, list([(None, {'fields': form.base_fields})]), {}),
-    #         'original': user,
-    #         'is_popup': False,
-    #         'save_as': False,
-    #         'show_save': True,
-    #         'opts': self.model._meta,
-    #         'add': False,
-    #         'change': True,
-    #         'has_view_permission': self.has_view_permission(request, user),
-    #         'has_editable_inline_admin_formsets': False,
-    #         'has_add_permission': self.has_add_permission(request),
-    #         'has_change_permission': self.has_change_permission(request, user),
-    #     }
-
-    #     return render(
-    #         request,
-    #         'admin/auth/user/change_password.html',
-    #         context,
-    #     )
-    
-    # def change_view(self, request, object_id, form_url='', extra_context=None):
-    #     extra_context = extra_context or {}
-    #     extra_context['show_save'] = True
-    #     extra_context['show_save_and_continue'] = True
-    #     extra_context['show_save_and_add_another'] = True
-    #     extra_context['show_delete_link'] = self.has_delete_permission(request)
-    #     return super().change_view(request, object_id, form_url, extra_context=extra_context)
 
 
 class ContactTypeAdmin(admin.ModelAdmin):

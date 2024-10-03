@@ -938,7 +938,8 @@ class Product(models.Model):
     is_ink = models.BooleanField(default = True)
     is_new = models.BooleanField(default=True)
     is_fert = models.BooleanField(default=False)
-    # is_active = models.BooleanField(default=False)
+    # is_active = models.BooleanField(default=False) # This is replaced by ProductStatus
+    
 
     approved_on = models.DateField(null=True)
     approved_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
