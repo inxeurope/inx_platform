@@ -2568,6 +2568,7 @@ def login_user(request):
     else:
         return render (request, 'authenticate/login.html', {})
 
+
 def logout_user(request):
     logout(request)
     messages.success(request, ("You were logged out"))
@@ -2604,13 +2605,14 @@ def products(request):
         if is_reset_button and 'Reset' in is_reset_button:
             return redirect('products')
     
+    # products_queryset = Product.objects.select_related(
+    #     'color', 'made_in', 'brand', 'packaging', 'product_line', 'product_status', 'approved_by'
+    #     ).exclude(product_status__marked_for_deletion = True).annotate(bom_count=Count('bomheader'))
     products_queryset = Product.objects.select_related(
         'color', 'made_in', 'brand', 'packaging', 'product_line', 'product_status', 'approved_by'
-        ).exclude(product_status__marked_for_deletion = True).annotate(bom_count=Count('bomheader'))
+        ).annotate(bom_count=Count('bomheader')).order_by('name')
+    
     product_filter = ProductFilter(request.GET, products_queryset)
-
-    this = products_queryset.filter(id=5008)
-    print(this)
     
     paginator = Paginator(product_filter.qs, 10)
     

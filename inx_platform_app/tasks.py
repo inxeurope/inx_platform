@@ -1,6 +1,8 @@
+import logging
+# from django_inx_platform.celery import logger
 from celery import shared_task, current_task
 from django.utils import timezone
-from celery.utils.log import get_task_logger
+# from celery.utils.log import get_task_logger
 from django.shortcuts import get_object_or_404
 from django.http import Http404
 from django.db import connection, transaction
@@ -45,8 +47,8 @@ from datetime import datetime
 
 
 # app = Celery('core_app', broker='redis://localhost:6379/0')
-celery_logger = get_task_logger(__name__)
-
+# celery_logger = get_task_logger(__name__)
+logger = logging.getLogger(__name__)
 
 @shared_task
 def file_processor(id_of_UploadedFile, user_id):
@@ -58,13 +60,13 @@ def file_processor(id_of_UploadedFile, user_id):
     uploaded_file_record = get_object_or_404(UploadedFile, pk=id_of_UploadedFile)
     user = get_object_or_404(User, pk=user_id)
     if not uploaded_file_record:
-        celery_logger.error(f"No UploadedFile record with id: {id_of_UploadedFile}")
+        logger.error(f"No UploadedFile record with id: {id_of_UploadedFile}")
         return
     if not os.path.exists(uploaded_file_record.file_path + "/" + uploaded_file_record.file_name):
-        celery_logger.error("File does not exist.")
+        logger.error("File does not exist.")
         return
     
-    celery_logger.info(
+    logger.info(
         f"the file {uploaded_file_record.file_path + '/' + uploaded_file_record.file_name} has been found is ready to process"
         )
     
@@ -86,7 +88,7 @@ def file_processor(id_of_UploadedFile, user_id):
             else:
                 log_message = f"file could not be read - {uploaded_file_record}"
                 create_log_entry(user, uploaded_file_record, CHANGE, log_message)
-                celery_logger.error(log_message)
+                logger.error(log_message)
                 return
         case "ke24":
             df = read_this_file(uploaded_file_record,user, import_dictionaries.ke24_converters_dict, celery_task_id)
@@ -96,7 +98,7 @@ def file_processor(id_of_UploadedFile, user_id):
                 field_mapping = import_dictionaries.ke24_mapping_dict
                 list_of_sp =[]
             else:
-                celery_logger.error(f"file could not be read - {uploaded_file_record}")
+                logger.error(f"file could not be read - {uploaded_file_record}")
                 return
         case "zaq":
             df = read_this_file(uploaded_file_record,user, import_dictionaries.zaq_converters_dict, celery_task_id)
@@ -116,7 +118,7 @@ def file_processor(id_of_UploadedFile, user_id):
                 # Then filling in again sales from zaq with proper granularity
                 list_of_sp = ['_zaq_import', '_budforline_add_triplets', '_budgetforecastdetail_fill_sales']
             else:
-                celery_logger.error(f"file could not be read - {uploaded_file_record}")
+                logger.error(f"file could not be read - {uploaded_file_record}")
                 return
         case "oo":
             df = read_this_file(uploaded_file_record,user, import_dictionaries.oo_converters_dict, celery_task_id)
@@ -136,7 +138,7 @@ def file_processor(id_of_UploadedFile, user_id):
                 field_mapping = import_dictionaries.oo_mapping_dict
                 list_of_sp =[]
             else:
-                celery_logger.error(f"file could not be read - {uploaded_file_record}")
+                logger.error(f"file could not be read - {uploaded_file_record}")
                 return
         case "oi" | "arr":
             df = read_this_file(uploaded_file_record,user, import_dictionaries.oo_converters_dict, celery_task_id)
@@ -157,7 +159,7 @@ def file_processor(id_of_UploadedFile, user_id):
                     field_mapping = import_dictionaries.oi_mapping_dict
                 list_of_sp =[]
             else:
-                celery_logger.error(f"file could not be read - {uploaded_file_record}")
+                logger.error(f"file could not be read - {uploaded_file_record}")
                 return
         case "pr":
             df = read_this_file(uploaded_file_record, user, import_dictionaries.pr_converters_dict, celery_task_id)
@@ -166,32 +168,43 @@ def file_processor(id_of_UploadedFile, user_id):
                 field_mapping = import_dictionaries.prl_mapping_dict
                 list_of_sp =[]
             else:
-                celery_logger.error(f"file could not be read - {uploaded_file_record}")
+                logger.error(f"file could not be read - {uploaded_file_record}")
                 return
         case "boms":
             bom_work = True
-            celery_logger.info("About to start reading")
+            logger.info("About to start reading")
+            logger.info(f"Start reading file {uploaded_file_record.file_name}")
             df = read_this_file(uploaded_file_record, user, import_dictionaries.boms_converters_dict, celery_task_id)
+            logger.info("reading complete")
             # start tasks
             if not df.empty:
                 # Start task of Materials
                 df['Finished Material'].replace('', np.nan, inplace=True)
                 df.dropna(subset=['Finished Material'], inplace=True)
                 df = df[df['Plant'] == '8800']
+                
                 # Adding new products or updating current ones
                 unique_materials = sorted(df['Finished Material'].unique())
                 material_counter = 0
+                
                 # get the marked for deletion product status
                 mark_for_del = get_object_or_404(ProductStatus, marked_for_deletion = True)
                 
+                # List of all brands
+                all_brands_list = list(Brand.objects.all().values_list('name', flat=True).distinct())
+                encountered_brands = []
+                
                 # Work on materials (product)
-                last_detected_brand = ''
+                logger.info("Working on materials")
                 for material in unique_materials:
                     material_counter += 1
+                    # Get the description using the SAP code ('Finished Material')
                     description = df.loc[df['Finished Material'] == material, 'Finished Material Desc'].values[0]
                     # created is True if the product has to be created
                     product, created = Product.objects.get_or_create(number=material)
+                    # The material is created
                     if created:
+                        logger.info(f"created: {material} - {description}")
                         product.name = description
                         product.is_new = True
                         if is_fert(material):
@@ -199,12 +212,42 @@ def file_processor(id_of_UploadedFile, user_id):
                             product.is_ink = True
                         # Trying to assign colors
                         assign_color(product)
-                        # Assign color complete
+                        # If alphanumeric, capital letters, and a space at char #3.
+                        if product.name[:3].isalnum() and product.name[:3].isupper() and product.name[3] == ' ':
+                            # the product name is like "ABC Cyan"
+                            b_string = product.name[:3]
+                            logger.info(f"b_string: {b_string}")
+                            if not b_string in encountered_brands:
+                                encountered_brands.append(b_string)
+                            logger.info(f"ecountered_brands: {encountered_brands}")
+                            if not b_string in all_brands_list:
+                                # the brand is not in the all_brands_list
+                                if b_string not in encountered_brands:
+                                    logger.info(f"* * * brand to insert: {product.name[:3]}")
+                            else:                               # Find and insert the brand
+                                brand = get_object_or_404(Brand, name = b_string)
+                                logger.info(f"brand found: {brand.name}")
+                                if brand:
+                                    product.brand = brand
+                        if product.name[:4].isalpha() and product.name[:4].isupper() and product.name[4] == ' ':
+                            # the product name is like "ABCD Cyan"
+                            b_string = product.name[:4]
+                            if not b_string in encountered_brands:
+                                encountered_brands.append(b_string)
+                            if not b_string in all_brands_list:
+                                if b_string not in encountered_brands:
+                                    logger.info(f"* * * brand to insert: {product.name[:4]}")
+                            else:
+                                brand = get_object_or_404(Brand, name = b_string)
+                                if brand:
+                                    product.brand = brand
+                        if product.name.startswith('+'):
+                            product.product_status = mark_for_del
                         product.save()
                         logmessage = f'Product imported by importing BOMs file: {product.id} {product.number} {product.name}'
                         create_log_entry(user, product, ADDITION, logmessage)
                         post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, logmessage)
-                    else:
+                    else:               # The material is edited
                         if is_fert(material):
                             product.is_fert = True
                             product.is_new = True
@@ -215,40 +258,22 @@ def file_processor(id_of_UploadedFile, user_id):
                             logmessage = f'Product name changed by importing BOMs from {old_value} to {description}'
                             create_log_entry(user,product, CHANGE, logmessage)
                             post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, logmessage)
-                    # Trying to get a brand
-                    all_brands_list = list(Brand.objects.all().values_list('name', flat=True).distinct())
-                    if product.name[:3].isalpha() and product.name[:3].isupper() and product.name[3] == ' ':
-                        # the product name is like "ABC Cyan"
-                        b_string = product.name[:3]
-                        if not b_string in all_brands_list:
-                            if b_string != last_detected_brand:
-                                last_detected_brand = b_string
-                                celery_logger.info(f"* * * brand to insert: {product.name[:3]}")
-                    if product.name[:4].isalpha() and product.name[:4].isupper() and product.name[4] == ' ':
-                        # the product name is like "ABCD Cyan"
-                        b_string = product.name[:4]
-                        if not b_string in all_brands_list:
-                            if b_string != last_detected_brand:
-                                last_detected_brand = b_string
-                                celery_logger.info(f"* * * brand to insert: {product.name[:4]}")
-                        pass
-                    if product.name.startswith('+'):
-                        product.product_status = mark_for_del
-                        product.save()
+                
                     if material_counter % 500 == 0:
-                        celery_logger.info(f"materials: {material_counter}/{len(unique_materials)}")
+                        logger.info(f"materials: {material_counter}/{len(unique_materials)}")
                     product.save()
                 
                 log_mess = "Materials completed"
-                celery_logger.info(log_mess)
-                """
+                logger.info(log_mess)
+                logger.info(log_mess)
+                
                 # -----------------------------------------------------------------------------------------------------------------------
                 post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, log_mess)
                 # Adding new component or updating current ones
                 # Count unique bom_component_sap_num values
                 unique_component_count = df['Component Material'].nunique()
                 log_mess = f"Unique component materials count: {unique_component_count}"
-                celery_logger.info(log_mess)
+                logger.info(log_mess)
                 post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, log_mess)
                 component_counter = 0
                 for bom_component_sap_num in df['Component Material'].unique():
@@ -277,9 +302,9 @@ def file_processor(id_of_UploadedFile, user_id):
                             create_log_entry(user,bom_component, CHANGE, logmessage)
                             post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, logmessage)
                     if component_counter % 200 == 0:
-                        celery_logger.info(f"BOM Component: {component_counter}/{unique_component_count}")
+                        logger.info(f"BOM Component: {component_counter}/{unique_component_count}")
                 log_mess = "BOM Component review is completed"
-                celery_logger.info(log_mess)
+                logger.info(log_mess)
                 post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, log_mess)
 
                 # Working on BOM Headers
@@ -287,10 +312,10 @@ def file_processor(id_of_UploadedFile, user_id):
                 # only keeping those columns
                 unique_headers = unique_headers.loc[:, ['Finished Material', 'Finished Material Desc', 'Alt BOM', 'Header Base Qty', 'Hdr Base Qty UoM']]
                 finished_material_numbers_list = list(unique_headers['Finished Material'].unique())
-                celery_logger.info(f"BOMHeaders - unique heders: {len(unique_headers)}")
+                logger.info(f"BOMHeaders - unique heders: {len(unique_headers)}")
                 all_unique_headers = len(unique_headers)
                 log_mess = f"len of unique_headers: {all_unique_headers}"
-                celery_logger.info(log_mess)
+                logger.info(log_mess)
                 post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, log_mess)
                 count_of_unique_headers = 0
                 
@@ -318,13 +343,13 @@ def file_processor(id_of_UploadedFile, user_id):
                             logmessage = f'BOM header changed for {bom_header.product.number} {bom_header.product.name} alt_bom: {alt_bom}'
                             create_log_entry(user, bom_header, CHANGE, logmessage)
                     if count_of_unique_headers % 400 == 0:
-                        celery_logger.info(f"BOM headers: {count_of_unique_headers}/{all_unique_headers}")
-                celery_logger.info("Finished inserting/editing BOM headers")
+                        logger.info(f"BOM headers: {count_of_unique_headers}/{all_unique_headers}")
+                logger.info("Finished inserting/editing BOM headers")
                 
                 filtered_bom_headers = BomHeader.objects.filter(product__number__in=finished_material_numbers_list)
                 # Instead of looping through all BomHeader, we should only loop on those in the filtered_bom_headers
                 products = filtered_bom_headers.values('product').distinct()
-                celery_logger.info(f"Start checking on BOMHeaders and AltBOMs to try setting is_active; Products under review: {len(products)}")
+                logger.info(f"Start checking on BOMHeaders and AltBOMs to try setting is_active; Products under review: {len(products)}")
                 for product_data in products:
                     product_id = product_data['product']
                     product = Product.objects.get(id=product_id)
@@ -344,10 +369,10 @@ def file_processor(id_of_UploadedFile, user_id):
                         bh = BomHeader.objects.filter(product=product, alt_bom='RM').first()
                         bh.is_active = True
                         bh.save()
-                celery_logger.info("Finished checking on BOMHeaders and AltBOMs")
+                logger.info("Finished checking on BOMHeaders and AltBOMs")
                 
                 log_mess = "Bom headers job completed"
-                celery_logger.info(log_mess)
+                logger.info(log_mess)
                 post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, log_mess)
                 # Finished working on BOM headers
                 # Start working on BOMs
@@ -355,7 +380,7 @@ def file_processor(id_of_UploadedFile, user_id):
                 bom_chunk_size = 3000
                 df_chunks = slice_dataframe(df, bom_chunk_size)
                 log_mess = f"Total number of bom_chunks: {len(df_chunks)}"
-                celery_logger.info(log_mess)
+                logger.info(log_mess)
                 post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, log_mess)
                 chunk_counter = 0
                 number_of_chunks = len(df_chunks)
@@ -368,10 +393,7 @@ def file_processor(id_of_UploadedFile, user_id):
 
             else:
                 print("error reading the file")
-            pass
-    # celery_logger.info(f"model: {model}")
-    """
-    
+
     ####################################################################################
     # Start inserting
     ####################################################################################
@@ -385,7 +407,7 @@ def file_processor(id_of_UploadedFile, user_id):
         for chunk in chunks:
             chunk_counter += 1
             post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, f"processing ... {chunk_counter}/{len(chunks)}")
-            celery_logger.info(f"processing ... {chunk_counter}/{len(chunks)}")
+            logger.info(f"processing ... {chunk_counter}/{len(chunks)}")
             try:
                 start_time = time.perf_counter()
                 instances = [] # List to hold model instances
@@ -396,7 +418,7 @@ def file_processor(id_of_UploadedFile, user_id):
                     instances.append(instance)
                 with transaction.atomic():
                     model.objects.bulk_create(instances)
-                    celery_logger.info("transaction atomic done")
+                    logger.info("transaction atomic done")
                     # post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, f'bulk_create for chunk {chunk_counter} done')
                     instances = [] # resetting
                 end_time = time.perf_counter()
@@ -423,8 +445,8 @@ def file_processor(id_of_UploadedFile, user_id):
                             message = f"executed {sp}"
                         except Exception as e:
                             message = f"Error during execution of {sp}. {e}"
-                            celery_logger.error(sp)
-                            celery_logger.error(e)
+                            logger.error(sp)
+                            logger.error(e)
                             post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, message, "error")
                             return
                         if curs.description:
@@ -488,8 +510,8 @@ def fetch_euro_exchange_rates():
     else:
         latest_month = None
 
-    celery_logger.info(f'latest_year {latest_year}')
-    celery_logger.info(f'latest_month {latest_month}')
+    logger.info(f'latest_year {latest_year}')
+    logger.info(f'latest_month {latest_month}')
 
 
     if latest_year is None or latest_month is None:
@@ -503,11 +525,11 @@ def fetch_euro_exchange_rates():
     response = requests.get(url)
     if response.status_code == 200:
         root = ET.fromstring(response.content)
-        celery_logger.info(f"root:{root}")
+        logger.info(f"root:{root}")
         namespaces = {'gesmes': 'http://www.gesmes.org/xml/2002-08-01',
                       '': 'http://www.ecb.int/vocabulary/2002-08-01/eurofxref'}
 
-        celery_logger.info(f"namespaces: {namespaces}")
+        logger.info(f"namespaces: {namespaces}")
 
         valid_currency_codes = set(Currency.objects.values_list('alpha_3', flat=True))
         rates_data = {}
@@ -555,13 +577,13 @@ def fetch_euro_exchange_rates():
                             month=month,
                             defaults={'rate': average_rate}
                         )
-                        celery_logger.info(f"{year}-{month}-{currency_code}-avg: {average_rate}")
+                        logger.info(f"{year}-{month}-{currency_code}-avg: {average_rate}")
                     except Currency.DoesNotExist:
-                        celery_logger.warning(f"Currency with code {currency_code} does not exist.")
+                        logger.warning(f"Currency with code {currency_code} does not exist.")
                         continue
-        celery_logger.info("EUR exchange rates update completed")
+        logger.info("EUR exchange rates update completed")
     else:
-        celery_logger.info(f"Failed to fetch data: {response.status_code}")
+        logger.info(f"Failed to fetch data: {response.status_code}")
 
 
 def get_latest_exchange_rate(currency):
@@ -585,7 +607,7 @@ def get_latest_exchange_rate(currency):
 def process_the_bom_slice_task(chunk_dict, user_id, counter, all_chunks, id_of_uploaded_file, celery_task_id):
     stamp = f"{counter}/{all_chunks}"
     log_mess = f"task id {celery_task_id} - process_the_bom_slice_task started - {stamp}"
-    celery_logger.info(log_mess)
+    logger.info(log_mess)
     post_a_log_message(id_of_uploaded_file, user_id, celery_task_id, log_mess)
     df = pd.DataFrame(chunk_dict)
     len_df = len(df)
@@ -593,7 +615,7 @@ def process_the_bom_slice_task(chunk_dict, user_id, counter, all_chunks, id_of_u
     # Getting the latest exchange rate
     czk_currency = get_object_or_404(Currency, alpha_3='CZK')
     latest_exchange_rate = get_latest_exchange_rate(czk_currency)
-    celery_logger.info(f"latest czk exchange rate: {latest_exchange_rate}")
+    logger.info(f"latest czk exchange rate: {latest_exchange_rate}")
     
     marked_for_deletion = get_object_or_404(ProductStatus, marked_for_deletion=True)
     products_marked = Product.objects.filter(product_status=marked_for_deletion).values_list('number', flat=True)
@@ -621,8 +643,8 @@ def process_the_bom_slice_task(chunk_dict, user_id, counter, all_chunks, id_of_u
                 uom_factor = get_object_or_404(UnitOfMeasureConversionFactor, uom_from=unit_from, uom_to=unit_to)
             except Http404:
                 if product_number not in products_marked:
-                    celery_logger.critical(f"******    Missing {unit_from}-{unit_to}")
-                    celery_logger.critical(f"{row['Finished Material']} {row['Finished Material Desc']} {row['Item Number']} {row['Component Material']} {row['Component Material Desc']}")
+                    logger.critical(f"******    Missing {unit_from}-{unit_to}")
+                    logger.critical(f"{row['Finished Material']} {row['Finished Material Desc']} {row['Item Number']} {row['Component Material']} {row['Component Material Desc']}")
                 uom_factor = 1
             else:
                 uom_factor = 1
@@ -664,7 +686,7 @@ def process_the_bom_slice_task(chunk_dict, user_id, counter, all_chunks, id_of_u
             }
         )
         if slice_row % 500 == 00:
-            celery_logger.info(f"p.#{stamp}: {slice_row}/{len_df}")
+            logger.info(f"p.#{stamp}: {slice_row}/{len_df}")
         if created:
             logmessage = f'BOM record created for {bom_header.product.number} {bom_header.product.name} component: {bom_component.component_material}'
             create_log_entry(user, bom, ADDITION, logmessage)
@@ -674,7 +696,7 @@ def process_the_bom_slice_task(chunk_dict, user_id, counter, all_chunks, id_of_u
             create_log_entry(user, bom, CHANGE, logmessage)
     # Finished working on Boms
     log_mess = f"p.# {stamp} complete"
-    celery_logger.info(log_mess)
+    logger.info(log_mess)
     post_a_log_message(id_of_uploaded_file, user_id, celery_task_id, log_mess)
 
 

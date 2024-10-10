@@ -940,6 +940,7 @@ class Product(models.Model):
     is_fert = models.BooleanField(default=False)
     # is_active = models.BooleanField(default=False) # This is replaced by ProductStatus
     
+    customer_product_number = models.CharField(max_length=200, blank=True)
 
     approved_on = models.DateField(null=True)
     approved_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
@@ -947,7 +948,7 @@ class Product(models.Model):
     def __str__(self):
         return_value = f"{self.number}, {self.name}"
         return return_value
-
+    
 
 class RateToLT(models.Model):
     uom = models.ForeignKey(UnitOfMeasure, on_delete=models.PROTECT)
@@ -1522,6 +1523,9 @@ class Bom(models.Model):
     def __str__(self):
         return f"{self.bom_component} {self.component_uom_in_bom} {self.component_quantity} {self.weighed_price_per_kg_ea_EUR}"
 
+# -----------------------------------------------------
+# Models for BOMs - end
+# -----------------------------------------------------
 
 class UnitOfMeasureConversionFactor(models.Model):
     uom_from = models.ForeignKey(UnitOfMeasure, related_name='uom_from',on_delete=models.CASCADE)
@@ -1544,3 +1548,5 @@ class ManualCost(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['nsf_division', 'year'], name='unique_nsf_division_year')
         ]
+
+ 

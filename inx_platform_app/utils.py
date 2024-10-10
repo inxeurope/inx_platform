@@ -145,6 +145,7 @@ def assign_color(product):
     v = get_object_or_404(Color, name="Violet")
     cleaner = get_object_or_404(Color, name="Cleaner")
     ff = get_object_or_404(Color, name="Flushing Fluid")
+    cl = get_object_or_404(Color, name="Clear")
 
     if any(substring in product.name for substring in light_substrings):
         # this is  light   
@@ -160,32 +161,32 @@ def assign_color(product):
         if "GREY" in product.name or "Grey" in product.name:
             product.color = lgy
     else:
-        if "CYAN" in product.name or "Cyan" in product.name:
+        if "CYAN" in product.name.upper():
             product.color = c
-        if "MAGENTA" in product.name or "Magenta" in product.name:
+        if "MAGENTA" in product.name.upper():
             product.color = m
-        if "YELLOW" in product.name or "Yellow" in product.name:
+        if "YELLOW" in product.name.upper():
             product.color = y
-        if "BLACK" in product.name or "Black" in product.name:
+        if "BLACK" in product.name.upper():
             product.color = k
-        if "WHITE" in product.name or "White" in product.name:
+        if "WHITE" in product.name.upper():
             product.color = w
-        if "CLEANER" in product.name or "Cleaner" in product.name:
+        if "CLEANER" in product.name.upper():
             product.color = cleaner
-        if "FLUSH" in product.name or "Flush" in product.name:
+        if "FLUSH" in product.name.upper():
             product.color = ff
-        if "ORANGE" in product.name or "Orange" in product.name:
+        if "ORANGE" in product.name.upper():
             product.color = ora
-        if "GREEN" in product.name or "Green" in product.name:
+        if "GREEN" in product.name.upper():
             product.color = gr
-        if "BLUE" in product.name or "Blue" in product.name:
+        if "BLUE" in product.name.upper():
             product.color = bl
-        if "RED" in product.name or "Red" in product.name:
+        if "RED" in product.name.upper():
             product.color = r
-        if "VIOLET" in product.name or "Violet" in product.name:
+        if "VIOLET" in product.name.upper():
             product.color = v
+        if "CLEAR" in product.name.upper():
+            product.color = cl
     product.approved_by = get_object_or_404(User, email = "Marco.zanella@inxeurope.com")
     product.approved_on = datetime.now()
     product.save()
-                
-    pass

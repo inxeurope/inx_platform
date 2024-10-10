@@ -1,17 +1,9 @@
-from urllib.parse import unquote
 from django import forms
 from django.db.models import ForeignKey
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.admin.widgets import ForeignKeyRawIdWidget
-from django.contrib.admin import helpers
-from django.contrib import messages
-from django.contrib.auth.forms import ReadOnlyPasswordHashField, AdminPasswordChangeForm
-from django.core.exceptions import PermissionDenied
-from django.urls import path
-from django.shortcuts import render, redirect
 from django.utils.translation import gettext_lazy as _
-from django.utils.html import escape
 
 from .models import (
     ProductStatus,
@@ -173,7 +165,7 @@ class BrandAdmin(admin.ModelAdmin):
 
 class ProductAdmin(admin.ModelAdmin):
 
-    list_display = ['id', 'number', 'name','get_color_name', 'get_colorgroup_name', 'get_brand_name', 'is_fert', 'is_ink', 'approved_on']
+    list_display = ['id', 'number', 'name','get_color_name', 'get_colorgroup_name', 'get_brand_name', 'is_fert', 'is_ink', 'is_new',  'approved_on']
     list_filter = ['is_new', 'is_ink', 'is_fert', 'color__name']
     search_fields = ['number', 'name']
     
