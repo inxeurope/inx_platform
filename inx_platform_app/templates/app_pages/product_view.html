@@ -97,6 +97,10 @@
           <div class="card-body">
             <div class="datagrid">
               <div class="datagrid-item">
+                <div class="datagrid-title">Major Label</div>
+                <div class="datagrid-content"> {{ product.brand.major_label.name }}</div>
+              </div>
+              <div class="datagrid-item">
                 <div class="datagrid-title">Brand</div>
                 <div class="datagrid-content">{{ product.brand.name }}</div>
               </div>
@@ -117,6 +121,10 @@
               <div class="datagrid-item">
                 <div class="datagrid-title">Product Line</div>
                 <div class="datagrid-content">{{ product.product_line.name }}</div>
+              </div>
+              <div class="datagrid-item">
+                <div class="datagrid-title">Customer product number</div>
+                <div class="datagrid-content"> {{ product.customer_product_number }}</div>
               </div>
             </div>
           </div>

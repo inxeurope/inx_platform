@@ -274,6 +274,7 @@ class ProductForm(forms.ModelForm):
         widgets = {
             'number': forms.TextInput(attrs={'class': 'form-control number-input'}),
             'name': forms.TextInput(attrs={'class': 'form-control name-input'}),
+            'customer_product_number': forms.TextInput(attrs={'class': 'form-control name-input'}),
             'is_ink': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'import_note': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
