@@ -3,7 +3,7 @@ __pycache__/
 *.pyo
 *.pyd
 *.toml
-db_20241015.bacpac
+*.bacpac
 db.sqlite3
 env/
 .vscode
