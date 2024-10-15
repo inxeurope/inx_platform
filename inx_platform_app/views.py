@@ -1339,13 +1339,10 @@ def loading(request):
 
         for file_field, original_file in files_list:
             if original_file is not None:
-                original_file_nane = original_file.name.lower()
+                original_file_name = original_file.name.lower()
                 prefix = file_field.split('_')[0]
-                print(f"prefix {prefix}")
-                print(f"user_name {user_name}")
-                print(f"timestamp {timestamp}")
-                print(f"original_file_name {original_file_nane}")
-                original_file_nane = prefix +"_" + user_name + "_" + timestamp + "_" + original_file_nane.replace(" ", "_")
+                original_file_name = prefix +"_" + user_name + "_" + timestamp + "_" + original_file_name.replace(" ", "_")
+                logger.info(f"loading file: {original_file_name}")
                 upload_dir = os.path.join(settings.MEDIA_ROOT, "uploads")
 
                 match prefix:
@@ -1370,12 +1367,12 @@ def loading(request):
 
                 if not os.path.exists(upload_dir):
                     os.makedirs(upload_dir)
-                with open(os.path.join(upload_dir, original_file_nane), 'wb+') as destination:
+                with open(os.path.join(upload_dir, original_file_name), 'wb+') as destination:
                     # for chunk in ke30_file.chunks():
                     for chunk in original_file.chunks():
                         destination.write(chunk)
                     # here it's done, update the database
-                    uploaded_file = UploadedFile(owner=request.user, file_type=prefix, file_path=upload_dir, file_name=original_file_nane, file_color=file_color)
+                    uploaded_file = UploadedFile(owner=request.user, file_type=prefix, file_path=upload_dir, file_name=original_file_name, file_color=file_color, process_status='NEW')
                     uploaded_file.save()
         return redirect('files-to-import')
     else:
@@ -1764,7 +1761,10 @@ def save_model(the_class, the_data, counter, all_records, logs=None):
 @login_required
 def files_to_import(request):
     user = request.user
-    user_files = UploadedFile.objects.filter(owner=user, is_processed=False).exclude(process_status="PROCESSING")
+    if request.user.is_superuser == True:
+        user_files = UploadedFile.objects.all().filter(process_status='NEW').order_by('-id')
+    else:
+        user_files = UploadedFile.objects.filter(owner=user)
     return render(request, "app_pages/files_to_import.html", {'user_files': user_files})
 
 
@@ -1772,11 +1772,11 @@ def files_to_import(request):
 def imported_files(request, page=0):
     user = request.user
     if user.is_superuser:
-        user_files = UploadedFile.objects.filter(is_processed=True).order_by('-processed_at')
+        user_files = UploadedFile.objects.all().order_by('-processed_at')
     else:
-        user_files = UploadedFile.objects.filter(owner=user, is_processed=True).order_by('-processed_at')
+        user_files = UploadedFile.objects.filter(owner=user).order_by('-processed_at')
     
-    items_per_page = 10
+    items_per_page = 50
 
     paginator = Paginator(user_files.order_by('-processed_at'), items_per_page)
     # Get the current page from the GET request or in the URL

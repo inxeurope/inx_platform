@@ -70,8 +70,11 @@ def file_processor(id_of_UploadedFile, user_id):
         f"the file {uploaded_file_record.file_path + '/' + uploaded_file_record.file_name} has been found is ready to process"
         )
     
+    uploaded_file_record.process_status = 'PROCESSING'
+    uploaded_file_record.save()
+        
     # Create the first log line in the log table
-    post_a_log_message(id_of_UploadedFile, user_id, celery_task_id, f"process {celery_task_id} started")
+    post_a_log_message(id_of_UploadedFile, user_id, celery_task_id, f"celery process {celery_task_id} started")
 
     # What type is the file
     # Preparing variables according to file_type
@@ -86,6 +89,8 @@ def file_processor(id_of_UploadedFile, user_id):
                 field_mapping = import_dictionaries.ke30_mapping_dict
                 list_of_sp =['_ke30_import', '_ke30_import_add_new_customers', '_ke30_import_add_new_products']
             else:
+                uploaded_file_record.process_status = 'ERROR'
+                uploaded_file_record.save()
                 log_message = f"file could not be read - {uploaded_file_record}"
                 create_log_entry(user, uploaded_file_record, CHANGE, log_message)
                 logger.error(log_message)
@@ -429,6 +434,7 @@ def file_processor(id_of_UploadedFile, user_id):
                 post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, f"An error occurred during the transaction: {e}")
         # All chunks are processed
         post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, "All file parts are processed")
+        uploaded_file_record.process_status = 'UPLOAD_DONE'
         uploaded_file_record.is_processed = True
         uploaded_file_record.processed_at = timezone.make_aware(datetime.now())
         # Working on the stored procedures now
@@ -443,8 +449,11 @@ def file_processor(id_of_UploadedFile, user_id):
                             curs.execute(sql_command)
                             print(f"executed {sp}")
                             message = f"executed {sp}"
+                            uploaded_file_record.process_status = 'COMPLETE'
                         except Exception as e:
                             message = f"Error during execution of {sp}. {e}"
+                            uploaded_file_record.process_status = uploaded_file_record.Status.ERROR
+                            uploaded_file_record.save()
                             logger.error(sp)
                             logger.error(e)
                             post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, message, "error")
@@ -458,7 +467,8 @@ def file_processor(id_of_UploadedFile, user_id):
                         else:
                             message = f"no resulting rows from sp {sp}"
                             post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, message, "info")
-                            
+        if not list_of_sp and uploaded_file_record.process_status == 'UPLOAD_DONE':
+            uploaded_file_record.process_status = uploaded_file_record.Status.COMPLETE                        
     # Delete the file
     if uploaded_file_record.delete_file_soft():
         post_a_log_message(uploaded_file_record.id, user_id, celery_task_id, f"File {uploaded_file_record.file_name} removed and db updated")

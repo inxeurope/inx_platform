@@ -1160,12 +1160,24 @@ class Price(models.Model):
 
 
 class UploadedFile(models.Model):
-    STATUS_CHOICES = (
-        ('NEW', 'new'),
-        ('PROCESSING', 'processing'),
-        ('PROCESSED', 'processed'),
-        ('ERROR', 'error'),
-    )
+    # STATUS_CHOICES = (
+    #     ('NEW', 'new'),
+    #     ('PROCESSING', 'processing'),
+    #     ('UPLOAD_DONE', 'upload_done'),
+    #     ('ERROR', 'error'),
+    #     ('COMPLETE', 'complete')
+    # )
+    class Meta:
+        ordering = ['-created_at']
+    
+    class Status(models.TextChoices):
+        NEW = 'NEW', ('New')
+        PROCESSING = 'PROCESSING', ('Processing')
+        UPLOAD_DONE = 'UPLOAD_DONE', ('Upload done')
+        PROCESSED = 'PROCESSED', ('Processed')
+        ERROR = 'ERROR', ('Error')
+        COMPLETE = 'COMPLETE', ('Complete')
+        
     file_name = models.CharField(max_length=255, blank=True)
     file_path = models.CharField(max_length=255, blank=True)
     file_type = models.CharField(max_length=20, blank=True)
@@ -1173,7 +1185,10 @@ class UploadedFile(models.Model):
     created_at = models.DateTimeField(auto_now=True, null=True)
     is_processed = models.BooleanField(default=False)
     processed_at = models.DateTimeField(blank=True, null=True)
-    process_status = models.CharField(max_length=40, choices=STATUS_CHOICES, default='NEW')
+    process_status = models.CharField(
+        max_length=40,
+        choices=Status.choices,
+        default=Status.NEW)
     owner = models.ForeignKey(User, on_delete=models.PROTECT)
     log = models.TextField(null=True, blank=True)
 

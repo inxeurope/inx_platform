@@ -38,9 +38,7 @@
                   <p class="text-muted">
                     {{ file.file_name }}
                   </p>
-                  <p class="text-muted">
-                    Processed: {{ file.is_processed }}
-                  </p>
+                  <p><span class="badge bg-azure-lt">{{ file.process_status }}</span></p>
                 </div>
                 <div class="card-footer">
                   <div class="d-flex align-items-center">

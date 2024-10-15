@@ -46,20 +46,21 @@
                     {{ file.file_name }}
                   </p>
                   <p class="text-muted">
-                    {{ file.processed_at }}
+                    Processed at: {{ file.processed_at }}
                   </p>
-                  {% comment %} <p class="text-muted">
-                    Processed: {{ file.is_processed }}
-                  </p> {% endcomment %}
-                  {% comment %} <p class="text-muted">
-                    Log trace: {{ file.log }}
-                  </p> {% endcomment %}
                 </div>
                 <div class="card-footer">
-                  <div class="d-flex">
+                  <div class="d-flex justify-content-between align-items-center w-100">
                     <a href="{% url "imported-file-log" file.id %}" class="">
                       <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-logs"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 12h.01" /><path d="M4 6h.01" /><path d="M4 18h.01" /><path d="M8 18h2" /><path d="M8 12h2" /><path d="M8 6h2" /><path d="M14 6h6" /><path d="M14 12h6" /><path d="M14 18h6" /></svg>
                     </a>
+                    {% if file.process_status == 'COMPLETE'%}
+                      <div class="ml-auto"><span class="badge bg-green text-green-fg">{{ file.process_status }}</span></div>
+                    {% elif file.process_status == 'ERROR'%}
+                      <span class="badge bg-red text-red-fg">{{ file.process_status }}</span>
+                    {% else %}
+                      <span class="badge bg-yellow text-yellow-fg">{{ file.process_status }}</span>
+                    {% endif %}
                   </div>
                 </div>
               </div>
