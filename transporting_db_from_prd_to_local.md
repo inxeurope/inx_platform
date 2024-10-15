@@ -16,6 +16,8 @@ If sqlpackage is not istalled, use this command
 
 ## Phase 2
 The following operation is to import the Data-tier Application (file .bacpac) in the local DB server either with Azure Data Studio or SSMS, creating a *.bacpac* file
+Use this command
+    sqlpackage /Action:Import /TargetServerName:localhost /TargetDatabaseName:inx_platform_20241015 /SourceFile:<path-to-your-file.bacpac> /TargetUser:sa /TargetPassword:dellaBiella2!
 
 ## Phase 3
 At this point, all Table, Views and Store procedures will be in the local sever, but with the wrong schema name. We need to change schema name. To do so, we have to execute the following SQL statement to compile SQL statements for changing schema names on tables
