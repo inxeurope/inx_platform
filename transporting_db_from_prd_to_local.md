@@ -15,8 +15,9 @@ If sqlpackage is not istalled, use this command
     dotnet tool install -g microsoft.sqlpackage
 
 ## Phase 2
-The following operation is to import the Data-tier Application (file .bacpac) in the local DB server either with Azure Data Studio or SSMS, creating a *.bacpac* file
+The following operation is to import the Data-tier Application (file .bacpac) in the local DB server either with Azure Data Studio or SSMS, creating a *.bacpac* file.
 Use this command
+
     sqlpackage /Action:Import /TargetServerName:localhost /TargetDatabaseName:inx_platform_20241015 /SourceFile:<path-to-your-file.bacpac> /TargetUser:sa /TargetPassword:dellaBiella2!
 
 ## Phase 3
