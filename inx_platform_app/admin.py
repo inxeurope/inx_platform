@@ -58,7 +58,8 @@ from .models import (
     ContactType,
     PackagingRateToLiter,
     UnitOfMeasureConversionFactor,
-    ManualCost
+    ManualCost,
+    Rebate
 )
 
 admin.site.site_header = "INX Platform Administration"
@@ -733,3 +734,4 @@ admin.site.register(BomComponent, BomComponentAdmin)
 admin.site.register(Bom, BomAdmin)
 admin.site.register(UnitOfMeasureConversionFactor, UnitOfMeasureConversionFactorAdmin)
 admin.site.register(ManualCost, ManualCostAdmin)
+admin.site.register(Rebate, RebateAdmin)
