@@ -1564,4 +1564,11 @@ class ManualCost(models.Model):
             models.UniqueConstraint(fields=['nsf_division', 'year'], name='unique_nsf_division_year')
         ]
 
- 
+class Rebate(models.Model):
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    brand = models.ForeignKey(Brand, on_delete=models.CASCADE)
+    scenario = models.ForeignKey(Scenario, on_delete=models.CASCADE)
+    year = models.SmallIntegerField()
+    rebate = models.DecimalField(max_digits=3, decimal_places=2, default=0.00)
+    is_active = models.BooleanField(default=False)
+    

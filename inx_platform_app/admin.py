@@ -677,6 +677,9 @@ class EuroExchangeRateAdmin(admin.ModelAdmin):
         return super().changelist_view(request, extra_context=extra_context)
 
 
+class RebateAdmin(admin.ModelAdmin):
+    list_display=['id', 'customer__name', 'brand__name', 'scenario__name', 'year', 'rebate', 'is_active']
+
 admin.site.register(ColorGroup, ColorGroupAdmin)
 admin.site.register(Color, ColorAdmin)
 admin.site.register(MadeIn, MadeInAdmin)
