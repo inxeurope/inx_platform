@@ -5,6 +5,15 @@ To transport the db from Production to locl db, we need to fix a schema name iss
 ## Phase 1
 The first operation to perform is to export a Data-tier from the Production server either with Azure Data Studio or SSMS, creating a *.bacpac* file
 
+### Exporting a data tier application (.bacpac)
+Use this command
+
+    sqlpackage /Action:Export /SourceServerName:inx-eugwc-inxdigital-svr.database.windows.net /SourceDatabaseName:INXD_Database /TargetFile:db_20241015.bacpac /SourceUser:INXD_Database_admin /SourcePassword:NX{Pbv2AF
+
+If sqlpackage is not istalled, use this command
+    
+    dotnet tool install -g microsoft.sqlpackage
+
 ## Phase 2
 The following operation is to import the Data-tier Application (file .bacpac) in the local DB server either with Azure Data Studio or SSMS, creating a *.bacpac* file
 
