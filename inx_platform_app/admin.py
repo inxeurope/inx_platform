@@ -629,6 +629,53 @@ class ManualCostAdmin(admin.ModelAdmin):
         # Call the original changelist_view method
         return super().changelist_view(request, extra_context=extra_context)
 
+
+class EuroExchangeRateAdmin(admin.ModelAdmin):
+    list_display = ['id', 'currency', 'year', 'month', 'rate']
+    search_fields = ['currency__alpha_3']
+    list_filter = ['currency__alpha_3', 'year']
+    
+    # Override changelist_view to show selected filters
+    def changelist_view(self, request, extra_context=None):
+        # Get current filter selections from the request GET parameters
+        selected_filters = request.GET.dict()
+        
+        # Initialize a dictionary to hold human-readable filter values
+        readable_filters = {}
+        
+        # Loop through the selected filters
+        for filter_key, filter_value in selected_filters.items():
+            # Check if the filter is for a foreign key field (e.g., 'currency__id__exact')
+            if '__id__exact' in filter_key:
+                # Extract the model field name (e.g., 'currency')
+                field_name = filter_key.split('__id__exact')[0]
+                
+                # Check if the field is a ForeignKey field in the model
+                if field_name in [f.name for f in self.model._meta.fields if isinstance(f, ForeignKey)]:
+                    related_model = self.model._meta.get_field(field_name).related_model
+                    
+                    # Get the related object using the ID in the filter value
+                    try:
+                        related_obj = related_model.objects.get(pk=filter_value)
+                        readable_filters[field_name] = f"{field_name}: {related_obj}"
+                    except related_model.DoesNotExist:
+                        readable_filters[field_name] = f"{field_name}: Unknown"
+                else:
+                    # If it's not a foreign key, just add the filter as is
+                    readable_filters[filter_key] = f"{filter_key}: {filter_value}"
+            else:
+                # For non-ForeignKey filters, add them as is
+                readable_filters[filter_key] = f"{filter_key}: {filter_value}"
+        
+        # Add the selected filters to the extra context so that they can be used in the template
+        extra_context = extra_context or {}
+        extra_context['selected_filters'] = readable_filters
+        print(readable_filters)
+        
+        # Call the original changelist_view method
+        return super().changelist_view(request, extra_context=extra_context)
+
+
 admin.site.register(ColorGroup, ColorGroupAdmin)
 admin.site.register(Color, ColorAdmin)
 admin.site.register(MadeIn, MadeInAdmin)
@@ -675,7 +722,7 @@ admin.site.register(BudgetForecastDetail_sales, BudgetForecastDetail_salesAdmin)
 admin.site.register(Currency, CurrencyAdmin)
 admin.site.register(ContactType, ContactTypeAdmin)
 admin.site.register(CurrencyRate, CurrencyRateAdmin)
-admin.site.register(EuroExchangeRate)
+admin.site.register(EuroExchangeRate, EuroExchangeRateAdmin)
 admin.site.register(PackagingRateToLiter, PackagingRateToLiterAdmin)
 admin.site.register(BomHeader, BomHeaderAdmin)
 admin.site.register(BomComponent, BomComponentAdmin)
