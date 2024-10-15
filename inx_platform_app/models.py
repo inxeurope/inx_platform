@@ -940,7 +940,7 @@ class Product(models.Model):
     is_fert = models.BooleanField(default=False)
     # is_active = models.BooleanField(default=False) # This is replaced by ProductStatus
     
-    customer_product_number = models.CharField(max_length=200, blank=True)
+    customer_product_number = models.CharField(max_length=200, null=True, blank=True)
 
     approved_on = models.DateField(null=True)
     approved_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
