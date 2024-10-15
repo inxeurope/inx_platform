@@ -335,6 +335,7 @@ class Ke30ImportLineAdmin(admin.ModelAdmin):
 
 class Ke30LineAdmin(admin.ModelAdmin):
     list_display = ['id', 'year_month', 'customer_number', 'customer_name', 'product_number', 'product_name', 'currency', 'quantity', 'gross_sales']
+    search_fields = ['year_month', 'customer_name', 'customer_number', 'product_name', 'product_number']
 
 
 class ZACODMI9_lineAdmin(admin.ModelAdmin):
