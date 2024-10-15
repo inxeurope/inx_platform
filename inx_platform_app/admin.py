@@ -679,7 +679,17 @@ class EuroExchangeRateAdmin(admin.ModelAdmin):
 
 
 class RebateAdmin(admin.ModelAdmin):
-    list_display=['id', 'customer__name', 'brand__name', 'scenario__name', 'year', 'rebate', 'is_active']
+    list_display=['id', 'get_customer_name', 'get_brand_name', 'scenario__name', 'year', 'rebate', 'is_active']
+    
+    def get_customer_name(self, obj):
+        return obj.customer.name
+    get_customer_name.admin_order_field = 'customer__name'
+    get_customer_name.short_description = 'Customer Name'
+    
+    def get_brand_name(self, obj):
+        return obj.customer.name
+    get_brand_name.admin_order_field = 'brand__name'
+    get_brand_name.short_description = 'Brand Name'
 
 admin.site.register(ColorGroup, ColorGroupAdmin)
 admin.site.register(Color, ColorAdmin)
