@@ -3,6 +3,7 @@ __pycache__/
 *.pyo
 *.pyd
 *.toml
+db_20241015.bacpac
 db.sqlite3
 env/
 .vscode
@@ -22,3 +23,4 @@ Procfile
 .DS_Store
 **/.DS_Store
 *.log.*
+
