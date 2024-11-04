@@ -1,0 +1,267 @@
+{% load custom_filters %}
+{% load static %}
+{% load humanize %}
+{% load l10n %}
+
+<div class="row">
+    <p>{{ budforline_id }} // {{ customer }} // {{ brand }} // {{ color_group }}</p>
+
+    <!-- Forecast Table -->
+    <h3>Forecast ({{ forecast_details.0.year }})</h3>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th></th> <!-- Leftmost empty cell -->
+                {% for month in months.values %}
+                <th>{{ month.abbreviated_name }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Volume Row -->
+            <tr>
+                <td>Volume</td>
+                {% for forecast in forecast_details %}
+                <td>{{ forecast.volume|custom_number_no_decimal }}</td>
+                {% endfor %}
+            </tr>
+
+            <!-- Price Row -->
+            <tr>
+                <td>Price</td>
+                {% for forecast in forecast_details %}
+                <td>{{ forecast.price|custom_number_decimal }}</td>
+                {% endfor %}
+            </tr>
+
+            <!-- Value Row -->
+            <tr>
+                <td>Value</td>
+                {% for forecast in forecast_details %}
+                <td>{{ forecast.value|custom_number_no_decimal }}</td>
+                {% endfor %}
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Budget Table -->
+    <h3>Budget ({{ budget_details.0.year }})</h3>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th></th> <!-- Leftmost empty cell -->
+                {% for month in months.values %}
+                <th>{{ month.abbreviated_name }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Volume Row -->
+            <tr>
+                <td>Volume</td>
+                {% for budget in budget_details %}
+                <td>{{ budget.volume|custom_number_no_decimal }}</td>
+                {% endfor %}
+            </tr>
+
+            <!-- Price Row -->
+            <tr>
+                <td>Price</td>
+                {% for budget in budget_details %}
+                <td>{{ budget.price|custom_number_decimal }}</td>
+                {% endfor %}
+            </tr>
+
+            <!-- Value Row -->
+            <tr>
+                <td>Value</td>
+                {% for budget in budget_details %}
+                <td>{{ budget.value|custom_number_no_decimal }}</td>
+                {% endfor %}
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Form for entering 12 months of data -->
+    <form id="forecast-form-dynamic"
+        method="POST"
+        hx-post="{% url 'save-forecast-dynamic' %}"
+        hx-target="#forecast-budget-section">
+    {% csrf_token %}
+
+    <input type="hidden" name="budforline_id" value="{{ budforline_id }}">
+    <input type="hidden" name="year" value="{{forecast_details.0.year}}">
+    <input type="hidden" name="scenario" value="{{ forecast_scenario }}">
+
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Month</th>
+          <th>Volume</th>
+          <th>Price</th>
+          <th>Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for key, item in forecast_by_month.items %}
+        <tr>
+            <td>{{ months|get_month_abbreviated:key }}</td>
+            <td>
+                <input type="text" step="0.01" name="volume_{{ key }}" class="form-control text-end number-input volume-input" 
+                    value="{% if key %}{{ item.volume|custom_number_no_decimal }}{% else %}0{% endif %}" required>
+            </td>
+            <td>
+                <input type="text" step="0.01" name="price_{{ key }}" class="form-control text-end number-input price-input" 
+                    value="{% if key %}{{ item.price|custom_number_decimal }}{% else %}0{% endif %}" required>
+            </td>
+            <td class="value-field text-end">
+                {% if item %}
+                    {{ item.value|custom_number_no_decimal }}
+                {% else %}
+                    0
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr>
+            <td>Totals</td>
+            <td id="total-volume" class="text-end pe-4">0</td>
+            <td id="total-price" class="text-end pe-4">0</td>
+            <td id="total-value" class="text-end">0</td>
+        </tr>
+      </tfoot>
+    </table>
+  
+    <button type="submit" class="btn btn-success mt-3">Post Forecast</button>
+  </form>
+  
+  <div id="form-response"></div>
+    
+
+</div>
+
+<script>
+    function calculateAndUpdateValue(row) {
+        let volumeInput = row.querySelector('.volume-input');
+        let priceInput = row.querySelector('.price-input');
+        let valueField = row.querySelector('.value-field');
+
+        // Get the values from the volume and price inputs
+        let volume = parseFloat(volumeInput.value.replace(/\./g, '').replace(',', '.')) || 0;
+        let price = parseFloat(priceInput.value.replace(/\./g, '').replace(',', '.')) || 0;
+
+        // Calculate the value (volume * price)
+        let value = volume * price;
+
+        // Format the value with no decimals and thousands separators (dots)
+        valueField.innerText = value.toLocaleString('it-IT', { minimumFractionDigits: 0 });
+
+        updateTotals();
+    }
+
+    // Function to format numbers with dots for thousands and commas for decimals
+    function formatNumber(input) {
+        let value = input.value;
+
+        // Remove any non-digit characters except for commas (decimals)
+        value = value.replace(/[^\d,]/g, '');
+
+        // Replace comma with dot for decimal point during typing
+        let parts = value.split(',');
+
+        // Apply thousands separator (dot) for the integer part
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+        // Join parts (integer part with thousands, and decimal part if it exists)
+        input.value = parts.join(',');
+    }
+
+    // Function to format price on blur
+    function formatPriceOnBlur(input) {
+        let value = input.value;
+
+        // If the value contains a comma (decimal separator)
+        if (value.includes(',')) {
+            let parts = value.split(',');
+
+            // Ensure only digits before and after the comma
+            parts[0] = parts[0].replace(/[^\d]/g, '');  // Remove non-digit characters before the comma
+            parts[1] = parts[1].replace(/[^\d]/g, '');  // Remove non-digit characters after the comma
+
+            // Ensure there are exactly two digits after the comma
+            if (parts[1].length > 2) {
+                parts[1] = parts[1].substring(0, 2);  // Truncate if more than two digits
+            } else if (parts[1].length === 1) {
+                parts[1] = parts[1] + '0';  // Add trailing zero if only one digit
+            }
+
+            // Reassemble the number
+            value = parts.join(',');
+
+        } else {
+            // If there's no comma, remove non-digit characters and add ",00"
+            value = value.replace(/[^\d]/g, '');  // Remove any non-digit characters
+            value = value + ',00';  // Add the comma and "00"
+        }
+
+        // Set the formatted value back into the input field
+        input.value = value;
+    }
+
+    function updateTotals() {
+        let totalVolume = 0;
+        let totalValue = 0;
+
+        document.querySelectorAll('tr').forEach(function(row) {
+            let volumeInput = row.querySelector('.volume-input');
+            let valueField = row.querySelector('.value-field');
+
+            if (volumeInput && valueField) {
+                // Parse the current volume and value
+                let volume = parseFloat(volumeInput.value.replace(/\./g, '').replace(',', '.')) || 0;
+                let value = parseFloat(valueField.innerText.replace(/\./g, '').replace(',', '.')) || 0;
+
+                totalVolume += volume;
+                totalValue += value;
+            }
+        });
+
+        // Calculate the average price (total value / total volume)
+        let averagePrice = totalVolume ? (totalValue / totalVolume) : 0;
+
+        // Update the totals in the footer
+        document.getElementById('total-volume').innerText = totalVolume.toLocaleString('it-IT', { minimumFractionDigits: 0 });
+        document.getElementById('total-value').innerText = totalValue.toLocaleString('it-IT', { minimumFractionDigits: 0 });
+        document.getElementById('total-price').innerText = averagePrice.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+
+    // Apply formatting on keyup for all input fields with the class 'number-input'
+    document.querySelectorAll('.number-input').forEach(function(input) {
+        input.addEventListener('input', function() {
+            formatNumber(input);
+        });
+    });
+
+    // Attach blur event listeners to all volume and price inputs
+    document.querySelectorAll('tr').forEach(function(row){
+        let volumeInput = row.querySelector('.volume-input');
+        let priceInput = row.querySelector('.price-input');
+
+        if (volumeInput && priceInput) {
+            volumeInput.addEventListener('blur', function() {
+                calculateAndUpdateValue(row);
+            });
+            priceInput.addEventListener('blur', function() {
+                formatPriceOnBlur(priceInput);
+                calculateAndUpdateValue(row);
+            });
+        }
+    });
+
+    updateTotals();
+    
+
+</script>

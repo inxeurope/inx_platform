@@ -1,7 +1,6 @@
 from dotenv import load_dotenv
 import os
 from pathlib import Path
-from celery.schedules import crontab
 
 # Load environment variables from .env
 load_dotenv()
@@ -50,12 +49,14 @@ ASGI_APPLICATION = "django_inx_platform.asgi.application"
 
 AUTH_USER_MODEL = 'inx_platform_app.User'
 
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
+    'django.middleware.locale.LocaleMiddleware',
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -127,11 +128,21 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = "en-us"
+# LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "it"
 TIME_ZONE = "UTC"
 USE_I18N = True
+USE_L10N = True
 USE_TZ = True
 
+LANGUAGES = [
+    ('en', 'English'),
+    ('it', 'Italian'),
+]
+
+LOCALE_PATH = [
+    os.path.join(BASE_DIR, 'locale'),
+]
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
@@ -193,8 +204,6 @@ INTERNAL_IPS = [
     "159.223.26.141"
 
 ]
-
-USE_L10N = True
 
 # The following setting is importnat to avoid the 403 error
 # and csrf token saving in the browser Storage

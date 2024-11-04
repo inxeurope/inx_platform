@@ -4,6 +4,7 @@ from datetime import datetime
 import pandas as pd
 import numpy as np
 import django
+from decimal import Decimal
 from django.apps import apps
 from django.db import models, transaction
 from django.core.validators import RegexValidator
@@ -1103,19 +1104,56 @@ class BudForDetail_Abstract(models.Model):
     volume_old = models.DecimalField(max_digits=10, decimal_places=2, default=0, null=True, blank = True)
     price_old = models.DecimalField(max_digits=10, decimal_places=2, default=0, null=True, blank = True)
     value_old = models.DecimalField(max_digits=10, decimal_places=2, default=0, null=True, blank = True)
-
-
+    '''
+    date_time_mark: a number to identify a timestamp YYYMMDDHHMMSS
+    user: model to identify the user that created the line
+    is_active: True if the line is current
+    '''
+    date_time_mark = models.BigIntegerField(blank=True, default=20241014235900)
+    user = models.ForeignKey(User, on_delete=models.PROTECT, default=1)
+    is_active = models.BooleanField(default=True)
+    
     class Meta:
         abstract = True
-        # unique_together = ['customer', 'brand', 'color_group']
-        # index_together = ['customer', 'brand', 'color_group', 'year', 'month', 'scenario']
+
+    def save(self, *args, **kwargs):
+        # Generate the numeric timestamp if it's not set
+        if not self.date_time_mark:
+            self.date_time_mark = int(datetime.now().strftime('%Y%m%d%H%M%S'))
         
-    
+        # Phase 1 - Removing ",", if any, with a pipe to mark the decimal separator
+        self.volume = self.volume.replace(",", "|")
+        self.price = self.price.replace(",", "|")
+        # Removing ".", if any, with nothing
+        self.volume = self.volume.replace(".", "")
+        self.price = self.price.replace(".", "")
+        # Replacing "|" with "." to covert to dcimal, later
+        self.volume = self.volume.replace("|", ".")
+        self.price = self.price.replace("|", ".")
+        # Transforming volume and price in decimal
+        self.volume = Decimal(self.volume)
+        self.price = Decimal(self.price)
+
+        # Deactivate previous records when a new record is created
+        if self.pk is None:
+            BudgetForecastDetail.objects.filter(
+                budforline=self.budforline,
+                scenario=self.scenario,
+                year=self.year,
+                month=self.month,
+                is_active=True
+            ).update(is_active=False)
+
+        # Calculate value as volume * price
+        self.value = self.volume * self.price
+        super().save(*args, **kwargs)
+
+
 class BudgetForecastDetail(BudForDetail_Abstract):
     '''
     This model stores only budget and forecast data
     '''
-
+        
     class Meta:
         verbose_name = 'Budget Forecast Detail'
         verbose_name_plural = 'Budget Forecast Details'
@@ -1128,11 +1166,12 @@ class BudgetForecastDetail(BudForDetail_Abstract):
 class BudgetForecastDetail_sales(BudForDetail_Abstract):
     '''
     This model store only sales data at the budget granularity
-
     '''
+    
     class Meta:
         verbose_name = 'Budget Forecast, Sales'
         verbose_name_plural = 'Budget Forcast, Sales'
+
 
     def __str__(self):
         return_string = f"BudgetForcastDetail_sales line - bud_for_id:{self.budforline.id} - scenario: {self.scenario.id}"
@@ -1564,4 +1603,9 @@ class ManualCost(models.Model):
             models.UniqueConstraint(fields=['nsf_division', 'year'], name='unique_nsf_division_year')
         ]
 
- 
+
+class ForecastBudgetNote(models.Model):
+    budforline = models.ForeignKey(BudForLine, on_delete=models.CASCADE)
+    scenario = models.ForeignKey(Scenario, on_delete=models.CASCADE)
+    date_time_mark = models.BigIntegerField()
+    note = models.TextField()

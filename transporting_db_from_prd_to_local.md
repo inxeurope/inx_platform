@@ -8,7 +8,7 @@ The first operation to perform is to export a Data-tier from the Production serv
 ### Exporting a data tier application (.bacpac)
 Use this command, it takes long time to complete
 
-    sqlpackage /Action:Export /SourceServerName:inx-eugwc-inxdigital-svr.database.windows.net /SourceDatabaseName:INXD_Database /TargetFile:db_20241015.bacpac /SourceUser:INXD_Database_admin /SourcePassword:NX{Pbv2AF
+    sqlpackage /Action:Export /SourceServerName:inx-eugwc-inxdigital-svr.database.windows.net /SourceDatabaseName:INXD_Platform /TargetFile:db_$(date +"%Y%m%d%H%M%S").bacpac /SourceUser:INXD_Database_admin /SourcePassword:NX{Pbv2AF
 
 If sqlpackage is not istalled, use this command
     
@@ -19,7 +19,7 @@ If sqlpackage is not istalled, use this command
 The following operation is to import the Data-tier Application (file .bacpac) in the local DB server either with Azure Data Studio or SSMS, creating a *.bacpac* file.
 Use this command
 
-    sqlpackage /Action:Import /TargetServerName:localhost /TargetDatabaseName:inx_platform_20241015 /SourceFile:<path-to-your-file.bacpac> /TargetUser:sa /TargetPassword:dellaBiella2!
+    sqlpackage /Action:Import /TargetConnectionString:"Server=127.0.0.1;Database=inx_platform_20241103;User Id=sa;Password=dellaBiella2!;TrustServerCertificate=True" /SourceFile:db_20241103.bacpac
 
 
 ## Phase 3

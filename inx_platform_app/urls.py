@@ -16,15 +16,19 @@ urlpatterns = [
     path("budget/save/", views.forecast_save, name="budget-save"),
     # path("budget/flat_save/", views.budget_flat_save, name="flat-budget-save"),
     path("budget/flat_save/", views.forecast_save, name="flat-budget-save"),
-
-    # path("test/<int:customer_id>", views.fetch_bdg_sales, name="test"),
+    
+    path("forecast_budget/<int:customer_id>", views.forecast_budget, name="forecast-budget"),
+    path("forecast_budget_2/<int:customer_id>", views.forecast_budget_2, name="forecast-budget-2"),
+    path("forecast_budget_3/<int:customer_id>", views.forecast_budget_3, name="forecast-budget-3"),
+    path("load_forecast_budget", views.load_forecast_budget, name="load-forecast-budget"),
+    path('save_forecast_dynamic/', views.save_forecast_dynamic, name='save-forecast-dynamic'),
     
     path("sfb/", views.sales_forecast_budget, name="sales-forecast-budget"),
-    path("download_sfb", views.download_sfb, name="download-sfb"),
+    path("download_sfb/", views.download_sfb, name="download-sfb"),
 
     path("get_exchange_rates", views.get_exchange_rates, name="get-exchange-rates"),
 
-    path("loading", views.loading, name="loading"),
+    path("loading/", views.loading, name="loading"),
 
     path("import_data/", views.import_data, name='import_data'),
     path("import_single_table/", views.import_single_table, name='import-single-table'),

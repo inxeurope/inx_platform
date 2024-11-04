@@ -1,0 +1,40 @@
+{% extends 'app_layouts/base.html' %}
+{% load static %}
+
+{% block content %}
+
+  <div class="page-wrapper">
+    <!-- Page body -->
+    <div class="page-body">
+      <div class="container">
+        <div>
+          {{ customer.name }}
+        </div>
+        <div>
+          <div class="d-flex flex-wrap justify-content-start">
+            <form>
+              {% csrf_token %}
+              {% for bfl in budforlines %}
+                <input type="radio" class="btn-check" name="btn-radio-basic" id="btn-radio-basic-{{ forloop.counter }}"
+                  hx-post="{% url 'load-forecast-budget' %}"
+                  hx-vals='{"budforline_id": "{{ bfl.id }}"}'
+                  hx-target="#forecast-budget-section"
+                  hx-swap="innerHTML"
+                  >
+                <label for="btn-radio-basic-{{ forloop.counter }}" class="btn btn-primary m-2">
+                  {{ bfl.brand.name }} - {{ bfl.color_group.name }} - {{ bfl.id }}
+                </label>
+              {% endfor %}
+            </form>
+          </div>
+          <div id="forecast-budget-section">
+            <!-- This section will be replaced with the returned HTML -->
+          </div>
+        </div>
+        
+      </div>
+    </div>
+    {% include 'app_includes/footer.html' %}
+  </div>
+  
+{% endblock content %}

@@ -1,0 +1,113 @@
+{% extends 'app_layouts/base.html' %}
+{% load static %}
+{% load humanize %}
+{% load custom_filters %}
+
+{% block content %}
+
+  <div class="page-wrapper">
+    <!-- Page body -->
+    <div class="page-body">
+      <div class="container">
+        <div class="h1">
+          {{ customer.name }}
+        </div>
+        <div>
+          <div>
+            <table>
+              <thead>
+                  <tr>
+                      <th>Brand</th>
+                      <th>Color Group</th>
+                      <th>-</th>
+                      {% for month in months %}
+                          <th> {{ month }}</th>
+                      {% endfor %}
+                      <th>Total</th>
+                  </tr>
+              </thead>
+              <tbody>
+                {% for brand_name, brand_data in data.brands.items %}
+                  {% for color_group_name, color_group_data in brand_data.color_groups.items %}
+                      <tr>
+                        {% if forloop.first %}
+                          <td rowspan="{{ brand_name.num_color_groups_plus_one }}" class="border">{{ brand_name }} - {{ brand_data.num_color_groups_plus_one }}</td>
+                        {% endif %}
+                        <td>{{ color_group_name }}</td>
+                        <td class="border text-end">
+                          L<br>
+                          €/LT<br>
+                          €
+                        </td>
+                        {% for month in months %}
+                            <td class="border text-end py-2 px-2">
+                                {% with year_data=color_group_data.scenarios.Forecast.years %}
+                                    {% if year_data %}
+                                        {% for year, year_details in year_data.items %}
+                                          {% if month|stringformat:"s" in year_details.months %}
+                                              {% with month_key=month|stringformat:"s" %}
+                                                {% with month_data=year_details.months|get_item:month_key %}
+                                                  {{ month_data.volume|custom_number_decimal }}<br>
+                                                  {{ month_data.price|floatformat:2|custom_number_decimal }}<br>
+                                                  {{ month_data.value|custom_number_decimal }}
+                                                {% endwith %}
+                                              {% endwith %}
+                                          {% else %}
+                                              <strong>N/A</strong>
+                                          {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        <strong>Debug:</strong> No year data available<br>
+                                        -
+                                    {% endif %}
+                                {% endwith %}
+                            </td>
+                        {% endfor %}
+                        <td class="border text-end py-2 px-2">
+                            {% with total_data=color_group_data.scenarios.Forecast.years.2024.total %}
+                              {{ total_data.volume|custom_number_decimal }}<br>
+                              {{ total_data.price|floatformat:2|custom_number_decimal }}<br>
+                              {{ total_data.value|custom_number_decimal }}
+                            {% endwith %}
+                        </td>
+                      </tr>
+                  {% endfor %}
+                  <tr>
+                    <td colspan="2" class="border text-end"><strong>Brand Total</strong></td>
+                    <td class="border text-end">
+                      L<br>
+                      €/LT<br>
+                      €
+                    </td>
+                    {% for month in months %}
+                        <td class="border text-end py-2 px-2">
+                            {% with brand_total=brand_data.scenarios.Forecast.years.2024.total %}
+                              {{ brand_total.volume|custom_number_decimal }}<br>
+                              {{ brand_total.price|floatformat:2|custom_number_decimal }}<br>
+                              {{ brand_total.value|custom_number_decimal }}
+                            {% endwith %}
+                        </td>
+                    {% endfor %}
+                    <td class="border text-end py-2 px-2">
+                        {% with brand_total=brand_data.scenarios.Forecast.years.2024.total %}
+                          {{ brand_total.volume|custom_number_decimal }}<br>
+                          {{ brand_total.price|floatformat:2|custom_number_decimal }}<br>
+                          {{ brand_total.value|custom_number_decimal }}
+                        {% endwith %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+
+          </div>
+
+        </div>
+
+        
+      </div>
+    </div>
+    {% include 'app_includes/footer.html' %}
+  </div>
+  
+{% endblock content %}

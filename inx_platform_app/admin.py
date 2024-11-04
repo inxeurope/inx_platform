@@ -402,8 +402,8 @@ class BudgetForecastDetailAdmin_abs(admin.ModelAdmin):
     it is very hard and takes long time to remove Sales from a single table, causing delays.
     With 2 different tables (BudgetForecast and Sales), we can manage Sales in a better way
     '''
-    list_display = ['id', 'get_budforline_id', 'get_budforline_info', 'get_scenario_name', 'year', 'month', 'volume', 'price', 'value', 'get_value']
-    list_filter = ['scenario__name', 'year']
+    list_display = ['id', 'get_budforline_id', 'get_budforline_info', 'get_scenario_name', 'year', 'month', 'volume', 'price', 'value', 'date_time_mark', 'is_active']
+    list_filter = ['scenario__name', 'year', 'is_active']
     search_fields = ['id', 'budforline__id', 'scenario__name', 'budforline__customer__name', 'budforline__brand__name', 'budforline__color_group__name', 'year', 'month']
     ordering = ['id', 'budforline__id', 'scenario__name']
 
@@ -428,10 +428,6 @@ class BudgetForecastDetailAdmin_abs(admin.ModelAdmin):
     def get_budforline_info(self, obj):
         the_related_budforline = obj.budforline
         return_value = f"{the_related_budforline.customer.name} - {the_related_budforline.brand.name} - {the_related_budforline.color_group.name}"
-        return return_value
-
-    def get_value(self, obj):
-        return_value = obj.price or 0 * obj.volume or 0
         return return_value
 
     def get_scenario_name(self, obj):

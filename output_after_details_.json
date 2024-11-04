@@ -1,0 +1,1789 @@
+{
+    "customer": "Durst Group AG (AT)",
+    "brands": {
+        "DCBB": {
+            "color_groups": {
+                "CMYK": {
+                    "scenarios": {
+                        "Forecast": {
+                            "years": {
+                                "2024": {
+                                    "months": {
+                                        "1": {
+                                            "volume": 333.0,
+                                            "price": 19.0,
+                                            "value": 6333.0
+                                        },
+                                        "2": {
+                                            "volume": 333.0,
+                                            "price": 19.0,
+                                            "value": 6333.0
+                                        },
+                                        "3": {
+                                            "volume": 333.0,
+                                            "price": 19.0,
+                                            "value": 6333.0
+                                        },
+                                        "4": {
+                                            "volume": 333.0,
+                                            "price": 19.0,
+                                            "value": 6333.0
+                                        },
+                                        "5": {
+                                            "volume": 333.0,
+                                            "price": 19.0,
+                                            "value": 6333.0
+                                        },
+                                        "6": {
+                                            "volume": 333.0,
+                                            "price": 19.0,
+                                            "value": 6333.0
+                                        },
+                                        "7": {
+                                            "volume": 333.0,
+                                            "price": 19.0,
+                                            "value": 6333.0
+                                        },
+                                        "8": {
+                                            "volume": 333.0,
+                                            "price": 19.0,
+                                            "value": 6333.0
+                                        },
+                                        "9": {
+                                            "volume": 333.0,
+                                            "price": 19.0,
+                                            "value": 6333.0
+                                        },
+                                        "10": {
+                                            "volume": 0.0,
+                                            "price": 19.0,
+                                            "value": 0.0
+                                        },
+                                        "11": {
+                                            "volume": 0.0,
+                                            "price": 19.0,
+                                            "value": 0.0
+                                        },
+                                        "12": {
+                                            "volume": 0.0,
+                                            "price": 19.0,
+                                            "value": 0.0
+                                        }
+                                    },
+                                    "total": {
+                                        "volume": 2997.0,
+                                        "price": 19.01801801801802,
+                                        "value": 56997.0
+                                    }
+                                }
+                            }
+                        },
+                        "Budget": {
+                            "years": {
+                                "2025": {
+                                    "months": {
+                                        "1": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "2": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "3": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "4": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "5": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "6": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "7": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "8": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "9": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "10": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "11": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "12": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        }
+                                    },
+                                    "total": {
+                                        "volume": 0,
+                                        "price": 0,
+                                        "value": 0
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "totals": {
+                "brand_total_monthly": {
+                    "1": {
+                        "volume": 333.0,
+                        "price": 19.01801801801802,
+                        "value": 6333.0
+                    },
+                    "2": {
+                        "volume": 333.0,
+                        "price": 19.01801801801802,
+                        "value": 6333.0
+                    },
+                    "3": {
+                        "volume": 333.0,
+                        "price": 19.01801801801802,
+                        "value": 6333.0
+                    },
+                    "4": {
+                        "volume": 333.0,
+                        "price": 19.01801801801802,
+                        "value": 6333.0
+                    },
+                    "5": {
+                        "volume": 333.0,
+                        "price": 19.01801801801802,
+                        "value": 6333.0
+                    },
+                    "6": {
+                        "volume": 333.0,
+                        "price": 19.01801801801802,
+                        "value": 6333.0
+                    },
+                    "7": {
+                        "volume": 333.0,
+                        "price": 19.01801801801802,
+                        "value": 6333.0
+                    },
+                    "8": {
+                        "volume": 333.0,
+                        "price": 19.01801801801802,
+                        "value": 6333.0
+                    },
+                    "9": {
+                        "volume": 333.0,
+                        "price": 19.01801801801802,
+                        "value": 6333.0
+                    },
+                    "10": {
+                        "volume": 0.0,
+                        "price": 0,
+                        "value": 0.0
+                    },
+                    "11": {
+                        "volume": 0.0,
+                        "price": 0,
+                        "value": 0.0
+                    },
+                    "12": {
+                        "volume": 0.0,
+                        "price": 0,
+                        "value": 0.0
+                    }
+                },
+                "brand_total_yearly": {
+                    "volume": 2997.0,
+                    "price": 19.01801801801802,
+                    "value": 56997.0
+                }
+            }
+        },
+        "DCBP": {
+            "color_groups": {
+                "CMYK": {
+                    "scenarios": {
+                        "Forecast": {
+                            "years": {
+                                "2024": {
+                                    "months": {
+                                        "1": {
+                                            "volume": 0.0,
+                                            "price": 0.0,
+                                            "value": 0.0
+                                        },
+                                        "2": {
+                                            "volume": 0.0,
+                                            "price": 0.0,
+                                            "value": 0.0
+                                        },
+                                        "3": {
+                                            "volume": 0.0,
+                                            "price": 0.0,
+                                            "value": 0.0
+                                        },
+                                        "4": {
+                                            "volume": 0.0,
+                                            "price": 0.0,
+                                            "value": 0.0
+                                        },
+                                        "5": {
+                                            "volume": 0.0,
+                                            "price": 0.0,
+                                            "value": 0.0
+                                        },
+                                        "6": {
+                                            "volume": 0.0,
+                                            "price": 0.0,
+                                            "value": 0.0
+                                        },
+                                        "7": {
+                                            "volume": 0.0,
+                                            "price": 0.0,
+                                            "value": 0.0
+                                        },
+                                        "8": {
+                                            "volume": 0.0,
+                                            "price": 0.0,
+                                            "value": 0.0
+                                        },
+                                        "9": {
+                                            "volume": 0.0,
+                                            "price": 0.0,
+                                            "value": 0.0
+                                        },
+                                        "10": {
+                                            "volume": 0.0,
+                                            "price": 0.0,
+                                            "value": 0.0
+                                        },
+                                        "11": {
+                                            "volume": 0.0,
+                                            "price": 0.0,
+                                            "value": 0.0
+                                        },
+                                        "12": {
+                                            "volume": 0.0,
+                                            "price": 0.0,
+                                            "value": 0.0
+                                        }
+                                    },
+                                    "total": {
+                                        "volume": 0.0,
+                                        "price": 0,
+                                        "value": 0.0
+                                    }
+                                }
+                            }
+                        },
+                        "Budget": {
+                            "years": {
+                                "2025": {
+                                    "months": {
+                                        "1": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "2": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "3": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "4": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "5": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "6": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "7": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "8": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "9": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "10": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "11": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "12": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        }
+                                    },
+                                    "total": {
+                                        "volume": 0,
+                                        "price": 0,
+                                        "value": 0
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "totals": {
+                "brand_total_monthly": {
+                    "1": {
+                        "volume": 0.0,
+                        "price": 0,
+                        "value": 0.0
+                    },
+                    "2": {
+                        "volume": 0.0,
+                        "price": 0,
+                        "value": 0.0
+                    },
+                    "3": {
+                        "volume": 0.0,
+                        "price": 0,
+                        "value": 0.0
+                    },
+                    "4": {
+                        "volume": 0.0,
+                        "price": 0,
+                        "value": 0.0
+                    },
+                    "5": {
+                        "volume": 0.0,
+                        "price": 0,
+                        "value": 0.0
+                    },
+                    "6": {
+                        "volume": 0.0,
+                        "price": 0,
+                        "value": 0.0
+                    },
+                    "7": {
+                        "volume": 0.0,
+                        "price": 0,
+                        "value": 0.0
+                    },
+                    "8": {
+                        "volume": 0.0,
+                        "price": 0,
+                        "value": 0.0
+                    },
+                    "9": {
+                        "volume": 0.0,
+                        "price": 0,
+                        "value": 0.0
+                    },
+                    "10": {
+                        "volume": 0.0,
+                        "price": 0,
+                        "value": 0.0
+                    },
+                    "11": {
+                        "volume": 0.0,
+                        "price": 0,
+                        "value": 0.0
+                    },
+                    "12": {
+                        "volume": 0.0,
+                        "price": 0,
+                        "value": 0.0
+                    }
+                },
+                "brand_total_yearly": {
+                    "volume": 0.0,
+                    "price": 0,
+                    "value": 0.0
+                }
+            }
+        },
+        "FF": {
+            "color_groups": {
+                "FF": {
+                    "scenarios": {
+                        "Forecast": {
+                            "years": {
+                                "2024": {
+                                    "months": {
+                                        "1": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "2": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "3": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "4": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "5": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "6": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "7": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "8": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "9": {
+                                            "volume": 0.0,
+                                            "price": 0.0,
+                                            "value": 0.0
+                                        },
+                                        "10": {
+                                            "volume": 0.0,
+                                            "price": 0.0,
+                                            "value": 0.0
+                                        },
+                                        "11": {
+                                            "volume": 0.0,
+                                            "price": 0.0,
+                                            "value": 0.0
+                                        },
+                                        "12": {
+                                            "volume": 0.0,
+                                            "price": 0.0,
+                                            "value": 0.0
+                                        }
+                                    },
+                                    "total": {
+                                        "volume": 0.0,
+                                        "price": 0,
+                                        "value": 0.0
+                                    }
+                                }
+                            }
+                        },
+                        "Budget": {
+                            "years": {
+                                "2025": {
+                                    "months": {
+                                        "1": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "2": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "3": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "4": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "5": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "6": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "7": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "8": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "9": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "10": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "11": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "12": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        }
+                                    },
+                                    "total": {
+                                        "volume": 0,
+                                        "price": 0,
+                                        "value": 0
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "totals": {
+                "brand_total_monthly": {
+                    "1": {
+                        "volume": 0,
+                        "price": 0,
+                        "value": 0
+                    },
+                    "2": {
+                        "volume": 0,
+                        "price": 0,
+                        "value": 0
+                    },
+                    "3": {
+                        "volume": 0,
+                        "price": 0,
+                        "value": 0
+                    },
+                    "4": {
+                        "volume": 0,
+                        "price": 0,
+                        "value": 0
+                    },
+                    "5": {
+                        "volume": 0,
+                        "price": 0,
+                        "value": 0
+                    },
+                    "6": {
+                        "volume": 0,
+                        "price": 0,
+                        "value": 0
+                    },
+                    "7": {
+                        "volume": 0,
+                        "price": 0,
+                        "value": 0
+                    },
+                    "8": {
+                        "volume": 0,
+                        "price": 0,
+                        "value": 0
+                    },
+                    "9": {
+                        "volume": 0.0,
+                        "price": 0,
+                        "value": 0.0
+                    },
+                    "10": {
+                        "volume": 0.0,
+                        "price": 0,
+                        "value": 0.0
+                    },
+                    "11": {
+                        "volume": 0.0,
+                        "price": 0,
+                        "value": 0.0
+                    },
+                    "12": {
+                        "volume": 0.0,
+                        "price": 0,
+                        "value": 0.0
+                    }
+                },
+                "brand_total_yearly": {
+                    "volume": 0.0,
+                    "price": 0,
+                    "value": 0.0
+                }
+            }
+        },
+        "OEM (RDE1272)": {
+            "color_groups": {
+                "CMYK": {
+                    "scenarios": {
+                        "Forecast": {
+                            "years": {
+                                "2024": {
+                                    "months": {
+                                        "1": {
+                                            "volume": 8000.0,
+                                            "price": 25.0,
+                                            "value": 200000.0
+                                        },
+                                        "2": {
+                                            "volume": 8000.0,
+                                            "price": 25.0,
+                                            "value": 200000.0
+                                        },
+                                        "3": {
+                                            "volume": 8000.0,
+                                            "price": 25.0,
+                                            "value": 200000.0
+                                        },
+                                        "4": {
+                                            "volume": 9810.0,
+                                            "price": 24.0,
+                                            "value": 235440.0
+                                        },
+                                        "5": {
+                                            "volume": 12750.0,
+                                            "price": 24.12,
+                                            "value": 307530.0
+                                        },
+                                        "6": {
+                                            "volume": 8250.0,
+                                            "price": 24.12,
+                                            "value": 198990.0
+                                        },
+                                        "7": {
+                                            "volume": 6500.0,
+                                            "price": 24.12,
+                                            "value": 156780.0
+                                        },
+                                        "8": {
+                                            "volume": 9750.0,
+                                            "price": 24.12,
+                                            "value": 235170.0
+                                        },
+                                        "9": {
+                                            "volume": 12250.0,
+                                            "price": 24.12,
+                                            "value": 295470.0
+                                        },
+                                        "10": {
+                                            "volume": 7000.0,
+                                            "price": 24.12,
+                                            "value": 168840.0
+                                        },
+                                        "11": {
+                                            "volume": 8500.0,
+                                            "price": 24.12,
+                                            "value": 205020.0
+                                        },
+                                        "12": {
+                                            "volume": 8500.0,
+                                            "price": 24.12,
+                                            "value": 205020.0
+                                        }
+                                    },
+                                    "total": {
+                                        "volume": 107310.0,
+                                        "price": 24.305842885099246,
+                                        "value": 2608260.0
+                                    }
+                                }
+                            }
+                        },
+                        "Budget": {
+                            "years": {
+                                "2025": {
+                                    "months": {
+                                        "1": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "2": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "3": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "4": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "5": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "6": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "7": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "8": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "9": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "10": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "11": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "12": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        }
+                                    },
+                                    "total": {
+                                        "volume": 0,
+                                        "price": 0,
+                                        "value": 0
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "Lights": {
+                    "scenarios": {
+                        "Forecast": {
+                            "years": {
+                                "2024": {
+                                    "months": {
+                                        "1": {
+                                            "volume": 800.0,
+                                            "price": 24.0,
+                                            "value": 19200.0
+                                        },
+                                        "2": {
+                                            "volume": 800.0,
+                                            "price": 24.0,
+                                            "value": 19200.0
+                                        },
+                                        "3": {
+                                            "volume": 800.0,
+                                            "price": 24.0,
+                                            "value": 19200.0
+                                        },
+                                        "4": {
+                                            "volume": 1670.0,
+                                            "price": 20.7,
+                                            "value": 34569.0
+                                        },
+                                        "5": {
+                                            "volume": 1200.0,
+                                            "price": 20.7,
+                                            "value": 24840.0
+                                        },
+                                        "6": {
+                                            "volume": 1250.0,
+                                            "price": 20.7,
+                                            "value": 25875.0
+                                        },
+                                        "7": {
+                                            "volume": 800.0,
+                                            "price": 20.7,
+                                            "value": 16560.0
+                                        },
+                                        "8": {
+                                            "volume": 1050.0,
+                                            "price": 20.7,
+                                            "value": 21735.0
+                                        },
+                                        "9": {
+                                            "volume": 500.0,
+                                            "price": 20.7,
+                                            "value": 10350.0
+                                        },
+                                        "10": {
+                                            "volume": 550.0,
+                                            "price": 20.7,
+                                            "value": 11385.0
+                                        },
+                                        "11": {
+                                            "volume": 250.0,
+                                            "price": 20.7,
+                                            "value": 5175.0
+                                        },
+                                        "12": {
+                                            "volume": 250.0,
+                                            "price": 20.74,
+                                            "value": 5185.0
+                                        }
+                                    },
+                                    "total": {
+                                        "volume": 9920.0,
+                                        "price": 21.499395161290323,
+                                        "value": 213274.0
+                                    }
+                                }
+                            }
+                        },
+                        "Budget": {
+                            "years": {
+                                "2025": {
+                                    "months": {
+                                        "1": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "2": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "3": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "4": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "5": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "6": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "7": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "8": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "9": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "10": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "11": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "12": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        }
+                                    },
+                                    "total": {
+                                        "volume": 0,
+                                        "price": 0,
+                                        "value": 0
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "Special": {
+                    "scenarios": {
+                        "Forecast": {
+                            "years": {
+                                "2024": {
+                                    "months": {
+                                        "1": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "2": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "3": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "4": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "5": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "6": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "7": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "8": {
+                                            "volume": 0.0,
+                                            "price": 0.0,
+                                            "value": 0.0
+                                        },
+                                        "9": {
+                                            "volume": 0.0,
+                                            "price": 0.0,
+                                            "value": 0.0
+                                        },
+                                        "10": {
+                                            "volume": 0.0,
+                                            "price": 0.0,
+                                            "value": 0.0
+                                        },
+                                        "11": {
+                                            "volume": 0.0,
+                                            "price": 0.0,
+                                            "value": 0.0
+                                        },
+                                        "12": {
+                                            "volume": 0.0,
+                                            "price": 0.0,
+                                            "value": 0.0
+                                        }
+                                    },
+                                    "total": {
+                                        "volume": 0.0,
+                                        "price": 0,
+                                        "value": 0.0
+                                    }
+                                }
+                            }
+                        },
+                        "Budget": {
+                            "years": {
+                                "2025": {
+                                    "months": {
+                                        "1": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "2": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "3": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "4": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "5": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "6": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "7": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "8": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "9": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "10": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "11": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "12": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        }
+                                    },
+                                    "total": {
+                                        "volume": 0,
+                                        "price": 0,
+                                        "value": 0
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "totals": {
+                "brand_total_monthly": {
+                    "1": {
+                        "volume": 8800.0,
+                        "price": 24.90909090909091,
+                        "value": 219200.0
+                    },
+                    "2": {
+                        "volume": 8800.0,
+                        "price": 24.90909090909091,
+                        "value": 219200.0
+                    },
+                    "3": {
+                        "volume": 8800.0,
+                        "price": 24.90909090909091,
+                        "value": 219200.0
+                    },
+                    "4": {
+                        "volume": 11480.0,
+                        "price": 23.51994773519164,
+                        "value": 270009.0
+                    },
+                    "5": {
+                        "volume": 13950.0,
+                        "price": 23.825806451612902,
+                        "value": 332370.0
+                    },
+                    "6": {
+                        "volume": 9500.0,
+                        "price": 23.67,
+                        "value": 224865.0
+                    },
+                    "7": {
+                        "volume": 7300.0,
+                        "price": 23.745205479452054,
+                        "value": 173340.0
+                    },
+                    "8": {
+                        "volume": 10800.0,
+                        "price": 23.7875,
+                        "value": 256905.0
+                    },
+                    "9": {
+                        "volume": 12750.0,
+                        "price": 23.985882352941175,
+                        "value": 305820.0
+                    },
+                    "10": {
+                        "volume": 7550.0,
+                        "price": 23.870860927152318,
+                        "value": 180225.0
+                    },
+                    "11": {
+                        "volume": 8750.0,
+                        "price": 24.022285714285715,
+                        "value": 210195.0
+                    },
+                    "12": {
+                        "volume": 8750.0,
+                        "price": 24.02342857142857,
+                        "value": 210205.0
+                    }
+                },
+                "brand_total_yearly": {
+                    "volume": 117230.0,
+                    "price": 24.068361340953683,
+                    "value": 2821534.0
+                }
+            }
+        },
+        "POPFlex": {
+            "color_groups": {
+                "CMYK": {
+                    "scenarios": {
+                        "Forecast": {
+                            "years": {
+                                "2024": {
+                                    "months": {
+                                        "1": {
+                                            "volume": 1500.0,
+                                            "price": 26.0,
+                                            "value": 39000.0
+                                        },
+                                        "2": {
+                                            "volume": 1500.0,
+                                            "price": 26.0,
+                                            "value": 39000.0
+                                        },
+                                        "3": {
+                                            "volume": 1500.0,
+                                            "price": 26.0,
+                                            "value": 39000.0
+                                        },
+                                        "4": {
+                                            "volume": 2000.0,
+                                            "price": 23.9,
+                                            "value": 47800.0
+                                        },
+                                        "5": {
+                                            "volume": 3000.0,
+                                            "price": 23.9,
+                                            "value": 71700.0
+                                        },
+                                        "6": {
+                                            "volume": 1750.0,
+                                            "price": 23.9,
+                                            "value": 41825.0
+                                        },
+                                        "7": {
+                                            "volume": 2000.0,
+                                            "price": 23.9,
+                                            "value": 47800.0
+                                        },
+                                        "8": {
+                                            "volume": 2000.0,
+                                            "price": 23.9,
+                                            "value": 47800.0
+                                        },
+                                        "9": {
+                                            "volume": 1750.0,
+                                            "price": 23.9,
+                                            "value": 41825.0
+                                        },
+                                        "10": {
+                                            "volume": 2500.0,
+                                            "price": 23.9,
+                                            "value": 59750.0
+                                        },
+                                        "11": {
+                                            "volume": 2250.0,
+                                            "price": 23.9,
+                                            "value": 53775.0
+                                        },
+                                        "12": {
+                                            "volume": 2000.0,
+                                            "price": 23.9,
+                                            "value": 47800.0
+                                        }
+                                    },
+                                    "total": {
+                                        "volume": 23750.0,
+                                        "price": 24.297894736842107,
+                                        "value": 577075.0
+                                    }
+                                }
+                            }
+                        },
+                        "Budget": {
+                            "years": {
+                                "2025": {
+                                    "months": {
+                                        "1": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "2": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "3": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "4": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "5": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "6": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "7": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "8": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "9": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "10": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "11": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "12": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        }
+                                    },
+                                    "total": {
+                                        "volume": 0,
+                                        "price": 0,
+                                        "value": 0
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "FF": {
+                    "scenarios": {
+                        "Forecast": {
+                            "years": {
+                                "2024": {
+                                    "months": {
+                                        "1": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "2": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "3": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "4": {
+                                            "volume": 204.0,
+                                            "price": 16.0,
+                                            "value": 3264.0
+                                        },
+                                        "5": {
+                                            "volume": 140.0,
+                                            "price": 16.0,
+                                            "value": 2240.0
+                                        },
+                                        "6": {
+                                            "volume": 200.0,
+                                            "price": 16.0,
+                                            "value": 3200.0
+                                        },
+                                        "7": {
+                                            "volume": 0.0,
+                                            "price": 16.0,
+                                            "value": 0.0
+                                        },
+                                        "8": {
+                                            "volume": 200.0,
+                                            "price": 16.0,
+                                            "value": 3200.0
+                                        },
+                                        "9": {
+                                            "volume": 0.0,
+                                            "price": 16.0,
+                                            "value": 0.0
+                                        },
+                                        "10": {
+                                            "volume": 200.0,
+                                            "price": 16.0,
+                                            "value": 3200.0
+                                        },
+                                        "11": {
+                                            "volume": 0.0,
+                                            "price": 10.5,
+                                            "value": 0.0
+                                        },
+                                        "12": {
+                                            "volume": 200.0,
+                                            "price": 16.0,
+                                            "value": 3200.0
+                                        }
+                                    },
+                                    "total": {
+                                        "volume": 1144.0,
+                                        "price": 16.0,
+                                        "value": 18304.0
+                                    }
+                                }
+                            }
+                        },
+                        "Budget": {
+                            "years": {
+                                "2025": {
+                                    "months": {
+                                        "1": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "2": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "3": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "4": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "5": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "6": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "7": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "8": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "9": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "10": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "11": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "12": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        }
+                                    },
+                                    "total": {
+                                        "volume": 0,
+                                        "price": 0,
+                                        "value": 0
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "Lights": {
+                    "scenarios": {
+                        "Forecast": {
+                            "years": {
+                                "2024": {
+                                    "months": {
+                                        "1": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "2": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "3": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "4": {
+                                            "volume": 550.0,
+                                            "price": 0.0,
+                                            "value": 0.0
+                                        },
+                                        "5": {
+                                            "volume": 250.0,
+                                            "price": 22.75,
+                                            "value": 5687.0
+                                        },
+                                        "6": {
+                                            "volume": 250.0,
+                                            "price": 22.75,
+                                            "value": 5687.0
+                                        },
+                                        "7": {
+                                            "volume": 250.0,
+                                            "price": 22.75,
+                                            "value": 5687.0
+                                        },
+                                        "8": {
+                                            "volume": 250.0,
+                                            "price": 22.75,
+                                            "value": 5687.0
+                                        },
+                                        "9": {
+                                            "volume": 250.0,
+                                            "price": 22.75,
+                                            "value": 5687.0
+                                        },
+                                        "10": {
+                                            "volume": 0.0,
+                                            "price": 22.75,
+                                            "value": 0.0
+                                        },
+                                        "11": {
+                                            "volume": 500.0,
+                                            "price": 22.75,
+                                            "value": 11375.0
+                                        },
+                                        "12": {
+                                            "volume": 250.0,
+                                            "price": 22.75,
+                                            "value": 5687.5
+                                        }
+                                    },
+                                    "total": {
+                                        "volume": 2550.0,
+                                        "price": 17.8421568627451,
+                                        "value": 45497.5
+                                    }
+                                }
+                            }
+                        },
+                        "Budget": {
+                            "years": {
+                                "2025": {
+                                    "months": {
+                                        "1": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "2": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "3": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "4": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "5": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "6": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "7": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "8": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "9": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "10": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "11": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        },
+                                        "12": {
+                                            "volume": 0,
+                                            "price": 0,
+                                            "value": 0
+                                        }
+                                    },
+                                    "total": {
+                                        "volume": 0,
+                                        "price": 0,
+                                        "value": 0
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "totals": {
+                "brand_total_monthly": {
+                    "1": {
+                        "volume": 1500.0,
+                        "price": 26.0,
+                        "value": 39000.0
+                    },
+                    "2": {
+                        "volume": 1500.0,
+                        "price": 26.0,
+                        "value": 39000.0
+                    },
+                    "3": {
+                        "volume": 1500.0,
+                        "price": 26.0,
+                        "value": 39000.0
+                    },
+                    "4": {
+                        "volume": 2754.0,
+                        "price": 18.54175744371823,
+                        "value": 51064.0
+                    },
+                    "5": {
+                        "volume": 3390.0,
+                        "price": 23.488790560471976,
+                        "value": 79627.0
+                    },
+                    "6": {
+                        "volume": 2200.0,
+                        "price": 23.05090909090909,
+                        "value": 50712.0
+                    },
+                    "7": {
+                        "volume": 2250.0,
+                        "price": 23.772,
+                        "value": 53487.0
+                    },
+                    "8": {
+                        "volume": 2450.0,
+                        "price": 23.137551020408164,
+                        "value": 56687.0
+                    },
+                    "9": {
+                        "volume": 2000.0,
+                        "price": 23.756,
+                        "value": 47512.0
+                    },
+                    "10": {
+                        "volume": 2700.0,
+                        "price": 23.314814814814813,
+                        "value": 62950.0
+                    },
+                    "11": {
+                        "volume": 2750.0,
+                        "price": 23.69090909090909,
+                        "value": 65150.0
+                    },
+                    "12": {
+                        "volume": 2450.0,
+                        "price": 23.137755102040817,
+                        "value": 56687.5
+                    }
+                },
+                "brand_total_yearly": {
+                    "volume": 27444.0,
+                    "price": 23.352153476169654,
+                    "value": 640876.5
+                }
+            }
+        }
+    },
+    "totals": {
+        "customer_total_monthly": {
+            "1": {
+                "volume": 10633.0,
+                "price": 24.8784914887614,
+                "value": 264533.0
+            },
+            "2": {
+                "volume": 10633.0,
+                "price": 24.8784914887614,
+                "value": 264533.0
+            },
+            "3": {
+                "volume": 10633.0,
+                "price": 24.8784914887614,
+                "value": 264533.0
+            },
+            "4": {
+                "volume": 14567.0,
+                "price": 22.475870117388617,
+                "value": 327406.0
+            },
+            "5": {
+                "volume": 17673.0,
+                "price": 23.670570927403382,
+                "value": 418330.0
+            },
+            "6": {
+                "volume": 12033.0,
+                "price": 23.42807279980055,
+                "value": 281910.0
+            },
+            "7": {
+                "volume": 9883.0,
+                "price": 23.59202671253668,
+                "value": 233160.0
+            },
+            "8": {
+                "volume": 13583.0,
+                "price": 23.553338732238828,
+                "value": 319925.0
+            },
+            "9": {
+                "volume": 15083.0,
+                "price": 23.845720347410992,
+                "value": 359665.0
+            },
+            "10": {
+                "volume": 10250.0,
+                "price": 23.724390243902437,
+                "value": 243175.0
+            },
+            "11": {
+                "volume": 11500.0,
+                "price": 23.94304347826087,
+                "value": 275345.0
+            },
+            "12": {
+                "volume": 11200.0,
+                "price": 23.8296875,
+                "value": 266892.5
+            }
+        },
+        "customer_total_yearly": {
+            "volume": 147671.0,
+            "price": 23.83275998672725,
+            "value": 3519407.5
+        }
+    }
+}

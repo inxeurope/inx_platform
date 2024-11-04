@@ -1,5 +1,5 @@
 from collections import defaultdict
-from django.db.models import Sum, OuterRef, Subquery, DecimalField, F, Value, Case, When, Count
+from django.db.models import Sum, OuterRef, Subquery, DecimalField, F, Value, Case, When, Count, Q
 from django.db.models.functions import Coalesce, Round
 from django.db import connection
 from django.urls import reverse
@@ -13,7 +13,6 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.views import LoginView, PasswordChangeView
 from django.contrib.auth.decorators import login_required
-# from django.template import loader
 from django.db import models, transaction
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .models import *
@@ -2302,8 +2301,8 @@ def products_list(request, page=0):
                 models.Q(name__icontains=search_term) |
                 models.Q(number__icontains=search_term) |
                 models.Q(brand__name__icontains=search_term) |
-                models.Q(made_in__name__icontains=search_term)
-                ).order_by('-number')
+                models.Q(made_in__name__icontains(search_term)
+                ).order_by('-number'))
     else:
         products = Product.objects.all()
     
@@ -3159,9 +3158,442 @@ def special_del_boms(request):
         'mewssages': mess
     }
     return render(request, "app_pages/_marco.html", context)
-    
 
-    pass
-    
 
-    ##
+# Ensure Decimal data types are JSON serializable by converting them to floats
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Decimal):
+            return float(obj)
+        return super(DecimalEncoder, self).default(obj)
+
+
+@login_required
+def forecast_budget_3(request, customer_id):
+    forecast_year = datetime.now().year
+    budget_year = forecast_year + 1
+    c = get_object_or_404(Customer, pk=customer_id)
+    if c:
+        result_dict = {
+            "customer": c.name,
+            "brands": {},
+            "totals": {
+                "customer_total_monthly": {str(month): {"volume": 0, "price": 0, "value": 0} for month in range(1, 13)},
+                "customer_total_yearly": {"volume": 0, "price": 0, "value": 0}
+            }
+        }
+        
+        budforline_queryset = BudForLine.objects.filter(
+            customer_id=customer_id
+        ).filter(
+            Q(budgetforecastdetail__year=forecast_year, budgetforecastdetail__scenario__is_forecast=True) |
+            Q(budgetforecastdetail__year=budget_year, budgetforecastdetail__scenario__is_budget=True)
+        ).distinct()
+        
+        unique_brands = budforline_queryset.values("brand__name").distinct()
+        for brand in unique_brands:
+            brand_name = brand["brand__name"]
+            result_dict["brands"][brand_name] = {
+                "color_groups": {},
+                "totals": {
+                    "brand_total_monthly": {str(month): {"volume": 0, "price": 0, "value": 0} for month in range(1, 13)},
+                    "brand_total_yearly": {"volume": 0, "price": 0, "value": 0}
+                }
+            }
+            color_groups = budforline_queryset.filter(brand__name=brand_name).values("color_group__name").distinct()
+            # result_dict["brands"][brand_name]["color_groups"]["num_color_groups"] = len(color_groups)
+            # result_dict["brands"][brand_name]["color_groups"]["num_color_groups_plus_one"] = len(color_groups) + 1 
+            for color_group in color_groups:
+                color_group_name = color_group["color_group__name"]
+                result_dict["brands"][brand_name]["color_groups"][color_group_name] = {
+                    "scenarios": {
+                        "Forecast": {
+                            "years": {
+                                str(forecast_year): {"months": {str(month): {"volume": 0, "price": 0, "value": 0} for month in range(1, 13)}, "total": {"volume": 0, "price": 0, "value": 0}},
+                                # str(budget_year): {"months": {str(month): {"volume": 0, "price": 0, "value": 0} for month in range(1, 13)}, "total": {"volume": 0, "price": 0, "value": 0}}
+                            }
+                        },
+                        "Budget": {
+                            "years": {
+                                str(budget_year): {"months": {str(month): {"volume": 0, "price": 0, "value": 0} for month in range(1, 13)}, "total": {"volume": 0, "price": 0, "value": 0}}
+                            }
+                        }
+                    }
+                }
+        
+        # with open('output_init_.json', 'w') as json_file:
+        #     json.dump(result_dict, json_file, indent=4, cls=DecimalEncoder)
+        
+        forecast_details = BudgetForecastDetail.objects.filter(
+            budforline__customer_id=customer_id,
+            year__in=[forecast_year, budget_year],
+            scenario__is_forecast=True
+        ).select_related('budforline__brand', 'budforline__color_group').order_by('year', 'month')
+        
+        for detail in forecast_details:
+            brand_name = detail.budforline.brand.name
+            color_group_name = detail.budforline.color_group.name
+            year = str(detail.year)
+            month = str(detail.month)
+            volume = detail.volume
+            price = detail.price
+            value = detail.value
+            
+            result_dict["brands"][brand_name]["color_groups"][color_group_name]["scenarios"]["Forecast"]["years"][year]["months"][month]["volume"] = volume
+            result_dict["brands"][brand_name]["color_groups"][color_group_name]["scenarios"]["Forecast"]["years"][year]["months"][month]["price"] = price
+            result_dict["brands"][brand_name]["color_groups"][color_group_name]["scenarios"]["Forecast"]["years"][year]["months"][month]["value"] = value
+            
+            result_dict["brands"][brand_name]["color_groups"][color_group_name]["scenarios"]["Forecast"]["years"][year]["total"]["volume"] += volume
+            result_dict["brands"][brand_name]["color_groups"][color_group_name]["scenarios"]["Forecast"]["years"][year]["total"]["value"] += value
+            tot_val = result_dict["brands"][brand_name]["color_groups"][color_group_name]["scenarios"]["Forecast"]["years"][year]["total"]["value"]
+            tot_vol = result_dict["brands"][brand_name]["color_groups"][color_group_name]["scenarios"]["Forecast"]["years"][year]["total"]["volume"]
+            if tot_vol > 0:
+                avg_up = tot_val / tot_vol
+                result_dict["brands"][brand_name]["color_groups"][color_group_name]["scenarios"]["Forecast"]["years"][year]["total"]["price"] = avg_up
+            else:
+                result_dict["brands"][brand_name]["color_groups"][color_group_name]["scenarios"]["Forecast"]["years"][year]["total"]["price"] = 0
+            
+            result_dict["brands"][brand_name]["totals"]["brand_total_monthly"][month]["volume"] += volume
+            result_dict["brands"][brand_name]["totals"]["brand_total_monthly"][month]["value"] += value
+            tot_vol = result_dict["brands"][brand_name]["totals"]["brand_total_monthly"][month]["volume"]
+            tot_val = result_dict["brands"][brand_name]["totals"]["brand_total_monthly"][month]["value"]
+            if tot_vol > 0:
+                avg_up = tot_val / tot_vol
+                result_dict["brands"][brand_name]["totals"]["brand_total_monthly"][month]["price"] = avg_up
+            else:
+                result_dict["brands"][brand_name]["totals"]["brand_total_monthly"][month]["price"] = 0
+            
+            result_dict["brands"][brand_name]["totals"]["brand_total_yearly"]["volume"] += volume
+            result_dict["brands"][brand_name]["totals"]["brand_total_yearly"]["value"] += value
+            tot_val = result_dict["brands"][brand_name]["totals"]["brand_total_yearly"]["value"]
+            tot_vol = result_dict["brands"][brand_name]["totals"]["brand_total_yearly"]["volume"]
+            if tot_vol > 0:
+                avg_up = tot_val / tot_vol
+                result_dict["brands"][brand_name]["totals"]["brand_total_yearly"]["price"] = avg_up
+            else:
+                result_dict["brands"][brand_name]["totals"]["brand_total_yearly"]["price"] = 0
+            
+            result_dict["totals"]["customer_total_monthly"][month]["volume"] += volume
+            # result_dict["totals"]["customer_total_monthly"][month]["price"] += price
+            result_dict["totals"]["customer_total_monthly"][month]["value"] += value
+            tot_val = result_dict["totals"]["customer_total_monthly"][month]["value"]
+            tot_vol = result_dict["totals"]["customer_total_monthly"][month]["volume"]
+            if tot_vol > 0:
+                avg_up = tot_val / tot_vol
+                result_dict["totals"]["customer_total_monthly"][month]["price"] = avg_up
+            else:
+                result_dict["totals"]["customer_total_monthly"][month]["price"] = 0
+            
+            result_dict["totals"]["customer_total_yearly"]["volume"] += volume
+            # result_dict["totals"]["customer_total_yearly"]["price"] += price
+            result_dict["totals"]["customer_total_yearly"]["value"] += value
+            tot_val = result_dict["totals"]["customer_total_yearly"]["value"]
+            tot_vol = result_dict["totals"]["customer_total_yearly"]["volume"]
+            if tot_vol > 0:
+                avg_up = tot_val / tot_vol
+                result_dict["totals"]["customer_total_yearly"]["price"] = avg_up
+            else:
+                result_dict["totals"]["customer_total_yearly"]["price"] = 0
+        
+        
+        # Calculate num_color_groups and num_color_groups_plus_one for each brand
+        # for brand_name, brand_data in result_dict["brands"].items():
+        #     num_color_groups = len(brand_data["color_groups"])
+        #     for color_group_name, color_group_data in brand_data["color_groups"].items():
+        #         color_group_data["num_color_groups"] = num_color_groups
+        #         color_group_data["num_color_groups_plus_one"] = num_color_groups + 1
+        
+        
+        with open('output_after_details_.json', 'w') as json_file:
+            json.dump(result_dict, json_file, indent=4, cls=DecimalEncoder)
+        
+        context = {
+            'customer': c,
+            "months": range(1, 13),
+            "data": result_dict,
+            "forecast_year": forecast_year,
+            "budget_year": budget_year
+        }
+        return render(request, "app_pages/forecast_budget_4.html", context)
+    else:
+        pass
+
+
+@login_required
+def forecast_budget_2(request, customer_id):
+    c = get_object_or_404(Customer, pk=customer_id)
+    forecast_year = datetime.now().year
+    budget_year = forecast_year + 1
+    forecast = get_object_or_404(Scenario, is_forecast=True)
+    budget = get_object_or_404(Scenario, is_budget=True)
+    
+    if c:
+        # result_summary contains all the final results
+        result_summary = {
+            "customer": c.name,
+            "brands": []
+        }
+
+        # All records of BudForLine of a specific customer
+        budforlines = BudForLine.objects.filter(customer=c).prefetch_related(
+            'brand', 'color_group', 'budgetforecastdetail_set__scenario'
+        )
+        
+        brands_processed = set()
+        
+        for budforline in budforlines:
+            if budforline.brand.name not in brands_processed:
+                brand_data = {
+                    "brand": budforline.brand.name,
+                    "color_groups": []
+                }
+                brands_processed.add(budforline.brand.name)
+
+                # We are in the brand, we must know what color groups we have
+                color_groups = budforlines.filter(brand=budforline.brand).distinct()
+                
+                for color_group in color_groups:
+                    color_groups_data = {
+                        "color_group": color_group.color_group.name,
+                        "scenarios": []
+                    }
+
+                    # Get all related BudgetForecastDetails for the current budforline and scenario
+                    details = BudgetForecastDetail.objects.filter(
+                        Q(scenario__is_forecast=True) | Q(scenario__is_budget=True),
+                        budforline=color_group,
+                        year=forecast_year
+                    ).select_related('scenario')
+
+                    scenarios_processed = set()
+                    
+                    # Process details to gather scenarios and years data
+                    for detail in details:
+                        if detail.scenario.name not in scenarios_processed:
+                            scenario_data = {
+                                "scenario": detail.scenario.name,
+                                "years": []
+                            }
+                            scenarios_processed.add(detail.scenario.name)
+
+                            # Create a dictionary to group monthly data by year
+                            year_data = {
+                                "year": detail.year,
+                                "months": []
+                            }
+
+                            # Now collect monthly data for this scenario and year
+                            monthly_data = BudgetForecastDetail.objects.filter(
+                                budforline=detail.budforline_id,
+                                scenario=detail.scenario
+                            )
+
+                            for month_detail in monthly_data:
+                                month_data = {
+                                    "month": month_detail.month,
+                                    "volume": float(month_detail.volume),
+                                    "price": float(month_detail.price),
+                                    "value": float(month_detail.value)
+                                }
+                                year_data["months"].append(month_data)
+                            
+                            # Add year data to the scenario
+                            scenario_data["years"].append(year_data)
+                            
+                            # Append scenario to the color group
+                            color_groups_data["scenarios"].append(scenario_data)
+                    
+                    # Only append the color_group if it contains at least one scenario
+                    if color_groups_data["scenarios"]:
+                        brand_data["color_groups"].append(color_groups_data)
+
+                # Only append the brand to result_summary if it has valid color groups
+                if brand_data["color_groups"]:
+                    result_summary["brands"].append(brand_data)
+
+        # Optionally, save or return the result_summary for further processing
+        # print(result_summary)
+        with open("output.json", "w") as f:
+            json.dump(result_summary, f, indent=4)
+
+        return render(request, "app_pages/blank.html", {})
+                    
+
+@login_required
+def forecast_budget(request, customer_id):
+    
+    c = get_object_or_404(Customer, pk=customer_id)
+    
+    forecast_year = datetime.now().year
+    budget_year = forecast_year + 1
+    forecast = get_object_or_404(Scenario, is_forecast=True)
+    budget = get_object_or_404(Scenario, is_budget=True )
+    
+    if c:
+        logger.info(f"customer: {c.name}")
+        budforlines = BudForLine.objects.filter(
+            customer_id=c.id,
+            budgetforecastdetail__is_active=True
+        ).filter(
+            Q(budgetforecastdetail__year=forecast_year, budgetforecastdetail__scenario=forecast) |
+            Q(budgetforecastdetail__year=budget_year, budgetforecastdetail__scenario=budget)
+        ).distinct().order_by('brand__name')
+        for budforline in budforlines:
+            logger.info(f"{budforline.brand.name} - {budforline.color_group.name}")
+    else:
+        logger.info("customer not found")
+    
+    budforline_ids = budforlines.values_list('id', flat=True)    
+    budget_forecast_details = BudgetForecastDetail.objects.filter(
+        budforline_id__in = budforline_ids,
+        scenario=forecast
+    ).order_by('scenario', 'month')
+    for bfd in budget_forecast_details:
+        print(f"{bfd.budforline_id} - {bfd.scenario.name} - {bfd.month} - {bfd.volume} - {bfd.price}")
+
+    context = {
+        'customer': c,
+        'budforlines': budforlines
+    }
+    return render(request, "app_pages/forecast_budget.html", context)
+
+@login_required
+def load_forecast_budget(request):
+    if request.method == 'POST':
+        budforline_id = request.POST.get('budforline_id')
+        budforline = get_object_or_404(BudForLine, id=budforline_id)
+        forecast_year = datetime.now().year
+        budget_year = forecast_year + 1
+        forecast_scenario = get_object_or_404(Scenario, is_forecast=True)
+        budget_scenario = get_object_or_404(Scenario, is_budget=True)
+        
+        forecast_details = BudgetForecastDetail.objects.filter(
+            budforline=budforline,
+            year=forecast_year,
+            scenario=forecast_scenario,
+            month__in=range(1, 13),
+            is_active=True
+        ).order_by('month')
+        
+        # Create a dictionary to map forecast details by month
+        forecast_by_month = {str(i): None for i in range(1, 13)}
+        for detail in forecast_details:
+            forecast_by_month[str(detail.month)] = detail
+            
+        # For months without forecast details, create a "dummy" record with 0 values
+        for month in range(1, 13):
+            month_key = str(month)
+            if forecast_by_month[month_key] is None:
+                forecast_by_month[month_key] = BudgetForecastDetail(
+                    budforline=budforline,
+                    year=forecast_year,
+                    month=month,
+                    scenario=forecast_scenario,
+                    volume=0,
+                    price=0,
+                    value=0,
+                    is_active=True
+                )
+        
+        budget_details = BudgetForecastDetail.objects.filter(
+            budforline=budforline,
+            year=budget_year,
+            scenario=budget_scenario,
+            month__in=range(1,13),
+            is_active=True
+        ).order_by('month')
+        budget_by_month = {str(i): None for i in range(1, 13)}
+        for detail in budget_details:
+            budget_by_month[str(detail.month)] = detail
+        
+        context = {
+            'budforline_id': budforline_id,
+            'months': months,
+            'customer': budforline.customer.name,
+            'brand': budforline.brand.name,
+            'color_group': budforline.color_group.name,
+            'forecast_scenario': forecast_scenario,
+            'forecast_details': forecast_details,
+            'forecast_by_month': forecast_by_month,
+            'budget_scenario': budget_scenario,
+            'budget_details': budget_details,
+            'budget_by_month': budget_by_month
+        }
+        return render(request, "app_pages/forecast_budget_partial.html", context)
+ 
+
+@login_required
+def save_forecast_dynamic(request):
+    if request.method == 'POST':
+        budforline_id = request.POST.get('budforline_id')
+        budforline = get_object_or_404(BudForLine, id=budforline_id)
+        forecast_year = datetime.now().year
+        budget_year = forecast_year + 1
+        forecast_scenario = get_object_or_404(Scenario, is_forecast=True)
+        budget_scenario = get_object_or_404(Scenario, is_budget=True)
+        date_time_mark = int(datetime.now().strftime('%Y%m%d%H%M%S'))        
+        
+        print(f"budforline.id: {budforline.id} - budforline_id: {budforline_id}")
+        print(f"forecast year: {forecast_year}")
+        print(f"forecast scenario: {forecast_scenario.id}  {forecast_scenario.name}")
+
+        # Loop through the 12 months and create BudgetForecastDetail records
+        for month in range(1, 13):
+            volume = request.POST.get(f'volume_{month}', None)
+            price = request.POST.get(f'price_{month}', None)
+            
+            # date_time_mark is updated during the model's save method
+            if volume and price:
+                BudgetForecastDetail.objects.create(
+                    currency_zaq="",
+                    budforline=budforline,
+                    volume=volume,
+                    price=price,
+                    year=forecast_year,
+                    month=month,
+                    scenario=forecast_scenario,
+                    date_time_mark=date_time_mark,
+                    is_active=True
+                )
+
+    # #### Prepping for HTMX reload
+    forecast_details = BudgetForecastDetail.objects.filter(
+            budforline=budforline,
+            year=forecast_year,
+            scenario=forecast_scenario,
+            month__in=range(1, 13),  
+            is_active=True
+        ).order_by('month')
+    forecast_by_month = {str(i): None for i in range(1, 13)}
+    for detail in forecast_details:
+        forecast_by_month[str(detail.month)] = detail
+
+    budget_details = BudgetForecastDetail.objects.filter(
+            budforline=budforline,
+            year=budget_year,
+            scenario=budget_scenario,
+            month__in=range(1,13),
+            is_active=True
+        ).order_by('month')
+    budget_by_month = {str(i): None for i in range(1, 13)}
+    for detail in budget_details:
+        budget_by_month[str(detail.month)] = detail
+    
+    context = {
+        'budforline_id': budforline_id,
+        'customer': budforline.customer,
+        'brand': budforline.brand,
+        'color_group': budforline.color_group,
+        'months': months,
+        'forecast_scenario': forecast_scenario,
+        'forecast_details': forecast_details,
+        'forecast_by_month': forecast_by_month,
+        'budget_scenario': budget_scenario,
+        'budget_details': budget_details,
+        'budget_by_month': budget_by_month
+    }
+    
+    # Return the rendered partial as an HTMX response
+    # html = render_to_string('app_pages/forecast_budget_partial.html', context)
+    # return HttpResponse(html)
+    return render(request, "app_pages/forecast_budget_partial.html", context)

@@ -1,0 +1,145 @@
+{% extends 'app_layouts/base.html' %}
+{% load static %}
+{% load humanize %}
+{% load custom_filters %}
+
+{% block content %}
+
+  <div class="page-wrapper">
+    <!-- Page body -->
+    <div class="page-body">
+      <div class="container">
+        <div class="h1">
+          {{ customer.name }}
+        </div>
+        <div>
+          <div>
+            <table>
+              <thead>
+                  <tr>
+                      <th class="border">Brand</th>
+                      <th class="border">Color Group</th>
+                      <th class="border">-</th>
+                      {% for month in months %}
+                          <th class="border text-end p-2"> {{ month }}</th>
+                      {% endfor %}
+                      <th class="border text-end p-2">Total</th>
+                  </tr>
+              </thead>
+              <tbody>
+                {% for brand_name, brand_data in data.brands.items %}
+                    {% for color_group_name, color_group_data in brand_data.color_groups.items %}
+                        {% if not "num_color_groups" in color_group_name %}
+                            <tr>
+                                {% if forloop.first %}
+                                <td rowspan="{{ brand_data.color_groups|length }}" class="border">
+                                    {{ brand_name }}
+                                </td>
+                                {% endif %}
+                                <td class="border">
+                                    {{ color_group_name }}
+                                </td>
+                                <td class="border">
+                                    L<br>
+                                    €/LT<br>
+                                    €
+                                </td>
+                                {% for m in months %}
+                                <td class="border text-end px-2">
+                                    {% if m %}
+                                        {% with year=forecast_year|stringformat:"s" %}
+                                            {% with year_data=color_group_data.scenarios.Forecast.years|get_nested_item:year %}
+                                                {% with months_data=year_data.months %}
+                                                    {% with month_key=m|stringformat:"s" %}
+                                                        {% with month_detail=months_data|get_item:month_key %}
+                                                            {{ month_detail.volume|custom_number_decimal }}<br>
+                                                            {{ month_detail.price|custom_number_decimal }}<br>
+                                                            {{ month_detail.value|custom_number_decimal }}<br>
+                                                        {% endwith %}
+                                                    {% endwith %}
+                                                {% endwith %}
+                                            {% endwith %}
+                                        {% endwith %}
+                                    {% else %}
+                                        None
+                                    {% endif %}
+                                </td>
+                                {% endfor %}
+                                <td class="border text-end px-2">
+                                    {% with year=forecast_year|stringformat:"s" %}
+                                        {% with total_data=color_group_data.scenarios.Forecast.years|get_nested_item:year|get_item:"total" %}
+                                            {{ total_data.volume|custom_number_decimal }}<br>
+                                            {{ total_data.price|custom_number_decimal }}<br>
+                                            {{ total_data.value|custom_number_decimal }}<br>
+                                        {% endwith %}
+                                    {% endwith %}
+                                </td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                    <tr>
+                        <td colspan="2">
+                            <strong>{{ brand_name }} total:</strong>
+                        </td>
+                        <td class="border">
+                            L<br>
+                            €/LT<br>
+                            €
+                        </td>
+                        {% for m in months %}
+                        <td class="border">
+                            {% if m %}
+                                {% with year=forecast_year|stringformat:"s" %}
+                                    {% with year_data=color_group_data.scenarios.Forecast.years|get_nested_item:year %}
+                                        {% with months_data=year_data.months %}
+                                            {% with month_key=m|stringformat:"s" %}
+                                                {% with month_detail=months_data|get_item:month_key %}
+                                                    {{ month_detail.volume|custom_number_decimal }}<br>
+                                                    {{ month_detail.price|custom_number_decimal }}<br>
+                                                    {{ month_detail.value|custom_number_decimal }}<br>
+                                                {% endwith %}
+                                            {% endwith %}
+                                        {% endwith %}
+                                    {% endwith %}
+                                {% endwith %}
+                            {% else %}
+                                None
+                            {% endif %}
+                            subtot {{ m }}
+                        </td>
+                        {% endfor %}
+                        <td class="border">
+                            {{ brand_data.total_yearly.volume }}
+                        </td>
+                    </tr>
+                {% endfor %}
+                <tr>
+                    <td class="border strong" colspan="2">
+                        {{customer.name}}
+                    </td>
+                    
+                    <td class="border">
+                        L<br>
+                        €/LT<br>
+                        €
+                    </td>
+                    {% for m in months %}
+                    <td>
+                        {{ m }}
+                    </td>
+                    {% endfor %}
+                </tr>
+              </tbody>
+            </table>
+
+          </div>
+
+        </div>
+
+        
+      </div>
+    </div>
+    {% include 'app_includes/footer.html' %}
+  </div>
+  
+{% endblock content %}

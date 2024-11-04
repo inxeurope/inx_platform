@@ -47,30 +47,17 @@ def dict_lookup(dictionary, key):
 
 @register.filter
 def get_item(dictionary, key):
-    try:
-        key = int(key)
-    except (ValueError, TypeError):
-        pass
-    return dictionary.get(key, {})
+    return dictionary.get(key)
 
 @register.filter
 def get_bdg_item(dictionary, key):
-    print("get_bdg_item, values passed in the function:", "-"*40)
-    print("key", key, "of type:", type(key))
-    print(f"dictionery: {dictionary}")
     try:
         returned_value = dictionary.get(key)
         if returned_value is None:
             key = int(key)
         returned_value = dictionary.get(key)
-        print(f"returned_value: {returned_value}")
-        print("-"*50)
         return returned_value
     except (TypeError, ValueError, AttributeError) as e:
-        print("This combination created an ERROR:")
-        print(f"key: {key}")
-        print(f"dictionary: {dictionary}")
-        print("Exception: ", e)
         return None
 
 @register.filter
@@ -87,29 +74,61 @@ def get_month_total(dictionary, key):
 
 @register.filter
 def get_grand_total(dictionary, key):
-    first_key = next(iter(dictionary))
-    key_type_in_dict = type(first_key)
-    print("GRAND TOTAL")
-    print(f"type of the key of dictionary: {key_type_in_dict}")
-    print(f"dictionary: {dictionary} - type: {type(dictionary)}")
-    print(f"key: {key} - type of key passed: {type(key)}")
     returned_v = dictionary.get(key)
     return returned_v
     
 @register.filter
 def transform_int(value):
-    print("Transform int is run")
-    print(f"value: {value}  -  type: {type(value)}")
     try:
         return_value = int(value)
-        print(f"transformed value: {return_value}")
         return return_value
     except (ValueError, TypeError):
-        print(f"retrning original value: {value}")
         return value
     
 
 @register.filter(name="remove_colon")
 def remove_colon(label_tag):
     return label_tag.replace(':', '')
-    
+
+@register.filter
+def get_month_abbreviated(dict, key):
+    return dict.get(key).get('abbreviated_name')
+
+
+@register.filter
+def custom_number_decimal(value):
+    """
+    Format a number using dots as thousands separators and commas as decimal points.
+    """
+    try:
+        # Convert the value to a float
+        value = float(value)
+        # Format the number with dot as thousands separator and comma as decimal separator
+        return "{:,.2f}".format(value).replace(",", "X").replace(".", ",").replace("X", ".")
+    except (ValueError, TypeError):
+        # If conversion to float fails, return the original value
+        return value
+
+@register.filter
+def custom_number_no_decimal(value):
+    """
+    Format a number using dots as thousands separators and commas as decimal points.
+    """
+    try:
+        # Convert the value to a float
+        value = float(value)
+        # Format the number with dot as thousands separator and comma as decimal separator
+        return "{:,.0f}".format(value).replace(",", "X").replace(".", ",").replace("X", ".")
+    except (ValueError, TypeError):
+        # If conversion to float fails, return the original value
+        return value
+
+
+@register.filter
+def get_nested_item(dictionary, keys):
+    keys = keys.split('.')
+    for key in keys:
+        dictionary = dictionary.get(key)
+        if dictionary is None:
+            return None
+    return dictionary
