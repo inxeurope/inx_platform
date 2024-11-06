@@ -3171,15 +3171,34 @@ class DecimalEncoder(json.JSONEncoder):
 @login_required
 def forecast_budget_3(request, customer_id):
     forecast_year = datetime.now().year
+    forecast_year_str = str(forecast_year)
     budget_year = forecast_year + 1
+    budget_year_str = str(budget_year)
     c = get_object_or_404(Customer, pk=customer_id)
     if c:
         result_dict = {
             "customer": c.name,
-            "brands": {},
-            "totals": {
-                "customer_total_monthly": {str(month): {"volume": 0, "price": 0, "value": 0} for month in range(1, 13)},
-                "customer_total_yearly": {"volume": 0, "price": 0, "value": 0}
+            "brands": {
+                "grand_total_per_customer": {
+                    "scenarios": {
+                        "Forecast": {
+                            "years": {
+                                forecast_year_str: {
+                                    "months": {str(month): {"volume": 0, "price": 0, "value": 0} for month in range(1, 13)},
+                                    "grand_total_per_customer": {"volume": 0, "price":0, "value": 0}
+                                }
+                            }
+                        },
+                        "Budget": {
+                            "years": {
+                                budget_year_str: {
+                                    "months": {str(month): {"volume": 0, "price": 0, "value": 0} for month in range(1, 13)},
+                                    "grand_total_per_customer": {"volume": 0, "price":0, "value": 0}
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
         
@@ -3194,35 +3213,53 @@ def forecast_budget_3(request, customer_id):
         for brand in unique_brands:
             brand_name = brand["brand__name"]
             result_dict["brands"][brand_name] = {
-                "color_groups": {},
-                "totals": {
-                    "brand_total_monthly": {str(month): {"volume": 0, "price": 0, "value": 0} for month in range(1, 13)},
-                    "brand_total_yearly": {"volume": 0, "price": 0, "value": 0}
+                "color_groups": {}
+            }
+            result_dict["brands"][brand_name]["totals_per_brand"] = {
+                "scenarios":{
+                    "Forecast":{
+                        "years":{
+                            forecast_year_str: {
+                                # Total of a specific brand for a specific scenario in a specific year on a given month
+                                "months": {str(month): {"volume": 0, "price": 0, "value": 0} for month in range(1, 13)},
+                                # Toatal of a specific brand for a specific scenario in a specific year (sum of all months)
+                                "grand_total_per_brand": {"volume": 0, "price": 0, "value": 0}
+                                },
+                        }
+                    },
+                    "Budget":{
+                        "years":{
+                            budget_year_str: {
+                                # Total of a specific brand for a specific scenario in a specific year on a given month
+                                "months": {str(month): {"volume": 0, "price": 0, "value": 0} for month in range(1, 13)},
+                                # Toatal of a specific brand for a specific scenario in a specific year (sum of all months)
+                                "grand_total_per_brand": {"volume": 0, "price": 0, "value": 0}
+                                },
+                        }
+                    }
                 }
             }
+            
             color_groups = budforline_queryset.filter(brand__name=brand_name).values("color_group__name").distinct()
-            # result_dict["brands"][brand_name]["color_groups"]["num_color_groups"] = len(color_groups)
-            # result_dict["brands"][brand_name]["color_groups"]["num_color_groups_plus_one"] = len(color_groups) + 1 
             for color_group in color_groups:
                 color_group_name = color_group["color_group__name"]
                 result_dict["brands"][brand_name]["color_groups"][color_group_name] = {
                     "scenarios": {
                         "Forecast": {
                             "years": {
-                                str(forecast_year): {"months": {str(month): {"volume": 0, "price": 0, "value": 0} for month in range(1, 13)}, "total": {"volume": 0, "price": 0, "value": 0}},
-                                # str(budget_year): {"months": {str(month): {"volume": 0, "price": 0, "value": 0} for month in range(1, 13)}, "total": {"volume": 0, "price": 0, "value": 0}}
+                                forecast_year_str: {"months": {str(month): {"volume": 0, "price": 0, "value": 0} for month in range(1, 13)}, "total_per_color_group": {"volume": 0, "price": 0, "value": 0}},
                             }
                         },
                         "Budget": {
                             "years": {
-                                str(budget_year): {"months": {str(month): {"volume": 0, "price": 0, "value": 0} for month in range(1, 13)}, "total": {"volume": 0, "price": 0, "value": 0}}
+                                budget_year_str: {"months": {str(month): {"volume": 0, "price": 0, "value": 0} for month in range(1, 13)}, "total_per_color_group": {"volume": 0, "price": 0, "value": 0}}
                             }
                         }
                     }
                 }
         
-        # with open('output_init_.json', 'w') as json_file:
-        #     json.dump(result_dict, json_file, indent=4, cls=DecimalEncoder)
+        with open('output_phase_0.json', 'w') as json_file:
+            json.dump(result_dict, json_file, indent=4, cls=DecimalEncoder)
         
         forecast_details = BudgetForecastDetail.objects.filter(
             budforline__customer_id=customer_id,
@@ -3239,72 +3276,68 @@ def forecast_budget_3(request, customer_id):
             price = detail.price
             value = detail.value
             
+            # Inserting details on Forecast, per month
             result_dict["brands"][brand_name]["color_groups"][color_group_name]["scenarios"]["Forecast"]["years"][year]["months"][month]["volume"] = volume
             result_dict["brands"][brand_name]["color_groups"][color_group_name]["scenarios"]["Forecast"]["years"][year]["months"][month]["price"] = price
             result_dict["brands"][brand_name]["color_groups"][color_group_name]["scenarios"]["Forecast"]["years"][year]["months"][month]["value"] = value
             
-            result_dict["brands"][brand_name]["color_groups"][color_group_name]["scenarios"]["Forecast"]["years"][year]["total"]["volume"] += volume
-            result_dict["brands"][brand_name]["color_groups"][color_group_name]["scenarios"]["Forecast"]["years"][year]["total"]["value"] += value
-            tot_val = result_dict["brands"][brand_name]["color_groups"][color_group_name]["scenarios"]["Forecast"]["years"][year]["total"]["value"]
-            tot_vol = result_dict["brands"][brand_name]["color_groups"][color_group_name]["scenarios"]["Forecast"]["years"][year]["total"]["volume"]
+            # Adding up for the color_group total
+            result_dict["brands"][brand_name]["color_groups"][color_group_name]["scenarios"]["Forecast"]["years"][year]["total_per_color_group"]["volume"] += volume
+            result_dict["brands"][brand_name]["color_groups"][color_group_name]["scenarios"]["Forecast"]["years"][year]["total_per_color_group"]["value"] += value
+            tot_val = result_dict["brands"][brand_name]["color_groups"][color_group_name]["scenarios"]["Forecast"]["years"][year]["total_per_color_group"]["value"]
+            tot_vol = result_dict["brands"][brand_name]["color_groups"][color_group_name]["scenarios"]["Forecast"]["years"][year]["total_per_color_group"]["volume"]
             if tot_vol > 0:
-                avg_up = tot_val / tot_vol
-                result_dict["brands"][brand_name]["color_groups"][color_group_name]["scenarios"]["Forecast"]["years"][year]["total"]["price"] = avg_up
+                avg_up = (Decimal(tot_val) / Decimal(tot_vol)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+                result_dict["brands"][brand_name]["color_groups"][color_group_name]["scenarios"]["Forecast"]["years"][year]["total_per_color_group"]["price"] = avg_up
             else:
-                result_dict["brands"][brand_name]["color_groups"][color_group_name]["scenarios"]["Forecast"]["years"][year]["total"]["price"] = 0
+                result_dict["brands"][brand_name]["color_groups"][color_group_name]["scenarios"]["Forecast"]["years"][year]["total_per_color_group"]["price"] = 0
             
-            result_dict["brands"][brand_name]["totals"]["brand_total_monthly"][month]["volume"] += volume
-            result_dict["brands"][brand_name]["totals"]["brand_total_monthly"][month]["value"] += value
-            tot_vol = result_dict["brands"][brand_name]["totals"]["brand_total_monthly"][month]["volume"]
-            tot_val = result_dict["brands"][brand_name]["totals"]["brand_total_monthly"][month]["value"]
+            # Adding up for the brand total per month
+            result_dict["brands"][brand_name]["totals_per_brand"]["scenarios"]["Forecast"]["years"][year]["months"][month]["volume"] += volume
+            result_dict["brands"][brand_name]["totals_per_brand"]["scenarios"]["Forecast"]["years"][year]["months"][month]["value"] += value
+            tot_val = result_dict["brands"][brand_name]["totals_per_brand"]["scenarios"]["Forecast"]["years"][year]["months"][month]["value"]
+            tot_vol = result_dict["brands"][brand_name]["totals_per_brand"]["scenarios"]["Forecast"]["years"][year]["months"][month]["volume"]
             if tot_vol > 0:
-                avg_up = tot_val / tot_vol
-                result_dict["brands"][brand_name]["totals"]["brand_total_monthly"][month]["price"] = avg_up
+                avg_up = (Decimal(tot_val) / Decimal(tot_vol)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+                result_dict["brands"][brand_name]["totals_per_brand"]["scenarios"]["Forecast"]["years"][year]["months"][month]["price"] = avg_up
             else:
-                result_dict["brands"][brand_name]["totals"]["brand_total_monthly"][month]["price"] = 0
+                result_dict["brands"][brand_name]["totals_per_brand"]["scenarios"]["Forecast"]["years"][year]["months"][month]["price"] = 0
+                
+            # Adding up for the grand total per brand
+            result_dict["brands"][brand_name]["totals_per_brand"]["scenarios"]["Forecast"]["years"][year]["grand_total_per_brand"]["volume"] += volume
+            result_dict["brands"][brand_name]["totals_per_brand"]["scenarios"]["Forecast"]["years"][year]["grand_total_per_brand"]["value"] += value
+            tot_val = result_dict["brands"][brand_name]["totals_per_brand"]["scenarios"]["Forecast"]["years"][year]["grand_total_per_brand"]["value"]
+            tot_vol = result_dict["brands"][brand_name]["totals_per_brand"]["scenarios"]["Forecast"]["years"][year]["grand_total_per_brand"]["volume"]
+            if tot_vol > 0:
+                avg_up = (Decimal(tot_val) / Decimal(tot_vol)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+                result_dict["brands"][brand_name]["totals_per_brand"]["scenarios"]["Forecast"]["years"][year]["grand_total_per_brand"]["price"] = avg_up
+            else:
+                result_dict["brands"][brand_name]["totals_per_brand"]["scenarios"]["Forecast"]["years"][year]["grand_total_per_brand"]["price"] = 0
             
-            result_dict["brands"][brand_name]["totals"]["brand_total_yearly"]["volume"] += volume
-            result_dict["brands"][brand_name]["totals"]["brand_total_yearly"]["value"] += value
-            tot_val = result_dict["brands"][brand_name]["totals"]["brand_total_yearly"]["value"]
-            tot_vol = result_dict["brands"][brand_name]["totals"]["brand_total_yearly"]["volume"]
+            # Adding up for the customer total
+            result_dict["brands"]["grand_total_per_customer"]["scenarios"]["Forecast"]["years"][year]["months"][month]["volume"] += volume
+            result_dict["brands"]["grand_total_per_customer"]["scenarios"]["Forecast"]["years"][year]["months"][month]["value"] += value
+            tot_val = result_dict["brands"]["grand_total_per_customer"]["scenarios"]["Forecast"]["years"][year]["months"][month]["value"]
+            tot_vol = result_dict["brands"]["grand_total_per_customer"]["scenarios"]["Forecast"]["years"][year]["months"][month]["volume"]
             if tot_vol > 0:
-                avg_up = tot_val / tot_vol
-                result_dict["brands"][brand_name]["totals"]["brand_total_yearly"]["price"] = avg_up
+                avg_up = (Decimal(tot_val) / Decimal(tot_vol)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+                result_dict["brands"]["grand_total_per_customer"]["scenarios"]["Forecast"]["years"][year]["months"][month]["price"] = avg_up
             else:
-                result_dict["brands"][brand_name]["totals"]["brand_total_yearly"]["price"] = 0
+                result_dict["brands"]["grand_total_per_customer"]["scenarios"]["Forecast"]["years"][year]["months"][month]["price"] = 0
             
-            result_dict["totals"]["customer_total_monthly"][month]["volume"] += volume
-            # result_dict["totals"]["customer_total_monthly"][month]["price"] += price
-            result_dict["totals"]["customer_total_monthly"][month]["value"] += value
-            tot_val = result_dict["totals"]["customer_total_monthly"][month]["value"]
-            tot_vol = result_dict["totals"]["customer_total_monthly"][month]["volume"]
+            # Adding up for the grand total per customer
+            result_dict['brands']['grand_total_per_customer']['scenarios']['Forecast']['years'][year]['grand_total_per_customer']['volume'] += volume
+            result_dict['brands']['grand_total_per_customer']['scenarios']['Forecast']['years'][year]['grand_total_per_customer']['value'] += value
+            tot_val = result_dict['brands']['grand_total_per_customer']['scenarios']['Forecast']['years'][year]['grand_total_per_customer']['value']
+            tot_vol = result_dict['brands']['grand_total_per_customer']['scenarios']['Forecast']['years'][year]['grand_total_per_customer']['volume']
             if tot_vol > 0:
-                avg_up = tot_val / tot_vol
-                result_dict["totals"]["customer_total_monthly"][month]["price"] = avg_up
+                avg_up = (Decimal(tot_val) / Decimal(tot_vol)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+                result_dict['brands']['grand_total_per_customer']['scenarios']['Forecast']['years'][year]['grand_total_per_customer']['price'] = avg_up
             else:
-                result_dict["totals"]["customer_total_monthly"][month]["price"] = 0
+                result_dict['brands']['grand_total_per_customer']['scenarios']['Forecast']['years'][year]['grand_total_per_customer']['price'] = 0            
             
-            result_dict["totals"]["customer_total_yearly"]["volume"] += volume
-            # result_dict["totals"]["customer_total_yearly"]["price"] += price
-            result_dict["totals"]["customer_total_yearly"]["value"] += value
-            tot_val = result_dict["totals"]["customer_total_yearly"]["value"]
-            tot_vol = result_dict["totals"]["customer_total_yearly"]["volume"]
-            if tot_vol > 0:
-                avg_up = tot_val / tot_vol
-                result_dict["totals"]["customer_total_yearly"]["price"] = avg_up
-            else:
-                result_dict["totals"]["customer_total_yearly"]["price"] = 0
-        
-        
-        # Calculate num_color_groups and num_color_groups_plus_one for each brand
-        # for brand_name, brand_data in result_dict["brands"].items():
-        #     num_color_groups = len(brand_data["color_groups"])
-        #     for color_group_name, color_group_data in brand_data["color_groups"].items():
-        #         color_group_data["num_color_groups"] = num_color_groups
-        #         color_group_data["num_color_groups_plus_one"] = num_color_groups + 1
-        
-        
-        with open('output_after_details_.json', 'w') as json_file:
+        # Exporting the result_dict to a json file
+        with open('output_phase_1.json', 'w') as json_file:
             json.dump(result_dict, json_file, indent=4, cls=DecimalEncoder)
         
         context = {
