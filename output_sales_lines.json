@@ -1,0 +1,412 @@
+{
+    "customer": "Durst Group AG (AT)",
+    "brands": {
+        "POPFlex": {
+            "color_groups": {
+                "CMYK": {
+                    "scenarios": {
+                        "Sales": {
+                            "years": {
+                                "2024": {
+                                    "months": {
+                                        "1": {
+                                            "volume": 2990.0,
+                                            "price": 22.2,
+                                            "value": 71487.0
+                                        },
+                                        "2": {
+                                            "volume": 500.0,
+                                            "price": 21.7,
+                                            "value": 10850.0
+                                        },
+                                        "4": {
+                                            "volume": 2810.0,
+                                            "price": 22.2,
+                                            "value": 67036.0
+                                        },
+                                        "5": {
+                                            "volume": 3525.0,
+                                            "price": 0.0,
+                                            "value": 75230.0
+                                        },
+                                        "6": {
+                                            "volume": 3425.0,
+                                            "price": 22.2,
+                                            "value": 82093.5
+                                        },
+                                        "7": {
+                                            "volume": 1990.0,
+                                            "price": 23.8,
+                                            "value": 50937.0
+                                        },
+                                        "8": {
+                                            "volume": 1500.0,
+                                            "price": 22.2,
+                                            "value": 41382.0
+                                        },
+                                        "9": {
+                                            "volume": 2540.0,
+                                            "price": 22.2,
+                                            "value": 61841.0
+                                        },
+                                        "10": {
+                                            "volume": 1135.0,
+                                            "price": 0.0,
+                                            "value": 23722.5
+                                        },
+                                        "3": {
+                                            "volume": 1000.0,
+                                            "price": 23.8,
+                                            "value": 25850.0
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "Lights": {
+                    "scenarios": {
+                        "Sales": {
+                            "years": {
+                                "2024": {
+                                    "months": {
+                                        "2": {
+                                            "volume": 250.0,
+                                            "price": 20.7,
+                                            "value": 5175.0
+                                        },
+                                        "4": {
+                                            "volume": 550.0,
+                                            "price": 22.75,
+                                            "value": 12000.0
+                                        },
+                                        "5": {
+                                            "volume": 790.0,
+                                            "price": 22.75,
+                                            "value": 16947.5
+                                        },
+                                        "7": {
+                                            "volume": 280.0,
+                                            "price": 20.7,
+                                            "value": 5796.0
+                                        },
+                                        "9": {
+                                            "volume": 790.0,
+                                            "price": 22.75,
+                                            "value": 17378.0
+                                        },
+                                        "1": {
+                                            "volume": 250.0,
+                                            "price": 22.75,
+                                            "value": 5687.5
+                                        },
+                                        "3": {
+                                            "volume": 270.0,
+                                            "price": 22.75,
+                                            "value": 6142.5
+                                        },
+                                        "6": {
+                                            "volume": 250.0,
+                                            "price": 22.75,
+                                            "value": 5687.5
+                                        },
+                                        "10": {
+                                            "volume": 30.0,
+                                            "price": 0.0,
+                                            "value": 0.0
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "FF": {
+                    "scenarios": {
+                        "Sales": {
+                            "years": {
+                                "2024": {
+                                    "months": {
+                                        "6": {
+                                            "volume": 200.0,
+                                            "price": 15.5,
+                                            "value": 3100.0
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "FF": {
+            "color_groups": {
+                "FF": {
+                    "scenarios": {
+                        "Sales": {
+                            "years": {
+                                "2024": {
+                                    "months": {
+                                        "3": {
+                                            "volume": 200.0,
+                                            "price": 15.5,
+                                            "value": 3100.0
+                                        },
+                                        "4": {
+                                            "volume": 204.0,
+                                            "price": 15.5,
+                                            "value": 3162.0
+                                        },
+                                        "6": {
+                                            "volume": 204.0,
+                                            "price": 15.5,
+                                            "value": 3162.0
+                                        },
+                                        "9": {
+                                            "volume": 204.0,
+                                            "price": 15.5,
+                                            "value": 3162.0
+                                        },
+                                        "10": {
+                                            "volume": 204.0,
+                                            "price": 15.5,
+                                            "value": 3162.0
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "OEM (RDE1272)": {
+            "color_groups": {
+                "Lights": {
+                    "scenarios": {
+                        "Sales": {
+                            "years": {
+                                "2024": {
+                                    "months": {
+                                        "2": {
+                                            "volume": 520.0,
+                                            "price": 20.7,
+                                            "value": 10764.0
+                                        },
+                                        "3": {
+                                            "volume": 1340.0,
+                                            "price": 18.5,
+                                            "value": 26616.0
+                                        },
+                                        "4": {
+                                            "volume": 1670.0,
+                                            "price": 18.5,
+                                            "value": 32677.0
+                                        },
+                                        "6": {
+                                            "volume": 1295.0,
+                                            "price": 18.5,
+                                            "value": 25123.5
+                                        },
+                                        "7": {
+                                            "volume": 885.0,
+                                            "price": 18.5,
+                                            "value": 16757.5
+                                        },
+                                        "8": {
+                                            "volume": 2415.0,
+                                            "price": 20.7,
+                                            "value": 48208.5
+                                        },
+                                        "5": {
+                                            "volume": 290.0,
+                                            "price": 20.7,
+                                            "value": 6003.0
+                                        },
+                                        "10": {
+                                            "volume": 1155.0,
+                                            "price": 18.5,
+                                            "value": 22016.5
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "CMYK": {
+                    "scenarios": {
+                        "Sales": {
+                            "years": {
+                                "2024": {
+                                    "months": {
+                                        "1": {
+                                            "volume": 7960.0,
+                                            "price": 22.75,
+                                            "value": 194334.0
+                                        },
+                                        "2": {
+                                            "volume": 5540.0,
+                                            "price": 22.75,
+                                            "value": 131337.5
+                                        },
+                                        "3": {
+                                            "volume": 10630.0,
+                                            "price": 22.75,
+                                            "value": 256445.0
+                                        },
+                                        "4": {
+                                            "volume": 9875.0,
+                                            "price": 22.75,
+                                            "value": 236562.0
+                                        },
+                                        "5": {
+                                            "volume": 9210.0,
+                                            "price": 22.75,
+                                            "value": 220536.0
+                                        },
+                                        "6": {
+                                            "volume": 8235.0,
+                                            "price": 22.75,
+                                            "value": 199855.5
+                                        },
+                                        "7": {
+                                            "volume": 9215.0,
+                                            "price": 22.75,
+                                            "value": 218571.0
+                                        },
+                                        "8": {
+                                            "volume": 16215.0,
+                                            "price": 22.75,
+                                            "value": 374283.75
+                                        },
+                                        "10": {
+                                            "volume": 8470.0,
+                                            "price": 22.75,
+                                            "value": 202891.25
+                                        },
+                                        "9": {
+                                            "volume": 1515.0,
+                                            "price": 24.3,
+                                            "value": 36814.5
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "OEM (RD1356)": {
+            "color_groups": {
+                "Special": {
+                    "scenarios": {
+                        "Sales": {
+                            "years": {
+                                "2024": {
+                                    "months": {
+                                        "1": {
+                                            "volume": 230.0,
+                                            "price": 33.9,
+                                            "value": 7797.0
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "Fee": {
+            "color_groups": {
+                "Special": {
+                    "scenarios": {
+                        "Sales": {
+                            "years": {
+                                "2024": {
+                                    "months": {
+                                        "5": {
+                                            "volume": 2.0,
+                                            "price": 1600.0,
+                                            "value": 1944.7
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "Freight Charge": {
+            "color_groups": {
+                "Special": {
+                    "scenarios": {
+                        "Sales": {
+                            "years": {
+                                "2024": {
+                                    "months": {
+                                        "1": {
+                                            "volume": 38.0,
+                                            "price": 10.5,
+                                            "value": 399.0
+                                        },
+                                        "2": {
+                                            "volume": 22.0,
+                                            "price": 10.5,
+                                            "value": 231.0
+                                        },
+                                        "3": {
+                                            "volume": 44.0,
+                                            "price": 10.5,
+                                            "value": 462.0
+                                        },
+                                        "4": {
+                                            "volume": 49.0,
+                                            "price": 10.5,
+                                            "value": 514.5
+                                        },
+                                        "5": {
+                                            "volume": 43.0,
+                                            "price": 10.5,
+                                            "value": 451.5
+                                        },
+                                        "6": {
+                                            "volume": 49.0,
+                                            "price": 10.5,
+                                            "value": 514.5
+                                        },
+                                        "7": {
+                                            "volume": 43.0,
+                                            "price": 10.5,
+                                            "value": 451.5
+                                        },
+                                        "8": {
+                                            "volume": 65.0,
+                                            "price": 10.5,
+                                            "value": 682.5
+                                        },
+                                        "9": {
+                                            "volume": 19.0,
+                                            "price": 10.5,
+                                            "value": 199.5
+                                        },
+                                        "10": {
+                                            "volume": 36.0,
+                                            "price": 10.5,
+                                            "value": 378.0
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

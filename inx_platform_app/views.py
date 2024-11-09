@@ -29,7 +29,7 @@ import pandas as pd
 import numpy as np
 import os
 import time
-from datetime import datetime
+from datetime import datetime, date
 from time import perf_counter
 import pprint
     
@@ -3161,11 +3161,24 @@ def special_del_boms(request):
 
 
 # Ensure Decimal data types are JSON serializable by converting them to floats
+# Ensure date data types are JSON serializable by converting them to isoformat
 class DecimalEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, Decimal):
             return float(obj)
+        if isinstance(obj, datetime):
+            return obj.isoformat
+        if isinstance(obj, datetime.date):
+            return obj.isoformat
         return super(DecimalEncoder, self).default(obj)
+
+
+def is_json_serializable(value):
+    try:
+        json.dumps(value, cls=DecimalEncoder)
+        return True
+    except (TypeError, ValueError):
+        return False
 
 
 @login_required
@@ -3202,6 +3215,45 @@ def forecast_budget_3(request, customer_id):
             }
         }
         
+        # result_dict = defaultdict(lambda: {
+        #     "brands": defaultdict(lambda: {
+        #         "color_groups": defaultdict(lambda: {
+        #             "scenarios": {
+        #                 "Forecast": {
+        #                     "years": defaultdict(lambda: {
+        #                         "months": defaultdict(lambda: {
+        #                             "volume": Decimal('0.00'),
+        #                             "price": Decimal('0.00'),
+        #                             "value": Decimal('0.00')
+        #                         }),
+        #                         "grand_total_per_customer": {
+        #                             "volume": Decimal('0.00'),
+        #                             "price": Decimal('0.00'),
+        #                             "value": Decimal('0.00')
+        #                         }
+        #                     })
+        #                 },
+        #                 "Budget": {
+        #                     "years": defaultdict(lambda: {
+        #                         "months": defaultdict(lambda: {
+        #                             "volume": Decimal('0.00'),
+        #                             "price": Decimal('0.00'),
+        #                             "value": Decimal('0.00')
+        #                         }),
+        #                         "grand_total_per_customer": {
+        #                             "volume": Decimal('0.00'),
+        #                             "price": Decimal('0.00'),
+        #                             "value": Decimal('0.00')
+        #                         }
+        #                     })
+        #                 }
+        #             }
+        #         })
+        #     })
+        # })
+        
+        
+        
         budforline_queryset = BudForLine.objects.filter(
             customer_id=customer_id
         ).filter(
@@ -3212,54 +3264,54 @@ def forecast_budget_3(request, customer_id):
         unique_brands = budforline_queryset.values("brand__name").distinct()
         for brand in unique_brands:
             brand_name = brand["brand__name"]
-            result_dict["brands"][brand_name] = {
-                "color_groups": {}
-            }
-            result_dict["brands"][brand_name]["totals_per_brand"] = {
-                "scenarios":{
-                    "Forecast":{
-                        "years":{
-                            forecast_year_str: {
-                                # Total of a specific brand for a specific scenario in a specific year on a given month
-                                "months": {str(month): {"volume": 0, "price": 0, "value": 0} for month in range(1, 13)},
-                                # Toatal of a specific brand for a specific scenario in a specific year (sum of all months)
-                                "grand_total_per_brand": {"volume": 0, "price": 0, "value": 0}
-                                },
-                        }
-                    },
-                    "Budget":{
-                        "years":{
-                            budget_year_str: {
-                                # Total of a specific brand for a specific scenario in a specific year on a given month
-                                "months": {str(month): {"volume": 0, "price": 0, "value": 0} for month in range(1, 13)},
-                                # Toatal of a specific brand for a specific scenario in a specific year (sum of all months)
-                                "grand_total_per_brand": {"volume": 0, "price": 0, "value": 0}
-                                },
-                        }
-                    }
-                }
-            }
+            # result_dict["brands"][brand_name] = {
+            #     "color_groups": {}
+            # }
+            # result_dict["brands"][brand_name]["totals_per_brand"] = {
+            #     "scenarios":{
+            #         "Forecast":{
+            #             "years":{
+            #                 forecast_year_str: {
+            #                     # Total of a specific brand for a specific scenario in a specific year on a given month
+            #                     "months": {str(month): {"volume": 0, "price": 0, "value": 0} for month in range(1, 13)},
+            #                     # Toatal of a specific brand for a specific scenario in a specific year (sum of all months)
+            #                     "grand_total_per_brand": {"volume": 0, "price": 0, "value": 0}
+            #                     },
+            #             }
+            #         },
+            #         "Budget":{
+            #             "years":{
+            #                 budget_year_str: {
+            #                     # Total of a specific brand for a specific scenario in a specific year on a given month
+            #                     "months": {str(month): {"volume": 0, "price": 0, "value": 0} for month in range(1, 13)},
+            #                     # Toatal of a specific brand for a specific scenario in a specific year (sum of all months)
+            #                     "grand_total_per_brand": {"volume": 0, "price": 0, "value": 0}
+            #                     },
+            #             }
+            #         }
+            #     }
+            # }
+            
+            result_dict["brands"][brand_name]
             
             color_groups = budforline_queryset.filter(brand__name=brand_name).values("color_group__name").distinct()
             for color_group in color_groups:
                 color_group_name = color_group["color_group__name"]
-                result_dict["brands"][brand_name]["color_groups"][color_group_name] = {
-                    "scenarios": {
-                        "Forecast": {
-                            "years": {
-                                forecast_year_str: {"months": {str(month): {"volume": 0, "price": 0, "value": 0} for month in range(1, 13)}, "total_per_color_group": {"volume": 0, "price": 0, "value": 0}},
-                            }
-                        },
-                        "Budget": {
-                            "years": {
-                                budget_year_str: {"months": {str(month): {"volume": 0, "price": 0, "value": 0} for month in range(1, 13)}, "total_per_color_group": {"volume": 0, "price": 0, "value": 0}}
-                            }
-                        }
-                    }
-                }
-        
-        with open('output_phase_0.json', 'w') as json_file:
-            json.dump(result_dict, json_file, indent=4, cls=DecimalEncoder)
+                # result_dict["brands"][brand_name]["color_groups"][color_group_name] = {
+                #     "scenarios": {
+                #         "Forecast": {
+                #             "years": {
+                #                 forecast_year_str: {"months": {str(month): {"volume": 0, "price": 0, "value": 0} for month in range(1, 13)}, "total_per_color_group": {"volume": 0, "price": 0, "value": 0}},
+                #             }
+                #         },
+                #         "Budget": {
+                #             "years": {
+                #                 budget_year_str: {"months": {str(month): {"volume": 0, "price": 0, "value": 0} for month in range(1, 13)}, "total_per_color_group": {"volume": 0, "price": 0, "value": 0}}
+                #             }
+                #         }
+                #     }
+                # }
+                result_dict["brnads"][brand_name]["color_groups"][color_group_name]
         
         forecast_details = BudgetForecastDetail.objects.filter(
             budforline__customer_id=customer_id,
@@ -3339,6 +3391,118 @@ def forecast_budget_3(request, customer_id):
         # Exporting the result_dict to a json file
         with open('output_phase_1.json', 'w') as json_file:
             json.dump(result_dict, json_file, indent=4, cls=DecimalEncoder)
+        
+        
+        # Retrieving sales from model ZAQCODMI9_line
+        # The field sold_to is the Customer number
+        # The field material is the Product number
+        # Each Product record has a Brand and a Color
+        # Each Color has a Color Group
+        # Based on the above I want to have ZAQCODMI9_line filtered by Customer number,
+        # and aggregated by Brand, Color Group, Year, Month, showing values of Volume and Value
+        
+        # Subquery to get the brand name from the Product model
+        brand_subquery = Product.objects.filter(number=OuterRef('material')).values('brand__name')[:1]
+        
+        # Subquery to get the color group name from the Product model
+        color_group_subquery = Product.objects.filter(number=OuterRef('material')).values('color__color_group__name')[:1]
+
+        # Retrieving sales from model ZAQCODMI9_line
+        sales_lines = ZAQCODMI9_line.objects.filter(
+            sold_to=c.number,
+            billing_date__year__in=[datetime.now().year]
+        ).annotate(
+            year=F('billing_date__year'),
+            month=F('billing_date__month'),
+            brand_name=Subquery(brand_subquery),
+            color_group=Subquery(color_group_subquery)
+        ).values(
+            'material',
+            'brand_name',
+            'color_group',
+            'year',
+            'month',
+            'invoice_qty',
+            'invoice_sales'
+        ).annotate(
+            total_invoice_qty=Sum('invoice_qty'),
+            total_invoice_sales=Sum('invoice_sales')
+        ).order_by('material', 'brand_name', 'color_group', 'year', 'month')
+        
+        print(len(sales_lines))
+        sales_lines_list = list(sales_lines)
+        
+        
+        with open('output_sales_lines.json', 'w') as json_file:
+            json.dump(sales_lines_list, json_file, indent=4, cls=DecimalEncoder)
+        
+        
+        sales_dict = {
+            "customer": c.name,
+            "brands": defaultdict(lambda: {
+                "color_groups": defaultdict(lambda: {
+                    "scenarios": {
+                        "Sales": {
+                            "years": defaultdict(lambda: {
+                                "months": defaultdict(lambda: {
+                                    "volume": Decimal('0.00'),
+                                    "price": Decimal('0.00'),
+                                    "value": Decimal('0.00')
+                                })
+                            })
+                        }
+                    }
+                })
+            })
+        }
+        
+        # Aggregate the data
+        # we cannot aggregate at the queryset level becasue of SQL Server limitations
+        for line in sales_lines_list:
+            brand_name = line['brand_name']
+            color_group = line['color_group']
+            year = str(line['year'])
+            month = str(line['month'])
+            volume = Decimal(line['total_invoice_qty'])
+            value = Decimal(line['total_invoice_sales'])
+            price = (value / volume).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP) if volume != 0 else Decimal('0.00')
+
+            sales_dict["brands"][brand_name]["color_groups"][color_group]["scenarios"]["Sales"]["years"][year]["months"][month]["volume"] += volume
+            sales_dict["brands"][brand_name]["color_groups"][color_group]["scenarios"]["Sales"]["years"][year]["months"][month]["value"] += value
+            sales_dict["brands"][brand_name]["color_groups"][color_group]["scenarios"]["Sales"]["years"][year]["months"][month]["price"] = price
+
+        
+        # Merge the sales_dict with the result_dict
+        for brand_name, brand_data in sales_dict["brands"].items():
+            for color_group, color_group_data in brand_data["color_groups"].items():
+                for year, year_data in color_group_data["scenarios"]["Sales"]["years"].items():
+                    for month, month_data in year_data["months"].items():
+                        volume = month_data["volume"]
+                        value = month_data["value"]
+                        price = month_data["price"]
+                        result_dict["brands"][brand_name]["color_groups"][color_group]["scenarios"]["Forecast"]["years"][year]["months"][month]["volume"] = volume
+                        result_dict["brands"][brand_name]["color_groups"][color_group]["scenarios"]["Forecast"]["years"][year]["months"][month]["price"] = price
+                        result_dict["brands"][brand_name]["color_groups"][color_group]["scenarios"]["Forecast"]["years"][year]["months"][month]["value"] = value
+
+        # Ensure months prior to or the same as the current month have zero values if no sales data is found
+        current_month = datetime.now().month
+        for brand_name, brand_data in result_dict["brands"].items():
+            for color_group, color_group_data in brand_data["color_groups"].items():
+                for year, year_data in color_group_data["scenarios"]["Sales"]["years"].items():
+                    for month in range(1, current_month + 1):
+                        month_str = str(month)
+                        if month_str not in sales_dict["brands"][brand_name]["color_groups"][color_group]["scenarios"]["Sales"]["years"][year]["months"]:
+                            year_data["months"][month_str] = {
+                                "volume": Decimal('0.00'),
+                                "price": Decimal('0.00'),
+                                "value": Decimal('0.00')
+                            }
+        
+        # convert defaultdict to dict
+        result_dict = dict(result_dict)
+        with open("output_pahse_2.json", "w") as json_file:
+            json.dump(result_dict, json_file, indent=4, cls=DecimalEncoder)
+        
         
         context = {
             'customer': c,
