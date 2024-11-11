@@ -1,412 +1,3060 @@
-{
-    "customer": "Durst Group AG (AT)",
-    "brands": {
-        "POPFlex": {
-            "color_groups": {
-                "CMYK": {
-                    "scenarios": {
-                        "Sales": {
-                            "years": {
-                                "2024": {
-                                    "months": {
-                                        "1": {
-                                            "volume": 2990.0,
-                                            "price": 22.2,
-                                            "value": 71487.0
-                                        },
-                                        "2": {
-                                            "volume": 500.0,
-                                            "price": 21.7,
-                                            "value": 10850.0
-                                        },
-                                        "4": {
-                                            "volume": 2810.0,
-                                            "price": 22.2,
-                                            "value": 67036.0
-                                        },
-                                        "5": {
-                                            "volume": 3525.0,
-                                            "price": 0.0,
-                                            "value": 75230.0
-                                        },
-                                        "6": {
-                                            "volume": 3425.0,
-                                            "price": 22.2,
-                                            "value": 82093.5
-                                        },
-                                        "7": {
-                                            "volume": 1990.0,
-                                            "price": 23.8,
-                                            "value": 50937.0
-                                        },
-                                        "8": {
-                                            "volume": 1500.0,
-                                            "price": 22.2,
-                                            "value": 41382.0
-                                        },
-                                        "9": {
-                                            "volume": 2540.0,
-                                            "price": 22.2,
-                                            "value": 61841.0
-                                        },
-                                        "10": {
-                                            "volume": 1135.0,
-                                            "price": 0.0,
-                                            "value": 23722.5
-                                        },
-                                        "3": {
-                                            "volume": 1000.0,
-                                            "price": 23.8,
-                                            "value": 25850.0
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "Lights": {
-                    "scenarios": {
-                        "Sales": {
-                            "years": {
-                                "2024": {
-                                    "months": {
-                                        "2": {
-                                            "volume": 250.0,
-                                            "price": 20.7,
-                                            "value": 5175.0
-                                        },
-                                        "4": {
-                                            "volume": 550.0,
-                                            "price": 22.75,
-                                            "value": 12000.0
-                                        },
-                                        "5": {
-                                            "volume": 790.0,
-                                            "price": 22.75,
-                                            "value": 16947.5
-                                        },
-                                        "7": {
-                                            "volume": 280.0,
-                                            "price": 20.7,
-                                            "value": 5796.0
-                                        },
-                                        "9": {
-                                            "volume": 790.0,
-                                            "price": 22.75,
-                                            "value": 17378.0
-                                        },
-                                        "1": {
-                                            "volume": 250.0,
-                                            "price": 22.75,
-                                            "value": 5687.5
-                                        },
-                                        "3": {
-                                            "volume": 270.0,
-                                            "price": 22.75,
-                                            "value": 6142.5
-                                        },
-                                        "6": {
-                                            "volume": 250.0,
-                                            "price": 22.75,
-                                            "value": 5687.5
-                                        },
-                                        "10": {
-                                            "volume": 30.0,
-                                            "price": 0.0,
-                                            "value": 0.0
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "FF": {
-                    "scenarios": {
-                        "Sales": {
-                            "years": {
-                                "2024": {
-                                    "months": {
-                                        "6": {
-                                            "volume": 200.0,
-                                            "price": 15.5,
-                                            "value": 3100.0
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "FF": {
-            "color_groups": {
-                "FF": {
-                    "scenarios": {
-                        "Sales": {
-                            "years": {
-                                "2024": {
-                                    "months": {
-                                        "3": {
-                                            "volume": 200.0,
-                                            "price": 15.5,
-                                            "value": 3100.0
-                                        },
-                                        "4": {
-                                            "volume": 204.0,
-                                            "price": 15.5,
-                                            "value": 3162.0
-                                        },
-                                        "6": {
-                                            "volume": 204.0,
-                                            "price": 15.5,
-                                            "value": 3162.0
-                                        },
-                                        "9": {
-                                            "volume": 204.0,
-                                            "price": 15.5,
-                                            "value": 3162.0
-                                        },
-                                        "10": {
-                                            "volume": 204.0,
-                                            "price": 15.5,
-                                            "value": 3162.0
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "OEM (RDE1272)": {
-            "color_groups": {
-                "Lights": {
-                    "scenarios": {
-                        "Sales": {
-                            "years": {
-                                "2024": {
-                                    "months": {
-                                        "2": {
-                                            "volume": 520.0,
-                                            "price": 20.7,
-                                            "value": 10764.0
-                                        },
-                                        "3": {
-                                            "volume": 1340.0,
-                                            "price": 18.5,
-                                            "value": 26616.0
-                                        },
-                                        "4": {
-                                            "volume": 1670.0,
-                                            "price": 18.5,
-                                            "value": 32677.0
-                                        },
-                                        "6": {
-                                            "volume": 1295.0,
-                                            "price": 18.5,
-                                            "value": 25123.5
-                                        },
-                                        "7": {
-                                            "volume": 885.0,
-                                            "price": 18.5,
-                                            "value": 16757.5
-                                        },
-                                        "8": {
-                                            "volume": 2415.0,
-                                            "price": 20.7,
-                                            "value": 48208.5
-                                        },
-                                        "5": {
-                                            "volume": 290.0,
-                                            "price": 20.7,
-                                            "value": 6003.0
-                                        },
-                                        "10": {
-                                            "volume": 1155.0,
-                                            "price": 18.5,
-                                            "value": 22016.5
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "CMYK": {
-                    "scenarios": {
-                        "Sales": {
-                            "years": {
-                                "2024": {
-                                    "months": {
-                                        "1": {
-                                            "volume": 7960.0,
-                                            "price": 22.75,
-                                            "value": 194334.0
-                                        },
-                                        "2": {
-                                            "volume": 5540.0,
-                                            "price": 22.75,
-                                            "value": 131337.5
-                                        },
-                                        "3": {
-                                            "volume": 10630.0,
-                                            "price": 22.75,
-                                            "value": 256445.0
-                                        },
-                                        "4": {
-                                            "volume": 9875.0,
-                                            "price": 22.75,
-                                            "value": 236562.0
-                                        },
-                                        "5": {
-                                            "volume": 9210.0,
-                                            "price": 22.75,
-                                            "value": 220536.0
-                                        },
-                                        "6": {
-                                            "volume": 8235.0,
-                                            "price": 22.75,
-                                            "value": 199855.5
-                                        },
-                                        "7": {
-                                            "volume": 9215.0,
-                                            "price": 22.75,
-                                            "value": 218571.0
-                                        },
-                                        "8": {
-                                            "volume": 16215.0,
-                                            "price": 22.75,
-                                            "value": 374283.75
-                                        },
-                                        "10": {
-                                            "volume": 8470.0,
-                                            "price": 22.75,
-                                            "value": 202891.25
-                                        },
-                                        "9": {
-                                            "volume": 1515.0,
-                                            "price": 24.3,
-                                            "value": 36814.5
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "OEM (RD1356)": {
-            "color_groups": {
-                "Special": {
-                    "scenarios": {
-                        "Sales": {
-                            "years": {
-                                "2024": {
-                                    "months": {
-                                        "1": {
-                                            "volume": 230.0,
-                                            "price": 33.9,
-                                            "value": 7797.0
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "Fee": {
-            "color_groups": {
-                "Special": {
-                    "scenarios": {
-                        "Sales": {
-                            "years": {
-                                "2024": {
-                                    "months": {
-                                        "5": {
-                                            "volume": 2.0,
-                                            "price": 1600.0,
-                                            "value": 1944.7
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "Freight Charge": {
-            "color_groups": {
-                "Special": {
-                    "scenarios": {
-                        "Sales": {
-                            "years": {
-                                "2024": {
-                                    "months": {
-                                        "1": {
-                                            "volume": 38.0,
-                                            "price": 10.5,
-                                            "value": 399.0
-                                        },
-                                        "2": {
-                                            "volume": 22.0,
-                                            "price": 10.5,
-                                            "value": 231.0
-                                        },
-                                        "3": {
-                                            "volume": 44.0,
-                                            "price": 10.5,
-                                            "value": 462.0
-                                        },
-                                        "4": {
-                                            "volume": 49.0,
-                                            "price": 10.5,
-                                            "value": 514.5
-                                        },
-                                        "5": {
-                                            "volume": 43.0,
-                                            "price": 10.5,
-                                            "value": 451.5
-                                        },
-                                        "6": {
-                                            "volume": 49.0,
-                                            "price": 10.5,
-                                            "value": 514.5
-                                        },
-                                        "7": {
-                                            "volume": 43.0,
-                                            "price": 10.5,
-                                            "value": 451.5
-                                        },
-                                        "8": {
-                                            "volume": 65.0,
-                                            "price": 10.5,
-                                            "value": 682.5
-                                        },
-                                        "9": {
-                                            "volume": 19.0,
-                                            "price": 10.5,
-                                            "value": 199.5
-                                        },
-                                        "10": {
-                                            "volume": 36.0,
-                                            "price": 10.5,
-                                            "value": 378.0
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+[
+    {
+        "material": "1560399-05LTBB",
+        "invoice_qty": 250.0,
+        "invoice_sales": 5425.0,
+        "year": 2024,
+        "month": 1,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 250.0,
+        "total_invoice_sales": 5425.0
+    },
+    {
+        "material": "1560399-05LTBB",
+        "invoice_qty": 500.0,
+        "invoice_sales": 10850.0,
+        "year": 2024,
+        "month": 2,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 500.0,
+        "total_invoice_sales": 10850.0
+    },
+    {
+        "material": "1560399-05LTBB",
+        "invoice_qty": 520.0,
+        "invoice_sales": 11284.0,
+        "year": 2024,
+        "month": 4,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 520.0,
+        "total_invoice_sales": 11284.0
+    },
+    {
+        "material": "1560399-05LTBB",
+        "invoice_qty": 360.0,
+        "invoice_sales": 7812.0,
+        "year": 2024,
+        "month": 5,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 360.0,
+        "total_invoice_sales": 7812.0
+    },
+    {
+        "material": "1560399-05LTBB",
+        "invoice_qty": 140.0,
+        "invoice_sales": 3038.0,
+        "year": 2024,
+        "month": 5,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 140.0,
+        "total_invoice_sales": 3038.0
+    },
+    {
+        "material": "1560399-05LTBB",
+        "invoice_qty": 465.0,
+        "invoice_sales": 10090.5,
+        "year": 2024,
+        "month": 6,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 465.0,
+        "total_invoice_sales": 10090.5
+    },
+    {
+        "material": "1560399-05LTBB",
+        "invoice_qty": -250.0,
+        "invoice_sales": -5425.0,
+        "year": 2024,
+        "month": 7,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": -1000.0,
+        "total_invoice_sales": -21700.0
+    },
+    {
+        "material": "1560399-05LTBB",
+        "invoice_qty": 250.0,
+        "invoice_sales": 5425.0,
+        "year": 2024,
+        "month": 7,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1250.0,
+        "total_invoice_sales": 27125.0
+    },
+    {
+        "material": "1560399-05LTBB",
+        "invoice_qty": 540.0,
+        "invoice_sales": 11718.0,
+        "year": 2024,
+        "month": 8,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 540.0,
+        "total_invoice_sales": 11718.0
+    },
+    {
+        "material": "1560399-05LTBB",
+        "invoice_qty": 500.0,
+        "invoice_sales": 10850.0,
+        "year": 2024,
+        "month": 9,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 500.0,
+        "total_invoice_sales": 10850.0
+    },
+    {
+        "material": "1560399-05LTBB",
+        "invoice_qty": 285.0,
+        "invoice_sales": 6184.5,
+        "year": 2024,
+        "month": 10,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 285.0,
+        "total_invoice_sales": 6184.5
+    },
+    {
+        "material": "1560551-05LTBB",
+        "invoice_qty": 500.0,
+        "invoice_sales": 13950.0,
+        "year": 2024,
+        "month": 1,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 500.0,
+        "total_invoice_sales": 13950.0
+    },
+    {
+        "material": "1560551-05LTBB",
+        "invoice_qty": 500.0,
+        "invoice_sales": 13950.0,
+        "year": 2024,
+        "month": 3,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 500.0,
+        "total_invoice_sales": 13950.0
+    },
+    {
+        "material": "1560551-05LTBB",
+        "invoice_qty": 500.0,
+        "invoice_sales": 13950.0,
+        "year": 2024,
+        "month": 4,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 500.0,
+        "total_invoice_sales": 13950.0
+    },
+    {
+        "material": "1560551-05LTBB",
+        "invoice_qty": 500.0,
+        "invoice_sales": 13950.0,
+        "year": 2024,
+        "month": 5,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1000.0,
+        "total_invoice_sales": 27900.0
+    },
+    {
+        "material": "1560551-05LTBB",
+        "invoice_qty": -750.0,
+        "invoice_sales": -20925.0,
+        "year": 2024,
+        "month": 5,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": -750.0,
+        "total_invoice_sales": -20925.0
+    },
+    {
+        "material": "1560551-05LTBB",
+        "invoice_qty": -500.0,
+        "invoice_sales": -13950.0,
+        "year": 2024,
+        "month": 5,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": -500.0,
+        "total_invoice_sales": -13950.0
+    },
+    {
+        "material": "1560551-05LTBB",
+        "invoice_qty": 750.0,
+        "invoice_sales": 20925.0,
+        "year": 2024,
+        "month": 5,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 750.0,
+        "total_invoice_sales": 20925.0
+    },
+    {
+        "material": "1560551-05LTBB",
+        "invoice_qty": 330.0,
+        "invoice_sales": 9207.0,
+        "year": 2024,
+        "month": 5,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 330.0,
+        "total_invoice_sales": 9207.0
+    },
+    {
+        "material": "1560551-05LTBB",
+        "invoice_qty": 420.0,
+        "invoice_sales": 11718.0,
+        "year": 2024,
+        "month": 5,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 420.0,
+        "total_invoice_sales": 11718.0
+    },
+    {
+        "material": "1560551-05LTBB",
+        "invoice_qty": 750.0,
+        "invoice_sales": 20925.0,
+        "year": 2024,
+        "month": 6,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 750.0,
+        "total_invoice_sales": 20925.0
+    },
+    {
+        "material": "1560551-05LTBB",
+        "invoice_qty": -500.0,
+        "invoice_sales": -13950.0,
+        "year": 2024,
+        "month": 7,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": -2000.0,
+        "total_invoice_sales": -55800.0
+    },
+    {
+        "material": "1560551-05LTBB",
+        "invoice_qty": 500.0,
+        "invoice_sales": 13950.0,
+        "year": 2024,
+        "month": 7,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 3000.0,
+        "total_invoice_sales": 83700.0
+    },
+    {
+        "material": "1560551-05LTBB",
+        "invoice_qty": 790.0,
+        "invoice_sales": 22041.0,
+        "year": 2024,
+        "month": 9,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 790.0,
+        "total_invoice_sales": 22041.0
+    },
+    {
+        "material": "1560611-05LTBB",
+        "invoice_qty": 740.0,
+        "invoice_sales": 17612.0,
+        "year": 2024,
+        "month": 1,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 740.0,
+        "total_invoice_sales": 17612.0
+    },
+    {
+        "material": "1560611-05LTBB",
+        "invoice_qty": 750.0,
+        "invoice_sales": 17850.0,
+        "year": 2024,
+        "month": 1,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 750.0,
+        "total_invoice_sales": 17850.0
+    },
+    {
+        "material": "1560611-05LTBB",
+        "invoice_qty": 500.0,
+        "invoice_sales": 11900.0,
+        "year": 2024,
+        "month": 3,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 500.0,
+        "total_invoice_sales": 11900.0
+    },
+    {
+        "material": "1560611-05LTBB",
+        "invoice_qty": 500.0,
+        "invoice_sales": 11900.0,
+        "year": 2024,
+        "month": 4,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 500.0,
+        "total_invoice_sales": 11900.0
+    },
+    {
+        "material": "1560611-05LTBB",
+        "invoice_qty": 790.0,
+        "invoice_sales": 18802.0,
+        "year": 2024,
+        "month": 4,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 790.0,
+        "total_invoice_sales": 18802.0
+    },
+    {
+        "material": "1560611-05LTBB",
+        "invoice_qty": 750.0,
+        "invoice_sales": 17850.0,
+        "year": 2024,
+        "month": 5,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 750.0,
+        "total_invoice_sales": 17850.0
+    },
+    {
+        "material": "1560611-05LTBB",
+        "invoice_qty": 500.0,
+        "invoice_sales": 11900.0,
+        "year": 2024,
+        "month": 6,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 500.0,
+        "total_invoice_sales": 11900.0
+    },
+    {
+        "material": "1560611-05LTBB",
+        "invoice_qty": 760.0,
+        "invoice_sales": 18088.0,
+        "year": 2024,
+        "month": 6,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 760.0,
+        "total_invoice_sales": 18088.0
+    },
+    {
+        "material": "1560611-05LTBB",
+        "invoice_qty": -740.0,
+        "invoice_sales": -17612.0,
+        "year": 2024,
+        "month": 7,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": -1480.0,
+        "total_invoice_sales": -35224.0
+    },
+    {
+        "material": "1560611-05LTBB",
+        "invoice_qty": 740.0,
+        "invoice_sales": 17612.0,
+        "year": 2024,
+        "month": 7,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 2220.0,
+        "total_invoice_sales": 52836.0
+    },
+    {
+        "material": "1560611-05LTBB",
+        "invoice_qty": 780.0,
+        "invoice_sales": 18564.0,
+        "year": 2024,
+        "month": 8,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 780.0,
+        "total_invoice_sales": 18564.0
+    },
+    {
+        "material": "1560611-05LTBB",
+        "invoice_qty": 750.0,
+        "invoice_sales": 17850.0,
+        "year": 2024,
+        "month": 9,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 750.0,
+        "total_invoice_sales": 17850.0
+    },
+    {
+        "material": "1560613-05LTBB",
+        "invoice_qty": 250.0,
+        "invoice_sales": 5550.0,
+        "year": 2024,
+        "month": 1,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 250.0,
+        "total_invoice_sales": 5550.0
+    },
+    {
+        "material": "1560613-05LTBB",
+        "invoice_qty": 500.0,
+        "invoice_sales": 11100.0,
+        "year": 2024,
+        "month": 1,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 500.0,
+        "total_invoice_sales": 11100.0
+    },
+    {
+        "material": "1560613-05LTBB",
+        "invoice_qty": 500.0,
+        "invoice_sales": 11100.0,
+        "year": 2024,
+        "month": 4,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 500.0,
+        "total_invoice_sales": 11100.0
+    },
+    {
+        "material": "1560613-05LTBB",
+        "invoice_qty": 500.0,
+        "invoice_sales": 11100.0,
+        "year": 2024,
+        "month": 5,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 500.0,
+        "total_invoice_sales": 11100.0
+    },
+    {
+        "material": "1560613-05LTBB",
+        "invoice_qty": 25.0,
+        "invoice_sales": 555.0,
+        "year": 2024,
+        "month": 5,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 25.0,
+        "total_invoice_sales": 555.0
+    },
+    {
+        "material": "1560613-05LTBB",
+        "invoice_qty": 500.0,
+        "invoice_sales": 0.0,
+        "year": 2024,
+        "month": 5,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 500.0,
+        "total_invoice_sales": 0.0
+    },
+    {
+        "material": "1560613-05LTBB",
+        "invoice_qty": 500.0,
+        "invoice_sales": 11100.0,
+        "year": 2024,
+        "month": 6,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 500.0,
+        "total_invoice_sales": 11100.0
+    },
+    {
+        "material": "1560613-05LTBB",
+        "invoice_qty": 450.0,
+        "invoice_sales": 9990.0,
+        "year": 2024,
+        "month": 6,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 900.0,
+        "total_invoice_sales": 19980.0
+    },
+    {
+        "material": "1560613-05LTBB",
+        "invoice_qty": -450.0,
+        "invoice_sales": -9990.0,
+        "year": 2024,
+        "month": 6,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": -450.0,
+        "total_invoice_sales": -9990.0
+    },
+    {
+        "material": "1560613-05LTBB",
+        "invoice_qty": -225.0,
+        "invoice_sales": 0.0,
+        "year": 2024,
+        "month": 8,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": -225.0,
+        "total_invoice_sales": 0.0
+    },
+    {
+        "material": "1560613-05LTBB",
+        "invoice_qty": -95.0,
+        "invoice_sales": 0.0,
+        "year": 2024,
+        "month": 8,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": -95.0,
+        "total_invoice_sales": 0.0
+    },
+    {
+        "material": "1560613-05LTBB",
+        "invoice_qty": 500.0,
+        "invoice_sales": 11100.0,
+        "year": 2024,
+        "month": 8,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 500.0,
+        "total_invoice_sales": 11100.0
+    },
+    {
+        "material": "1560613-05LTBB",
+        "invoice_qty": 500.0,
+        "invoice_sales": 11100.0,
+        "year": 2024,
+        "month": 9,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 500.0,
+        "total_invoice_sales": 11100.0
+    },
+    {
+        "material": "1560613-05LTBB",
+        "invoice_qty": 790.0,
+        "invoice_sales": 17538.0,
+        "year": 2024,
+        "month": 10,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 790.0,
+        "total_invoice_sales": 17538.0
+    },
+    {
+        "material": "1560615-05LTBB",
+        "invoice_qty": 250.0,
+        "invoice_sales": 5175.0,
+        "year": 2024,
+        "month": 2,
+        "brand_name": "POPFlex",
+        "color_group": "Lights",
+        "total_invoice_qty": 250.0,
+        "total_invoice_sales": 5175.0
+    },
+    {
+        "material": "1560615-05LTBB",
+        "invoice_qty": 250.0,
+        "invoice_sales": 5175.0,
+        "year": 2024,
+        "month": 4,
+        "brand_name": "POPFlex",
+        "color_group": "Lights",
+        "total_invoice_qty": 250.0,
+        "total_invoice_sales": 5175.0
+    },
+    {
+        "material": "1560615-05LTBB",
+        "invoice_qty": 250.0,
+        "invoice_sales": 5175.0,
+        "year": 2024,
+        "month": 5,
+        "brand_name": "POPFlex",
+        "color_group": "Lights",
+        "total_invoice_qty": 500.0,
+        "total_invoice_sales": 10350.0
+    },
+    {
+        "material": "1560615-05LTBB",
+        "invoice_qty": 280.0,
+        "invoice_sales": 5796.0,
+        "year": 2024,
+        "month": 7,
+        "brand_name": "POPFlex",
+        "color_group": "Lights",
+        "total_invoice_qty": 280.0,
+        "total_invoice_sales": 5796.0
+    },
+    {
+        "material": "1560615-05LTBB",
+        "invoice_qty": 290.0,
+        "invoice_sales": 6003.0,
+        "year": 2024,
+        "month": 7,
+        "brand_name": "POPFlex",
+        "color_group": "Lights",
+        "total_invoice_qty": 580.0,
+        "total_invoice_sales": 12006.0
+    },
+    {
+        "material": "1560615-05LTBB",
+        "invoice_qty": -310.0,
+        "invoice_sales": -6417.0,
+        "year": 2024,
+        "month": 7,
+        "brand_name": "POPFlex",
+        "color_group": "Lights",
+        "total_invoice_qty": -310.0,
+        "total_invoice_sales": -6417.0
+    },
+    {
+        "material": "1560615-05LTBB",
+        "invoice_qty": -300.0,
+        "invoice_sales": -6210.0,
+        "year": 2024,
+        "month": 7,
+        "brand_name": "POPFlex",
+        "color_group": "Lights",
+        "total_invoice_qty": -300.0,
+        "total_invoice_sales": -6210.0
+    },
+    {
+        "material": "1560615-05LTBB",
+        "invoice_qty": -290.0,
+        "invoice_sales": -6003.0,
+        "year": 2024,
+        "month": 7,
+        "brand_name": "POPFlex",
+        "color_group": "Lights",
+        "total_invoice_qty": -580.0,
+        "total_invoice_sales": -12006.0
+    },
+    {
+        "material": "1560615-05LTBB",
+        "invoice_qty": 300.0,
+        "invoice_sales": 6210.0,
+        "year": 2024,
+        "month": 7,
+        "brand_name": "POPFlex",
+        "color_group": "Lights",
+        "total_invoice_qty": 300.0,
+        "total_invoice_sales": 6210.0
+    },
+    {
+        "material": "1560615-05LTBB",
+        "invoice_qty": 310.0,
+        "invoice_sales": 6417.0,
+        "year": 2024,
+        "month": 7,
+        "brand_name": "POPFlex",
+        "color_group": "Lights",
+        "total_invoice_qty": 310.0,
+        "total_invoice_sales": 6417.0
+    },
+    {
+        "material": "1560615-05LTBB",
+        "invoice_qty": 290.0,
+        "invoice_sales": 6003.0,
+        "year": 2024,
+        "month": 9,
+        "brand_name": "POPFlex",
+        "color_group": "Lights",
+        "total_invoice_qty": 290.0,
+        "total_invoice_sales": 6003.0
+    },
+    {
+        "material": "1560616-05LTBB",
+        "invoice_qty": 250.0,
+        "invoice_sales": 5687.5,
+        "year": 2024,
+        "month": 1,
+        "brand_name": "POPFlex",
+        "color_group": "Lights",
+        "total_invoice_qty": 250.0,
+        "total_invoice_sales": 5687.5
+    },
+    {
+        "material": "1560616-05LTBB",
+        "invoice_qty": 270.0,
+        "invoice_sales": 6142.5,
+        "year": 2024,
+        "month": 3,
+        "brand_name": "POPFlex",
+        "color_group": "Lights",
+        "total_invoice_qty": 270.0,
+        "total_invoice_sales": 6142.5
+    },
+    {
+        "material": "1560616-05LTBB",
+        "invoice_qty": 300.0,
+        "invoice_sales": 6825.0,
+        "year": 2024,
+        "month": 4,
+        "brand_name": "POPFlex",
+        "color_group": "Lights",
+        "total_invoice_qty": 300.0,
+        "total_invoice_sales": 6825.0
+    },
+    {
+        "material": "1560616-05LTBB",
+        "invoice_qty": 290.0,
+        "invoice_sales": 6597.5,
+        "year": 2024,
+        "month": 5,
+        "brand_name": "POPFlex",
+        "color_group": "Lights",
+        "total_invoice_qty": 290.0,
+        "total_invoice_sales": 6597.5
+    },
+    {
+        "material": "1560616-05LTBB",
+        "invoice_qty": 250.0,
+        "invoice_sales": 5687.5,
+        "year": 2024,
+        "month": 6,
+        "brand_name": "POPFlex",
+        "color_group": "Lights",
+        "total_invoice_qty": 500.0,
+        "total_invoice_sales": 11375.0
+    },
+    {
+        "material": "1560616-05LTBB",
+        "invoice_qty": -250.0,
+        "invoice_sales": -5687.5,
+        "year": 2024,
+        "month": 6,
+        "brand_name": "POPFlex",
+        "color_group": "Lights",
+        "total_invoice_qty": -250.0,
+        "total_invoice_sales": -5687.5
+    },
+    {
+        "material": "1560616-05LTBB",
+        "invoice_qty": 250.0,
+        "invoice_sales": 5687.5,
+        "year": 2024,
+        "month": 9,
+        "brand_name": "POPFlex",
+        "color_group": "Lights",
+        "total_invoice_qty": 500.0,
+        "total_invoice_sales": 11375.0
+    },
+    {
+        "material": "1560618-05LT",
+        "invoice_qty": 200.0,
+        "invoice_sales": 3100.0,
+        "year": 2024,
+        "month": 6,
+        "brand_name": "POPFlex",
+        "color_group": "FF",
+        "total_invoice_qty": 200.0,
+        "total_invoice_sales": 3100.0
+    },
+    {
+        "material": "1560620-01LT",
+        "invoice_qty": 200.0,
+        "invoice_sales": 3100.0,
+        "year": 2024,
+        "month": 3,
+        "brand_name": "FF",
+        "color_group": "FF",
+        "total_invoice_qty": 200.0,
+        "total_invoice_sales": 3100.0
+    },
+    {
+        "material": "1560620-01LT",
+        "invoice_qty": 204.0,
+        "invoice_sales": 3162.0,
+        "year": 2024,
+        "month": 4,
+        "brand_name": "FF",
+        "color_group": "FF",
+        "total_invoice_qty": 204.0,
+        "total_invoice_sales": 3162.0
+    },
+    {
+        "material": "1560620-01LT",
+        "invoice_qty": 204.0,
+        "invoice_sales": 3162.0,
+        "year": 2024,
+        "month": 6,
+        "brand_name": "FF",
+        "color_group": "FF",
+        "total_invoice_qty": 408.0,
+        "total_invoice_sales": 6324.0
+    },
+    {
+        "material": "1560620-01LT",
+        "invoice_qty": -204.0,
+        "invoice_sales": -3162.0,
+        "year": 2024,
+        "month": 6,
+        "brand_name": "FF",
+        "color_group": "FF",
+        "total_invoice_qty": -204.0,
+        "total_invoice_sales": -3162.0
+    },
+    {
+        "material": "1560620-01LT",
+        "invoice_qty": 204.0,
+        "invoice_sales": 3162.0,
+        "year": 2024,
+        "month": 9,
+        "brand_name": "FF",
+        "color_group": "FF",
+        "total_invoice_qty": 204.0,
+        "total_invoice_sales": 3162.0
+    },
+    {
+        "material": "1560620-01LT",
+        "invoice_qty": 204.0,
+        "invoice_sales": 3162.0,
+        "year": 2024,
+        "month": 10,
+        "brand_name": "FF",
+        "color_group": "FF",
+        "total_invoice_qty": 204.0,
+        "total_invoice_sales": 3162.0
+    },
+    {
+        "material": "1615560-05LTBB",
+        "invoice_qty": 520.0,
+        "invoice_sales": 10764.0,
+        "year": 2024,
+        "month": 2,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "Lights",
+        "total_invoice_qty": 520.0,
+        "total_invoice_sales": 10764.0
+    },
+    {
+        "material": "1615560-05LTBB",
+        "invoice_qty": 530.0,
+        "invoice_sales": 10971.0,
+        "year": 2024,
+        "month": 3,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "Lights",
+        "total_invoice_qty": 530.0,
+        "total_invoice_sales": 10971.0
+    },
+    {
+        "material": "1615560-05LTBB",
+        "invoice_qty": 810.0,
+        "invoice_sales": 16767.0,
+        "year": 2024,
+        "month": 4,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "Lights",
+        "total_invoice_qty": 810.0,
+        "total_invoice_sales": 16767.0
+    },
+    {
+        "material": "1615560-05LTBB",
+        "invoice_qty": 530.0,
+        "invoice_sales": 10971.0,
+        "year": 2024,
+        "month": 6,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "Lights",
+        "total_invoice_qty": 530.0,
+        "total_invoice_sales": 10971.0
+    },
+    {
+        "material": "1615560-05LTBB",
+        "invoice_qty": 110.0,
+        "invoice_sales": 2277.0,
+        "year": 2024,
+        "month": 7,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "Lights",
+        "total_invoice_qty": 110.0,
+        "total_invoice_sales": 2277.0
+    },
+    {
+        "material": "1615560-05LTBB",
+        "invoice_qty": 510.0,
+        "invoice_sales": 10557.0,
+        "year": 2024,
+        "month": 8,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "Lights",
+        "total_invoice_qty": 510.0,
+        "total_invoice_sales": 10557.0
+    },
+    {
+        "material": "1615564-05LTBB",
+        "invoice_qty": 580.0,
+        "invoice_sales": 15022.0,
+        "year": 2024,
+        "month": 1,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 580.0,
+        "total_invoice_sales": 15022.0
+    },
+    {
+        "material": "1615564-05LTBB",
+        "invoice_qty": 0.0,
+        "invoice_sales": 0.0,
+        "year": 2024,
+        "month": 1,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 0.0,
+        "total_invoice_sales": 0.0
+    },
+    {
+        "material": "1615564-05LTBB",
+        "invoice_qty": 1420.0,
+        "invoice_sales": 36778.0,
+        "year": 2024,
+        "month": 1,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1420.0,
+        "total_invoice_sales": 36778.0
+    },
+    {
+        "material": "1615564-05LTBB",
+        "invoice_qty": 1500.0,
+        "invoice_sales": 38850.0,
+        "year": 2024,
+        "month": 2,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1500.0,
+        "total_invoice_sales": 38850.0
+    },
+    {
+        "material": "1615564-05LTBB",
+        "invoice_qty": 0.0,
+        "invoice_sales": 0.0,
+        "year": 2024,
+        "month": 2,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 0.0,
+        "total_invoice_sales": 0.0
+    },
+    {
+        "material": "1615564-05LTBB",
+        "invoice_qty": 770.0,
+        "invoice_sales": 19943.0,
+        "year": 2024,
+        "month": 2,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 770.0,
+        "total_invoice_sales": 19943.0
+    },
+    {
+        "material": "1615564-05LTBB",
+        "invoice_qty": 0.0,
+        "invoice_sales": 0.0,
+        "year": 2024,
+        "month": 3,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 0.0,
+        "total_invoice_sales": 0.0
+    },
+    {
+        "material": "1615564-05LTBB",
+        "invoice_qty": 1500.0,
+        "invoice_sales": 38850.0,
+        "year": 2024,
+        "month": 3,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1500.0,
+        "total_invoice_sales": 38850.0
+    },
+    {
+        "material": "1615564-05LTBB",
+        "invoice_qty": 1040.0,
+        "invoice_sales": 26936.0,
+        "year": 2024,
+        "month": 3,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1040.0,
+        "total_invoice_sales": 26936.0
+    },
+    {
+        "material": "1615564-05LTBB",
+        "invoice_qty": 1460.0,
+        "invoice_sales": 37814.0,
+        "year": 2024,
+        "month": 4,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1460.0,
+        "total_invoice_sales": 37814.0
+    },
+    {
+        "material": "1615564-05LTBB",
+        "invoice_qty": 1280.0,
+        "invoice_sales": 33152.0,
+        "year": 2024,
+        "month": 4,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1280.0,
+        "total_invoice_sales": 33152.0
+    },
+    {
+        "material": "1615564-05LTBB",
+        "invoice_qty": 0.0,
+        "invoice_sales": 0.0,
+        "year": 2024,
+        "month": 4,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 0.0,
+        "total_invoice_sales": 0.0
+    },
+    {
+        "material": "1615564-05LTBB",
+        "invoice_qty": 0.0,
+        "invoice_sales": 0.0,
+        "year": 2024,
+        "month": 5,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 0.0,
+        "total_invoice_sales": 0.0
+    },
+    {
+        "material": "1615564-05LTBB",
+        "invoice_qty": -1460.0,
+        "invoice_sales": -37814.0,
+        "year": 2024,
+        "month": 5,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": -1460.0,
+        "total_invoice_sales": -37814.0
+    },
+    {
+        "material": "1615564-05LTBB",
+        "invoice_qty": -1250.0,
+        "invoice_sales": -32375.0,
+        "year": 2024,
+        "month": 5,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": -1250.0,
+        "total_invoice_sales": -32375.0
+    },
+    {
+        "material": "1615564-05LTBB",
+        "invoice_qty": 1460.0,
+        "invoice_sales": 37814.0,
+        "year": 2024,
+        "month": 5,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 2920.0,
+        "total_invoice_sales": 75628.0
+    },
+    {
+        "material": "1615564-05LTBB",
+        "invoice_qty": 1250.0,
+        "invoice_sales": 32375.0,
+        "year": 2024,
+        "month": 5,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 2500.0,
+        "total_invoice_sales": 64750.0
+    },
+    {
+        "material": "1615564-05LTBB",
+        "invoice_qty": 1470.0,
+        "invoice_sales": 38073.0,
+        "year": 2024,
+        "month": 6,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1470.0,
+        "total_invoice_sales": 38073.0
+    },
+    {
+        "material": "1615564-05LTBB",
+        "invoice_qty": 1455.0,
+        "invoice_sales": 37684.5,
+        "year": 2024,
+        "month": 6,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1455.0,
+        "total_invoice_sales": 37684.5
+    },
+    {
+        "material": "1615564-05LTBB",
+        "invoice_qty": 790.0,
+        "invoice_sales": 20461.0,
+        "year": 2024,
+        "month": 6,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 790.0,
+        "total_invoice_sales": 20461.0
+    },
+    {
+        "material": "1615564-05LTBB",
+        "invoice_qty": 0.0,
+        "invoice_sales": 0.0,
+        "year": 2024,
+        "month": 6,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 0.0,
+        "total_invoice_sales": 0.0
+    },
+    {
+        "material": "1615564-05LTBB",
+        "invoice_qty": 270.0,
+        "invoice_sales": 6993.0,
+        "year": 2024,
+        "month": 7,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 270.0,
+        "total_invoice_sales": 6993.0
+    },
+    {
+        "material": "1615564-05LTBB",
+        "invoice_qty": 1030.0,
+        "invoice_sales": 26677.0,
+        "year": 2024,
+        "month": 7,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1030.0,
+        "total_invoice_sales": 26677.0
+    },
+    {
+        "material": "1615564-05LTBB",
+        "invoice_qty": 810.0,
+        "invoice_sales": 20979.0,
+        "year": 2024,
+        "month": 8,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 810.0,
+        "total_invoice_sales": 20979.0
+    },
+    {
+        "material": "1615564-05LTBB",
+        "invoice_qty": 0.0,
+        "invoice_sales": 0.0,
+        "year": 2024,
+        "month": 8,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 0.0,
+        "total_invoice_sales": 0.0
+    },
+    {
+        "material": "1615564-05LTBB",
+        "invoice_qty": 1440.0,
+        "invoice_sales": 37296.0,
+        "year": 2024,
+        "month": 8,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1440.0,
+        "total_invoice_sales": 37296.0
+    },
+    {
+        "material": "1615564-05LTBB",
+        "invoice_qty": 1490.0,
+        "invoice_sales": 38591.0,
+        "year": 2024,
+        "month": 10,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1490.0,
+        "total_invoice_sales": 38591.0
+    },
+    {
+        "material": "1615564-05LTBB",
+        "invoice_qty": 0.0,
+        "invoice_sales": 0.0,
+        "year": 2024,
+        "month": 10,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 0.0,
+        "total_invoice_sales": 0.0
+    },
+    {
+        "material": "1615564-05LTBB",
+        "invoice_qty": 775.0,
+        "invoice_sales": 20072.5,
+        "year": 2024,
+        "month": 10,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 775.0,
+        "total_invoice_sales": 20072.5
+    },
+    {
+        "material": "1638706-05LTBB",
+        "invoice_qty": 300.0,
+        "invoice_sales": 6210.0,
+        "year": 2024,
+        "month": 3,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "Lights",
+        "total_invoice_qty": 300.0,
+        "total_invoice_sales": 6210.0
+    },
+    {
+        "material": "1638706-05LTBB",
+        "invoice_qty": 290.0,
+        "invoice_sales": 6003.0,
+        "year": 2024,
+        "month": 5,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "Lights",
+        "total_invoice_qty": 290.0,
+        "total_invoice_sales": 6003.0
+    },
+    {
+        "material": "1638706-05LTBB",
+        "invoice_qty": 65.0,
+        "invoice_sales": 1345.5,
+        "year": 2024,
+        "month": 7,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "Lights",
+        "total_invoice_qty": 65.0,
+        "total_invoice_sales": 1345.5
+    },
+    {
+        "material": "1638706-05LTBB",
+        "invoice_qty": 270.0,
+        "invoice_sales": 5589.0,
+        "year": 2024,
+        "month": 8,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "Lights",
+        "total_invoice_qty": 270.0,
+        "total_invoice_sales": 5589.0
+    },
+    {
+        "material": "1638706-05LTBB",
+        "invoice_qty": 295.0,
+        "invoice_sales": 6106.5,
+        "year": 2024,
+        "month": 10,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "Lights",
+        "total_invoice_qty": 295.0,
+        "total_invoice_sales": 6106.5
+    },
+    {
+        "material": "1646537-05LTBB",
+        "invoice_qty": 230.0,
+        "invoice_sales": 7797.0,
+        "year": 2024,
+        "month": 1,
+        "brand_name": "OEM (RD1356)",
+        "color_group": "Special",
+        "total_invoice_qty": 230.0,
+        "total_invoice_sales": 7797.0
+    },
+    {
+        "material": "1655262-05LTBB",
+        "invoice_qty": 0.0,
+        "invoice_sales": 0.0,
+        "year": 2024,
+        "month": 2,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 0.0,
+        "total_invoice_sales": 0.0
+    },
+    {
+        "material": "1655262-05LTBB",
+        "invoice_qty": 280.0,
+        "invoice_sales": 6076.0,
+        "year": 2024,
+        "month": 2,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 280.0,
+        "total_invoice_sales": 6076.0
+    },
+    {
+        "material": "1655262-05LTBB",
+        "invoice_qty": 1480.0,
+        "invoice_sales": 32116.0,
+        "year": 2024,
+        "month": 2,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1480.0,
+        "total_invoice_sales": 32116.0
+    },
+    {
+        "material": "1655262-05LTBB",
+        "invoice_qty": 0.0,
+        "invoice_sales": 0.0,
+        "year": 2024,
+        "month": 3,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 0.0,
+        "total_invoice_sales": 0.0
+    },
+    {
+        "material": "1655262-05LTBB",
+        "invoice_qty": 510.0,
+        "invoice_sales": 11067.0,
+        "year": 2024,
+        "month": 3,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 510.0,
+        "total_invoice_sales": 11067.0
+    },
+    {
+        "material": "1655262-05LTBB",
+        "invoice_qty": 1460.0,
+        "invoice_sales": 31682.0,
+        "year": 2024,
+        "month": 3,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1460.0,
+        "total_invoice_sales": 31682.0
+    },
+    {
+        "material": "1655262-05LTBB",
+        "invoice_qty": 1470.0,
+        "invoice_sales": 31899.0,
+        "year": 2024,
+        "month": 4,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1470.0,
+        "total_invoice_sales": 31899.0
+    },
+    {
+        "material": "1655262-05LTBB",
+        "invoice_qty": 290.0,
+        "invoice_sales": 6293.0,
+        "year": 2024,
+        "month": 4,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 290.0,
+        "total_invoice_sales": 6293.0
+    },
+    {
+        "material": "1655262-05LTBB",
+        "invoice_qty": 0.0,
+        "invoice_sales": 0.0,
+        "year": 2024,
+        "month": 4,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 0.0,
+        "total_invoice_sales": 0.0
+    },
+    {
+        "material": "1655262-05LTBB",
+        "invoice_qty": 0.0,
+        "invoice_sales": 0.0,
+        "year": 2024,
+        "month": 5,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 0.0,
+        "total_invoice_sales": 0.0
+    },
+    {
+        "material": "1655262-05LTBB",
+        "invoice_qty": 280.0,
+        "invoice_sales": 6076.0,
+        "year": 2024,
+        "month": 5,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 280.0,
+        "total_invoice_sales": 6076.0
+    },
+    {
+        "material": "1655262-05LTBB",
+        "invoice_qty": 1440.0,
+        "invoice_sales": 31248.0,
+        "year": 2024,
+        "month": 5,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1440.0,
+        "total_invoice_sales": 31248.0
+    },
+    {
+        "material": "1655262-05LTBB",
+        "invoice_qty": 1490.0,
+        "invoice_sales": 32333.0,
+        "year": 2024,
+        "month": 6,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1490.0,
+        "total_invoice_sales": 32333.0
+    },
+    {
+        "material": "1655262-05LTBB",
+        "invoice_qty": 1530.0,
+        "invoice_sales": 33201.0,
+        "year": 2024,
+        "month": 7,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1530.0,
+        "total_invoice_sales": 33201.0
+    },
+    {
+        "material": "1655262-05LTBB",
+        "invoice_qty": 250.0,
+        "invoice_sales": 5425.0,
+        "year": 2024,
+        "month": 7,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 250.0,
+        "total_invoice_sales": 5425.0
+    },
+    {
+        "material": "1655262-05LTBB",
+        "invoice_qty": 260.0,
+        "invoice_sales": 5642.0,
+        "year": 2024,
+        "month": 8,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 260.0,
+        "total_invoice_sales": 5642.0
+    },
+    {
+        "material": "1655262-05LTBB",
+        "invoice_qty": 0.0,
+        "invoice_sales": 0.0,
+        "year": 2024,
+        "month": 8,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 0.0,
+        "total_invoice_sales": 0.0
+    },
+    {
+        "material": "1655262-05LTBB",
+        "invoice_qty": 1470.0,
+        "invoice_sales": 31899.0,
+        "year": 2024,
+        "month": 8,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1470.0,
+        "total_invoice_sales": 31899.0
+    },
+    {
+        "material": "1655262-05LTBB",
+        "invoice_qty": 1540.0,
+        "invoice_sales": 33418.0,
+        "year": 2024,
+        "month": 10,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1540.0,
+        "total_invoice_sales": 33418.0
+    },
+    {
+        "material": "1676543-05LTBB",
+        "invoice_qty": 0.0,
+        "invoice_sales": 0.0,
+        "year": 2024,
+        "month": 1,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 0.0,
+        "total_invoice_sales": 0.0
+    },
+    {
+        "material": "1676543-05LTBB",
+        "invoice_qty": 50.0,
+        "invoice_sales": 1215.0,
+        "year": 2024,
+        "month": 1,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 50.0,
+        "total_invoice_sales": 1215.0
+    },
+    {
+        "material": "1676543-05LTBB",
+        "invoice_qty": 520.0,
+        "invoice_sales": 12636.0,
+        "year": 2024,
+        "month": 1,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 520.0,
+        "total_invoice_sales": 12636.0
+    },
+    {
+        "material": "1676543-05LTBB",
+        "invoice_qty": 1430.0,
+        "invoice_sales": 34749.0,
+        "year": 2024,
+        "month": 1,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1430.0,
+        "total_invoice_sales": 34749.0
+    },
+    {
+        "material": "1676543-05LTBB",
+        "invoice_qty": 990.0,
+        "invoice_sales": 24057.0,
+        "year": 2024,
+        "month": 1,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 990.0,
+        "total_invoice_sales": 24057.0
+    },
+    {
+        "material": "1676543-05LTBB",
+        "invoice_qty": 1490.0,
+        "invoice_sales": 36207.0,
+        "year": 2024,
+        "month": 1,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1490.0,
+        "total_invoice_sales": 36207.0
+    },
+    {
+        "material": "1676543-05LTBB",
+        "invoice_qty": 1500.0,
+        "invoice_sales": 36450.0,
+        "year": 2024,
+        "month": 3,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1500.0,
+        "total_invoice_sales": 36450.0
+    },
+    {
+        "material": "1676543-05LTBB",
+        "invoice_qty": 1510.0,
+        "invoice_sales": 36693.0,
+        "year": 2024,
+        "month": 3,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1510.0,
+        "total_invoice_sales": 36693.0
+    },
+    {
+        "material": "1676543-05LTBB",
+        "invoice_qty": 1060.0,
+        "invoice_sales": 25758.0,
+        "year": 2024,
+        "month": 3,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1060.0,
+        "total_invoice_sales": 25758.0
+    },
+    {
+        "material": "1676543-05LTBB",
+        "invoice_qty": 1530.0,
+        "invoice_sales": 37179.0,
+        "year": 2024,
+        "month": 3,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1530.0,
+        "total_invoice_sales": 37179.0
+    },
+    {
+        "material": "1676543-05LTBB",
+        "invoice_qty": 0.0,
+        "invoice_sales": 0.0,
+        "year": 2024,
+        "month": 3,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 0.0,
+        "total_invoice_sales": 0.0
+    },
+    {
+        "material": "1676543-05LTBB",
+        "invoice_qty": 0.0,
+        "invoice_sales": 0.0,
+        "year": 2024,
+        "month": 4,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 0.0,
+        "total_invoice_sales": 0.0
+    },
+    {
+        "material": "1676543-05LTBB",
+        "invoice_qty": 290.0,
+        "invoice_sales": 7047.0,
+        "year": 2024,
+        "month": 4,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 290.0,
+        "total_invoice_sales": 7047.0
+    },
+    {
+        "material": "1676543-05LTBB",
+        "invoice_qty": 1530.0,
+        "invoice_sales": 37179.0,
+        "year": 2024,
+        "month": 4,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1530.0,
+        "total_invoice_sales": 37179.0
+    },
+    {
+        "material": "1676543-05LTBB",
+        "invoice_qty": 1485.0,
+        "invoice_sales": 36085.5,
+        "year": 2024,
+        "month": 4,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1485.0,
+        "total_invoice_sales": 36085.5
+    },
+    {
+        "material": "1676543-05LTBB",
+        "invoice_qty": 1290.0,
+        "invoice_sales": 31347.0,
+        "year": 2024,
+        "month": 5,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1290.0,
+        "total_invoice_sales": 31347.0
+    },
+    {
+        "material": "1676543-05LTBB",
+        "invoice_qty": 1470.0,
+        "invoice_sales": 35721.0,
+        "year": 2024,
+        "month": 5,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1470.0,
+        "total_invoice_sales": 35721.0
+    },
+    {
+        "material": "1676543-05LTBB",
+        "invoice_qty": 0.0,
+        "invoice_sales": 0.0,
+        "year": 2024,
+        "month": 5,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 0.0,
+        "total_invoice_sales": 0.0
+    },
+    {
+        "material": "1676543-05LTBB",
+        "invoice_qty": 1530.0,
+        "invoice_sales": 37179.0,
+        "year": 2024,
+        "month": 6,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1530.0,
+        "total_invoice_sales": 37179.0
+    },
+    {
+        "material": "1676543-05LTBB",
+        "invoice_qty": 1560.0,
+        "invoice_sales": 37908.0,
+        "year": 2024,
+        "month": 7,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1560.0,
+        "total_invoice_sales": 37908.0
+    },
+    {
+        "material": "1676543-05LTBB",
+        "invoice_qty": 1080.0,
+        "invoice_sales": 26244.0,
+        "year": 2024,
+        "month": 7,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1080.0,
+        "total_invoice_sales": 26244.0
+    },
+    {
+        "material": "1676543-05LTBB",
+        "invoice_qty": 0.0,
+        "invoice_sales": 0.0,
+        "year": 2024,
+        "month": 7,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 0.0,
+        "total_invoice_sales": 0.0
+    },
+    {
+        "material": "1676543-05LTBB",
+        "invoice_qty": 960.0,
+        "invoice_sales": 23328.0,
+        "year": 2024,
+        "month": 7,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 960.0,
+        "total_invoice_sales": 23328.0
+    },
+    {
+        "material": "1676543-05LTBB",
+        "invoice_qty": 460.0,
+        "invoice_sales": 11178.0,
+        "year": 2024,
+        "month": 7,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 460.0,
+        "total_invoice_sales": 11178.0
+    },
+    {
+        "material": "1676543-05LTBB",
+        "invoice_qty": 265.0,
+        "invoice_sales": 6439.5,
+        "year": 2024,
+        "month": 7,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 265.0,
+        "total_invoice_sales": 6439.5
+    },
+    {
+        "material": "1676543-05LTBB",
+        "invoice_qty": 550.0,
+        "invoice_sales": 13365.0,
+        "year": 2024,
+        "month": 8,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 550.0,
+        "total_invoice_sales": 13365.0
+    },
+    {
+        "material": "1676543-05LTBB",
+        "invoice_qty": 1480.0,
+        "invoice_sales": 35964.0,
+        "year": 2024,
+        "month": 8,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1480.0,
+        "total_invoice_sales": 35964.0
+    },
+    {
+        "material": "1676543-05LTBB",
+        "invoice_qty": 0.0,
+        "invoice_sales": 0.0,
+        "year": 2024,
+        "month": 8,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 0.0,
+        "total_invoice_sales": 0.0
+    },
+    {
+        "material": "1676543-05LTBB",
+        "invoice_qty": 1515.0,
+        "invoice_sales": 36814.5,
+        "year": 2024,
+        "month": 9,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1515.0,
+        "total_invoice_sales": 36814.5
+    },
+    {
+        "material": "1676543-05LTBB",
+        "invoice_qty": 1540.0,
+        "invoice_sales": 37422.0,
+        "year": 2024,
+        "month": 10,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1540.0,
+        "total_invoice_sales": 37422.0
+    },
+    {
+        "material": "1676543-05LTBB",
+        "invoice_qty": 1480.0,
+        "invoice_sales": 35964.0,
+        "year": 2024,
+        "month": 10,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1480.0,
+        "total_invoice_sales": 35964.0
+    },
+    {
+        "material": "1676544-05LTBB",
+        "invoice_qty": 510.0,
+        "invoice_sales": 9435.0,
+        "year": 2024,
+        "month": 3,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "Lights",
+        "total_invoice_qty": 510.0,
+        "total_invoice_sales": 9435.0
+    },
+    {
+        "material": "1676544-05LTBB",
+        "invoice_qty": 540.0,
+        "invoice_sales": 9990.0,
+        "year": 2024,
+        "month": 4,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "Lights",
+        "total_invoice_qty": 540.0,
+        "total_invoice_sales": 9990.0
+    },
+    {
+        "material": "1676544-05LTBB",
+        "invoice_qty": 510.0,
+        "invoice_sales": 9435.0,
+        "year": 2024,
+        "month": 6,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "Lights",
+        "total_invoice_qty": 510.0,
+        "total_invoice_sales": 9435.0
+    },
+    {
+        "material": "1676544-05LTBB",
+        "invoice_qty": 110.0,
+        "invoice_sales": 2035.0,
+        "year": 2024,
+        "month": 7,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "Lights",
+        "total_invoice_qty": 110.0,
+        "total_invoice_sales": 2035.0
+    },
+    {
+        "material": "1676544-05LTBB",
+        "invoice_qty": 540.0,
+        "invoice_sales": 9990.0,
+        "year": 2024,
+        "month": 7,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "Lights",
+        "total_invoice_qty": 540.0,
+        "total_invoice_sales": 9990.0
+    },
+    {
+        "material": "1676544-05LTBB",
+        "invoice_qty": 550.0,
+        "invoice_sales": 10175.0,
+        "year": 2024,
+        "month": 10,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "Lights",
+        "total_invoice_qty": 550.0,
+        "total_invoice_sales": 10175.0
+    },
+    {
+        "material": "1676545-05LTBB",
+        "invoice_qty": 1480.0,
+        "invoice_sales": 33670.0,
+        "year": 2024,
+        "month": 1,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1480.0,
+        "total_invoice_sales": 33670.0
+    },
+    {
+        "material": "1676545-05LTBB",
+        "invoice_qty": 1510.0,
+        "invoice_sales": 34352.5,
+        "year": 2024,
+        "month": 2,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1510.0,
+        "total_invoice_sales": 34352.5
+    },
+    {
+        "material": "1676545-05LTBB",
+        "invoice_qty": 520.0,
+        "invoice_sales": 11830.0,
+        "year": 2024,
+        "month": 3,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 520.0,
+        "total_invoice_sales": 11830.0
+    },
+    {
+        "material": "1676545-05LTBB",
+        "invoice_qty": 530.0,
+        "invoice_sales": 12057.5,
+        "year": 2024,
+        "month": 4,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 530.0,
+        "total_invoice_sales": 12057.5
+    },
+    {
+        "material": "1676545-05LTBB",
+        "invoice_qty": 0.0,
+        "invoice_sales": 0.0,
+        "year": 2024,
+        "month": 4,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 0.0,
+        "total_invoice_sales": 0.0
+    },
+    {
+        "material": "1676545-05LTBB",
+        "invoice_qty": 1540.0,
+        "invoice_sales": 35035.0,
+        "year": 2024,
+        "month": 4,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1540.0,
+        "total_invoice_sales": 35035.0
+    },
+    {
+        "material": "1676545-05LTBB",
+        "invoice_qty": 0.0,
+        "invoice_sales": 0.0,
+        "year": 2024,
+        "month": 5,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 0.0,
+        "total_invoice_sales": 0.0
+    },
+    {
+        "material": "1676545-05LTBB",
+        "invoice_qty": 550.0,
+        "invoice_sales": 12512.5,
+        "year": 2024,
+        "month": 5,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 550.0,
+        "total_invoice_sales": 12512.5
+    },
+    {
+        "material": "1676545-05LTBB",
+        "invoice_qty": 1470.0,
+        "invoice_sales": 33442.5,
+        "year": 2024,
+        "month": 5,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1470.0,
+        "total_invoice_sales": 33442.5
+    },
+    {
+        "material": "1676545-05LTBB",
+        "invoice_qty": -1500.0,
+        "invoice_sales": -34125.0,
+        "year": 2024,
+        "month": 6,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": -1500.0,
+        "total_invoice_sales": -34125.0
+    },
+    {
+        "material": "1676545-05LTBB",
+        "invoice_qty": 1500.0,
+        "invoice_sales": 34125.0,
+        "year": 2024,
+        "month": 6,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 3000.0,
+        "total_invoice_sales": 68250.0
+    },
+    {
+        "material": "1676545-05LTBB",
+        "invoice_qty": 1560.0,
+        "invoice_sales": 35490.0,
+        "year": 2024,
+        "month": 7,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1560.0,
+        "total_invoice_sales": 35490.0
+    },
+    {
+        "material": "1676545-05LTBB",
+        "invoice_qty": -250.0,
+        "invoice_sales": -5687.5,
+        "year": 2024,
+        "month": 7,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": -250.0,
+        "total_invoice_sales": -5687.5
+    },
+    {
+        "material": "1676545-05LTBB",
+        "invoice_qty": 250.0,
+        "invoice_sales": 5687.5,
+        "year": 2024,
+        "month": 7,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 500.0,
+        "total_invoice_sales": 11375.0
+    },
+    {
+        "material": "1676545-05LTBB",
+        "invoice_qty": 360.0,
+        "invoice_sales": 0.0,
+        "year": 2024,
+        "month": 8,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 360.0,
+        "total_invoice_sales": 0.0
+    },
+    {
+        "material": "1676545-05LTBB",
+        "invoice_qty": 545.0,
+        "invoice_sales": 12398.75,
+        "year": 2024,
+        "month": 8,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 545.0,
+        "total_invoice_sales": 12398.75
+    },
+    {
+        "material": "1676545-05LTBB",
+        "invoice_qty": 1150.0,
+        "invoice_sales": 26162.5,
+        "year": 2024,
+        "month": 8,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1150.0,
+        "total_invoice_sales": 26162.5
+    },
+    {
+        "material": "1676545-05LTBB",
+        "invoice_qty": 0.0,
+        "invoice_sales": 0.0,
+        "year": 2024,
+        "month": 8,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 0.0,
+        "total_invoice_sales": 0.0
+    },
+    {
+        "material": "1676545-05LTBB",
+        "invoice_qty": 100.0,
+        "invoice_sales": 2275.0,
+        "year": 2024,
+        "month": 8,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 100.0,
+        "total_invoice_sales": 2275.0
+    },
+    {
+        "material": "1676545-05LTBB",
+        "invoice_qty": 190.0,
+        "invoice_sales": 0.0,
+        "year": 2024,
+        "month": 8,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 190.0,
+        "total_invoice_sales": 0.0
+    },
+    {
+        "material": "1676545-05LTBB",
+        "invoice_qty": 1030.0,
+        "invoice_sales": 23432.5,
+        "year": 2024,
+        "month": 10,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1030.0,
+        "total_invoice_sales": 23432.5
+    },
+    {
+        "material": "1676546-05LTBB",
+        "invoice_qty": 320.0,
+        "invoice_sales": 5920.0,
+        "year": 2024,
+        "month": 4,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "Lights",
+        "total_invoice_qty": 320.0,
+        "total_invoice_sales": 5920.0
+    },
+    {
+        "material": "1676546-05LTBB",
+        "invoice_qty": 255.0,
+        "invoice_sales": 4717.5,
+        "year": 2024,
+        "month": 6,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "Lights",
+        "total_invoice_qty": 255.0,
+        "total_invoice_sales": 4717.5
+    },
+    {
+        "material": "1676546-05LTBB",
+        "invoice_qty": 60.0,
+        "invoice_sales": 1110.0,
+        "year": 2024,
+        "month": 7,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "Lights",
+        "total_invoice_qty": 60.0,
+        "total_invoice_sales": 1110.0
+    },
+    {
+        "material": "1676546-05LTBB",
+        "invoice_qty": 310.0,
+        "invoice_sales": 5735.0,
+        "year": 2024,
+        "month": 10,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "Lights",
+        "total_invoice_qty": 310.0,
+        "total_invoice_sales": 5735.0
+    },
+    {
+        "material": "1693822-05LTBB",
+        "invoice_qty": 295.0,
+        "invoice_sales": 5457.5,
+        "year": 2024,
+        "month": 8,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "Lights",
+        "total_invoice_qty": 295.0,
+        "total_invoice_sales": 5457.5
+    },
+    {
+        "material": "1693823-05LTBB",
+        "invoice_qty": 295.0,
+        "invoice_sales": 6106.5,
+        "year": 2024,
+        "month": 8,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "Lights",
+        "total_invoice_qty": 295.0,
+        "total_invoice_sales": 6106.5
+    },
+    {
+        "material": "1693824-05LTBB",
+        "invoice_qty": 515.0,
+        "invoice_sales": 9527.5,
+        "year": 2024,
+        "month": 8,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "Lights",
+        "total_invoice_qty": 515.0,
+        "total_invoice_sales": 9527.5
+    },
+    {
+        "material": "1693825-05LTBB",
+        "invoice_qty": 530.0,
+        "invoice_sales": 10971.0,
+        "year": 2024,
+        "month": 8,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "Lights",
+        "total_invoice_qty": 530.0,
+        "total_invoice_sales": 10971.0
+    },
+    {
+        "material": "1693826-05LTBB",
+        "invoice_qty": 1530.0,
+        "invoice_sales": 33201.0,
+        "year": 2024,
+        "month": 8,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1530.0,
+        "total_invoice_sales": 33201.0
+    },
+    {
+        "material": "1693827-05LTBB",
+        "invoice_qty": 0.0,
+        "invoice_sales": 0.0,
+        "year": 2024,
+        "month": 8,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 0.0,
+        "total_invoice_sales": 0.0
+    },
+    {
+        "material": "1693827-05LTBB",
+        "invoice_qty": 780.0,
+        "invoice_sales": 20202.0,
+        "year": 2024,
+        "month": 8,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 780.0,
+        "total_invoice_sales": 20202.0
+    },
+    {
+        "material": "1693827-05LTBB",
+        "invoice_qty": 1465.0,
+        "invoice_sales": 37943.5,
+        "year": 2024,
+        "month": 8,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1465.0,
+        "total_invoice_sales": 37943.5
+    },
+    {
+        "material": "1693828-05LTBB",
+        "invoice_qty": 0.0,
+        "invoice_sales": 0.0,
+        "year": 2024,
+        "month": 8,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 0.0,
+        "total_invoice_sales": 0.0
+    },
+    {
+        "material": "1693828-05LTBB",
+        "invoice_qty": 1125.0,
+        "invoice_sales": 27337.5,
+        "year": 2024,
+        "month": 8,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1125.0,
+        "total_invoice_sales": 27337.5
+    },
+    {
+        "material": "1693828-05LTBB",
+        "invoice_qty": 1470.0,
+        "invoice_sales": 35721.0,
+        "year": 2024,
+        "month": 8,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1470.0,
+        "total_invoice_sales": 35721.0
+    },
+    {
+        "material": "1693829-05LTBB",
+        "invoice_qty": 1490.0,
+        "invoice_sales": 33897.5,
+        "year": 2024,
+        "month": 8,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 1490.0,
+        "total_invoice_sales": 33897.5
+    },
+    {
+        "material": "1693829-05LTBB",
+        "invoice_qty": 615.0,
+        "invoice_sales": 13991.25,
+        "year": 2024,
+        "month": 10,
+        "brand_name": "OEM (RDE1272)",
+        "color_group": "CMYK",
+        "total_invoice_qty": 615.0,
+        "total_invoice_sales": 13991.25
+    },
+    {
+        "material": "1697422-05LTBB",
+        "invoice_qty": 15.0,
+        "invoice_sales": 0.0,
+        "year": 2024,
+        "month": 10,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 15.0,
+        "total_invoice_sales": 0.0
+    },
+    {
+        "material": "1697423-05LTBB",
+        "invoice_qty": 15.0,
+        "invoice_sales": 0.0,
+        "year": 2024,
+        "month": 10,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 15.0,
+        "total_invoice_sales": 0.0
+    },
+    {
+        "material": "1697424-05LTBB",
+        "invoice_qty": 15.0,
+        "invoice_sales": 0.0,
+        "year": 2024,
+        "month": 10,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 15.0,
+        "total_invoice_sales": 0.0
+    },
+    {
+        "material": "1697425-05LTBB",
+        "invoice_qty": 15.0,
+        "invoice_sales": 0.0,
+        "year": 2024,
+        "month": 10,
+        "brand_name": "POPFlex",
+        "color_group": "CMYK",
+        "total_invoice_qty": 15.0,
+        "total_invoice_sales": 0.0
+    },
+    {
+        "material": "1697427-05LTBB",
+        "invoice_qty": 15.0,
+        "invoice_sales": 0.0,
+        "year": 2024,
+        "month": 10,
+        "brand_name": "POPFlex",
+        "color_group": "Lights",
+        "total_invoice_qty": 15.0,
+        "total_invoice_sales": 0.0
+    },
+    {
+        "material": "1697428-05LTBB",
+        "invoice_qty": 15.0,
+        "invoice_sales": 0.0,
+        "year": 2024,
+        "month": 10,
+        "brand_name": "POPFlex",
+        "color_group": "Lights",
+        "total_invoice_qty": 15.0,
+        "total_invoice_sales": 0.0
+    },
+    {
+        "material": "18800MISC",
+        "invoice_qty": 1.0,
+        "invoice_sales": 344.7,
+        "year": 2024,
+        "month": 5,
+        "brand_name": "Fee",
+        "color_group": "Special",
+        "total_invoice_qty": 1.0,
+        "total_invoice_sales": 344.7
+    },
+    {
+        "material": "18800MISC",
+        "invoice_qty": 1.0,
+        "invoice_sales": 1600.0,
+        "year": 2024,
+        "month": 5,
+        "brand_name": "Fee",
+        "color_group": "Special",
+        "total_invoice_qty": 1.0,
+        "total_invoice_sales": 1600.0
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 2.0,
+        "invoice_sales": 21.0,
+        "year": 2024,
+        "month": 1,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 2.0,
+        "total_invoice_sales": 21.0
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 3.0,
+        "invoice_sales": 31.5,
+        "year": 2024,
+        "month": 1,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 9.0,
+        "total_invoice_sales": 94.5
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 4.0,
+        "invoice_sales": 42.0,
+        "year": 2024,
+        "month": 1,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 8.0,
+        "total_invoice_sales": 84.0
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 5.0,
+        "invoice_sales": 52.5,
+        "year": 2024,
+        "month": 1,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 5.0,
+        "total_invoice_sales": 52.5
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 6.0,
+        "invoice_sales": 63.0,
+        "year": 2024,
+        "month": 1,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 6.0,
+        "total_invoice_sales": 63.0
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 8.0,
+        "invoice_sales": 84.0,
+        "year": 2024,
+        "month": 1,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 8.0,
+        "total_invoice_sales": 84.0
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 22.0,
+        "invoice_sales": 231.0,
+        "year": 2024,
+        "month": 2,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 22.0,
+        "total_invoice_sales": 231.0
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 23.0,
+        "invoice_sales": 241.5,
+        "year": 2024,
+        "month": 3,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 23.0,
+        "total_invoice_sales": 241.5
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 8.0,
+        "invoice_sales": 84.0,
+        "year": 2024,
+        "month": 3,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 8.0,
+        "total_invoice_sales": 84.0
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 4.0,
+        "invoice_sales": 42.0,
+        "year": 2024,
+        "month": 3,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 4.0,
+        "total_invoice_sales": 42.0
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 3.0,
+        "invoice_sales": 31.5,
+        "year": 2024,
+        "month": 3,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 6.0,
+        "total_invoice_sales": 63.0
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 2.0,
+        "invoice_sales": 21.0,
+        "year": 2024,
+        "month": 3,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 2.0,
+        "total_invoice_sales": 21.0
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 1.0,
+        "invoice_sales": 10.5,
+        "year": 2024,
+        "month": 3,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 1.0,
+        "total_invoice_sales": 10.5
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 3.0,
+        "invoice_sales": 31.5,
+        "year": 2024,
+        "month": 4,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 3.0,
+        "total_invoice_sales": 31.5
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 8.0,
+        "invoice_sales": 84.0,
+        "year": 2024,
+        "month": 4,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 8.0,
+        "total_invoice_sales": 84.0
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 14.0,
+        "invoice_sales": 147.0,
+        "year": 2024,
+        "month": 4,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 14.0,
+        "total_invoice_sales": 147.0
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 6.0,
+        "invoice_sales": 63.0,
+        "year": 2024,
+        "month": 4,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 6.0,
+        "total_invoice_sales": 63.0
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 18.0,
+        "invoice_sales": 189.0,
+        "year": 2024,
+        "month": 4,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 18.0,
+        "total_invoice_sales": 189.0
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 15.0,
+        "invoice_sales": 157.5,
+        "year": 2024,
+        "month": 5,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 15.0,
+        "total_invoice_sales": 157.5
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 6.0,
+        "invoice_sales": 63.0,
+        "year": 2024,
+        "month": 5,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 6.0,
+        "total_invoice_sales": 63.0
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 10.0,
+        "invoice_sales": 105.0,
+        "year": 2024,
+        "month": 5,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 20.0,
+        "total_invoice_sales": 210.0
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 3.0,
+        "invoice_sales": 31.5,
+        "year": 2024,
+        "month": 5,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 6.0,
+        "total_invoice_sales": 63.0
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 2.0,
+        "invoice_sales": 21.0,
+        "year": 2024,
+        "month": 5,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 2.0,
+        "total_invoice_sales": 21.0
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 5.0,
+        "invoice_sales": 52.5,
+        "year": 2024,
+        "month": 5,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 5.0,
+        "total_invoice_sales": 52.5
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 1.0,
+        "invoice_sales": 10.5,
+        "year": 2024,
+        "month": 5,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 2.0,
+        "total_invoice_sales": 21.0
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": -3.0,
+        "invoice_sales": -31.5,
+        "year": 2024,
+        "month": 5,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": -3.0,
+        "total_invoice_sales": -31.5
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": -10.0,
+        "invoice_sales": -105.0,
+        "year": 2024,
+        "month": 5,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": -10.0,
+        "total_invoice_sales": -105.0
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": -7.0,
+        "invoice_sales": -73.5,
+        "year": 2024,
+        "month": 6,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": -7.0,
+        "total_invoice_sales": -73.5
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": -2.0,
+        "invoice_sales": -21.0,
+        "year": 2024,
+        "month": 6,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": -2.0,
+        "total_invoice_sales": -21.0
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 1.0,
+        "invoice_sales": 10.5,
+        "year": 2024,
+        "month": 6,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 1.0,
+        "total_invoice_sales": 10.5
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 5.0,
+        "invoice_sales": 52.5,
+        "year": 2024,
+        "month": 6,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 5.0,
+        "total_invoice_sales": 52.5
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 2.0,
+        "invoice_sales": 21.0,
+        "year": 2024,
+        "month": 6,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 10.0,
+        "total_invoice_sales": 105.0
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 10.0,
+        "invoice_sales": 105.0,
+        "year": 2024,
+        "month": 6,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 10.0,
+        "total_invoice_sales": 105.0
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 9.0,
+        "invoice_sales": 94.5,
+        "year": 2024,
+        "month": 6,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 18.0,
+        "total_invoice_sales": 189.0
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 7.0,
+        "invoice_sales": 73.5,
+        "year": 2024,
+        "month": 6,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 14.0,
+        "total_invoice_sales": 147.0
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 7.0,
+        "invoice_sales": 73.5,
+        "year": 2024,
+        "month": 7,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 7.0,
+        "total_invoice_sales": 73.5
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 6.0,
+        "invoice_sales": 63.0,
+        "year": 2024,
+        "month": 7,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 6.0,
+        "total_invoice_sales": 63.0
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 12.0,
+        "invoice_sales": 126.0,
+        "year": 2024,
+        "month": 7,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 12.0,
+        "total_invoice_sales": 126.0
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 2.0,
+        "invoice_sales": 21.0,
+        "year": 2024,
+        "month": 7,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 2.0,
+        "total_invoice_sales": 21.0
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 3.0,
+        "invoice_sales": 31.5,
+        "year": 2024,
+        "month": 7,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 12.0,
+        "total_invoice_sales": 126.0
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 5.0,
+        "invoice_sales": 52.5,
+        "year": 2024,
+        "month": 7,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 5.0,
+        "total_invoice_sales": 52.5
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 4.0,
+        "invoice_sales": 42.0,
+        "year": 2024,
+        "month": 7,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 20.0,
+        "total_invoice_sales": 210.0
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 1.0,
+        "invoice_sales": 10.5,
+        "year": 2024,
+        "month": 7,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 2.0,
+        "total_invoice_sales": 21.0
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": -1.0,
+        "invoice_sales": -10.5,
+        "year": 2024,
+        "month": 7,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": -1.0,
+        "total_invoice_sales": -10.5
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": -3.0,
+        "invoice_sales": -31.5,
+        "year": 2024,
+        "month": 7,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": -6.0,
+        "total_invoice_sales": -63.0
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": -4.0,
+        "invoice_sales": -42.0,
+        "year": 2024,
+        "month": 7,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": -16.0,
+        "total_invoice_sales": -168.0
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 5.0,
+        "invoice_sales": 52.5,
+        "year": 2024,
+        "month": 8,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 5.0,
+        "total_invoice_sales": 52.5
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 2.0,
+        "invoice_sales": 21.0,
+        "year": 2024,
+        "month": 8,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 2.0,
+        "total_invoice_sales": 21.0
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 7.0,
+        "invoice_sales": 73.5,
+        "year": 2024,
+        "month": 8,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 7.0,
+        "total_invoice_sales": 73.5
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 25.0,
+        "invoice_sales": 262.5,
+        "year": 2024,
+        "month": 8,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 25.0,
+        "total_invoice_sales": 262.5
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 26.0,
+        "invoice_sales": 273.0,
+        "year": 2024,
+        "month": 8,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 26.0,
+        "total_invoice_sales": 273.0
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 9.0,
+        "invoice_sales": 94.5,
+        "year": 2024,
+        "month": 9,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 9.0,
+        "total_invoice_sales": 94.5
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 5.0,
+        "invoice_sales": 52.5,
+        "year": 2024,
+        "month": 9,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 5.0,
+        "total_invoice_sales": 52.5
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 4.0,
+        "invoice_sales": 42.0,
+        "year": 2024,
+        "month": 9,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 4.0,
+        "total_invoice_sales": 42.0
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 1.0,
+        "invoice_sales": 10.5,
+        "year": 2024,
+        "month": 9,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 1.0,
+        "total_invoice_sales": 10.5
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 1.0,
+        "invoice_sales": 10.5,
+        "year": 2024,
+        "month": 10,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 3.0,
+        "total_invoice_sales": 31.5
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 5.0,
+        "invoice_sales": 52.5,
+        "year": 2024,
+        "month": 10,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 10.0,
+        "total_invoice_sales": 105.0
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 2.0,
+        "invoice_sales": 21.0,
+        "year": 2024,
+        "month": 10,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 2.0,
+        "total_invoice_sales": 21.0
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 14.0,
+        "invoice_sales": 147.0,
+        "year": 2024,
+        "month": 10,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 14.0,
+        "total_invoice_sales": 147.0
+    },
+    {
+        "material": "18800PKG",
+        "invoice_qty": 7.0,
+        "invoice_sales": 73.5,
+        "year": 2024,
+        "month": 10,
+        "brand_name": "Freight Charge",
+        "color_group": "Special",
+        "total_invoice_qty": 7.0,
+        "total_invoice_sales": 73.5
     }
-}
+]

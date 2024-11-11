@@ -1,0 +1,1035 @@
+{
+    "customer": "Durst Group AG (AT)",
+    "brands": {
+        "DCBB": {
+            "color_groups": {
+                "CMYK": {
+                    "scenarios": {
+                        "Forecast": {
+                            "years": {
+                                "2024": {
+                                    "months": {
+                                        "1": {
+                                            "volume": 333.0,
+                                            "price": 19.0,
+                                            "value": 6333.0
+                                        },
+                                        "2": {
+                                            "volume": 333.0,
+                                            "price": 19.0,
+                                            "value": 6333.0
+                                        },
+                                        "3": {
+                                            "volume": 333.0,
+                                            "price": 19.0,
+                                            "value": 6333.0
+                                        },
+                                        "4": {
+                                            "volume": 333.0,
+                                            "price": 19.0,
+                                            "value": 6333.0
+                                        },
+                                        "5": {
+                                            "volume": 333.0,
+                                            "price": 19.0,
+                                            "value": 6333.0
+                                        },
+                                        "6": {
+                                            "volume": 333.0,
+                                            "price": 19.0,
+                                            "value": 6333.0
+                                        },
+                                        "7": {
+                                            "volume": 333.0,
+                                            "price": 19.0,
+                                            "value": 6333.0
+                                        },
+                                        "8": {
+                                            "volume": 333.0,
+                                            "price": 19.0,
+                                            "value": 6333.0
+                                        },
+                                        "9": {
+                                            "volume": 333.0,
+                                            "price": 19.0,
+                                            "value": 6333.0
+                                        },
+                                        "10": {
+                                            "volume": 0.0,
+                                            "price": 19.0,
+                                            "value": 0.0
+                                        },
+                                        "11": {
+                                            "volume": 0.0,
+                                            "price": 19.0,
+                                            "value": 0.0
+                                        },
+                                        "12": {
+                                            "volume": 0.0,
+                                            "price": 19.0,
+                                            "value": 0.0
+                                        }
+                                    },
+                                    "total_per_color_group": {
+                                        "volume": 2997.0,
+                                        "price": 19.02,
+                                        "value": 56997.0
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "totals_per_brand": {
+                "scenarios": {
+                    "Forecast": {
+                        "years": {
+                            "2024": {
+                                "months": {
+                                    "1": {
+                                        "volume": 333.0,
+                                        "price": 19.02,
+                                        "value": 6333.0
+                                    },
+                                    "2": {
+                                        "volume": 333.0,
+                                        "price": 19.02,
+                                        "value": 6333.0
+                                    },
+                                    "3": {
+                                        "volume": 333.0,
+                                        "price": 19.02,
+                                        "value": 6333.0
+                                    },
+                                    "4": {
+                                        "volume": 333.0,
+                                        "price": 19.02,
+                                        "value": 6333.0
+                                    },
+                                    "5": {
+                                        "volume": 333.0,
+                                        "price": 19.02,
+                                        "value": 6333.0
+                                    },
+                                    "6": {
+                                        "volume": 333.0,
+                                        "price": 19.02,
+                                        "value": 6333.0
+                                    },
+                                    "7": {
+                                        "volume": 333.0,
+                                        "price": 19.02,
+                                        "value": 6333.0
+                                    },
+                                    "8": {
+                                        "volume": 333.0,
+                                        "price": 19.02,
+                                        "value": 6333.0
+                                    },
+                                    "9": {
+                                        "volume": 333.0,
+                                        "price": 19.02,
+                                        "value": 6333.0
+                                    },
+                                    "10": {
+                                        "volume": 0.0,
+                                        "price": 0,
+                                        "value": 0.0
+                                    },
+                                    "11": {
+                                        "volume": 0.0,
+                                        "price": 0,
+                                        "value": 0.0
+                                    },
+                                    "12": {
+                                        "volume": 0.0,
+                                        "price": 0,
+                                        "value": 0.0
+                                    }
+                                },
+                                "grand_total_per_brand": {
+                                    "volume": 2997.0,
+                                    "price": 19.02,
+                                    "value": 56997.0
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "DCBP": {
+            "color_groups": {
+                "CMYK": {
+                    "scenarios": {
+                        "Forecast": {
+                            "years": {
+                                "2024": {
+                                    "months": {
+                                        "1": {
+                                            "volume": 0.0,
+                                            "price": 0.0,
+                                            "value": 0.0
+                                        },
+                                        "2": {
+                                            "volume": 0.0,
+                                            "price": 0.0,
+                                            "value": 0.0
+                                        },
+                                        "3": {
+                                            "volume": 0.0,
+                                            "price": 0.0,
+                                            "value": 0.0
+                                        },
+                                        "4": {
+                                            "volume": 0.0,
+                                            "price": 0.0,
+                                            "value": 0.0
+                                        },
+                                        "5": {
+                                            "volume": 0.0,
+                                            "price": 0.0,
+                                            "value": 0.0
+                                        },
+                                        "6": {
+                                            "volume": 0.0,
+                                            "price": 0.0,
+                                            "value": 0.0
+                                        },
+                                        "7": {
+                                            "volume": 0.0,
+                                            "price": 0.0,
+                                            "value": 0.0
+                                        },
+                                        "8": {
+                                            "volume": 0.0,
+                                            "price": 0.0,
+                                            "value": 0.0
+                                        },
+                                        "9": {
+                                            "volume": 0.0,
+                                            "price": 0.0,
+                                            "value": 0.0
+                                        },
+                                        "10": {
+                                            "volume": 0.0,
+                                            "price": 0.0,
+                                            "value": 0.0
+                                        },
+                                        "11": {
+                                            "volume": 0.0,
+                                            "price": 0.0,
+                                            "value": 0.0
+                                        },
+                                        "12": {
+                                            "volume": 0.0,
+                                            "price": 0.0,
+                                            "value": 0.0
+                                        }
+                                    },
+                                    "total_per_color_group": {
+                                        "volume": 0.0,
+                                        "price": 0,
+                                        "value": 0.0
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "totals_per_brand": {
+                "scenarios": {
+                    "Forecast": {
+                        "years": {
+                            "2024": {
+                                "months": {
+                                    "1": {
+                                        "volume": 0.0,
+                                        "price": 0,
+                                        "value": 0.0
+                                    },
+                                    "2": {
+                                        "volume": 0.0,
+                                        "price": 0,
+                                        "value": 0.0
+                                    },
+                                    "3": {
+                                        "volume": 0.0,
+                                        "price": 0,
+                                        "value": 0.0
+                                    },
+                                    "4": {
+                                        "volume": 0.0,
+                                        "price": 0,
+                                        "value": 0.0
+                                    },
+                                    "5": {
+                                        "volume": 0.0,
+                                        "price": 0,
+                                        "value": 0.0
+                                    },
+                                    "6": {
+                                        "volume": 0.0,
+                                        "price": 0,
+                                        "value": 0.0
+                                    },
+                                    "7": {
+                                        "volume": 0.0,
+                                        "price": 0,
+                                        "value": 0.0
+                                    },
+                                    "8": {
+                                        "volume": 0.0,
+                                        "price": 0,
+                                        "value": 0.0
+                                    },
+                                    "9": {
+                                        "volume": 0.0,
+                                        "price": 0,
+                                        "value": 0.0
+                                    },
+                                    "10": {
+                                        "volume": 0.0,
+                                        "price": 0,
+                                        "value": 0.0
+                                    },
+                                    "11": {
+                                        "volume": 0.0,
+                                        "price": 0,
+                                        "value": 0.0
+                                    },
+                                    "12": {
+                                        "volume": 0.0,
+                                        "price": 0,
+                                        "value": 0.0
+                                    }
+                                },
+                                "grand_total_per_brand": {
+                                    "volume": 0.0,
+                                    "price": 0,
+                                    "value": 0.0
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "FF": {
+            "color_groups": {
+                "FF": {
+                    "scenarios": {
+                        "Forecast": {
+                            "years": {
+                                "2024": {
+                                    "months": {
+                                        "9": {
+                                            "volume": 204.0,
+                                            "price": 15.5,
+                                            "value": 3162.0
+                                        },
+                                        "10": {
+                                            "volume": 204.0,
+                                            "price": 15.5,
+                                            "value": 3162.0
+                                        },
+                                        "11": {
+                                            "volume": 0.0,
+                                            "price": 0.0,
+                                            "value": 0.0
+                                        },
+                                        "12": {
+                                            "volume": 0.0,
+                                            "price": 0.0,
+                                            "value": 0.0
+                                        }
+                                    },
+                                    "total_per_color_group": {
+                                        "volume": 408.0,
+                                        "price": 15.5,
+                                        "value": 6324.0
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "totals_per_brand": {
+                "scenarios": {
+                    "Forecast": {
+                        "years": {
+                            "2024": {
+                                "months": {
+                                    "9": {
+                                        "volume": 204.0,
+                                        "price": 15.5,
+                                        "value": 3162.0
+                                    },
+                                    "10": {
+                                        "volume": 204.0,
+                                        "price": 15.5,
+                                        "value": 3162.0
+                                    },
+                                    "11": {
+                                        "volume": 0.0,
+                                        "price": 0,
+                                        "value": 0.0
+                                    },
+                                    "12": {
+                                        "volume": 0.0,
+                                        "price": 0,
+                                        "value": 0.0
+                                    }
+                                },
+                                "grand_total_per_brand": {
+                                    "volume": 408.0,
+                                    "price": 15.5,
+                                    "value": 6324.0
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "OEM (RDE1272)": {
+            "color_groups": {
+                "CMYK": {
+                    "scenarios": {
+                        "Forecast": {
+                            "years": {
+                                "2024": {
+                                    "months": {
+                                        "1": {
+                                            "volume": 7960.0,
+                                            "price": 24.41,
+                                            "value": 194334.0
+                                        },
+                                        "2": {
+                                            "volume": 5540.0,
+                                            "price": 23.71,
+                                            "value": 131337.5
+                                        },
+                                        "3": {
+                                            "volume": 10630.0,
+                                            "price": 24.12,
+                                            "value": 256445.0
+                                        },
+                                        "4": {
+                                            "volume": 9875.0,
+                                            "price": 23.96,
+                                            "value": 236562.0
+                                        },
+                                        "5": {
+                                            "volume": 9210.0,
+                                            "price": 23.95,
+                                            "value": 220536.0
+                                        },
+                                        "6": {
+                                            "volume": 8235.0,
+                                            "price": 24.27,
+                                            "value": 199855.5
+                                        },
+                                        "7": {
+                                            "volume": 9215.0,
+                                            "price": 23.72,
+                                            "value": 218571.0
+                                        },
+                                        "8": {
+                                            "volume": 16215.0,
+                                            "price": 23.08,
+                                            "value": 374283.75
+                                        },
+                                        "9": {
+                                            "volume": 1515.0,
+                                            "price": 24.3,
+                                            "value": 36814.5
+                                        },
+                                        "10": {
+                                            "volume": 8470.0,
+                                            "price": 23.95,
+                                            "value": 202891.25
+                                        },
+                                        "11": {
+                                            "volume": 8500.0,
+                                            "price": 24.12,
+                                            "value": 205020.0
+                                        },
+                                        "12": {
+                                            "volume": 8500.0,
+                                            "price": 24.12,
+                                            "value": 205020.0
+                                        }
+                                    },
+                                    "total_per_color_group": {
+                                        "volume": 103865.0,
+                                        "price": 23.89,
+                                        "value": 2481670.5
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "Lights": {
+                    "scenarios": {
+                        "Forecast": {
+                            "years": {
+                                "2024": {
+                                    "months": {
+                                        "1": {
+                                            "volume": 800.0,
+                                            "price": 24.0,
+                                            "value": 19200.0
+                                        },
+                                        "2": {
+                                            "volume": 520.0,
+                                            "price": 20.7,
+                                            "value": 10764.0
+                                        },
+                                        "3": {
+                                            "volume": 1340.0,
+                                            "price": 19.86,
+                                            "value": 26616.0
+                                        },
+                                        "4": {
+                                            "volume": 1670.0,
+                                            "price": 19.57,
+                                            "value": 32677.0
+                                        },
+                                        "5": {
+                                            "volume": 290.0,
+                                            "price": 20.7,
+                                            "value": 6003.0
+                                        },
+                                        "6": {
+                                            "volume": 1295.0,
+                                            "price": 19.4,
+                                            "value": 25123.5
+                                        },
+                                        "7": {
+                                            "volume": 885.0,
+                                            "price": 18.94,
+                                            "value": 16757.5
+                                        },
+                                        "8": {
+                                            "volume": 2415.0,
+                                            "price": 19.96,
+                                            "value": 48208.5
+                                        },
+                                        "9": {
+                                            "volume": 500.0,
+                                            "price": 20.7,
+                                            "value": 10350.0
+                                        },
+                                        "10": {
+                                            "volume": 1155.0,
+                                            "price": 19.06,
+                                            "value": 22016.5
+                                        },
+                                        "11": {
+                                            "volume": 250.0,
+                                            "price": 20.7,
+                                            "value": 5175.0
+                                        },
+                                        "12": {
+                                            "volume": 250.0,
+                                            "price": 20.74,
+                                            "value": 5185.0
+                                        }
+                                    },
+                                    "total_per_color_group": {
+                                        "volume": 11370.0,
+                                        "price": 20.06,
+                                        "value": 228076.0
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "Special": {
+                    "scenarios": {
+                        "Forecast": {
+                            "years": {
+                                "2024": {
+                                    "months": {
+                                        "8": {
+                                            "volume": 0.0,
+                                            "price": 0.0,
+                                            "value": 0.0
+                                        },
+                                        "9": {
+                                            "volume": 0.0,
+                                            "price": 0.0,
+                                            "value": 0.0
+                                        },
+                                        "10": {
+                                            "volume": 0.0,
+                                            "price": 0.0,
+                                            "value": 0.0
+                                        },
+                                        "11": {
+                                            "volume": 0.0,
+                                            "price": 0.0,
+                                            "value": 0.0
+                                        },
+                                        "12": {
+                                            "volume": 0.0,
+                                            "price": 0.0,
+                                            "value": 0.0
+                                        }
+                                    },
+                                    "total_per_color_group": {
+                                        "volume": 0.0,
+                                        "price": 0,
+                                        "value": 0.0
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "totals_per_brand": {
+                "scenarios": {
+                    "Forecast": {
+                        "years": {
+                            "2024": {
+                                "months": {
+                                    "1": {
+                                        "volume": 8760.0,
+                                        "price": 24.38,
+                                        "value": 213534.0
+                                    },
+                                    "2": {
+                                        "volume": 6060.0,
+                                        "price": 23.45,
+                                        "value": 142101.5
+                                    },
+                                    "3": {
+                                        "volume": 11970.0,
+                                        "price": 23.65,
+                                        "value": 283061.0
+                                    },
+                                    "4": {
+                                        "volume": 11545.0,
+                                        "price": 23.32,
+                                        "value": 269239.0
+                                    },
+                                    "5": {
+                                        "volume": 9500.0,
+                                        "price": 23.85,
+                                        "value": 226539.0
+                                    },
+                                    "6": {
+                                        "volume": 9530.0,
+                                        "price": 23.61,
+                                        "value": 224979.0
+                                    },
+                                    "7": {
+                                        "volume": 10100.0,
+                                        "price": 23.3,
+                                        "value": 235328.5
+                                    },
+                                    "8": {
+                                        "volume": 18630.0,
+                                        "price": 22.68,
+                                        "value": 422492.25
+                                    },
+                                    "9": {
+                                        "volume": 2015.0,
+                                        "price": 23.41,
+                                        "value": 47164.5
+                                    },
+                                    "10": {
+                                        "volume": 9625.0,
+                                        "price": 23.37,
+                                        "value": 224907.75
+                                    },
+                                    "11": {
+                                        "volume": 8750.0,
+                                        "price": 24.02,
+                                        "value": 210195.0
+                                    },
+                                    "12": {
+                                        "volume": 8750.0,
+                                        "price": 24.02,
+                                        "value": 210205.0
+                                    }
+                                },
+                                "grand_total_per_brand": {
+                                    "volume": 115235.0,
+                                    "price": 23.51,
+                                    "value": 2709746.5
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "POPFlex": {
+            "color_groups": {
+                "CMYK": {
+                    "scenarios": {
+                        "Forecast": {
+                            "years": {
+                                "2024": {
+                                    "months": {
+                                        "1": {
+                                            "volume": 2990.0,
+                                            "price": 23.91,
+                                            "value": 71487.0
+                                        },
+                                        "2": {
+                                            "volume": 500.0,
+                                            "price": 21.7,
+                                            "value": 10850.0
+                                        },
+                                        "3": {
+                                            "volume": 1000.0,
+                                            "price": 25.85,
+                                            "value": 25850.0
+                                        },
+                                        "4": {
+                                            "volume": 2810.0,
+                                            "price": 23.86,
+                                            "value": 67036.0
+                                        },
+                                        "5": {
+                                            "volume": 3525.0,
+                                            "price": 21.34,
+                                            "value": 75230.0
+                                        },
+                                        "6": {
+                                            "volume": 3425.0,
+                                            "price": 23.97,
+                                            "value": 82093.5
+                                        },
+                                        "7": {
+                                            "volume": 1990.0,
+                                            "price": 25.6,
+                                            "value": 50937.0
+                                        },
+                                        "8": {
+                                            "volume": 1500.0,
+                                            "price": 27.59,
+                                            "value": 41382.0
+                                        },
+                                        "9": {
+                                            "volume": 2540.0,
+                                            "price": 24.35,
+                                            "value": 61841.0
+                                        },
+                                        "10": {
+                                            "volume": 1135.0,
+                                            "price": 20.9,
+                                            "value": 23722.5
+                                        },
+                                        "11": {
+                                            "volume": 2250.0,
+                                            "price": 23.9,
+                                            "value": 53775.0
+                                        },
+                                        "12": {
+                                            "volume": 2000.0,
+                                            "price": 23.9,
+                                            "value": 47800.0
+                                        }
+                                    },
+                                    "total_per_color_group": {
+                                        "volume": 25665.0,
+                                        "price": 23.85,
+                                        "value": 612004.0
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "FF": {
+                    "scenarios": {
+                        "Forecast": {
+                            "years": {
+                                "2024": {
+                                    "months": {
+                                        "4": {
+                                            "volume": 204.0,
+                                            "price": 16.0,
+                                            "value": 3264.0
+                                        },
+                                        "5": {
+                                            "volume": 140.0,
+                                            "price": 16.0,
+                                            "value": 2240.0
+                                        },
+                                        "6": {
+                                            "volume": 200.0,
+                                            "price": 15.5,
+                                            "value": 3100.0
+                                        },
+                                        "7": {
+                                            "volume": 0.0,
+                                            "price": 16.0,
+                                            "value": 0.0
+                                        },
+                                        "8": {
+                                            "volume": 200.0,
+                                            "price": 16.0,
+                                            "value": 3200.0
+                                        },
+                                        "9": {
+                                            "volume": 0.0,
+                                            "price": 16.0,
+                                            "value": 0.0
+                                        },
+                                        "10": {
+                                            "volume": 200.0,
+                                            "price": 16.0,
+                                            "value": 3200.0
+                                        },
+                                        "11": {
+                                            "volume": 0.0,
+                                            "price": 10.5,
+                                            "value": 0.0
+                                        },
+                                        "12": {
+                                            "volume": 200.0,
+                                            "price": 16.0,
+                                            "value": 3200.0
+                                        }
+                                    },
+                                    "total_per_color_group": {
+                                        "volume": 1144.0,
+                                        "price": 15.91,
+                                        "value": 18204.0
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "Lights": {
+                    "scenarios": {
+                        "Forecast": {
+                            "years": {
+                                "2024": {
+                                    "months": {
+                                        "4": {
+                                            "volume": 550.0,
+                                            "price": 21.82,
+                                            "value": 12000.0
+                                        },
+                                        "5": {
+                                            "volume": 790.0,
+                                            "price": 21.45,
+                                            "value": 16947.5
+                                        },
+                                        "6": {
+                                            "volume": 250.0,
+                                            "price": 22.75,
+                                            "value": 5687.5
+                                        },
+                                        "7": {
+                                            "volume": 280.0,
+                                            "price": 20.7,
+                                            "value": 5796.0
+                                        },
+                                        "8": {
+                                            "volume": 250.0,
+                                            "price": 22.75,
+                                            "value": 5687.0
+                                        },
+                                        "9": {
+                                            "volume": 790.0,
+                                            "price": 22.0,
+                                            "value": 17378.0
+                                        },
+                                        "10": {
+                                            "volume": 30.0,
+                                            "price": 0.0,
+                                            "value": 0.0
+                                        },
+                                        "11": {
+                                            "volume": 500.0,
+                                            "price": 22.75,
+                                            "value": 11375.0
+                                        },
+                                        "12": {
+                                            "volume": 250.0,
+                                            "price": 22.75,
+                                            "value": 5687.5
+                                        }
+                                    },
+                                    "total_per_color_group": {
+                                        "volume": 3690.0,
+                                        "price": 21.83,
+                                        "value": 80558.5
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "totals_per_brand": {
+                "scenarios": {
+                    "Forecast": {
+                        "years": {
+                            "2024": {
+                                "months": {
+                                    "1": {
+                                        "volume": 2990.0,
+                                        "price": 23.91,
+                                        "value": 71487.0
+                                    },
+                                    "2": {
+                                        "volume": 500.0,
+                                        "price": 21.7,
+                                        "value": 10850.0
+                                    },
+                                    "3": {
+                                        "volume": 1000.0,
+                                        "price": 25.85,
+                                        "value": 25850.0
+                                    },
+                                    "4": {
+                                        "volume": 3564.0,
+                                        "price": 23.09,
+                                        "value": 82300.0
+                                    },
+                                    "5": {
+                                        "volume": 4455.0,
+                                        "price": 21.19,
+                                        "value": 94417.5
+                                    },
+                                    "6": {
+                                        "volume": 3875.0,
+                                        "price": 23.45,
+                                        "value": 90881.0
+                                    },
+                                    "7": {
+                                        "volume": 2270.0,
+                                        "price": 24.99,
+                                        "value": 56733.0
+                                    },
+                                    "8": {
+                                        "volume": 1950.0,
+                                        "price": 25.78,
+                                        "value": 50269.0
+                                    },
+                                    "9": {
+                                        "volume": 3330.0,
+                                        "price": 23.79,
+                                        "value": 79219.0
+                                    },
+                                    "10": {
+                                        "volume": 1365.0,
+                                        "price": 19.72,
+                                        "value": 26922.5
+                                    },
+                                    "11": {
+                                        "volume": 2750.0,
+                                        "price": 23.69,
+                                        "value": 65150.0
+                                    },
+                                    "12": {
+                                        "volume": 2450.0,
+                                        "price": 23.14,
+                                        "value": 56687.5
+                                    }
+                                },
+                                "grand_total_per_brand": {
+                                    "volume": 30499.0,
+                                    "price": 23.3,
+                                    "value": 710766.5
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "grand_total_per_customer": {
+            "scenarios": {
+                "Forecast": {
+                    "years": {
+                        "2024": {
+                            "months": {
+                                "1": {
+                                    "volume": 12083.0,
+                                    "price": 24.11,
+                                    "value": 291354.0
+                                },
+                                "2": {
+                                    "volume": 6893.0,
+                                    "price": 23.11,
+                                    "value": 159284.5
+                                },
+                                "3": {
+                                    "volume": 13303.0,
+                                    "price": 23.7,
+                                    "value": 315244.0
+                                },
+                                "4": {
+                                    "volume": 15442.0,
+                                    "price": 23.18,
+                                    "value": 357872.0
+                                },
+                                "5": {
+                                    "volume": 14288.0,
+                                    "price": 22.91,
+                                    "value": 327289.5
+                                },
+                                "6": {
+                                    "volume": 13738.0,
+                                    "price": 23.45,
+                                    "value": 322193.0
+                                },
+                                "7": {
+                                    "volume": 12703.0,
+                                    "price": 23.49,
+                                    "value": 298394.5
+                                },
+                                "8": {
+                                    "volume": 20913.0,
+                                    "price": 22.91,
+                                    "value": 479094.25
+                                },
+                                "9": {
+                                    "volume": 5882.0,
+                                    "price": 23.1,
+                                    "value": 135878.5
+                                },
+                                "10": {
+                                    "volume": 11194.0,
+                                    "price": 22.78,
+                                    "value": 254992.25
+                                },
+                                "11": {
+                                    "volume": 11500.0,
+                                    "price": 23.94,
+                                    "value": 275345.0
+                                },
+                                "12": {
+                                    "volume": 11200.0,
+                                    "price": 23.83,
+                                    "value": 266892.5
+                                }
+                            },
+                            "grand_total_per_customer": {
+                                "volume": 149139.0,
+                                "price": 23.36,
+                                "value": 3483834.0
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
