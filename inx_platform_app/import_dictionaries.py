@@ -75,9 +75,6 @@ ke24_converters_dict = {
     "SenderCostCenter": str,
     "CostElement": str,
     "CurrencyKey": str,
-    "CostElement": str,
-    "CurrencyKey": str,
-    "SalesQuantity": str,
     "UnitSalesQuantity": str,
     "YearWeek": str,
     "Product": str,
@@ -145,8 +142,6 @@ ke24_converters_dict = {
     "PostingDate": 'datetime64[ns]',
     "InvoiceDate": 'datetime64[ns]',
     "Date": 'datetime64[ns]',
-    # "Time": 'datetime64[ns]',
-    # "Time": "%H:%M:%S",
     "GoodsIssueDate": 'datetime64[ns]',
 
     "Year": int,

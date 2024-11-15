@@ -7,7 +7,7 @@
     <!-- Page body -->
     <div class="page-body">
       <div class="container-xl d-flex flex-column justify-content-center">
-        <form class="card" method="POST">
+        <form class="card" method="POST" enctype="multipart/form-data">
           {% csrf_token %}
           <div class="card-body">
             <div class="card-title d-flex justify-content-between align-items-center">
@@ -130,6 +130,11 @@
                   {{ form.is_new }}
                 </div>
               </div>
+              <div class="col-md-12">
+                <div class="mb-3 mb-0">
+                  <label class="form-label">{{ form.logo.label }}</label>
+                  {{ form.logo }}
+                </div>
             </div>
           </div>
           <div class="card-footer text-end">

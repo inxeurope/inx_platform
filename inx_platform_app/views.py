@@ -4,7 +4,7 @@ from django.db.models.functions import Coalesce, Round
 from django.db import connection
 from django.urls import reverse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse, HttpResponseRedirect, HttpResponseBadRequest, HttpResponse
+from django.http import JsonResponse, HttpResponseRedirect, HttpResponseBadRequest, HttpResponse, Http404, FileResponse
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import messages
@@ -13,7 +13,6 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.views import LoginView, PasswordChangeView
 from django.contrib.auth.decorators import login_required
-# from django.template import loader
 from django.db import models, transaction
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .models import *
@@ -21,9 +20,11 @@ from .utils import *
 from .forms import *
 from .filters import *
 from .tasks import file_processor, fetch_euro_exchange_rates
+from PIL import Image
 from . import dictionaries, import_dictionaries
 from decimal import Decimal, ROUND_HALF_UP
 from loguru import logger
+import binascii
 import pyodbc
 import math
 import pandas as pd
@@ -2236,12 +2237,9 @@ def customer_edit(request, pk):
     # form template, or it is disabled
     is_new_value = c.is_new 
     if request.method == 'POST':
-        csrf_token = request.META.get('CSRF_COOKIE', 'Not set')
-        print(f"customer_edit - csrf token: {csrf_token}")
-        form = CustomerForm(request.POST, instance = c)
+        form = CustomerForm(request.POST, request.FILES, instance = c)
         if form.is_valid():
-            print ("c.is_new", c.is_new)
-            # Check if it's NEW
+            # Check if it's NEW, we consider the edit as approval
             if is_new_value:
                 form.instance.approved_by = request.user
                 form.instance.approved_on = datetime.today().date()
@@ -2256,7 +2254,7 @@ def customer_edit(request, pk):
         form.fields['is_new'].disabled = True
         form.fields['approved_by'].disabled = True
         form.fields['approved_on'].disabled = True
-        print(c.import_note)
+
     context = {
         'form': form,
         'customer_is_new': c.is_new,
@@ -2382,13 +2380,18 @@ def product_view(request, pk):
     product = get_object_or_404(Product, id=pk)
     bom_header_count = BomHeader.objects.filter(product_id=product.id).count()
     bom_headers = BomHeader.objects.filter(product_id = product.id)
+    
+    sds_product_languages = ProductLanguage.objects.filter(product_id=product.id)
+    print(sds_product_languages)
 
     if 'page' in request.GET:
         django_filters_page = request.GET.get('page')
+        print(f"django_filters_page: {django_filters_page}")
         query_dict = request.GET.copy()
         query_dict.pop('page', None)
         query_dict['return_page'] = django_filters_page
         django_filters_params = query_dict.urlencode()
+        print(f"django_filters_params: {django_filters_params}")
     else:
         django_filters_params = request.GET.urlencode()
 
@@ -2396,7 +2399,8 @@ def product_view(request, pk):
         'product': product,
         'dj_filters_params': django_filters_params,
         'bom_header_count': bom_header_count,
-        'bom_headers': bom_headers
+        'bom_headers': bom_headers,
+        'sds_product_languages': sds_product_languages
     }
     return render(request, "app_pages/product_view.html", context)
 
@@ -2630,7 +2634,6 @@ def products(request):
         del django_filters_params['page']
         django_filters_params['return_page'] = page_number
     django_filters_params = django_filters_params.urlencode()
-    print(f"from the /products: {django_filters_params}")
 
     context = {
         'form': product_filter.form,
@@ -3161,7 +3164,255 @@ def special_del_boms(request):
     return render(request, "app_pages/_marco.html", context)
     
 
-    pass
-    
+@login_required
+def custom_sds(request, pk):
+    '''
+    pk - ProductLanguage model's id
+    ''' 
+    try:
+        custom_sds = get_object_or_404(ProductLanguage, id=pk)
+        if request.method == 'POST':
+            form = RTFUploadForm(request.POST, request.FILES, instance = custom_sds)
+            if form.is_valid():
+                rtf_file = form.cleaned_data.get('rtf_file')
+                if rtf_file:
+                    rtf_content = rtf_file.read().decode('utf-8')
+                    custom_sds.rtf_content = rtf_content
+                custom_sds.save()
+                return redirect('custom-sds', pk=pk)
+        else:
+            form = RTFUploadForm(instance=custom_sds)
+        
+        if custom_sds:
+            rtf = custom_sds.rtf_content[:300]
+        else:
+            rtf = None
+        
+    except Http404:
+        custom_sds = None
+        form = None
+        
+    context = {
+        'custom_sds': custom_sds,
+        'form': form,
+        'rtf': rtf
+    }
+    if custom_sds:
+        return render(request, "app_pages/custom_sds.html", context)
+    else:
+        return render(request, "app_pages/blank_empty.html", context)
 
-    ##
+
+@login_required
+def fetch_sds_replacements(request, pk):
+    '''
+    pk - ProductLanguage model's id
+    '''
+    custom_sds = get_object_or_404(ProductLanguage, id=pk)
+    if request.method == 'POST':
+        ProductLanguageReplacement.objects.create(
+            product_language=custom_sds,
+            search_for="search for placeholder",
+            replace_with="replace with placeholder"
+        )
+    replacements = ProductLanguageReplacement.objects.filter(
+        product_language=custom_sds
+    )
+    context = {
+        'replacements': replacements
+    }
+    return render(request, 'app_pages/custom_sds_replacements_partial.html', context)
+
+
+@login_required
+def delete_sds_replacement(request, pk):
+    '''
+    pk - ProductLanguageReplacement model's id
+    '''
+    replacement = get_object_or_404(ProductLanguageReplacement, id=pk)
+    product_language = replacement.product_language
+    replacement.delete()
+    
+    # Fetch the updated set of replacements
+    replacements = ProductLanguageReplacement.objects.filter(
+        product_language=product_language
+    )
+    
+    context = {
+        'replacements': replacements
+    }
+    return render(request, 'app_pages/custom_sds_replacements_partial.html', context)
+
+
+@login_required
+def edit_sds_replacement(request, pk):
+    '''
+    pk - ProductLanguageReplacement model's id
+    '''
+    replacement = get_object_or_404(ProductLanguageReplacement, id=pk)
+    product_language = replacement.product_language
+
+    if request.method == 'POST':
+        form = ProductLanguageReplacementForm(request.POST, instance=replacement)
+        if form.is_valid():
+            form.save()
+            # Fetch the updated set of replacements
+            replacements = ProductLanguageReplacement.objects.filter(
+                product_language=product_language
+            )
+            context = {
+                'replacements': replacements
+            }
+            return render(request, 'app_pages/custom_sds_replacements_partial.html', context)
+    else:
+        form = ProductLanguageReplacementForm(instance=replacement)
+
+    context = {
+        'form': form,
+        'replacement': replacement
+    }
+    return render(request, 'app_pages/sds_edit_replacement_partial.html', context)
+
+
+def get_logo_string(logo_path, logo_width_mm, margin_bottom = -250):
+    '''
+    Function to create the rtf text for the logo (contains the hex values)
+    This function also returns width and heigth of the logo in twips
+    '''
+    
+    with open(logo_path, 'rb') as image_file:
+        logo_binary = image_file.read()
+        logo_hex = binascii.hexlify(logo_binary).decode('ascii')
+    
+    with Image.open(logo_path) as image_file:
+        image_width, image_heigth = image_file.size
+        aspect_ratio = image_heigth / image_width
+    
+    twips_per_mm = 1440 / 25.4
+    width_twips = int(logo_width_mm * twips_per_mm)
+    height_twips = int(width_twips * aspect_ratio)
+    print(f"logo width x heigth (twips): {width_twips}x{height_twips}")
+
+    logo_rtf = (
+            r"{\pict\pngblip\n" +
+            f"\n\\picwgoal{width_twips}\\pichgoal{height_twips}\n"
+            + logo_hex
+            + r"\n}"
+        )
+
+    return logo_rtf, width_twips, height_twips
+
+
+def find_start_index(list_of_strings, content):
+    for string_to_find in list_of_strings:
+        try:
+            index = content.index(string_to_find)
+            return index
+        except ValueError:
+            continue
+    return -1
+
+
+def remove_logo_from_rtf(start,end, content, cycles=1):
+    try:
+        start_index = find_start_index(start, content)
+        if cycles == 1 and start_index != -1:
+            pos_firts_logo_insertion = start_index
+            removed = True
+        elif cycles == 1 and start_index == -1:
+            print("CANNOT FIND LOGO MARKER")
+            pos_firts_logo_insertion = 0
+            removed = False
+        else:
+            pos_firts_logo_insertion = 0
+            removed = True
+    except ValueError:
+        print(f"start_str: {start} - not found")
+        if cycles == 1:
+            removed = False
+    
+    if removed:
+        try:
+            end_index = content.index(end) + len(end)
+        except ValueError:
+            print(f"end_st: {end} - not found")
+        
+        # If the is a start_index and an end_index, we remove
+        if start_index != -1 and end_index != -1:
+            new_content = content[:start_index] + content[end_index:]
+            removed = True
+        
+        if find_start_index(start, new_content) != -1:
+            cycles += 1
+            print(f"{'    '*(cycles-1)}...there is another occurrence. entering cycle:{cycles}")
+            new_content, pos_not_used, removed = remove_logo_from_rtf(start, end, new_content, cycles)
+        else:
+            print(f"{'    '*(cycles-1)}...no more occurrences")
+    return new_content, pos_firts_logo_insertion, removed
+
+# Function to add customer's logo
+def add_logo(content, index_of_insertion, logo_rtf, width_in_twips, heigth_in_twips, box_tags):
+    content = content[:index_of_insertion] + logo_rtf + content[index_of_insertion:]
+    box_tags = box_tags.replace('-15', '0')
+    box_tags = box_tags.replace('-33', '-250')
+    box_tags = box_tags.replace('-1041', f'{-250-heigth_in_twips}')
+    box_tags = box_tags.replace('1871', f'{width_in_twips}')
+    return content, box_tags    
+
+@login_required
+def custom_sds_make(request, pk):
+    '''
+    pk - ProductLanguage model's id
+    '''
+    
+    # Preparing
+    # PARAMETERS for logo ----------------------------------------------------------------------------start
+    logo_box_tags ='{\shp{\*\shpinst\shpleft-15\shptop-1041\shpright1871\shpbottom-33'
+    # parameters to change
+    # shpleft: the starting point horizontally; negative value are at the left of the margin
+    # shpbottom: the starting point vertically; negative values ar above the top margin
+    # shptop: the ending point vertically; this should be shpbottom + logo height in twips
+    # shpright: the ending point horizontally; this should be shpleft + logo width in twips
+    logo_start_string = [
+        '{\pict{\*\picprop\shplid1037{',
+        '{\pict{\*\picprop\shplid1026{\sp{\sn shapeType}{\sv 75}}{\sp{\sn fFlipH}{\sv 0}}{\sp{\sn fFlipV}{\sv 0}}{\sp{\sn fLine}{\sv 0}}{\sp{\sn wzDescription}{\sv NEW INX LOGO FOR SDS}}'
+        ]
+    logo_end_string = '0000000000000000000000000000000000b840ff1fdf86134b9a5bc8bb0000000049454e44ae426082}'
+    # PARAMETERS for logo ------------------------------------------------------------------------------end
+    
+    custom_sds = get_object_or_404(ProductLanguage, id=pk)
+    if custom_sds:
+        if custom_sds.rtf_content:
+            
+            c = custom_sds.customer
+            # I have the customer, now get the logo
+            logo = c.logo
+            logo_width = custom_sds.logo_width
+            print("logo.path:", logo.path)
+            logo_rtf, width_in_twips, heigth_in_twips = get_logo_string(logo.path, int(logo_width))
+            # Removing logo from the rtf content
+            cycles = 1
+            new_content, index_of_logo_insertion, removed = remove_logo_from_rtf(logo_start_string, logo_end_string, custom_sds.rtf_content, cycles)
+            if removed:
+                new_content, new_container_box_tags = add_logo(new_content, index_of_logo_insertion, logo_rtf, width_in_twips, heigth_in_twips, logo_box_tags)
+                new_content = new_content[:index_of_logo_insertion] + logo_rtf + new_content[index_of_logo_insertion:]
+                new_content = new_content.replace(logo_box_tags, new_container_box_tags)
+            
+            # Perfomr the rest of the replacements
+            replacements = ProductLanguageReplacement.objects.filter(
+                product_language=custom_sds
+            )
+            print(f"found {len(replacements)} replacements")
+            for r in replacements:
+                new_content = new_content.replace(r.search_for, r.replace_with)
+            
+            file_path = os.path.join(settings.MEDIA_ROOT, f"custom_sds_{pk}.rtf")
+            with open(file_path, 'w') as file:
+                file.write(new_content)
+            
+            response = FileResponse(open(file_path, 'rb'), as_attachment=True, filename=f"custom_sds_{pk}.rtf")
+            
+            return response
+    
+    else:
+        return redirect('custom_sds', pk=pk)

@@ -14,7 +14,9 @@ from .models import (
     User,
     CustomerType,
     Currency,
-    Industry,Product, Color, MadeIn, Packaging, ProductLine, ProductStatus, BudgetForecastDetail)
+    Industry,Product, Color, MadeIn, Packaging, ProductLine, ProductStatus, BudgetForecastDetail,
+    ProductLanguage,
+    ProductLanguageReplacement)
 
 
 class EditMajorLabelForm(forms.ModelForm):
@@ -264,6 +266,7 @@ class CustomerForm(forms.ModelForm):
             'approved_on': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'approved_by': forms.Select(attrs={'class': 'form-select'}),
             'customer_service_rep': forms.Select(attrs={'class': 'form-select'}),
+            'logo': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
         }
 
 
@@ -353,6 +356,7 @@ class ForecastForm(forms.ModelForm):
             instance.save()
         return instance
 
+
 class FlatBudgetForm(forms.Form):
     volume = forms.FloatField(
         label='Volume',
@@ -371,13 +375,15 @@ class FlatBudgetForm(forms.Form):
 class SalesForecastBudgetFilterForm(forms.Form):
 
     user = forms.ChoiceField(
-        choices=[('all', 'All')] + [(user.id, user.email) for user in User.objects.all()],
+        # choices=[('all', 'All')] + [(user.id, user.email) for user in User.objects.all()],
+        choices=[],
         required=False,
         widget=forms.Select(attrs={'class': 'form-select'})
     )
 
     customer = forms.ChoiceField(
-        choices = [('all', 'All')] + [(c.id, c.name) for c in Customer.objects.all()],
+        # choices = [('all', 'All')] + [(c.id, c.name) for c in Customer.objects.all()],
+        choices = [],
         required = False,
         widget = forms.Select(attrs={'class': 'form-select'})
     )
@@ -396,3 +402,27 @@ class SalesForecastBudgetFilterForm(forms.Form):
         else:
             self.fields['customer'].choices = [('all', 'All')] + [(c.id, c.name) for c in Customer.objects.all()]
 
+
+
+class RTFUploadForm(forms.ModelForm):
+    rtf_file = forms.FileField(
+        label='Upload RTF File',
+        required=False,
+        widget=forms.ClearableFileInput(attrs={'class': 'form-control'}))
+    
+    class Meta:
+        model = ProductLanguage
+        fields = ['rtf_file', 'logo_width']
+        widgets={
+            'logo_width': forms.NumberInput(attrs={'class': 'form-control'}),
+        }
+
+
+class ProductLanguageReplacementForm(forms.ModelForm):
+    class Meta:
+        model = ProductLanguageReplacement
+        fields = ['search_for', 'replace_with']
+        widgets = {
+            'search_for': forms.TextInput(attrs={'class': 'form-control'}),
+            'replace_with': forms.TextInput(attrs={'class': 'form-control'}),
+        }

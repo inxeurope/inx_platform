@@ -12,7 +12,7 @@
         <div class="row g-2 align-items-center">
           <div class="col-auto">
             <a href="{% url "products" %}?{{ dj_filters_params }}">
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Customers" width="64" height="64" viewBox="0 0 24 24" stroke-width="1.5" stroke="#0071ce" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Products" width="64" height="64" viewBox="0 0 24 24" stroke-width="1.5" stroke="#0071ce" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                 <path d="M5 12l14 0" />
                 <path d="M5 12l6 6" />
@@ -146,6 +146,47 @@
                 <div class="datagrid-title">Approved By</div>
                 <div class="datagrid-content"> {{ product.approved_by }}</div>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="container-xl mb-3">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between">
+            <h3 class="card-title">Custom Safety Data Sheets</h3>
+            <a href="#" class="btn btn-outline-info">Add</a>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-vcenter card-table table-striped">
+                <thead>
+                  <tr>
+                    <th>Customer</th>
+                    <th>Product</th>
+                    <th>Language</th>
+                    <th class="w-1"></th>
+                    <th class="w-1"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for sds_product_language in sds_product_languages %}
+                  <tr>
+                    <td>{{ sds_product_language.customer.name }}</td>
+                    <td class="text-secondary">
+                      {{ sds_product_language.product.name }}
+                    </td>
+                    <td class="text-secondary">{{ sds_product_language.language.name }}</td>
+                    <td>
+                      <a href="{% url 'custom-sds' sds_product_language.id %}" class="btn btn-outline-primary btn-sm">Edit</a>
+                    </td>
+                    <td>
+                      <a href="#" class="btn btn-outline-primary btn-sm">Export...</a>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>

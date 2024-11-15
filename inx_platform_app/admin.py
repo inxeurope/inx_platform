@@ -4,6 +4,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.admin.widgets import ForeignKeyRawIdWidget
 from django.utils.translation import gettext_lazy as _
+from .models import Language
 
 from .models import (
     ProductStatus,
@@ -59,7 +60,9 @@ from .models import (
     PackagingRateToLiter,
     UnitOfMeasureConversionFactor,
     ManualCost,
-    Rebate
+    Rebate,
+    ProductLanguage,
+    ProductLanguageReplacement
 )
 
 admin.site.site_header = "INX Platform Administration"
@@ -696,6 +699,24 @@ class RebateAdmin(admin.ModelAdmin):
     get_scenario_name.admin_order_field = 'scenario__name'
     get_scenario_name.short_description = 'Scenario'
 
+
+class LanguageAdmin(admin.ModelAdmin):
+    list_display = ['id', 'iso_639_1', 'iso_639_2', 'family', 'name', 'native_name', 'wiki_url']
+    search_fields = ['iso_639_1', 'iso_639_2', 'family', 'name', 'native_name', 'wiki_url']
+    ordering = ['iso_639_1']
+
+
+class ProductLanguageAdmin(admin.ModelAdmin):
+    list_display = ['id', 'product', 'language', 'name', 'description']
+    search_fields = ['product__number', 'product__name', 'language__iso_639_1', 'language__iso_639_2', 'language__family', 'language__name', 'language__native_name', 'language__wiki_url', 'name', 'description']
+    autocomplete_fields = ['product', 'customer', 'language']
+
+
+class ProductLanguageReplacementAdmin(admin.ModelAdmin):
+    list_display = ['id', 'product_language', 'search_for', 'replace_with']
+    search_fields = ['product_language__product__number', 'product_language__product__name', 'product_language__language__iso_639_1', 'product_language__language__iso_639_2', 'product_language__language__family', 'product_language__language__name', 'product_language__language__native_name', 'product_language__language__wiki_url', 'search_for', 'replace_with']
+    autocomplete_fields = ['product_language']
+
 admin.site.register(ColorGroup, ColorGroupAdmin)
 admin.site.register(Color, ColorAdmin)
 admin.site.register(MadeIn, MadeInAdmin)
@@ -750,3 +771,6 @@ admin.site.register(Bom, BomAdmin)
 admin.site.register(UnitOfMeasureConversionFactor, UnitOfMeasureConversionFactorAdmin)
 admin.site.register(ManualCost, ManualCostAdmin)
 admin.site.register(Rebate, RebateAdmin)
+admin.site.register(Language, LanguageAdmin)
+admin.site.register(ProductLanguage, ProductLanguageAdmin)
+admin.site.register(ProductLanguageReplacement, ProductLanguageReplacementAdmin)

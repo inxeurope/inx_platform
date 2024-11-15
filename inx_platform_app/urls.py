@@ -37,7 +37,6 @@ urlpatterns = [
     path("files_to_import/", views.files_to_import, name='files-to-import'),
     path("push_file_to_file_processor", views.push_file_to_file_processor, name="push-file-to-file-processor"),
    
-
     path('start_processing/<int:file_id>/', views.start_processing, name='start-processing'),
     path('delete_this_file_to_import/<int:file_id>/', views.delete_this_file_to_import, name='delete-this-file-to-import'),
     
@@ -52,6 +51,12 @@ urlpatterns = [
     path("product_view/<int:pk>", views.product_view, name="product-view"),
     path("product_edit/<int:pk>", views.product_edit, name="product-edit"),
     path('fetch_bom_components/<int:bom_header_id>/', views.fetch_bom_components, name='fetch-bom-components'),
+    
+    path("custom_sds/<int:pk>", views.custom_sds, name="custom-sds"),
+    path('fetch_sds_replacements/<int:pk>/', views.fetch_sds_replacements, name='fetch-sds-replacements'),
+    path('delete_replacement/<int:pk>/', views.delete_sds_replacement, name='delete-sds-replacement'),
+    path('edit_replacement/<int:pk>/', views.edit_sds_replacement, name='edit-sds-replacement'),
+    path('custom_sds_make/<int:pk>/', views.custom_sds_make, name='custom-sds-make'),
 
     path("brands_list/", views.brands_list, name="brands-list"),
     path("brand_view/<int:pk>", views.brand_view, name="brand-view"),

@@ -324,6 +324,7 @@ class CountryCode(models.Model):
         return self.official_name_en
 
 
+
 class CustomerType(models.Model):
     name = models.CharField(max_length=20)
     sqlapp_id = models.IntegerField(default=0, null=True, blank=True)
@@ -994,10 +995,23 @@ class Customer(models.Model):
     customer_service_rep = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     payment_term = models.ForeignKey(PaymentTerm, on_delete=models.SET_NULL, null=True, blank=True)
     shipping_policy = models.ForeignKey(ShippingPolicy, on_delete=models.PROTECT, null=True, blank=True)
+    
+    logo = models.ImageField(upload_to='customer_logos/', null=True, blank=True)
 
     def __str__(self):
         return_value = f"{self.name}"
         return return_value
+    
+    def save(self, *args, **kwargs):
+        try:
+            this = Customer.objects.get(id=self.id)
+            if this.logo != self.logo:
+                # this is used to delete the old image
+                # when a new one is uploaded
+                this.logo.delete(save=False)
+        except Customer.DoesNotExist:
+            pass
+        super(Customer, self).save(*args, **kwargs)
 
 
 class ShippingAddress(models.Model):
@@ -1564,6 +1578,7 @@ class ManualCost(models.Model):
             models.UniqueConstraint(fields=['nsf_division', 'year'], name='unique_nsf_division_year')
         ]
 
+
 class Rebate(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE)
@@ -1572,3 +1587,42 @@ class Rebate(models.Model):
     rebate = models.DecimalField(max_digits=3, decimal_places=2, default=0.00)
     is_active = models.BooleanField(default=False)
     
+
+class Language(models.Model):
+    '''
+    data structure and data imported from https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
+    data imported with a management command 'import_languages'
+    '''
+    iso_639_1 = models.CharField(max_length=2, unique=True)  # e.g., 'en'
+    iso_639_2 = models.CharField(max_length=3, blank=True, null=True)  # e.g., 'eng'
+    family = models.CharField(max_length=50, blank=True, null=True)  # e.g., 'Indo-European'
+    name = models.CharField(max_length=100)  # e.g., 'English'
+    native_name = models.CharField(max_length=100, blank=True, null=True)  # e.g., 'English'
+    wiki_url = models.URLField(blank=True, null=True)  # e.g., 'https://en.wikipedia.org/wiki/English_language'
+
+    def __str__(self):
+        return self.name
+
+
+class ProductLanguage(models.Model):
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    language = models.ForeignKey(Language, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100, null=True, blank=True)
+    description = models.TextField(blank=True, null=True)
+    date = models.DateField(auto_now=True)
+    rtf_content = models.TextField(blank=True, null=True)
+    logo_width = models.IntegerField(default=40)
+
+    def __str__(self):
+        return f"{self.customer.name} - {self.product} - {self.language}"
+    
+    
+class ProductLanguageReplacement(models.Model):
+    product_language = models.ForeignKey(ProductLanguage, on_delete=models.CASCADE)
+    search_for = models.CharField(max_length=200)
+    replace_with = models.TextField()
+    
+    
+    def __str__(self):
+        return f"{self.product_language.product.name} - {self.product_language.language.name}"

@@ -173,6 +173,16 @@
                           <div class="datagrid-title">Approved By</div>
                           <div class="datagrid-content"> {{ customer.approved_by }}</div>
                         </div>
+                        <div class="datagrid-item">
+                          <div class="datagrid-title">Logo</div>
+                          <div class="datagrid-content">
+                            {% if customer.logo %}
+                              <img src="{{ customer.logo.url }}" alt="Customer Logo" class="img-fluid">
+                            {% else %}
+                              No logo available
+                            {% endif %}
+                          </div>
+                        </div>
                     </div>
                   </div>
                 </div>
