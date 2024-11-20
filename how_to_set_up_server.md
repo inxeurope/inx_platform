@@ -87,6 +87,6 @@ nano .env
 ## Run server
 to run with gunicorn
 ```
-gunicorn -b 0.0.0.0:8000 django_inx_platform.wsgi:application
-daphne --bind 0.0.0.0 --port 21013 django_inx_platform.asgi:application
+gunicorn -b 0.0.0.0:8000 inx_platform_proj.wsgi:application
+daphne --bind 0.0.0.0 --port 21013 inx_platform_proj.asgi:application
 ```

@@ -39,7 +39,7 @@ class Migration(migrations.Migration):
                 match=".*\\.(xlsx|XLSX)$",
                 null=True,
                 path=pathlib.PurePosixPath(
-                    "/Users/marco/Library/CloudStorage/Dropbox/_dev/django_inx_platform/media_root"
+                    "/Users/marco/Library/CloudStorage/Dropbox/_dev/inx_platform_proj/media_root"
                 ),
                 validators=[inx_platform_app.models.xls_xlsx_file_validator],
             ),

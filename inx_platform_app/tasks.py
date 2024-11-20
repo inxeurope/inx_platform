@@ -1,5 +1,5 @@
 import logging
-# from django_inx_platform.celery import logger
+# from inx_platform_proj.celery import logger
 from celery import shared_task, current_task
 from django.utils import timezone
 # from celery.utils.log import get_task_logger

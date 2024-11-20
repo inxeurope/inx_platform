@@ -46,7 +46,7 @@ INSTALLED_APPS = [
 
 # CSRF_COOKIE_SAMESITE = 'None'
 
-ASGI_APPLICATION = "django_inx_platform.asgi.application"
+ASGI_APPLICATION = "inx_platform_proj.asgi.application"
 
 AUTH_USER_MODEL = 'inx_platform_app.User'
 
@@ -64,7 +64,7 @@ MIDDLEWARE = [
 ]
 
 
-ROOT_URLCONF = "django_inx_platform.urls"
+ROOT_URLCONF = "inx_platform_proj.urls"
 
 TEMPLATES = [
     {
@@ -83,7 +83,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "django_inx_platform.wsgi.application"
+WSGI_APPLICATION = "inx_platform_proj.wsgi.application"
 
 
 # Database

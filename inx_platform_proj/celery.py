@@ -4,9 +4,9 @@ import logging
 from logging.handlers import RotatingFileHandler
 from celery import Celery
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'django_inx_platform.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'inx_platform_proj.settings')
 
-app = Celery('django_inx_platform')
+app = Celery('inx_platform_proj')
 
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
