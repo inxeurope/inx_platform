@@ -60,7 +60,8 @@ from .models import (
     PackagingRateToLiter,
     UnitOfMeasureConversionFactor,
     ManualCost,
-    Rebate
+    Rebate,
+    SDSReplacement
     )
 
 admin.site.site_header = "INX Platform Administration"
@@ -710,6 +711,12 @@ class ProductLanguageAdmin(admin.ModelAdmin):
     autocomplete_fields = ['product', 'customer', 'language']
 
 
+class SDSReplacementAdmin(admin.ModelAdmin):
+    list_display = ['id', 'customer', 'language', 'product', 'search_for', 'replace_with']
+    search_fields = ['product__number', 'product__name', 'search_for', 'replace_with']
+    ordering = ['product__number']
+    autocomplete_fields = ['product', 'customer', 'language']
+
 admin.site.register(ColorGroup, ColorGroupAdmin)
 admin.site.register(Color, ColorAdmin)
 admin.site.register(MadeIn, MadeInAdmin)
@@ -765,3 +772,4 @@ admin.site.register(UnitOfMeasureConversionFactor, UnitOfMeasureConversionFactor
 admin.site.register(ManualCost, ManualCostAdmin)
 admin.site.register(Rebate, RebateAdmin)
 admin.site.register(Language, LanguageAdmin)
+admin.site.register(SDSReplacement, SDSReplacementAdmin)

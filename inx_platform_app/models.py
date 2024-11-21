@@ -1603,4 +1603,19 @@ class Language(models.Model):
     def __str__(self):
         return self.name
 
-    
+
+class SDSReplacement(models.Model):
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    language = models.ForeignKey(Language, on_delete=models.CASCADE, null=True, blank=True)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True, blank=True)
+    search_for = models.TextField()
+    replace_with = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'sds_replacement'
+
+    def __str__(self):
+        return f"SDSReplacement for {self.customer} in {self.language}"
