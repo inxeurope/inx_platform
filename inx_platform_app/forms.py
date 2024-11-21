@@ -14,9 +14,8 @@ from .models import (
     User,
     CustomerType,
     Currency,
-    Industry,Product, Color, MadeIn, Packaging, ProductLine, ProductStatus, BudgetForecastDetail,
-    ProductLanguage,
-    ProductLanguageReplacement)
+    Industry,Product, Color, MadeIn, Packaging, ProductLine, ProductStatus, BudgetForecastDetail 
+    )
 
 
 class EditMajorLabelForm(forms.ModelForm):
@@ -404,25 +403,4 @@ class SalesForecastBudgetFilterForm(forms.Form):
 
 
 
-class RTFUploadForm(forms.ModelForm):
-    rtf_file = forms.FileField(
-        label='Upload RTF File',
-        required=False,
-        widget=forms.ClearableFileInput(attrs={'class': 'form-control'}))
-    
-    class Meta:
-        model = ProductLanguage
-        fields = ['rtf_file', 'logo_width']
-        widgets={
-            'logo_width': forms.NumberInput(attrs={'class': 'form-control'}),
-        }
 
-
-class ProductLanguageReplacementForm(forms.ModelForm):
-    class Meta:
-        model = ProductLanguageReplacement
-        fields = ['search_for', 'replace_with']
-        widgets = {
-            'search_for': forms.TextInput(attrs={'class': 'form-control'}),
-            'replace_with': forms.TextInput(attrs={'class': 'form-control'}),
-        }

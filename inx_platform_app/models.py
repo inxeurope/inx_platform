@@ -1603,26 +1603,4 @@ class Language(models.Model):
     def __str__(self):
         return self.name
 
-
-class ProductLanguage(models.Model):
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    language = models.ForeignKey(Language, on_delete=models.CASCADE)
-    name = models.CharField(max_length=100, null=True, blank=True)
-    description = models.TextField(blank=True, null=True)
-    date = models.DateField(auto_now=True)
-    rtf_content = models.TextField(blank=True, null=True)
-    logo_width = models.IntegerField(default=40)
-
-    def __str__(self):
-        return f"{self.customer.name} - {self.product} - {self.language}"
     
-    
-class ProductLanguageReplacement(models.Model):
-    product_language = models.ForeignKey(ProductLanguage, on_delete=models.CASCADE)
-    search_for = models.CharField(max_length=200)
-    replace_with = models.TextField()
-    
-    
-    def __str__(self):
-        return f"{self.product_language.product.name} - {self.product_language.language.name}"

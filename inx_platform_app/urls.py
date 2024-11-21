@@ -53,10 +53,6 @@ urlpatterns = [
     path('fetch_bom_components/<int:bom_header_id>/', views.fetch_bom_components, name='fetch-bom-components'),
     
     path("custom_sds/<int:pk>", views.custom_sds, name="custom-sds"),
-    path('fetch_sds_replacements/<int:pk>/', views.fetch_sds_replacements, name='fetch-sds-replacements'),
-    path('delete_replacement/<int:pk>/', views.delete_sds_replacement, name='delete-sds-replacement'),
-    path('edit_replacement/<int:pk>/', views.edit_sds_replacement, name='edit-sds-replacement'),
-    path('custom_sds_make/<int:pk>/', views.custom_sds_make, name='custom-sds-make'),
 
     path("brands_list/", views.brands_list, name="brands-list"),
     path("brand_view/<int:pk>", views.brand_view, name="brand-view"),
