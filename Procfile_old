@@ -1,4 +1,0 @@
-web: PYTHONUNBUFFERED=1 python manage.py runserver 0.0.0.0:21013
-worker: PYTHONUNBUFFERED=1 celery -A inx_platform_proj worker -n localhost --loglevel=info -E
-beat: PYTHONUNBUFFERED=1 celery -A inx_platform_proj beat --loglevel=info
-flower: PYTHONUNBUFFERED=1 celery -A inx_platform_proj flower
