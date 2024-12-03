@@ -1,0 +1,86 @@
+{% load custom_filters %}
+{% load static %}
+{% load humanize %}
+<div class="card" id="ytd_sales">
+  <div class="card-body">
+      <div class="row mb-1">
+          <div class="col d-flex align-items-center fw-bold">YTD Sales data</div>
+          <div class="col text-end">
+            <button 
+              class="btn btn-primary" 
+              hx-get="{% url 'fetch-ytd-sales' customer.id %}" 
+              hx-target="#ytd_sales" 
+              hx-swap="innerHTML">
+              refresh
+              </button>
+          </div>
+      </div>
+      <div class="d-flex flex-row">
+          <table class="table table-sm table-vcenter table-nowrap">
+              <thead>
+                <tr>
+                  <th class="text-end">Brand</th>
+                  <th class="text-center">...</th>
+                  {% for month in months.values %}
+                      <th class="text-end fw-bold">{{ month.abbreviated_name }}</th>
+                  {% endfor %}
+                  <th class="text-center bg-red-lt">Brand Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for brand, monthly_data in sales_data.items %}
+                  {% if monthly_data.ytd %}
+                    <tr>
+                        <td class="text-end fw-bold align-top">{{ brand }}</td>
+                        <td class="text-center"> {{ customer.currency.symbol }} <br> LT <br> {{ customer.currency.symbol }}/L </td>
+                        {% for month_key in months.keys %}
+                            {% if monthly_data.ytd|get_item:month_key %}
+                                <td class="align-top {% if month_key|transform_int > current_month|transform_int %}bg-blue-lt{% endif %}" style="text-align: right; width: 8%">
+                                  {{ monthly_data.ytd|get_item:month_key|get_item:"value"|floatformat:0|intcomma }}
+                                  <br>
+                                  {{ monthly_data.ytd|get_item:month_key|get_item:"volume"|floatformat:0|intcomma }}
+                                  <br>
+                                  <span class="fw-light fs-5">
+                                    {{ monthly_data.ytd|get_item:month_key|get_item:"price"|floatformat:2|intcomma }}
+                                  </span>
+                                </td>
+                            {% else %}
+                                <td class="align-top {% if month_key|transform_int > current_month|transform_int %}bg-blue-lt{% endif %}" style="text-align: right; width: 8%">
+                                  <span>0</span><br>
+                                  <span>0</span><br>
+                                  <span class="fw-light fs-5">
+                                    0
+                                  </span>
+                                </td>
+                            {% endif %}
+                        {% endfor %}
+                        <td class="text-end align-top fw-semibold bg-red-lt">
+                          {{ monthly_data.ytd|get_item:"brand_total"|get_item:"value"|floatformat:0|intcomma }}<br>
+                          {{ monthly_data.ytd|get_item:"brand_total"|get_item:"volume"|floatformat:0|intcomma }}<br>
+                          <span class="fw-light fs-5">{{ monthly_data.ytd|get_item:"brand_total"|get_item:"price"|floatformat:2|intcomma }}</span>
+                        </td>
+                    </tr>
+                  {% endif %}
+                {% endfor %}
+                <!-- Totals row -->
+                <tr>
+                  <td class="text-end fw-bold align-top bg-red-lt">Total</td>
+                  <td class="text-center align-top bg-red-lt"> {{ customer.currency.symbol }} <br> L <br> {{ customer.currency.symbol }}/L </td>
+                  {% for month_key in months.keys %}
+                      <td class="align-top bg-red-lt" style="text-align: right; width: 8%">
+                          {{ totals.ytd|get_item:month_key|get_item:"value"|intcomma }}<br>
+                          {{ totals.ytd|get_item:month_key|get_item:"volume"|intcomma }}<br>
+                          <span class="fw-light">{{ totals.ytd|get_item:month_key|get_item:"price"|floatformat:2 }}</span>
+                      </td>
+                  {% endfor %}
+                  <td class="text-end align-top fw-bold bg-red-lt" style="text-align: right; width: 8%">
+                      {{ totals.ytd_grand_totals|get_item:"value"|intcomma }}<br>
+                      {{ totals.ytd_grand_totals|get_item:"volume"|intcomma }}<br>
+                      <span class="fw-lighter">{{ totals.ytd_grand_totals|get_item:"price"|floatformat:2 }}</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+      </div>
+  </div>
+</div>

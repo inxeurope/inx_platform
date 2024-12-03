@@ -1,0 +1,47 @@
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-1 text-wrap">
+                <div class="text-start mb-2">
+                    <p class="btn btn-outline-primary w-100 text-wrap">{{ brand_name }}</p>
+                </div>
+
+                {% for bfl in budforlines %}
+                    <button
+                        class="btn btn-primary fs-5 text-wrap p-1 w-100 mb-2"
+                        type="button"
+                        hx-get="{% url 'fetch-forecast' bfl.id%}"
+                        hx-target="#forecast-area"
+                        hx-swap="innerHTML">
+                        {{bfl.color_group.name}}
+                    </button>
+                {% endfor %}
+            </div>
+            <div class="col" id="forecast-area">
+                {% include 'app_pages/forecast_2_fcst_empty_partial.html' %}
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+    document.addEventListener("htmx:afterOnLoad", (event) => {
+        if (event.detail.xhr.responseJSON) {
+            const response = event.detail.xhr.responseJSON;
+    
+            // Update the main content
+            const forecastArea = document.querySelector("#forecast-area");
+            if (forecastArea) {
+                forecastArea.innerHTML = response.main_content;
+            }
+    
+            // Update the YTD data partial
+            const ytdSales = document.querySelector("#ytd_sales");
+            if (ytdSales) {
+                ytdSales.innerHTML = response.ytd_data_partial;
+            }
+        }
+      });
+  
+      
+  </script>

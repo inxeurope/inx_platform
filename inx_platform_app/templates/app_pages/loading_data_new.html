@@ -1,0 +1,30 @@
+{% extends 'app_layouts/base.html' %}
+{% load static %}
+
+{% block content %}
+
+  <div class="page-wrapper">
+    <!-- Page body -->
+    <div class="page-body">
+      <div class="container">
+        <form action="" method="post" enctype="multipart/form-data" accept=".xlsx, .XLSX">
+            {% csrf_token %}
+            <div class="mb-4">
+                <div class="form-label">KE30</div>
+                <input type="file" class="form-control" id="inputGroupFileKE30" name="ke30_file">
+            </div>
+            <div class="mb-4">
+                <div class="form-label">KE24</div>
+                <input type="file" class="form-control" id="inputGroupFileKE24" name="ke24_file">
+            </div>
+            <div class="mb-4">
+                <div class="form-label">ZAQ</div>
+                <input type="file" class="form-control" id="inputGroupFileZAQ" name="zaq_file">
+            </div>
+            <button type="submit" class="btn btn-primary">Upload data</button>
+        </form>
+      </div>
+    </div>
+    {% include 'app_includes/footer.html' %}
+  </div>
+{% endblock content %}

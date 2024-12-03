@@ -1,0 +1,459 @@
+{% extends 'app_layouts/base.html' %}
+{% load custom_filters %}
+{% load static %}
+
+{% block content %}
+
+  <div class="page-wrapper">
+    <!-- Page header -->
+    <div class="page-header d-print-none">
+      <div class="container-xl">
+        <div class="row g-2 align-items-center">
+          <div class="col-auto">
+            <a href="{% url "customers" %}">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Customers" width="64" height="64" viewBox="0 0 24 24" stroke-width="1.5" stroke="#0071ce" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <path d="M5 12l14 0" />
+                <path d="M5 12l6 6" />
+                <path d="M5 12l6 -6" />
+              </svg>
+            </a>
+          </div>
+          <div class="col">
+            <h2 class="page-title">
+              {% if customer.is_new%}
+                <span class="badge badge-outline text-red small">NEW</span>
+              {% endif %}
+              {{ customer.name }}
+            </h2>
+            <p class="muted">SAP nr.({{ customer.number }})</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Page body -->
+    <div class="page-body">
+      <div class="container-xl">
+        <div class="card mb-3">
+          <div class="card-header d-flex justify-content-between">
+            <div><h3 class="card-title">Basic information</h3></div>
+            <div>
+              <a href="{% url 'forecast-2' customer.pk %}" class="btn btn-outline-info">Forecast</a>
+              {% comment %} <a href="{% url 'forecast-customer' customer.pk %}" class="btn btn-outline-info">Forecast</a> {% endcomment %}
+              <a href="{% url 'customer-edit' customer.pk %}" class="btn btn-outline-info">Edit</a>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="datagrid">
+              <div class="datagrid-item">
+                <div class="datagrid-title">ID</div>
+                <div class="datagrid-content">{{ customer.pk }}</div>
+              </div>
+              <div class="datagrid-item">
+                <div class="datagrid-title">SAP Description - Customer name</div>
+                <div class="datagrid-content"><strong>{{ customer.name }}</strong></div>
+              </div>
+              <div class="datagrid-item">
+                <div class="datagrid-title">Country</div>
+                <div class="datagrid-content"><span class="flag flag-country-{{ customer.country.alpha_2|lower }}"></span> {{ customer.country.official_name_en}}</div>
+              </div>
+              <div class="datagrid-item">
+                <div class="datagrid-title">Account manager</div>
+                <div class="datagrid-content">{{ customer.sales_employee.get_full_name }}</div>
+              </div>
+              <div class="datagrid-item">
+                <div class="datagrid-title">Customer service rep</div>
+                <div class="datagrid-content">{{ customer.customer_service_rep.get_full_name }}</div>
+              </div>
+              <div class="datagrid-item">
+                <div class="datagrid-title">Currency</div>
+                <div class="datagrid-content">
+                  {{ customer.currency.svg_symbol|safe }}
+                </div>
+              </div>
+              <div class="datagrid-item">
+                <div class="datagrid-title">Customer Type
+                </div>
+                <div class="datagrid-content">
+                  {{ customer.customer_type.name}}
+                </div>
+              </div>
+              <div class="datagrid-item">
+                <div class="datagrid-title">Status</div>
+                <div class="datagrid-content">
+                  {% if customer.active %}
+                  <span class="status status-green">
+                    Active
+                  </span>
+                  {% endif %}
+                  {% if not customer.active %}
+                  <span class="status status-red">
+                    Inactive
+                  </span>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="accordion" id="accordion-customer">
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="heading-1">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-1" aria-expanded="false">
+                  Accounting
+                </button>
+              </h2>
+              <div id="collapse-1" class="accordion-collapse collapse" data-bs-parent="#accordion-example" style="">
+                <div class="accordion-body pt-0">
+                  <div class="card">
+                    <div class="card-body">
+                      <div class="datagrid">
+                        <div class="datagrid-item">
+                          <div class="datagrid-title">VAT number</div>
+                          <div class="datagrid-content">{{ customer.vat }}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="heading-2">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-2" aria-expanded="false">
+                  Credit & Insurance
+                </button>
+              </h2>
+              <div id="collapse-2" class="accordion-collapse collapse" data-bs-parent="#accordion-example" style="">
+                <div class="accordion-body pt-0">
+                  <div class="card">
+                    <div class="card-body">
+                      <div class="datagrid">
+                        <div class="datagrid-item">
+                          <div class="datagrid-title">Insurance</div>
+                          <div class="datagrid-content">
+                            <span>
+                              <input type="checkbox" class="form-check-input" {% if customer.insurance == True %} checked {% endif %} disabled>
+                            {% comment %} </span> {{ customer.insurance }} {% endcomment %}
+                          </div>
+                        </div>
+                        {% if customer.insurance == True %}
+                        <div class="datagrid-item">
+                          <div class="datagrid-title">Insurance value</div>
+                          <div class="datagrid-content"> {{ customer.insurance_value|format_large_number }}</div>
+                        </div>
+                        {% endif %}
+                        <div class="datagrid-item">
+                          <div class="datagrid-title">Credit Limit</div>
+                          <div class="datagrid-content">{{ customer.credit_limit|format_large_number }}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="heading-3">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-3" aria-expanded="false">
+                  Additional Info
+                </button>
+              </h2>
+              <div id="collapse-3" class="accordion-collapse collapse" data-bs-parent="#accordion-example" style="">
+                <div class="accordion-body pt-0">
+                  <div class="card mb-4">
+                    <div class="card-body">
+                      <div class="datagrid">
+                        <div class="datagrid-item">
+                          <div class="datagrid-title">Approved on</div>
+                          <div class="datagrid-content">{{ customer.approved_on}}</div>
+                        </div>
+                        <div class="datagrid-item">
+                          <div class="datagrid-title">Approved By</div>
+                          <div class="datagrid-content"> {{ customer.approved_by }}</div>
+                        </div>
+                        <div class="datagrid-item">
+                          <div class="datagrid-title">Logo</div>
+                          <div class="datagrid-content">
+                            {% if customer.logo %}
+                              <img src="{{ customer.logo.url }}" alt="Customer Logo" class="img-fluid">
+                            {% else %}
+                              No logo available
+                            {% endif %}
+                          </div>
+                        </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    {% if customer.is_new %}
+    <div class="page-body">
+      <div class="container-xl">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Import info</h3>
+          </div>
+          <div class="card-body">
+            <div class="font-monospace">
+              {{ customer.import_note }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="container-xl mb-3 mt-2">
+      <div class="card-tabs">
+        <!-- Cards navigation -->
+        <ul class="nav nav-tabs" role="tablist">
+          <li class="nav-item" role="presentation"><a href="#tab-top-1" class="nav-link active" data-bs-toggle="tab" aria-selected="true" role="tab" tabindex="-1">Contacts</a></li>
+          <li class="nav-item" role="presentation"><a href="#tab-top-2" class="nav-link active" data-bs-toggle="tab" aria-selected="false" role="tab" tabindex="-1">SDS LEvel 1 replacements</a></li>
+          {% comment %} <li class="nav-item" role="presentation"><a href="#tab-top-2" class="nav-link" data-bs-toggle="tab" aria-selected="true" role="tab">Sales</a></li> {% endcomment %}
+          {% comment %} <li class="nav-item" role="presentation"><a href="#tab-top-3" class="nav-link" data-bs-toggle="tab" aria-selected="false" role="tab" tabindex="-1">Forecast</a></li>
+          <li class="nav-item" role="presentation"><a href="#tab-top-4" class="nav-link" data-bs-toggle="tab" aria-selected="false" role="tab" tabindex="-1">Budget</a></li> {% endcomment %}
+        </ul>
+        <div class="tab-content">
+          <!-- Content of card #1 -->
+          <div id="tab-top-1" class="card tab-pane active show" role="tabpanel">
+            <div class="card-body">
+              <div class="card-title">
+                <a href="#" class="btn btn-primary ms-auto" data-bs-toggle="modal" data-bs-target="#modal-report" id="add-new-contact"  data-customer-id="{{ customer.pk }}">
+                  <span><svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg></span>
+                  Add
+                </a>
+              </div>
+              <div class="card-body">
+                <div id="table-default" class="table-responsive">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th><button class="table-sort" data-sort="sort-first-name">First Name</button></th>
+                        <th><button class="table-sort" data-sort="sort-last-name">Last Name</button></th>
+                        <th><button class="table-sort" data-sort="sort-job-position">Job Position</button></th>
+                        <th><button class="table-sort" data-sort="sort-mobile">Mobile</button></th>
+                        <th><button class="table-sort" data-sort="sort-email">Email</button></th>
+                        <th><button class="table-sort" data-sort="">Action</button></th>
+                      </tr>
+                    </thead>
+                    <tbody class="table-tbody">
+                      {% for contact in contacts %}
+                      <tr>
+                        <td class="sort-first-name">{{ contact.first_name }}</td>
+                        <td class="sort-last-name">{{ contact.last_name }}</td>
+                        <td class="sort-job-position">{{ contact.job_position }}</td>
+                        <td class="sort-mobile">{{ contact.mobile_number }}</td>
+                        <td class="sort-email">{{ contact.email }}</td>
+                        <td><a class="btn btn-outline-primary btn-sm" href="#" data-bs-toggle="modal" data-bs-target="#modal-report" data-contact-id="{{ contact.id }}">Edit</a></td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          
+
+          
+          <!-- Content of card #2 -->
+          <div id="tab-top-2" class="card tab-pane" role="tabpanel">
+            <div class="card-body">
+              <div class="card-title">Contenuto #2</div>
+              
+            </div>
+          </div>
+          <!-- Content of card #3 -->
+          <div id="tab-top-3" class="card tab-pane" role="tabpanel">
+            <div class="card-body">
+              Test
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% include 'app_includes/footer.html' %}
+  </div>
+  
+{% endblock content %}
+
+{% block modal %}
+
+<div class="modal modal-blur fade" id="modal-report" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">New Contact</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="" method="post">
+        {% csrf_token %}
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-lg-5">
+              <div class="mb-3">
+                <label class="form-label">First name</label>
+                <input type="text" name="first_name" class="form-control">
+              </div>
+            </div>
+            <div class="col-lg-2">
+              <div class="mb-3">
+                <label class="form-label">Middle name</label>
+                <input type="text" name="middle_name" class="form-control">
+              </div>
+            </div>
+            <div class="col-lg-5">
+              <div class="mb-3">
+                <label class="form-label">Last name</label>
+                <input type="text" name="last_name" class="form-control">
+              </div>
+            </div>
+            <div class="col-lg-12 mb-3">
+              <div>
+                <label class="form-label">Job position</label>
+                <input type="text" name="job_position" class="form-control">
+              </div>
+            </div>
+            <div class="col-lg-12 mb-3">
+              <div>
+                <label class="form-label">Mobile number</label>
+                <input type="text" name="mobile_number" class="form-control">
+              </div>
+            </div>
+            <div class="col-lg-12 mb-3">
+              <div>
+                <label class="form-label">Email</label>
+                <input type="text" name="email" class="form-control">
+              </div>
+            </div>
+            <div class="col-lg-12 mb-3">
+              <div>
+                <label class="form-label">Contact id</label>
+                <input type="text" name="contact_id" class="form-control">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">
+            Cancel
+          </a>
+          <button type="submit" class="btn btn-primary ms-auto" id="modal-submit-button">
+          <span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-device-floppy" width="64" height="64" viewBox="0 0 24 24" stroke-width="1.5" stroke="#0071ce" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+              <path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2" />
+              <path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+              <path d="M14 4l0 4l-6 0l0 -4" />
+            </svg>
+          </span>
+            Create new contact
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock modal%}
+
+
+{% block extrajs %}
+<!-- Libs JS -->
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const addContactButton = document.getElementById('add-new-contact');
+    const modalTitle = document.querySelector('#modal-report .modal-title');
+    const form = document.querySelector('#modal-report form');
+    const submitButton = document.getElementById('modal-submit-button');
+
+    // Event listener for opening the modal in "Add New Contact" mode
+    addContactButton.addEventListener('click', function() {
+      const customerId = this.getAttribute('data-customer-id');
+      modalTitle.textContent = 'Add New Contact'; 
+      form.action = `/customer_view/${customerId}`; 
+      form.method = 'POST'; 
+      form.reset();
+      submitButton.textContent = 'Add Contact';
+
+      // Remove existing operation input if exists
+      let operationInput = document.getElementById('operation-type');
+      if (operationInput) {
+        operationInput.value = 'add'; // Update value if already exists
+      }  else {
+        // Create a new hidden input for operation type
+        operationInput = document.createElement('input');
+        operationInput.type = 'hidden';
+        operationInput.id = 'operation-type';
+        operationInput.name = 'operation';
+        operationInput.value = 'add';
+        form.appendChild(operationInput);
+      }
+    });
+  
+  
+    // Event listeners for opening the modal in "Update Contact" mode
+    document.querySelectorAll('[data-contact-id]').forEach(item => {
+      item.addEventListener('click', function(e) {
+        const contactId = this.getAttribute('data-contact-id');
+        console.log('contact_id: ' + contactId)
+        submitButton.textContent = 'Update Contact';
+        fetch(`/get_contact_details/${contactId}`)
+        .then(response => response.json())
+        .then(data => {
+          document.querySelector('input[name="first_name"]').value = data.first_name;
+          document.querySelector('input[name="middle_name"]').value = data.middle_name || '';
+          document.querySelector('input[name="last_name"]').value = data.last_name;
+          document.querySelector('input[name="job_position"]').value = data.job_position || '';
+          document.querySelector('input[name="mobile_number"]').value = data.mobile_number || '';
+          document.querySelector('input[name="email"]').value = data.email || '';
+          document.querySelector('input[name="contact_id"]').value = data.id;
+
+          document.querySelector('#modal-report .modal-title').textContent = 'Update Contact';
+
+          
+          // Remove existing operation input if exists
+          let operationInput = document.getElementById('operation-type');
+          if (operationInput) {
+            operationInput.value = 'update';
+          } else {
+            // Create a new hidden input for operation type
+            operationInput = document.createElement('input');
+            operationInput.type = 'hidden';
+            operationInput.id = 'operation-type';
+            operationInput.name = 'operation';
+            operationInput.value = 'update';
+            form.appendChild(operationInput);
+          }
+
+        })
+        .catch(error => {
+          console.error('Error fetching contact details:', error);
+        });
+      });
+    });
+  
+  
+  
+  
+  
+  
+  
+  });
+  
+  </script>
+  
+
+{% endblock extrajs %}
