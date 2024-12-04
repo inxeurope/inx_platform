@@ -1618,4 +1618,4 @@ class SDSReplacement(models.Model):
         db_table = 'sds_replacement'
 
     def __str__(self):
-        return f"SDSReplacement for {self.customer} in {self.language}"
+        return f"SDSReplacement for {self.customer} in {self.language} - {self.product}"
