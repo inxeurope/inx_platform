@@ -112,4 +112,9 @@ def transform_int(value):
 @register.filter(name="remove_colon")
 def remove_colon(label_tag):
     return label_tag.replace(':', '')
+
+
+@register.filter(name='add_class')
+def add_class(value, arg):
+    return value.as_widget(attrs={'class': arg})
     

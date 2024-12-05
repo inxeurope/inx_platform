@@ -14,7 +14,8 @@ from .models import (
     User,
     CustomerType,
     Currency,
-    Industry,Product, Color, MadeIn, Packaging, ProductLine, ProductStatus, BudgetForecastDetail 
+    Industry,Product, Color, MadeIn, Packaging, ProductLine, ProductStatus, BudgetForecastDetail,
+    SDSReplacement
     )
 
 
@@ -402,5 +403,12 @@ class SalesForecastBudgetFilterForm(forms.Form):
             self.fields['customer'].choices = [('all', 'All')] + [(c.id, c.name) for c in Customer.objects.all()]
 
 
-
+class SDSReplacementForm(forms.ModelForm):
+    class Meta:
+        model = SDSReplacement
+        fields = ['search_for', 'replace_with']
+        widgets = {
+            'search_for': forms.TextInput(attrs={'class': 'form-control'}),
+            'replace_width': forms.Textarea(attrs={'class': 'form-control'})
+        }
 

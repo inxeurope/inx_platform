@@ -44,6 +44,10 @@ urlpatterns = [
     path("customer_view/<int:pk>", views.customer_view, name="customer-view"),
     path("customer_edit/<int:pk>", views.customer_edit, name="customer-edit"),
 
+    path("fetch_sds_l1_replacements/<int:pk>", views.fetch_sds_l1_replacements, name="fetch-sds-l1-replacements"),
+    path("delete_sds_l1_replacement/<int:pk>", views.delete_sds_l1_replacement, name="delete-sds-l1-replacement"),
+    path("edit_sds_l1_replacement/<int:pk>", views.edit_sds_l1_replacement, name="edit-sds-l1-replacement"),
+
     path("get_contact_details/<int:id>", views.get_contact_details, name="get-contact-details"),
 
     path("products/", views.products, name="products"),

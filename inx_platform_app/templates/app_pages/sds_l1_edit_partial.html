@@ -1,0 +1,21 @@
+<!-- Path: inx_platform_app/templates/app_pages/sds_l1_edit_partial.html -->
+{% load custom_filters %}
+
+
+<!-- Must post and update l1_replacements -->
+<div class="row mb-2 border" id="sbrutus">
+    <form method="post" class="row" hx-post="{% url 'edit-sds-l1-replacement' sds_replacement.id %}" hx-target="#l1-replacements" hx-swap="outerHTML">
+    {% csrf_token %}
+        <div class="col ms-2 mt-2 mb-2">
+            {{ form.search_for.errors }}
+            {{ form.search_for }}
+        </div>
+        <div class="col ms-2 mt-2 mb-2">
+            {{ form.replace_with.errors }}
+            {{ form.replace_with|add_class:"form-control" }}
+        </div>
+        <div class="col d-flex align-items-center">
+            <button class="btn btn-primary btn-sm" type="submit">Save</button>
+        </div>
+    </form>
+</div>

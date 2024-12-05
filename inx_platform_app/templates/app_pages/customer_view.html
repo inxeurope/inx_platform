@@ -216,7 +216,7 @@
         <!-- Cards navigation -->
         <ul class="nav nav-tabs" role="tablist">
           <li class="nav-item" role="presentation"><a href="#tab-top-1" class="nav-link active" data-bs-toggle="tab" aria-selected="true" role="tab" tabindex="-1">Contacts</a></li>
-          <li class="nav-item" role="presentation"><a href="#tab-top-2" class="nav-link active" data-bs-toggle="tab" aria-selected="false" role="tab" tabindex="-1">SDS LEvel 1 replacements</a></li>
+          <li class="nav-item" role="presentation"><a href="#tab-top-2" class="nav-link" data-bs-toggle="tab" aria-selected="false" role="tab" tabindex="-1">SDS Level 1 replacements</a></li>
           {% comment %} <li class="nav-item" role="presentation"><a href="#tab-top-2" class="nav-link" data-bs-toggle="tab" aria-selected="true" role="tab">Sales</a></li> {% endcomment %}
           {% comment %} <li class="nav-item" role="presentation"><a href="#tab-top-3" class="nav-link" data-bs-toggle="tab" aria-selected="false" role="tab" tabindex="-1">Forecast</a></li>
           <li class="nav-item" role="presentation"><a href="#tab-top-4" class="nav-link" data-bs-toggle="tab" aria-selected="false" role="tab" tabindex="-1">Budget</a></li> {% endcomment %}
@@ -268,8 +268,11 @@
           <!-- Content of card #2 -->
           <div id="tab-top-2" class="card tab-pane" role="tabpanel">
             <div class="card-body">
-              <div class="card-title">Contenuto #2</div>
-              
+              <div class="card-title">Level 1 Replacements</div>
+              <div id="l1-replacements" class="table-responsive"
+                hx-get="{% url 'fetch-sds-l1-replacements' customer.id %}" hx-target="#l1-replacements" hx-swap="innerHTML" hx-trigger="load">
+                No SDS data
+              </div>
             </div>
           </div>
           <!-- Content of card #3 -->

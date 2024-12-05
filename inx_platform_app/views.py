@@ -3164,7 +3164,54 @@ def special_del_boms(request):
     return render(request, "app_pages/_marco.html", context)
     
 
+def fetch_sds_l1_replacements(request, pk):
+    c = Customer.objects.filter(id=pk).first()
+    try:
+        # Get all lines from SDSReplacement with this customer_id and null in language_id and null in product_id
+        sds_l1_lines = SDSReplacement.objects.filter(customer = c, language=None, product=None)
+
+    except Http404:
+        pass
+
+    context = {
+        'sds_l1_lines': sds_l1_lines,
+    }
+    return render (request, "app_pages/sds_l1_partial.html", context)
 
 
+def delete_sds_l1_replacement(request, pk):
+    sds_l1_replacement = get_object_or_404(SDSReplacement, pk=pk)
+    c = sds_l1_replacement.customer
+    sds_l1_replacement.delete()
+    sds_l1_lines = SDSReplacement.objects.filter(customer=c, language=None, product=None)
+    
+    context = {
+        'sds_l1_lines': sds_l1_lines,
+    }
+    return render(request, "app_pages/sds_l1_partial.html", context)
 
-
+def edit_sds_l1_replacement(request, pk):
+    sds_replacement = get_object_or_404(SDSReplacement, pk=pk)
+    if request.method == 'POST':
+        form = SDSReplacementForm(request.POST, instance = sds_replacement)
+        if form.is_valid():
+            form.save()
+            c = Customer.objects.filter(pk=pk).first()
+            sds_l1_lines = SDSReplacement.objects.filter(customer = c, language=None, product=None)
+            context = {
+                'sds_l1_lines': sds_l1_lines,
+            }
+            return render (request, "app_pages/sds_l1_partial.html", context)
+        else:
+            context = {
+                'form': form,
+                'sds_replacement': sds_replacement
+            }
+            return render(request, "app_pages/sds_l1_edit_partial.html", context)
+    else:
+        form = SDSReplacementForm(instance=sds_replacement)
+    context = {
+        'form': form,
+        'sds_replacement': sds_replacement
+    }
+    return render(request, "app_pages/sds_l1_edit_partial.html", context)
