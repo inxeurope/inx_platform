@@ -20,7 +20,7 @@ echo "Running database migrations..."
 python manage.py migrate || { echo "Failed to run database migrations."; exit 1; }
 
 # Step 5: Restart services
-SERVICES=("platform.service" "platform_celery.service" "platform_beat.service", "platform_flower.service")
+SERVICES=("platform.service" "platform_celery.service" "platform_beat.service" "platform_flower.service")
 
 for SERVICE in "${SERVICES[@]}"; do
     echo "Restarting $SERVICE..."
