@@ -33,3 +33,4 @@ for SERVICE in "${SERVICES[@]}"; do
         echo "Failed to restart $SERVICE."
     fi
 done
+echo "Script completed."
