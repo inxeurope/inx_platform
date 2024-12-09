@@ -3192,12 +3192,12 @@ def delete_sds_l1_replacement(request, pk):
 
 def edit_sds_l1_replacement(request, pk):
     sds_replacement = get_object_or_404(SDSReplacement, pk=pk)
+    c = sds_replacement.customer
     if request.method == 'POST':
         form = SDSReplacementForm(request.POST, instance = sds_replacement)
         if form.is_valid():
             form.save()
-            c = Customer.objects.filter(pk=pk).first()
-            sds_l1_lines = SDSReplacement.objects.filter(customer = c, language=None, product=None)
+            sds_l1_lines = SDSReplacement.objects.filter(customer = sds_replacement.customer, language=None, product=None)
             context = {
                 'sds_l1_lines': sds_l1_lines,
             }
@@ -3211,7 +3211,26 @@ def edit_sds_l1_replacement(request, pk):
     else:
         form = SDSReplacementForm(instance=sds_replacement)
     context = {
+        'customer': c,
         'form': form,
         'sds_replacement': sds_replacement
+    }
+    return render(request, "app_pages/sds_l1_edit_partial.html", context)
+
+def add_sds_l1_replacement(request, pk):
+    c = get_object_or_404(Customer, pk=pk)
+    if request.method == 'POST':
+        form = SDSReplacementForm(request.POST)
+        if form.is_valid():
+            sds_replacement = form.save(commit=False)
+            sds_replacement.customer = c
+            sds_replacement.save()
+            return redirect('fetch-sds-l1-replacements', pk=sds_replacement.customer.id)
+    else:
+        form = SDSReplacementForm()
+    context = {
+        'customer': c,
+        'form': form,
+        'sds_replacement': None
     }
     return render(request, "app_pages/sds_l1_edit_partial.html", context)
