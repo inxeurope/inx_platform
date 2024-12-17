@@ -1,0 +1,19 @@
+<div class="" id="sds_l3_list_of_languages">
+    <div>
+        {% for sds_l3_language in sds_l3_languages %}
+        <label class="form-check">
+            <!-- Customer is derived from Product -->
+            <input class="form-check-input" type="radio" name="languages"
+                hx-get="{% url 'fetch-sds-l3-replacements' product.id sds_l3_language.language_id %}" 
+                hx-target="#l3_replacements"
+                hx-swap="innerHTML">
+            <span class="form-check-label">{{ sds_l3_language.language__name }}</span>
+        </label>
+        {% endfor %}
+        <div class="row mb-2 mt-3">
+            <div class="col">
+                <button class="btn btn-primary" id="l3_language_addition" hx-get="{% url 'add-sds-l3-language' product.id %}" hx-target="#l3_language_addition" hx-swap="outerHTML">Add Language</button>
+            </div>
+        </div>
+    </div>
+</div>

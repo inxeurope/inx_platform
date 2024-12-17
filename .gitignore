@@ -24,4 +24,5 @@ Procfile
 .DS_Store
 **/.DS_Store
 *.log.*
+sample_files
 

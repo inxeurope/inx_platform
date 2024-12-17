@@ -1,0 +1,37 @@
+<!-- Path: inx_platform_app/templates/app_pages/sds_l2_edit_partial.html -->
+{% load custom_filters %}
+
+<!-- Must post and update l2_replacements -->
+
+<div class="row ms-1 me-2 mb-2" id="id_of_form">
+
+    {% if sds_l2_replacement %}
+        <div>Edit Replacement</div>
+    {% else %}
+        <div>Adding Replacement</div>
+    {% endif %}
+    <form method="post" class="row p-2 bg-gray-700"
+            hx-post="{% url 'edit-sds-l2-replacement' sds_l2_replacement.id %}"
+            hx-target="#l2_replacements"
+            hx-swap="innerHTML"
+            hx-debug="true">
+    {% csrf_token %}
+        <div class="col">
+            {{ form.search_for.errors }}
+            {{ form.search_for|add_class:"form-control" }}
+        </div>
+        <div class="col">
+            {{ form.replace_with.errors }}
+            {{ form.replace_with|add_class:"form-control" }}
+        </div>
+        <div class="col-auto d-flex align-items-end">
+            <button class="btn btn-primary btn-sm" type="submit">Save</button>
+            <button class="btn btn-secondary btn-sm ms-2" type="button"
+                    hx-get="{% url 'fetch-sds-l2-replacements' customer.id language.id%}"
+                    hx-target="#l2_replacements"
+                    hx-swap="innerHTML">
+                Cancel
+            </button>
+        </div>
+    </form>
+</div>

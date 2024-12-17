@@ -1,0 +1,13 @@
+<div class="mt-3">
+    <div>
+        {% for sds_l2_language in sds_l2_languages %}
+        <label class="form-check">
+            <input class="form-check-input" type="radio" name="languages"
+                hx-get="{% url 'fetch-sds-l2-replacements' customer.id sds_l2_language.language_id %}"
+                hx-target="#l2_replacements"
+                hx-swap="innerHTML">
+            <span class="form-check-label">{{ sds_l2_language.language__name }}</span>
+        </label>
+        {% endfor %}
+    </div>
+</div>

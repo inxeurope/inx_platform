@@ -173,6 +173,7 @@ class MajorLabel(models.Model):
     sap_name = models.CharField(max_length=50, null=True, blank=True)
     sqlapp_id = models.IntegerField(default=0, null=True, blank=True)
     svg_logo = models.TextField(blank=True)
+    oem = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
@@ -914,42 +915,7 @@ class Brand(models.Model):
     
     class Meta:
         ordering = ['name']
-
-
-class Product(models.Model):
-    class Meta:
-        ordering = ['name']
-        constraints = [
-            models.UniqueConstraint(fields=['number'], name='unique_product_number')
-        ]
-
-    name = models.CharField(max_length=100)
-    number = models.CharField(max_length=30)
-    
-    import_note = models.CharField(max_length=255, null=True, blank=True)
-    import_status = models.CharField(max_length=255, null=True, blank=True)
-    color = models.ForeignKey(Color, on_delete=models.PROTECT, null=True, blank=True)
-    made_in = models.ForeignKey(MadeIn, on_delete=models.PROTECT, null=True, blank=True)
-    brand = models.ForeignKey(Brand, on_delete=models.PROTECT, null=True, blank=True)
-    packaging = models.ForeignKey(Packaging, on_delete=models.PROTECT, null=True, blank=True)
-    product_line = models.ForeignKey(ProductLine, on_delete=models.PROTECT, null=True, blank=True)
-    product_status = models.ForeignKey(ProductStatus, on_delete=models.PROTECT, null=True, blank=True)
-    sqlapp_id = models.IntegerField(default=0, null=True, blank=True)
-    
-    is_ink = models.BooleanField(default = True)
-    is_new = models.BooleanField(default=True)
-    is_fert = models.BooleanField(default=False)
-    # is_active = models.BooleanField(default=False) # This is replaced by ProductStatus
-    
-    customer_product_number = models.CharField(max_length=200, null=True, blank=True)
-
-    approved_on = models.DateField(null=True)
-    approved_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
-
-    def __str__(self):
-        return_value = f"{self.number}, {self.name}"
-        return return_value
-    
+   
 
 class RateToLT(models.Model):
     uom = models.ForeignKey(UnitOfMeasure, on_delete=models.PROTECT)
@@ -1013,6 +979,42 @@ class Customer(models.Model):
             pass
         super(Customer, self).save(*args, **kwargs)
 
+
+class Product(models.Model):
+    class Meta:
+        ordering = ['name']
+        constraints = [
+            models.UniqueConstraint(fields=['number'], name='unique_product_number')
+        ]
+
+    name = models.CharField(max_length=100)
+    number = models.CharField(max_length=30)
+    
+    import_note = models.CharField(max_length=255, null=True, blank=True)
+    import_status = models.CharField(max_length=255, null=True, blank=True)
+    color = models.ForeignKey(Color, on_delete=models.PROTECT, null=True, blank=True)
+    made_in = models.ForeignKey(MadeIn, on_delete=models.PROTECT, null=True, blank=True)
+    brand = models.ForeignKey(Brand, on_delete=models.PROTECT, null=True, blank=True)
+    packaging = models.ForeignKey(Packaging, on_delete=models.PROTECT, null=True, blank=True)
+    product_line = models.ForeignKey(ProductLine, on_delete=models.PROTECT, null=True, blank=True)
+    product_status = models.ForeignKey(ProductStatus, on_delete=models.PROTECT, null=True, blank=True)
+    sqlapp_id = models.IntegerField(default=0, null=True, blank=True)
+    
+    is_ink = models.BooleanField(default = True)
+    is_new = models.BooleanField(default=True)
+    is_fert = models.BooleanField(default=False)
+    # is_active = models.BooleanField(default=False) # This is replaced by ProductStatus
+    
+    customer_product_number = models.CharField(max_length=200, null=True, blank=True)
+    customer = models.OneToOneField(Customer, on_delete=models.PROTECT, null=True, blank=True)
+
+    approved_on = models.DateField(null=True)
+    approved_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
+
+    def __str__(self):
+        return_value = f"{self.number}, {self.name}"
+        return return_value
+ 
 
 class ShippingAddress(models.Model):
     name = models.CharField(max_length=250, null=True)
@@ -1619,3 +1621,31 @@ class SDSReplacement(models.Model):
 
     def __str__(self):
         return f"SDSReplacement for {self.customer} in {self.language} - {self.product}"
+    
+
+class SDSRTFFile(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    language = models.ForeignKey(Language, on_delete=models.CASCADE)
+    file = models.FileField(upload_to='sds_rtf_files/')
+    file_content = models.TextField( null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'sds_rtf_file'
+        constraints = [
+            models.UniqueConstraint(fields=['product', 'language'], name='unique_product_language')
+        ]
+
+    def __str__(self):
+        return f"SDSRTFFile for {self.product} in {self.language}"
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.file:
+            file_extension = os.path.splitext(self.file.name)[1]
+            new_file_name = f"{self.id}_{os.path.basename(self.file.name)}"
+            new_file_path = os.path.join('sds_rtf_files', new_file_name)
+            self.file.storage.save(new_file_path, self.file)
+            self.file.name = new_file_path
+            super().save(*args, **kwargs)

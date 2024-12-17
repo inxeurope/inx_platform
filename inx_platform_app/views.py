@@ -2380,9 +2380,8 @@ def product_view(request, pk):
     product = get_object_or_404(Product, id=pk)
     bom_header_count = BomHeader.objects.filter(product_id=product.id).count()
     bom_headers = BomHeader.objects.filter(product_id = product.id)
+
     
-    sds_product_languages = ProductLanguage.objects.filter(product_id=product.id)
-    print(sds_product_languages)
 
     if 'page' in request.GET:
         django_filters_page = request.GET.get('page')
@@ -2400,7 +2399,6 @@ def product_view(request, pk):
         'dj_filters_params': django_filters_params,
         'bom_header_count': bom_header_count,
         'bom_headers': bom_headers,
-        'sds_product_languages': sds_product_languages
     }
     return render(request, "app_pages/product_view.html", context)
 
@@ -3234,3 +3232,288 @@ def add_sds_l1_replacement(request, pk):
         'sds_replacement': None
     }
     return render(request, "app_pages/sds_l1_edit_partial.html", context)
+
+
+def fetch_sds_l2_languages_list(request, pk, added_language_id=None):
+    c = get_object_or_404(Customer, pk=pk)
+    sds_l2_languages = SDSReplacement.objects.filter(customer=c, product=None).exclude(language=None).values('language_id', 'language__name').distinct()
+    context = {
+        'customer': c,
+        'added_language_id': added_language_id,
+        'sds_l2_languages': sds_l2_languages
+    }
+    return render(request, "app_pages/sds_l2_languages_list.html", context)
+
+def add_sds_l2_language(request, pk):
+    c = get_object_or_404(Customer, pk=pk)
+    added_language = 'no added language'
+    if request.method == 'POST':
+        form = SDSL2LanguageForm(request.POST)
+        if form.is_valid():
+            sds_l2_language = form.save(commit=False)
+            sds_l2_language.customer = c
+            sds_l2_language.save()
+            added_language = form.cleaned_data['language']
+            return redirect('fetch-sds-l2-languages-list', pk=c.id, added_language_id=added_language.id)
+    else:
+        form = SDSL2LanguageForm()
+    context = {
+        'customer': c,
+        'added_language': added_language,
+        'form': form
+    }
+    return render(request, "app_pages/sds_l2_add_language.html", context)
+
+
+def fetch_sds_l2_replacements(request, customer_id, language_id):
+    c = get_object_or_404(Customer, pk=customer_id)
+    l = get_object_or_404(Language, pk=language_id)
+    sds_l2_replacements = SDSReplacement.objects.filter(customer=c, language=l, product=None)
+    context = {
+        'customer': c,
+        'language': l,
+        'sds_l2_replacements': sds_l2_replacements
+    }
+    return render(request, "app_pages/sds_l2_replacements_list.html", context)
+
+def delete_sds_l2_replacement(request, pk):
+    sds_l2_replacement = get_object_or_404(SDSReplacement, pk=pk)
+    c = sds_l2_replacement.customer
+    l = sds_l2_replacement.language
+    if sds_l2_replacement:
+        sds_l2_replacement.delete()
+    # Check if any replacements left with this language
+    sds_l2_replacements_left = len(SDSReplacement.objects.filter(customer=c, language = l))
+    # How to return more HTML for more div ids?
+    sds_l2_replacements = SDSReplacement.objects.filter(customer=c, language=l, product=None)
+    context = {
+        'customer': c,
+        'language': l,
+        'sds_l2_replacements': sds_l2_replacements
+    }
+    return render(request, "app_pages/sds_l2_replacements_list.html", context)
+
+
+def edit_sds_l2_replacement(request, pk):
+    sds_l2_replacement = get_object_or_404(SDSReplacement, pk=pk)
+    c = sds_l2_replacement.customer
+    l = sds_l2_replacement.language
+    if request.method == 'POST':
+        form = SDSReplacementForm(request.POST, instance = sds_l2_replacement)
+        if form.is_valid():
+            form.save()
+            sds_l2_replacements = SDSReplacement.objects.filter(customer=c, language=l, product=None)
+            context = {
+                'customer': c,
+                'language': l,
+                'sds_l2_replacements': sds_l2_replacements
+            }
+            return render (request, "app_pages/sds_l2_replacements_list.html", context)
+    else:
+        form = SDSReplacementForm(instance=sds_l2_replacement)
+    context = {
+        'customer': c,
+        'language': l,
+        'form': form,
+        'sds_l2_replacement': sds_l2_replacement
+    }
+    return render(request, "app_pages/sds_l2_edit_replacement.html", context)
+
+
+def add_sds_l2_replacement(request, customer_id, language_id):
+    c = get_object_or_404(Customer, pk=customer_id)
+    l = get_object_or_404(Language, pk=language_id)
+    SDSReplacement.objects.create(customer=c, language=l)
+    sds_l2_replacements = SDSReplacement.objects.filter(customer=c, language=l, product=None)
+
+    context = {
+        'customer': c,
+        'language': l,
+        'sds_l2_replacements': sds_l2_replacements
+    }
+    return render(request, "app_pages/sds_l2_replacements_list.html", context)
+
+
+def fetch_sds_l3_languages_list(request, pk):
+    p = get_object_or_404(Product, pk=pk)
+    c = p.customer
+    sds_l3_languages = SDSReplacement.objects.filter(customer=c, product=p).exclude(language=None).values('language_id', 'language__name').distinct()
+    context = {
+        'customer': c,
+        'product': p,
+        'sds_l3_languages': sds_l3_languages
+    }
+    return render(request, "app_pages/sds_l3_languages_list.html", context)
+
+
+def fetch_sds_l3_replacements(request, product_id, language_id):
+    # Get Language
+    l= get_object_or_404(Language, pk=language_id)
+    # Get replacements based on product (if product has a customer linked)
+    p = get_object_or_404(Product, pk=product_id)
+    c = p.customer
+    sds_l3_replacements = SDSReplacement.objects.filter(product=p, customer=c, language=l)
+    sds_l3_replacements_count = len(sds_l3_replacements)
+    sds_rtf_file = SDSRTFFile.objects.filter(product=p, language=l).first()
+    if sds_rtf_file:
+        sds_rtf_file_exists = True
+    else:
+        sds_rtf_file_exists = False
+    context = {
+        'customer': c,
+        'product': p,
+        'language': l,
+        'sds_l3_replacements_count': sds_l3_replacements_count,
+        'sds_l3_replacements': sds_l3_replacements,
+        'sds_rtf_file': sds_rtf_file,
+        'sds_rtf_file_exists': sds_rtf_file_exists
+    }
+    return render(request, "app_pages/sds_l3_replacements_list.html", context)
+
+
+def add_sds_l3_replacement(request, customer_id, product_id, language_id):
+    p = get_object_or_404(Product, pk=product_id)
+    c = get_object_or_404(Customer, pk=customer_id)
+    l = get_object_or_404(Language, pk=language_id)
+    SDSReplacement.objects.create(customer=c, product=p, language=l)
+    sds_l3_replacements = SDSReplacement.objects.filter(customer=c, language=l, product=p)
+    sds_l3_replacements_count = len(sds_l3_replacements)
+
+    context = {
+        'customer': c,
+        'product': p,
+        'language': l,
+        'sds_l3_replacements': sds_l3_replacements,
+        'sds_l3_replacements_count': sds_l3_replacements_count
+    }
+    return render(request, "app_pages/sds_l3_replacements_list.html", context)
+
+
+def add_sds_l3_language(request, pk):
+    p = get_object_or_404(Product, pk=pk)
+    c = p.customer
+    if request.method == 'POST':
+        form = SDSL2LanguageForm(request.POST)
+        if form.is_valid():
+            sds_l3_language = form.save(commit=False)
+            sds_l3_language.customer = c
+            sds_l3_language.product = p
+            sds_l3_language.save()
+            return redirect('fetch-sds-l3-languages-list', pk=p.id)
+    else:
+        form = SDSL2LanguageForm()
+    context = {
+        'customer': c,
+        'product': p,
+        'form': form
+    }
+    return render(request, "app_pages/sds_l3_add_language.html", context)
+
+
+def edit_sds_l3_replacement(request, pk):
+    # pk is the id of the replacement record
+    sds_l3_replacement = get_object_or_404(SDSReplacement, pk=pk)
+    c = sds_l3_replacement.customer
+    l = sds_l3_replacement.language
+    p = sds_l3_replacement.product
+    if request.method == 'POST':
+        form = SDSReplacementForm(request.POST, instance = sds_l3_replacement)
+        if form.is_valid():
+            form.save()
+            sds_l3_replacements = SDSReplacement.objects.filter(customer=c, language=l, product=p)
+            sds_l3_replacements_count = len(sds_l3_replacements)
+            context = {
+                'customer': c,
+                'product': p,
+                'language': l,
+                'sds_l3_replacements': sds_l3_replacements,
+                'sds_l3_replacements_count': sds_l3_replacements_count
+            }
+            return render (request, "app_pages/sds_l3_replacements_list.html", context)
+    else:
+        form = SDSReplacementForm(instance=sds_l3_replacement)
+    context = {
+        'customer': c,
+        'product': p,
+        'language': l,
+        'form': form,
+        'sds_l3_replacement': sds_l3_replacement
+    }
+    return render(request, "app_pages/sds_l3_edit_replacement.html", context)
+
+
+def delete_sds_l3_replacement(request, pk):
+    # pk is the id of the replacement record
+    sds_l3_replacement = get_object_or_404(SDSReplacement, pk=pk)
+    c = sds_l3_replacement.customer
+    p = sds_l3_replacement.product
+    l = sds_l3_replacement.language
+    if sds_l3_replacement:
+        sds_l3_replacement.delete()
+
+    # How to return more HTML for more div ids?
+    sds_l3_replacements = SDSReplacement.objects.filter(customer=c, language=l, product=p)
+    sds_l3_replacements_count = len(sds_l3_replacements)
+    context = {
+        'customer': c,
+        'product': p,
+        'language': l,
+        'sds_l3_replacements': sds_l3_replacements,
+        'sds_l3_replacements_count': sds_l3_replacements_count
+    }
+    return render(request, "app_pages/sds_l3_replacements_list.html", context)
+
+
+def delete_sds_rtf_file(request, pk):
+    sds_rtf_file = get_object_or_404(SDSRTFFile, pk=pk)
+    product = sds_rtf_file.product
+    language = sds_rtf_file.language
+    sds_rtf_file.file.delete(save=False)
+    sds_rtf_file.delete()
+    return redirect('fetch-sds-l3-replacements', product_id=product.id, language_id=language.id)
+
+
+def upload_sds_rtf_file(request, product_id, language_id):
+    if request.method == 'POST' and request.FILES.get('file'):
+        product = get_object_or_404(Product, pk=product_id)
+        language = get_object_or_404(Language, pk=language_id)
+        file = request.FILES['file']
+        sds_rtf_file, created = SDSRTFFile.objects.get_or_create(product=product, language=language)
+        sds_rtf_file.file = file
+        sds_rtf_file.save()
+        return redirect('fetch-sds-l3-replacements', product_id=product.id, language_id=language.id)
+    else:
+        return redirect('fetch-sds-l3-replacements', product_id=product.id, language_id=language.id)
+    
+
+def download_sds_rtf_file(request, pk):
+    sds_rtf_file = get_object_or_404(SDSRTFFile, pk=pk)
+    p = sds_rtf_file.product
+    l = sds_rtf_file.language
+
+    with open(sds_rtf_file.file.path, 'r', encoding='utf-8') as file:
+        file_content = file.read()
+
+    # Get all Level 1 replacements
+    sds_lev1_replacements = SDSReplacement.objects.filter(customer=p.customer, language=None, product=None)
+    # Get all Level 2 replacements
+    sds_lev2_replacements = SDSReplacement.objects.filter(customer=p.customer, language=l, product=None)
+    # Get all Level 3 replacements
+    sds_lev3_replacements = SDSReplacement.objects.filter(customer=p.customer, language=l, product=p)
+
+    if sds_lev1_replacements:
+        for r in sds_lev1_replacements:
+            file_content = file_content.replace(r.search_for, r.replace_with)
+    if sds_lev2_replacements:
+        for r in sds_lev2_replacements:
+            file_content = file_content.replace(r.search_for, r.replace_with)
+    if sds_lev3_replacements:
+        for r in sds_lev3_replacements:
+            file_content = file_content.replace(r.search_for, r.replace_with)
+
+    current_datetime = datetime.now().strftime("%Y%m%d%H%M%S")
+    basename, ext = os.path.splitext(os.path.basename(sds_rtf_file.file.name))
+    new_filename = f"{basename}_{current_datetime}{ext}"
+    response = HttpResponse(file_content, content_type="application/rtf")
+    response['Content-Disposition'] = f'attachment; filename={new_filename}'
+    return response

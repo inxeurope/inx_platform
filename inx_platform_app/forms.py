@@ -284,6 +284,7 @@ class ProductForm(forms.ModelForm):
             'import_status': forms.TextInput(attrs={'class': 'form-control'}),
             
             'color': forms.Select(attrs={'class': 'form-select'}),
+            'customer': forms.Select(attrs={'class': 'form-select'}),
             'made_in': forms.Select(attrs={'class': 'form-select'}),
             'brand': forms.Select(attrs={'class': 'form-select'}),
             'packaging': forms.Select(attrs={'class': 'form-select'}),
@@ -412,3 +413,22 @@ class SDSReplacementForm(forms.ModelForm):
             'replace_width': forms.Textarea(attrs={'class': 'form-control'})
         }
 
+
+class SDSL2LanguageForm(forms.ModelForm):
+    class Meta:
+        model = SDSReplacement
+        fields = ['language']
+        widgets = {
+            'language': forms.Select(attrs={'class': 'form-select'}),
+        }
+
+
+class SDSL3ReplacementForm(forms.ModelForm):
+    class Meta:
+        model = SDSReplacement
+        fields = ['language', 'search_for', 'replace_with']
+        widgets = {
+            'language': forms.Select(attrs={'class': 'form-select'}),
+            'search_for': forms.TextInput(attrs={'class': 'form-control'}),
+            'replace_with': forms.Textarea(attrs={'class': 'form-control'})
+        }

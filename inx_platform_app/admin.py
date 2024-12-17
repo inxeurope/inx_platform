@@ -61,7 +61,8 @@ from .models import (
     UnitOfMeasureConversionFactor,
     ManualCost,
     Rebate,
-    SDSReplacement
+    SDSReplacement,
+    SDSRTFFile
     )
 
 admin.site.site_header = "INX Platform Administration"
@@ -87,11 +88,11 @@ class ProductLineAdmin(admin.ModelAdmin):
 
 
 class DivisionAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'sap_id', 'sap_name', 'sqlapp_id']
+    list_display = ['id', 'name', 'sap_id', 'sap_name']
 
 
 class MajorLabelAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'sap_id', 'sap_name', 'sqlapp_id']
+    list_display = ['id', 'oem', 'name', 'sap_id', 'sap_name']
 
 
 class InkTechnologyAdmin(admin.ModelAdmin):
@@ -171,6 +172,7 @@ class ProductAdmin(admin.ModelAdmin):
     list_display = ['id', 'number', 'name','get_color_name', 'get_colorgroup_name', 'get_brand_name', 'is_fert', 'is_ink', 'is_new',  'approved_on']
     list_filter = ['is_new', 'is_ink', 'is_fert', 'color__name']
     search_fields = ['number', 'name']
+    autocomplete_fields = ['brand', 'customer']
     
     # Override changelist_view to show selected filters
     def changelist_view(self, request, extra_context=None):
@@ -717,6 +719,14 @@ class SDSReplacementAdmin(admin.ModelAdmin):
     ordering = ['product__number']
     autocomplete_fields = ['product', 'customer', 'language']
 
+
+class SDSRTFFileAdmin(admin.ModelAdmin):
+    list_display = ['id', 'product', 'language', 'file']
+    search_fields = ['product__number', 'product__name', 'language__name', 'file_name', 'file_path']
+    ordering = ['product__number']
+    autocomplete_fields = ['product', 'language']
+
+
 admin.site.register(ColorGroup, ColorGroupAdmin)
 admin.site.register(Color, ColorAdmin)
 admin.site.register(MadeIn, MadeInAdmin)
@@ -773,3 +783,4 @@ admin.site.register(ManualCost, ManualCostAdmin)
 admin.site.register(Rebate, RebateAdmin)
 admin.site.register(Language, LanguageAdmin)
 admin.site.register(SDSReplacement, SDSReplacementAdmin)
+admin.site.register(SDSRTFFile, SDSRTFFileAdmin)

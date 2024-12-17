@@ -1,0 +1,40 @@
+<div class="row mb-2" id="sds_l2_row">
+  <div class="col mb-2 strong">Search for</div>
+  <div class="col mb-2 strong ms-2">Replace with</div>
+  <div class="col-auto">
+    <!-- Placeholder buttons to ensure the same width -->
+    <a href="#" class="btn btn-primary btn-sm ms-2 me-2" style="visibility: hidden;">Edit</a>
+    <a href="#" class="btn btn-danger btn-sm" style="visibility: hidden;">Delete</a>
+  </div>
+</div>
+{% for sds_l2_replacement in sds_l2_replacements %}
+<div class="row mb-2" id="sds_l2_row_{{sds_l2_replacement.id}}">
+  <div class="col">
+    <input type="text" class="form-control" value="{{ sds_l2_replacement.search_for }}" readonly>
+  </div>
+  <div class="col">
+    <input type="text" class="form-control" value="{{ sds_l2_replacement.replace_with }}" readonly>
+  </div>
+  <div class="col-auto d-flex align-items-center">
+    {% comment %} <a href="#" class="btn btn-primary btn-sm ms-2 me-2">Edit</a> {% endcomment %}
+    <a href="#" class="btn btn-primary btn-sm ms-2 me-2"
+        hx-get="{% url 'edit-sds-l2-replacement' sds_l2_replacement.id %}"
+        hx-target="#sds_l2_row_{{sds_l2_replacement.id}}"
+        hx-swap="outerHTML">
+      Edit
+    </a>
+    <a href="#" class="btn btn-danger btn-sm" 
+        hx-delete="{% url 'delete-sds-l2-replacement' sds_l2_replacement.id %}"
+        hx-target="#l2_replacements"
+        hx-swap="innerHTML" 
+        hx-confirm="Are you sure you want to delete this item?">
+      Delete
+    </a>
+  </div>
+</div>
+{% endfor %}
+<div class="row mb-2">
+  <div class="col">
+    <button class="btn btn-primary" hx-get="{% url 'add-sds-l2-replacement' customer.id language.id %}" hx-target="#l2_replacements" hx-swap="innerHTML">Add Level 2 replacement</button>
+  </div>
+</div>

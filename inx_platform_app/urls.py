@@ -49,6 +49,29 @@ urlpatterns = [
     path("edit_sds_l1_replacement/<int:pk>", views.edit_sds_l1_replacement, name="edit-sds-l1-replacement"),
     path("add_sds_l1_replacement/<int:pk>", views.add_sds_l1_replacement, name="add-sds-l1-replacement"),
 
+    path("fetch_sds_l2_languages_list/<int:pk>", views.fetch_sds_l2_languages_list, name="fetch-sds-l2-languages-list"),
+    path("fetch_sds_l2_languages_list/<int:pk>/<int:added_language_id>", views.fetch_sds_l2_languages_list, name="fetch-sds-l2-languages-list"),
+    path("add_sds_l2_language/<int:pk>", views.add_sds_l2_language, name="add-sds-l2-language"),
+
+    path("fetch_sds_l2_replacements/<int:customer_id>/<int:language_id>", views.fetch_sds_l2_replacements, name="fetch-sds-l2-replacements"),
+    path("delete_sds_l2_replacement/<int:pk>", views.delete_sds_l2_replacement, name="delete-sds-l2-replacement"),
+    path("edit_sds_l2_replacement/<int:pk>", views.edit_sds_l2_replacement, name="edit-sds-l2-replacement"),
+    path("add_sds_l2_replacement/<int:customer_id>/<int:language_id>", views.add_sds_l2_replacement, name="add-sds-l2-replacement"),
+    
+    path("fetch_sds_l3_languages_list/<int:pk>", views.fetch_sds_l3_languages_list, name="fetch-sds-l3-languages-list"),
+    # In the following path, pk is the Product ID, from it we derive Customer ID
+    path("add_sds_l3_language/<int:pk>", views.add_sds_l3_language, name="add-sds-l3-language"),
+
+    path("fetch_sds_l3_replacements/<int:product_id>/<int:language_id>", views.fetch_sds_l3_replacements, name="fetch-sds-l3-replacements"),
+    path("edit_sds_l3_replacement/<int:pk>", views.edit_sds_l3_replacement, name="edit-sds-l3-replacement"),
+    path("delete_sds_l3_replacement/<int:pk>", views.delete_sds_l3_replacement, name="delete-sds-l3-replacement"),
+    path("add_sds_l3_replacement/<int:customer_id>/<int:product_id>/<int:language_id>", views.add_sds_l3_replacement, name="add-sds-l3-replacement"),
+
+    path("fetch_sds_l3_replacements/<int:product_id>/<int:language_id>/", views.fetch_sds_l3_replacements, name="fetch-sds-l3-replacements"),
+    path("delete_sds_rtf_file/<int:pk>/", views.delete_sds_rtf_file, name="delete-sds-rtf-file"),
+    path("upload_sds_rtf_file/<int:product_id>/<int:language_id>/", views.upload_sds_rtf_file, name="upload-sds-rtf-file"),
+     path("download_sds_rtf_file/<int:pk>/", views.download_sds_rtf_file, name="download-sds-rtf-file"),
+
     path("get_contact_details/<int:id>", views.get_contact_details, name="get-contact-details"),
 
     path("products/", views.products, name="products"),

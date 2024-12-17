@@ -1,0 +1,13 @@
+{% load custom_filters %}
+<form class="p-3" method="post" hx-post="{% url 'add-sds-l3-language' product.id %}" hx-target="#l3_languages_list">
+    {% csrf_token %}
+    <div class="form-group">
+        {{ form.language.label_tag }}
+        {{ form.language }}
+        {{ form.language.errors }}
+    </div>
+    <div class="form-group mt-2">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn btn-secondary" hx-get="{% url 'fetch-sds-l3-languages-list' customer.id %}" hx-target="#l3_languages_list" hx-swap="innerHTML">Cancel</button>
+    </div>
+</form>

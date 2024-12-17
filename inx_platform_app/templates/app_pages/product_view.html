@@ -104,6 +104,10 @@
                 <div class="datagrid-title">Brand</div>
                 <div class="datagrid-content">{{ product.brand.name }}</div>
               </div>
+              <div class="datagrid-item">
+                <div class="datagrid-title">OEM</div>
+                <div class="datagrid-content">{{ product.brand.major_label.oem }}</div>
+              </div>
               {% if product.is_ink %}
               <div class="datagrid-item">
                 <div class="datagrid-title">Color</div>
@@ -151,46 +155,37 @@
         </div>
       </div>
 
+      {% if product.brand.major_label.oem %}
       <div class="container-xl mb-3">
         <div class="card">
           <div class="card-header d-flex justify-content-between">
-            <h3 class="card-title">Custom Safety Data Sheets</h3>
-            <a href="#" class="btn btn-outline-info">Add</a>
+            <h3 class="card-title">SDS Level 3 Replacements (Product Specific)</h3>
+            {% comment %} <a href="#" class="btn btn-outline-info">Add</a> {% endcomment %}
           </div>
-          <div class="card-body">
-            <div class="table-responsive">
-              <table class="table table-vcenter card-table table-striped">
-                <thead>
-                  <tr>
-                    <th>Customer</th>
-                    <th>Product</th>
-                    <th>Language</th>
-                    <th class="w-1"></th>
-                    <th class="w-1"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for sds_product_language in sds_product_languages %}
-                  <tr>
-                    <td>{{ sds_product_language.customer.name }}</td>
-                    <td class="text-secondary">
-                      {{ sds_product_language.product.name }}
-                    </td>
-                    <td class="text-secondary">{{ sds_product_language.language.name }}</td>
-                    <td>
-                      <a href="{% url 'custom-sds' sds_product_language.id %}" class="btn btn-outline-primary btn-sm">Edit</a>
-                    </td>
-                    <td>
-                      <a href="#" class="btn btn-outline-primary btn-sm">Export...</a>
-                    </td>
-                  </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
+          <div class="card-body" id="">
+            <div class="row">
+              <!-- Left section -->
+              <div class="col-lg-3 col-md-4 col-12 mb-3">
+                <div class="" id="l3_languages_list"
+                  hx-get="{% url 'fetch-sds-l3-languages-list' product.id %}"
+                  hx-target="#l3_languages_list"
+                  hx-swap="innerHTML"
+                  hx-trigger="load">
+                  <p>No Languages</p>
+                </div>
+              </div>
+              <!-- Right section -->
+              <div class="col-lg-9 col-md-8 col-12">
+                <div id="l3_replacements" class="mb-3">
+                  Select a language for details of SDS Level 3 Replacements
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
+      {% endif %}
+
       {% if user|has_group:"Cost viewer" %}
       <div class="container-xl mb-3">
         <div class="card">
