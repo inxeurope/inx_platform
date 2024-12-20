@@ -31,6 +31,8 @@ import pandas as pd
 import numpy as np
 import os
 import time
+import shutil
+import subprocess
 from datetime import datetime
 from time import perf_counter
 import pprint
@@ -3478,21 +3480,99 @@ def upload_sds_rtf_file(request, product_id, language_id):
         product = get_object_or_404(Product, pk=product_id)
         language = get_object_or_404(Language, pk=language_id)
         file = request.FILES['file']
+        file_content = file.read()
         sds_rtf_file, created = SDSRTFFile.objects.get_or_create(product=product, language=language)
-        sds_rtf_file.file = file
-        sds_rtf_file.save()
+        if created:
+            sds_rtf_file.file = file
+            sds_rtf_file.save()
+
         return redirect('fetch-sds-l3-replacements', product_id=product.id, language_id=language.id)
     else:
         return redirect('fetch-sds-l3-replacements', product_id=product.id, language_id=language.id)
     
 
+def get_logo_string(logo_path, logo_width_mm):
+    print("\tStart working on the cstomer logo")
+    print("\trequested width:", logo_width_mm)
+    print(f"\tlogo_path: {logo_path}")
+    with open(logo_path, 'rb') as image_file:
+        logo_binary = image_file.read()
+        logo_hex = binascii.hexlify(logo_binary).decode('ascii')
+        print(f"\tlogo_hex: {logo_hex[:50]}...")
+    
+    with Image.open(logo_path) as image_file:
+        image_width, image_height = image_file.size
+        aspect_ratio = image_height / image_width
+    
+    twips_per_mm = 1440 / 25.4
+    width_twips = int(logo_width_mm * twips_per_mm)
+    height_twips = int(width_twips * aspect_ratio)
+    print(f"\tcustomer logo width x height (twips): {width_twips}x{height_twips}")
+
+    logo_rtf = (
+        r"{\pict\pngblip\n" +
+        f"\n\\picwgoal{width_twips}\\pichgoal{height_twips}\n"
+        + logo_hex
+        + r"\n}"
+    )
+    print("\tcustomer logo work finished")
+    return logo_rtf, width_twips, height_twips
+
+
+def find_start_index_of_logo(list_of_strings, content):
+    for string_to_find in list_of_strings:
+        start_index = content.find(string_to_find)
+        if start_index != -1:
+            return start_index
+    return -1
+
+
+def remove_logo_from_rtf(list_of_start_strings, end_string, content, cycles=1):
+    try:
+        start_index = find_start_index_of_logo(list_of_start_strings, content)
+        if cycles == 1 and start_index != -1:
+            position_of_first_logo_insertion = start_index
+            removed = True
+        elif cycles == 1 and start_index == -1:
+            position_of_first_logo_insertion = 0
+        else:
+            position_of_first_logo_insertion = 0
+            removed = True
+    except ValueError:
+        print("Error in finding the start index of the logo")
+        start_index = -1
+        if start_index == -1:
+            removed = False
+    
+    if removed:
+        try:
+            end_index = content.index(end_string) + len(end_string)
+        except ValueError:
+            print(f"end_string: {end_string} - not found")
+    
+    if start_index != -1 and end_index != -1:
+        content = content[:start_index] + content[end_index:]
+        removed = True
+    
+    if find_start_index_of_logo(list_of_start_strings, content) == -1:
+        cycles += 1
+        print(f"There is another occurrenche onf the logo. Entering cycle {cycles}")
+        content, not_used, removed = remove_logo_from_rtf(list_of_start_strings, end_string, content, cycles)
+    
+    return content, position_of_first_logo_insertion, removed
+
+@login_required
 def download_sds_rtf_file(request, pk):
+    print()
+    print("*"*100)
+    print("Request of custom SDS started")
     sds_rtf_file = get_object_or_404(SDSRTFFile, pk=pk)
     p = sds_rtf_file.product
     l = sds_rtf_file.language
 
     with open(sds_rtf_file.file.path, 'r', encoding='utf-8') as file:
         file_content = file.read()
+        print("RTF file_content:", file_content[:100])
 
     # Get all Level 1 replacements
     sds_lev1_replacements = SDSReplacement.objects.filter(customer=p.customer, language=None, product=None)
@@ -3504,16 +3584,81 @@ def download_sds_rtf_file(request, pk):
     if sds_lev1_replacements:
         for r in sds_lev1_replacements:
             file_content = file_content.replace(r.search_for, r.replace_with)
+        print("Level 1 replacements done")
     if sds_lev2_replacements:
         for r in sds_lev2_replacements:
             file_content = file_content.replace(r.search_for, r.replace_with)
+        print("Level 2 replacements done")
     if sds_lev3_replacements:
         for r in sds_lev3_replacements:
             file_content = file_content.replace(r.search_for, r.replace_with)
+        print("Level 3 replacements done")
+
+    # Get the logo image from the customer
+    c = p.customer
+    if c.logo:
+        customer_logo = c.logo
+        customer_logo_path = c.logo.path
+        logo_rtf, width_twips, height_twips = get_logo_string(customer_logo_path, logo_width_mm=60)
+        logo_rtf_file_path = os.path.join(settings.MEDIA_ROOT, 'logo_rtf.txt')
+        with open(logo_rtf_file_path, 'w', encoding='utf-8') as logo_rtf_file:
+            logo_rtf_file.write(logo_rtf)
+        print(f"Logo RTF content written to {logo_rtf_file_path}")
+    # Container tags in the RTF file
+    logo_box_tags ='{\shp{\*\shpinst\shpleft-15\shptop-1041\shpright1871\shpbottom-33'
+    # Find the INX logo and remove it
+    
+    inx_logo_start_string = [
+        '{\pict{\*\picprop\shplid1037{',
+        '{\pict{\*\picprop\shplid1026{\sp{\sn shapeType}{\sv 75}}{\sp{\sn fFlipH}{\sv 0}}{\sp{\sn fFlipV}{\sv 0}}{\sp{\sn fLine}{\sv 0}}{\sp{\sn wzDescription}{\sv NEW INX LOGO FOR SDS}}'
+        ]
+    inx_logo_end_string = '0000000000000000000000000000000000b840ff1fdf86134b9a5bc8bb0000000049454e44ae426082}'
+    
+    new_content, index_of_logo_insertion, removed = remove_logo_from_rtf(inx_logo_start_string, inx_logo_end_string, file_content, cycles=1)
+    if removed:
+        print("INX logo removed")
+
+    # Insert the customer logo
+    new_content = new_content[:index_of_logo_insertion] + logo_rtf + new_content[index_of_logo_insertion:]
+    # Adjusting the logo container tags
+    new_logo_box_tags = logo_box_tags
+    new_logo_box_tags = new_logo_box_tags.replace('-15', '0')
+    new_logo_box_tags = new_logo_box_tags.replace('-33', '-250')
+    new_logo_box_tags = new_logo_box_tags.replace('-1041', f'{-250-height_twips}')
+    new_logo_box_tags = new_logo_box_tags.replace('1871', f'{width_twips}')
+    new_content = new_content.replace(logo_box_tags, new_logo_box_tags)
 
     current_datetime = datetime.now().strftime("%Y%m%d%H%M%S")
     basename, ext = os.path.splitext(os.path.basename(sds_rtf_file.file.name))
-    new_filename = f"{basename}_{current_datetime}{ext}"
-    response = HttpResponse(file_content, content_type="application/rtf")
-    response['Content-Disposition'] = f'attachment; filename={new_filename}'
-    return response
+    new_filename_rtf = f"{basename}_{current_datetime}{ext}"
+    new_filename_pdf = f"{basename}_{current_datetime}.pdf"
+
+    if shutil.which('soffice'):
+        print("soffice installed")
+        # Write RTF data in a temporary file
+        temporary_rtf_file_path = os.path.join(settings.MEDIA_ROOT, new_filename_rtf)
+        with open(temporary_rtf_file_path, 'w', encoding='utf-8') as temporary_rtf_file:
+            temporary_rtf_file.write(new_content)
+            print("RTF Write finished")
+        command = [
+            "soffice",
+            "--headless",
+            "--convert-to", "pdf",
+            temporary_rtf_file_path,
+            "--outdir", os.path.dirname(temporary_rtf_file_path)
+        ]
+        subprocess.run(command, check=True)
+        print(f"PDF conversion finished - os.path.dirname(temporary_rtf_file_path): {os.path.dirname(temporary_rtf_file_path)}/{new_filename_pdf}")
+        # Removing the temporary RTF file
+        os.remove(temporary_rtf_file_path)
+        pdf_path = os.path.join(os.path.dirname(temporary_rtf_file_path), new_filename_pdf)
+        with open(pdf_path, 'rb') as pdf_file:
+            pdf_content = pdf_file.read()
+        os.remove(pdf_path)
+        response = HttpResponse(pdf_content, content_type="application/pdf")
+        response['Content-Disposition'] = f'attachment; filename={new_filename_pdf}'
+        return response
+    else:
+        response = HttpResponse(new_content, content_type="application/rtf")
+        response['Content-Disposition'] = f'attachment; filename={new_filename_rtf}'
+        return response

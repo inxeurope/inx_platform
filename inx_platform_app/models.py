@@ -1,5 +1,6 @@
 import os
 import time
+import mimetypes
 from datetime import datetime
 import pandas as pd
 import numpy as np
@@ -1637,15 +1638,17 @@ class SDSRTFFile(models.Model):
             models.UniqueConstraint(fields=['product', 'language'], name='unique_product_language')
         ]
 
+
     def __str__(self):
         return f"SDSRTFFile for {self.product} in {self.language}"
-    
+
     def save(self, *args, **kwargs):
+        # First I save the instance of the record
         super().save(*args, **kwargs)
+
+        # Check if there's a file
         if self.file:
-            file_extension = os.path.splitext(self.file.name)[1]
-            new_file_name = f"{self.id}_{os.path.basename(self.file.name)}"
-            new_file_path = os.path.join('sds_rtf_files', new_file_name)
-            self.file.storage.save(new_file_path, self.file)
-            self.file.name = new_file_path
-            super().save(*args, **kwargs)
+            # Get the file extension
+            file_extension = os.path.splitext(self.file.name)[1].lower()
+            # build a new file name
+            new_file_name = f"{self.id}_{os.path.basename(self.file.name.replace(' ', '_'))}"
