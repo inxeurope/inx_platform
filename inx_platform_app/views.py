@@ -3504,6 +3504,9 @@ def get_logo_string(logo_path, logo_width_mm):
         image_width, image_height = image_file.size
         aspect_ratio = image_height / image_width
     
+    # 1 twip = 1/1440 inch
+    # 1 inch = 25.4 mm
+    # 1 twip = 1/1440 * 25.4 mm = 0.0176388888888889 mm
     twips_per_mm = 1440 / 25.4
     width_twips = int(logo_width_mm * twips_per_mm)
     height_twips = int(width_twips * aspect_ratio)
@@ -3516,7 +3519,7 @@ def get_logo_string(logo_path, logo_width_mm):
         + r"\n}"
     )
     print("\tcustomer logo work finished")
-    return logo_rtf, width_twips, height_twips
+    return logo_rtf, width_twips, height_twips, aspect_ratio
 
 
 def find_start_index_of_logo(list_of_strings, content):
@@ -3563,16 +3566,12 @@ def remove_logo_from_rtf(list_of_start_strings, end_string, content, cycles=1):
 
 @login_required
 def download_sds_rtf_file(request, pk):
-    print()
-    print("*"*100)
-    print("Request of custom SDS started")
     sds_rtf_file = get_object_or_404(SDSRTFFile, pk=pk)
     p = sds_rtf_file.product
     l = sds_rtf_file.language
 
     with open(sds_rtf_file.file.path, 'r', encoding='utf-8') as file:
         file_content = file.read()
-        print("RTF file_content:", file_content[:100])
 
     # Get all Level 1 replacements
     sds_lev1_replacements = SDSReplacement.objects.filter(customer=p.customer, language=None, product=None)
@@ -3599,11 +3598,23 @@ def download_sds_rtf_file(request, pk):
     if c.logo:
         customer_logo = c.logo
         customer_logo_path = c.logo.path
-        logo_rtf, width_twips, height_twips = get_logo_string(customer_logo_path, logo_width_mm=60)
-        logo_rtf_file_path = os.path.join(settings.MEDIA_ROOT, 'logo_rtf.txt')
-        with open(logo_rtf_file_path, 'w', encoding='utf-8') as logo_rtf_file:
-            logo_rtf_file.write(logo_rtf)
-        print(f"Logo RTF content written to {logo_rtf_file_path}")
+        if c.logo_width_mm:
+            customer_logo_width_mm = c.logo_width_mm
+        else:
+            customer_logo_width_mm = 60
+        
+        if c.logo_left_margin_mm:
+            customer_logo_left_margin_mm = c.logo_left_margin_mm
+        else:
+            customer_logo_left_margin_mm = 0
+        
+        if c.logo_baseline_mm:
+            customer_logo_baseline_mm = c.logo_baseline_mm
+        else:
+            customer_logo_baseline_mm = 0
+        
+        logo_rtf, width_twips, height_twips, aspect_ratio = get_logo_string(customer_logo_path, customer_logo_width_mm)
+
     # Container tags in the RTF file
     logo_box_tags ='{\shp{\*\shpinst\shpleft-15\shptop-1041\shpright1871\shpbottom-33'
     # Find the INX logo and remove it
@@ -3620,12 +3631,25 @@ def download_sds_rtf_file(request, pk):
 
     # Insert the customer logo
     new_content = new_content[:index_of_logo_insertion] + logo_rtf + new_content[index_of_logo_insertion:]
-    # Adjusting the logo container tags
     new_logo_box_tags = logo_box_tags
-    new_logo_box_tags = new_logo_box_tags.replace('-15', '0')
-    new_logo_box_tags = new_logo_box_tags.replace('-33', '-250')
-    new_logo_box_tags = new_logo_box_tags.replace('-1041', f'{-250-height_twips}')
-    new_logo_box_tags = new_logo_box_tags.replace('1871', f'{width_twips}')
+
+    # Adjusting the logo container tags
+    # -------------------------------------------
+    # shpleft is the left border of the container
+    shpleft = customer_logo_left_margin_mm
+    new_logo_box_tags = new_logo_box_tags.replace('-15', str(shpleft))
+    # shpright is the right border of the container, shpright = shpleft + width_twips
+    new_logo_box_tags = new_logo_box_tags.replace('1871', f'{shpleft + width_twips}')
+
+    # shpbottom is the bottom border of the container, originally -250
+    shpbottom = customer_logo_baseline_mm
+    new_logo_box_tags = new_logo_box_tags.replace('-33', str(shpbottom))
+    # shtop is the top border of the container, originally -1041
+    new_logo_box_tags = new_logo_box_tags.replace('-1041', f'{shpbottom - height_twips}')
+
+    # new_logo_box_tags = new_logo_box_tags.replace('-33', '-250')
+    # new_logo_box_tags = new_logo_box_tags.replace('-1041', f'{-250-height_twips}')
+    
     new_content = new_content.replace(logo_box_tags, new_logo_box_tags)
 
     current_datetime = datetime.now().strftime("%Y%m%d%H%M%S")

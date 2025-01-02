@@ -964,6 +964,9 @@ class Customer(models.Model):
     shipping_policy = models.ForeignKey(ShippingPolicy, on_delete=models.PROTECT, null=True, blank=True)
     
     logo = models.ImageField(upload_to='customer_logos/', null=True, blank=True)
+    logo_width_mm = models.IntegerField(null=True, blank=True)
+    logo_left_margin_mm = models.IntegerField(null=True, blank=True)
+    logo_baseline_mm = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
         return_value = f"{self.name}"

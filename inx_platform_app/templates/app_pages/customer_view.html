@@ -173,6 +173,7 @@
                           <div class="datagrid-title">Approved By</div>
                           <div class="datagrid-content"> {{ customer.approved_by }}</div>
                         </div>
+                        {% if customer.logo %}
                         <div class="datagrid-item">
                           <div class="datagrid-title">Logo</div>
                           <div class="datagrid-content">
@@ -183,6 +184,19 @@
                             {% endif %}
                           </div>
                         </div>
+                        <div class="datagrid-item">
+                          <div class="datagrid-title">Logo Width in mm</div>
+                          <div class="datagrid-content"> {{ customer.logo_width_mm }}</div>
+                        </div>
+                        <div class="datagrid-item">
+                          <div class="datagrid-title">Logo left margin in mm</div>
+                          <div class="datagrid-content"> {{ customer.logo_left_margin_mm }}</div>
+                        </div>
+                        <div class="datagrid-item">
+                          <div class="datagrid-title">Logo baseline in mm</div>
+                          <div class="datagrid-content"> {{ customer.logo_baseline_mm }}</div>
+                        </div>
+                        {% endif %}
                     </div>
                   </div>
                 </div>

@@ -267,6 +267,9 @@ class CustomerForm(forms.ModelForm):
             'approved_by': forms.Select(attrs={'class': 'form-select'}),
             'customer_service_rep': forms.Select(attrs={'class': 'form-select'}),
             'logo': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
+            'logo_width_mm': forms.NumberInput(attrs={'class': 'form-control'}),
+            'logo_left_margin_mm': forms.NumberInput(attrs={'class': 'form-control'}),
+            'logo_baseline_mm': forms.NumberInput(attrs={'class': 'form-control'}),
         }
 
 
@@ -372,7 +375,8 @@ class FlatBudgetForm(forms.Form):
         decimal_places=2,
         widget=forms.NumberInput(attrs={'class': 'form-control p-1', 'placeholder': 'Enter a valid price through the year'})
         )
-    
+
+
 class SalesForecastBudgetFilterForm(forms.Form):
 
     user = forms.ChoiceField(
