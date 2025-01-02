@@ -15,7 +15,7 @@ from .models import (
     CustomerType,
     Currency,
     Industry,Product, Color, MadeIn, Packaging, ProductLine, ProductStatus, BudgetForecastDetail,
-    SDSReplacement
+    SDSReplacement, Language
     )
 
 
@@ -426,6 +426,9 @@ class SDSL2LanguageForm(forms.ModelForm):
             'language': forms.Select(attrs={'class': 'form-select'}),
         }
 
+    def __init__(self, *args, **kwargs):
+        super(SDSL2LanguageForm, self).__init__(*args, **kwargs)
+        self.fields['language'].queryset = Language.objects.all().order_by('name')
 
 class SDSL3ReplacementForm(forms.ModelForm):
     class Meta:

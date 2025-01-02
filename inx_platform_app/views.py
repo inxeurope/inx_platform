@@ -3246,6 +3246,7 @@ def fetch_sds_l2_languages_list(request, pk, added_language_id=None):
     }
     return render(request, "app_pages/sds_l2_languages_list.html", context)
 
+
 def add_sds_l2_language(request, pk):
     c = get_object_or_404(Customer, pk=pk)
     added_language = 'no added language'
@@ -3277,6 +3278,7 @@ def fetch_sds_l2_replacements(request, customer_id, language_id):
         'sds_l2_replacements': sds_l2_replacements
     }
     return render(request, "app_pages/sds_l2_replacements_list.html", context)
+
 
 def delete_sds_l2_replacement(request, pk):
     sds_l2_replacement = get_object_or_404(SDSReplacement, pk=pk)
