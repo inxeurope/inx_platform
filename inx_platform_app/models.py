@@ -1010,7 +1010,7 @@ class Product(models.Model):
     # is_active = models.BooleanField(default=False) # This is replaced by ProductStatus
     
     customer_product_number = models.CharField(max_length=200, null=True, blank=True)
-    customer = models.OneToOneField(Customer, on_delete=models.PROTECT, null=True, blank=True)
+    customer = models.ForeignKey(Customer, on_delete=models.PROTECT, null=True, blank=True)
 
     approved_on = models.DateField(null=True)
     approved_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
