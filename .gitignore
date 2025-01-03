@@ -25,4 +25,5 @@ Procfile
 **/.DS_Store
 *.log.*
 sample_files
+media_root/customer_logos
 
