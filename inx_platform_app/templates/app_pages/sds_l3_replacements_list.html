@@ -46,10 +46,10 @@
     <button class="btn btn-primary" hx-get="{% url 'add-sds-l3-replacement' customer.id product.id language.id%}" hx-target="#l3_replacements" hx-swap="innerHTML">Add Level 3 replacement</button>
   </div>
 </div>
-<div class="row mt-6 p-3 border-top">
+<div class="row mt-6 p-3 border rounded-3">
   <div class="col">
     {% if sds_rtf_file_exists %}
-    <div class="row">
+    <div class="row mb-3">
       <div class="col d-flex justify-content-between align-items-center">
         <p class="m-2"> {{ sds_rtf_file.file.name }}</p>
         <a href="#" class="btn btn-danger btn-sm"
@@ -64,7 +64,7 @@
     </div>
     <div class="row">
       <div class="col d-flex justify-content-between align-items-center">
-        <a href="{% url 'download-sds-rtf-file' sds_rtf_file.id %}" class="btn btn-primary btn-sm">Download Custom SDS File</a>
+        <a href="{% url 'download-sds-rtf-file' sds_rtf_file.id %}" class="btn btn-success">Generate Custom SDS File</a>
       </div>
     </div>
     {% else %}
