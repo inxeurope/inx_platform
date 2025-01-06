@@ -49,11 +49,13 @@ pyasn1-modules==0.3.0
 pycparser==2.21
 pyodbc==5.1.0
 pyOpenSSL==24.0.0
+PyPDF2==3.0.1
 python-crontab==3.0.0
 python-dateutil==2.9.0.post0
 python-dotenv==0.21.1
 pytz==2024.1
 redis==5.0.4
+reportlab==4.2.5
 requests==2.32.3
 ruff==0.6.2
 service-identity==24.1.0

@@ -30,12 +30,17 @@ import math
 import pandas as pd
 import numpy as np
 import os
+import io
 import time
 import shutil
 import subprocess
 from datetime import datetime
 from time import perf_counter
 import pprint
+from PyPDF2 import PdfReader, PdfWriter
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter, A4
+from reportlab.lib.utils import ImageReader
     
 def index(request):
     return render(request, "app_pages/index.html", {})
@@ -3494,7 +3499,7 @@ def upload_sds_rtf_file(request, product_id, language_id):
     
 
 def get_logo_string(logo_path, logo_width_mm):
-    print("\tStart working on the cstomer logo")
+    print("\tStart working on the customer logo")
     print("\trequested width:", logo_width_mm)
     print(f"\tlogo_path: {logo_path}")
     with open(logo_path, 'rb') as image_file:
@@ -3525,44 +3530,86 @@ def get_logo_string(logo_path, logo_width_mm):
 
 
 def find_start_index_of_logo(list_of_strings, content):
-    for string_to_find in list_of_strings:
+    print("Searching start index of the logo ... ", end="")
+    for i, string_to_find in enumerate(list_of_strings):
         start_index = content.find(string_to_find)
         if start_index != -1:
+            print(f"Found string {i} at index {start_index}")
             return start_index
     return -1
 
 
 def remove_logo_from_rtf(list_of_start_strings, end_string, content, cycles=1):
-    try:
-        start_index = find_start_index_of_logo(list_of_start_strings, content)
-        if cycles == 1 and start_index != -1:
-            position_of_first_logo_insertion = start_index
-            removed = True
-        elif cycles == 1 and start_index == -1:
-            position_of_first_logo_insertion = 0
-        else:
-            position_of_first_logo_insertion = 0
-            removed = True
-    except ValueError:
-        print("Error in finding the start index of the logo")
-        start_index = -1
+    working_content = content
+    removed = False
+    position_of_first_logo_insertion = 0
+    loops = 1
+    media_root_path = settings.MEDIA_ROOT
+
+    while True:
+        print(f"Loop {loops}")
+        output_test_file_path = os.path.join(media_root_path, f'removing_logo_loop_{str(loops)}.rtf')
+        with open( output_test_file_path, 'w', encoding='utf-8') as file:
+            file.write(working_content)
+        start_index = find_start_index_of_logo(list_of_start_strings, working_content)
         if start_index == -1:
-            removed = False
-    
-    if removed:
+            print("Logo not found with any of the search strings")
+            break
+        
         try:
-            end_index = content.index(end_string) + len(end_string)
+            end_index = working_content.index(end_string, start_index) + len(end_string)
+            print(f"start_index: {start_index}, end_index: {end_index}")
+            if not removed:
+                position_of_first_logo_insertion = start_index
+                print(f"----------position_of_first_logo_insertion: {position_of_first_logo_insertion}")
+            working_content = working_content[:start_index] + working_content[end_index:]
+            removed = True
+            loops += 1
         except ValueError:
             print(f"end_string: {end_string} - not found")
+            break
+
+    content = working_content
+
+    # try:
+    #     start_index = find_start_index_of_logo(list_of_start_strings, content)
+    #     print(f"start_index: {start_index}")
+    #     if cycles == 1 and start_index != -1:
+    #         position_of_first_logo_insertion = start_index
+    #         print(f"position_of_first_logo_insertion: {position_of_first_logo_insertion}")
+    #         removed = True
+    #     elif cycles == 1 and start_index == -1:
+    #         position_of_first_logo_insertion = 0
+    #     else:
+    #         position_of_first_logo_insertion = 0
+    #         removed = True
+    # except ValueError:
+    #     print("Error in finding the start index of the logo")
+    #     start_index = -1
+    #     if start_index == -1:
+    #         removed = False
     
-    if start_index != -1 and end_index != -1:
-        content = content[:start_index] + content[end_index:]
-        removed = True
+    # if removed:
+    #     try:
+    #         end_index = content.index(end_string, start_index)
+    #         print(f"end_index: {end_index}")
+    #         if end_index > start_index:
+    #             print("OK")
+    #         else:
+    #             print("Not OK")
+    #         end_index = content.index(end_string) + len(end_string)
+    #     except ValueError:
+    #         print(f"end_string: {end_string} - not found")
     
-    if find_start_index_of_logo(list_of_start_strings, content) == -1:
-        cycles += 1
-        print(f"There is another occurrenche onf the logo. Entering cycle {cycles}")
-        content, not_used, removed = remove_logo_from_rtf(list_of_start_strings, end_string, content, cycles)
+    # if start_index != -1 and end_index != -1:
+    #     content = content[:start_index] + content[end_index:]
+    #     print(f"Logo removed - cycles: {cycles}")
+    #     removed = True
+    
+    # if find_start_index_of_logo(list_of_start_strings, content) != -1:
+    #     cycles += 1
+    #     print(f"There is another occurrence of the logo. Entering cycle {cycles}")
+    #     content, not_used, removed = remove_logo_from_rtf(list_of_start_strings, end_string, content, cycles)
     
     return content, position_of_first_logo_insertion, removed
 
@@ -3597,62 +3644,21 @@ def download_sds_rtf_file(request, pk):
 
     # Get the logo image from the customer
     c = p.customer
-    if c.logo:
-        customer_logo = c.logo
-        customer_logo_path = c.logo.path
-        if c.logo_width_mm:
-            customer_logo_width_mm = c.logo_width_mm
-        else:
-            customer_logo_width_mm = 60
         
-        if c.logo_left_margin_mm:
-            customer_logo_left_margin_mm = c.logo_left_margin_mm
-        else:
-            customer_logo_left_margin_mm = 0
-        
-        if c.logo_baseline_mm:
-            customer_logo_baseline_mm = c.logo_baseline_mm
-        else:
-            customer_logo_baseline_mm = 0
-        
-        logo_rtf, width_twips, height_twips, aspect_ratio = get_logo_string(customer_logo_path, customer_logo_width_mm)
-
     # Container tags in the RTF file
     logo_box_tags ='{\shp{\*\shpinst\shpleft-15\shptop-1041\shpright1871\shpbottom-33'
-    # Find the INX logo and remove it
     
     inx_logo_start_string = [
         '{\pict{\*\picprop\shplid1037{',
+        '{\pict{\*\picprop\shplid1027{',
         '{\pict{\*\picprop\shplid1026{\sp{\sn shapeType}{\sv 75}}{\sp{\sn fFlipH}{\sv 0}}{\sp{\sn fFlipV}{\sv 0}}{\sp{\sn fLine}{\sv 0}}{\sp{\sn wzDescription}{\sv NEW INX LOGO FOR SDS}}'
         ]
-    inx_logo_end_string = '0000000000000000000000000000000000b840ff1fdf86134b9a5bc8bb0000000049454e44ae426082}'
+    # inx_logo_end_string = '0000000000000000000000000000000000b840ff1fdf86134b9a5bc8bb0000000049454e44ae426082}'
+    inx_logo_end_string = '54e44ae426082}'
     
     new_content, index_of_logo_insertion, removed = remove_logo_from_rtf(inx_logo_start_string, inx_logo_end_string, file_content, cycles=1)
     if removed:
-        print("INX logo removed")
-
-    # Insert the customer logo
-    new_content = new_content[:index_of_logo_insertion] + logo_rtf + new_content[index_of_logo_insertion:]
-    new_logo_box_tags = logo_box_tags
-
-    # Adjusting the logo container tags
-    # -------------------------------------------
-    # shpleft is the left border of the container
-    shpleft = customer_logo_left_margin_mm
-    new_logo_box_tags = new_logo_box_tags.replace('-15', str(shpleft))
-    # shpright is the right border of the container, shpright = shpleft + width_twips
-    new_logo_box_tags = new_logo_box_tags.replace('1871', f'{shpleft + width_twips}')
-
-    # shpbottom is the bottom border of the container, originally -250
-    shpbottom = customer_logo_baseline_mm
-    new_logo_box_tags = new_logo_box_tags.replace('-33', str(shpbottom))
-    # shtop is the top border of the container, originally -1041
-    new_logo_box_tags = new_logo_box_tags.replace('-1041', f'{shpbottom - height_twips}')
-
-    # new_logo_box_tags = new_logo_box_tags.replace('-33', '-250')
-    # new_logo_box_tags = new_logo_box_tags.replace('-1041', f'{-250-height_twips}')
-    
-    new_content = new_content.replace(logo_box_tags, new_logo_box_tags)
+        print("INX logo(s) removed")
 
     current_datetime = datetime.now().strftime("%Y%m%d%H%M%S")
     basename, ext = os.path.splitext(os.path.basename(sds_rtf_file.file.name))
@@ -3678,6 +3684,39 @@ def download_sds_rtf_file(request, pk):
         # Removing the temporary RTF file
         os.remove(temporary_rtf_file_path)
         pdf_path = os.path.join(os.path.dirname(temporary_rtf_file_path), new_filename_pdf)
+        
+        # Operation on the PDF file
+        if c.logo:
+            logo_path = c.logo.path
+            with Image.open(logo_path) as lg:
+                logo_width_px, logo_height_px = lg.size
+            logo_width_points = c.logo_width_mm * 2.83465
+            logo_height_points = logo_width_points * (logo_height_px / logo_width_px)
+            logo_left_margin_points = c.logo_left_margin_mm * 2.83465
+            logo_baseline_points = c.logo_baseline_mm * 2.83465
+            logo_y_position = A4[1] - logo_baseline_points - logo_height_points
+            packet = io.BytesIO()
+            can = canvas.Canvas(packet, pagesize=A4)
+            logo = ImageReader(logo_path)
+            can.drawImage(logo, logo_left_margin_points, 770, width=logo_width_points, height=logo_height_points)
+            can.save()
+            # Move to the beginning of the StringIO buffer
+            packet.seek(0)
+            new_pdf = PdfReader(packet)
+            existing_pdf = PdfReader(open(pdf_path, "rb"))
+            output = PdfWriter()
+            # Add the "new layer" (which is the new pdf) on the existing page
+            page = existing_pdf.pages[0]
+            page.merge_page(new_pdf.pages[0])
+            output.add_page(page)
+            # Add the rest of the pages
+            for i in range(1, len(existing_pdf.pages)):
+                output.add_page(existing_pdf.pages[i])
+            # Save the result
+            output_stream = open(pdf_path, "wb")
+            output.write(output_stream)
+            output_stream.close()
+        
         with open(pdf_path, 'rb') as pdf_file:
             pdf_content = pdf_file.read()
         os.remove(pdf_path)
