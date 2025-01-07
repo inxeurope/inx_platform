@@ -2606,6 +2606,7 @@ def logout_view(request):
     return redirect('/accounts/login/')
 
 
+@login_required
 def products(request):
     
     if request.method == 'GET':
