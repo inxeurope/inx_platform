@@ -63,12 +63,10 @@
           </div>
         </div>
         
-        <div class="row mb-3"> <!-- Area of budget -->
-          {% comment %} {% if request.user.budget_open %} {% endcomment %}
+        <div class="row mb-3">
           <div class="col">
             {% include 'app_pages/forecast_2_bdg_partial.html' %}
           </div>
-          {% comment %} {% endif %} {% endcomment %}
         </div>
 
       </div>
@@ -77,17 +75,5 @@
   </div>
 
   <script src="{% static 'dist/js/inx.js' %}"></script>
-  {% comment %} <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      console.log('forecast_2.html DOMContentLOaded triggered')
-      var refreshButton = document.getElementById('refresh-budget-button');
-      
-      if (refreshButton) {
-        refreshButton.click();
-      }
-    });
-  </script> {% endcomment %}
-
-
 
 {% endblock %}

@@ -19,6 +19,33 @@ from .models import (
     )
 
 
+# Custom Widgets
+class NumberInputWithThousandsSeparator(forms.NumberInput):
+    def __init__(self, attrs=None):
+        super().__init__(attrs)
+        self.attrs.update({'class': 'form-control'})
+
+    def format_value(self, value):
+        if value is None:
+            return ''
+        return '{:,.0f}'.format(value).replace(',', '.')  # Use a dot as a thousands separator
+    
+
+class DecimalInputWithComma(forms.NumberInput):
+    def __init__(self, attrs=None):
+        super().__init__(attrs)
+        self.attrs.update({'class': 'form-control'})
+
+    def format_value(self, value):
+        if value is None:
+            return ''
+        string = '{:,.2f}'.format(value).replace(',', 'X').replace('.', ',').replace('X', '.') # Use a comma as a decimal separator and a dot as a thousands separator
+        print (f"string: {string}")
+        return string  
+    
+
+# Forms definition
+
 class EditMajorLabelForm(forms.ModelForm):
     class Meta:
         model = MajorLabel
@@ -321,15 +348,6 @@ class BrandForm(forms.ModelForm):
         }
 
 
-class NumberInputWithThousandsSeparator(forms.TextInput):
-    input_type = 'text'
-
-    def format_value(self, value):
-        if value is None:
-            return ''
-        return number_format(value, use_l10n=True, force_grouping=True)
-
-
 class ForecastForm(forms.ModelForm):
     id = forms.IntegerField(widget=forms.HiddenInput(), required=True)
     budforline_id = forms.IntegerField(widget=forms.HiddenInput(), required=True)
@@ -342,8 +360,8 @@ class ForecastForm(forms.ModelForm):
             'budforline_id': forms.HiddenInput(),
             # 'budforline_id': forms.TextInput(attrs={'class': 'form-control p-1', 'readonly': 'readonly'}),
             'month': forms.TextInput(attrs={'class': 'form-control p-1 text-center', 'readonly': 'readonly', 'disabled': 'disabled'}),
-            'volume': forms.NumberInput(attrs={'class': 'form-control p-1'}),
-            # 'volume': NumberInputWithThousandsSeparator(attrs={'class': 'form-control p-1'}),
+            # 'volume': forms.NumberInput(attrs={'class': 'form-control p-1'}),
+            'volume': NumberInputWithThousandsSeparator(attrs={'class': 'form-control p-1'}),
             'price': forms.NumberInput(attrs={'class': 'form-control p-1'}),
             # 'value': forms.NumberInput(attrs={'class': 'form-control p-0', 'readonly': 'readonly', 'disabled':'disabled'}),
             'value': NumberInputWithThousandsSeparator(attrs={'class': 'form-control ps-1 pe-0', 'readonly': 'readonly', 'disabled':'disabled'}),
@@ -430,6 +448,7 @@ class SDSL2LanguageForm(forms.ModelForm):
         super(SDSL2LanguageForm, self).__init__(*args, **kwargs)
         self.fields['language'].queryset = Language.objects.all().order_by('name')
 
+
 class SDSL3ReplacementForm(forms.ModelForm):
     class Meta:
         model = SDSReplacement
@@ -439,3 +458,4 @@ class SDSL3ReplacementForm(forms.ModelForm):
             'search_for': forms.TextInput(attrs={'class': 'form-control'}),
             'replace_with': forms.Textarea(attrs={'class': 'form-control'})
         }
+
