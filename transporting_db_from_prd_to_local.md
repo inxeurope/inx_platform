@@ -58,7 +58,7 @@ In a single script
     PRINT(@sql);
     EXEC sp_executesql @sql;
 
-Change schema name drom the command line
+Change schema name from the command line
 
     SqlCmd -S localhost -d inx_platform_20241111 -U sa -P dellaBiella2! -i change_schema_name_to_dbo.sql -C
 

@@ -1182,15 +1182,18 @@ def fetch_cg(request, customer_id, brand_id):
 
 @login_required
 def fetch_forecast(request, budforline_id):
-    print("fetch_forecast view")
+    logger.info("fetch_forecast view")
     if budforline_id is None:
         budforline_id = request.GET.get('budforline_id')
-        print(f"budforline_id {budforline_id} comes from GET")
+        logger.info(f"budforline_id {budforline_id} comes from GET")
     else:
-        print(f"budforline_id {budforline_id} comes as an argument")
+        logger.info(f"budforline_id {budforline_id} comes as an argument")
     forecast_year = datetime.now().year
     budget_year = forecast_year + 1
     current_month = datetime.now().month
+    logger.info(f"forecast_year: {forecast_year}")
+    logger.info(f"budget_year: {budget_year}")
+    logger.info(f"current_month: {current_month}")
 
     budforline_object = get_object_or_404(BudForLine, id=budforline_id)
     if budforline_object:
@@ -1207,7 +1210,7 @@ def fetch_forecast(request, budforline_id):
     ).order_by('month')
     logger.info(f"There are {len(forecast_lines)} records in forecast with the budforline_id {budforline_id}")
     scenario_forecast = get_object_or_404(Scenario, is_forecast=True)
-    logger.info(f"scenario of forecast {scenario_forecast}")
+    logger.info(f"scenario of forecast {scenario_forecast} with id: {scenario_forecast.id}")
     logger.info("forecast was extracted")
     
     budget_lines = BudgetForecastDetail.objects.filter(
@@ -1218,7 +1221,7 @@ def fetch_forecast(request, budforline_id):
     ).order_by('month')
     logger.info(f"There are {len(budget_lines)} records in budget with the budforline_id {budforline_id}")
     scenario_budget = get_object_or_404(Scenario, is_budget=True)
-    logger.info(f"scenario of budget {scenario_budget}")
+    logger.info(f"scenario of budget {scenario_budget} with id: {scenario_budget.id}")
     logger.info("budeget was extracted")
 
     missing_forecast_months = set()

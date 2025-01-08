@@ -20,28 +20,34 @@ from .models import (
 
 
 # Custom Widgets
-class NumberInputWithThousandsSeparator(forms.NumberInput):
+class NumberInputWithThousandsSeparator(forms.TextInput):
     def __init__(self, attrs=None):
         super().__init__(attrs)
         self.attrs.update({'class': 'form-control'})
 
     def format_value(self, value):
+        print(f"Value: {value}", end="...")
         if value is None:
+            print("None")
             return ''
-        return '{:,.0f}'.format(value).replace(',', '.')  # Use a dot as a thousands separator
-    
+        string = '{:,.0f}'.format(value).replace(',', 'X').replace('.', ',').replace('X', '.')
+        print(f"Formatted Value: {string}")
+        return string
 
-class DecimalInputWithComma(forms.NumberInput):
+# Custom Widgets
+class NumberInputWithThousandsSeparatorAndComma(forms.TextInput):
     def __init__(self, attrs=None):
         super().__init__(attrs)
         self.attrs.update({'class': 'form-control'})
 
     def format_value(self, value):
+        print(f"Value: {value}", end="...")
         if value is None:
+            print("None")
             return ''
-        string = '{:,.2f}'.format(value).replace(',', 'X').replace('.', ',').replace('X', '.') # Use a comma as a decimal separator and a dot as a thousands separator
-        print (f"string: {string}")
-        return string  
+        string = '{:,.2f}'.format(value).replace(',', 'X').replace('.', ',').replace('X', '.')
+        print(f"Formatted Value: {string}")
+        return string
     
 
 # Forms definition
@@ -358,13 +364,10 @@ class ForecastForm(forms.ModelForm):
         widgets = {
             'id': forms.HiddenInput(),
             'budforline_id': forms.HiddenInput(),
-            # 'budforline_id': forms.TextInput(attrs={'class': 'form-control p-1', 'readonly': 'readonly'}),
-            'month': forms.TextInput(attrs={'class': 'form-control p-1 text-center', 'readonly': 'readonly', 'disabled': 'disabled'}),
-            # 'volume': forms.NumberInput(attrs={'class': 'form-control p-1'}),
-            'volume': NumberInputWithThousandsSeparator(attrs={'class': 'form-control p-1'}),
-            'price': forms.NumberInput(attrs={'class': 'form-control p-1'}),
-            # 'value': forms.NumberInput(attrs={'class': 'form-control p-0', 'readonly': 'readonly', 'disabled':'disabled'}),
-            'value': NumberInputWithThousandsSeparator(attrs={'class': 'form-control ps-1 pe-0', 'readonly': 'readonly', 'disabled':'disabled'}),
+            'month': forms.TextInput(attrs={'class': 'form-control text-center', 'readonly': 'readonly', 'disabled': 'disabled'}),
+            'volume': NumberInputWithThousandsSeparator(attrs={'class': 'form-control'}),
+            'price': NumberInputWithThousandsSeparatorAndComma(attrs={'class': 'form-control'}),
+            'value': NumberInputWithThousandsSeparator(attrs={'class': 'form-control', 'readonly': 'readonly', 'disabled':'disabled'}),
         }
     
     def __init__(self, *args, **kwargs):
