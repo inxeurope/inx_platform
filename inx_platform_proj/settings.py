@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "django_extensions",
     "django_htmx",
     "django_celery_beat",
+    "rest_framework",
     "inx_platform_app.apps.InxPlatformAppConfig",
 ]
 

@@ -1,8 +1,13 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 from . import views
 from django.contrib.auth import views as auth_views
 
+router = DefaultRouter()
+router.register(r'products', views.ProductViewSet)
+
 urlpatterns = [
+    path('api/', include(router.urls)),
     path("", views.index, name="index"),
     path("forecast_2/<int:customer_id>/", views.forecast_2, name="forecast-2"),
     path("forecast_2/fetch_previous_years_sales/<int:customer_id>/", views.fetch_previous_year_sales, name="fetch-py-sales"),

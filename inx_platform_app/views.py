@@ -41,6 +41,8 @@ from PyPDF2 import PdfReader, PdfWriter
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter, A4
 from reportlab.lib.utils import ImageReader
+from rest_framework import viewsets, permissions
+from .serializers import *
     
 def index(request):
     return render(request, "app_pages/index.html", {})
@@ -3740,3 +3742,14 @@ def download_sds_rtf_file(request, pk):
         response = HttpResponse(new_content, content_type="application/rtf")
         response['Content-Disposition'] = f'attachment; filename={new_filename_rtf}'
         return response
+
+
+class IsMarco(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and request.user.email == 'Marco.zanella@inxeurope.com'
+    
+
+class ProductViewSet(viewsets.ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    permission_classes = [IsMarco]
