@@ -3534,12 +3534,18 @@ def get_logo_string(logo_path, logo_width_mm):
 
 
 def find_start_index_of_logo(list_of_strings, content):
+    for string in list_of_strings:
+        print(string)
+    print()
     print("Searching start index of the logo ... ", end="")
     for i, string_to_find in enumerate(list_of_strings):
+        print(f"Searching for string {i} ... ", end="")
         start_index = content.find(string_to_find)
         if start_index != -1:
             print(f"Found string {i} at index {start_index}")
             return start_index
+        else:
+            print(f"String {i} not found")
     return -1
 
 
@@ -3655,7 +3661,8 @@ def download_sds_rtf_file(request, pk):
     inx_logo_start_string = [
         '{\pict{\*\picprop\shplid1037{',
         '{\pict{\*\picprop\shplid1027{',
-        '{\pict{\*\picprop\shplid1026{\sp{\sn shapeType}{\sv 75}}{\sp{\sn fFlipH}{\sv 0}}{\sp{\sn fFlipV}{\sv 0}}{\sp{\sn fLine}{\sv 0}}{\sp{\sn wzDescription}{\sv NEW INX LOGO FOR SDS}}'
+        '{\pict{\*\picprop\shplid1026{\sp{\sn shapeType}{\sv 75}}{\sp{\sn fFlipH}{\sv 0}}{\sp{\sn fFlipV}{\sv 0}}{\sp{\sn fLine}{\sv 0}}{\sp{\sn wzDescription}{\sv NEW INX LOGO FOR SDS}}',
+        '{\pict{\*\picprop\shplid1036{\sp{\sn shapeType}{\sv 75}}{\sp{\sn fFlipH}{\sv 0}}{\sp{\sn fFlipV}{\sv 0}}{\sp{\sn fLine}{\sv 0}}{\sp{\sn wzDescription}{\sv NEW INX LOGO FOR SDS}}'
         ]
     # inx_logo_end_string = '0000000000000000000000000000000000b840ff1fdf86134b9a5bc8bb0000000049454e44ae426082}'
     inx_logo_end_string = '54e44ae426082}'
@@ -3698,11 +3705,13 @@ def download_sds_rtf_file(request, pk):
             logo_height_points = logo_width_points * (logo_height_px / logo_width_px)
             logo_left_margin_points = c.logo_left_margin_mm * 2.83465
             logo_baseline_points = c.logo_baseline_mm * 2.83465
-            logo_y_position = A4[1] - logo_baseline_points - logo_height_points
+            logo_y_position = A4[1] - logo_baseline_points # - logo_height_points
+            # logo_y_position = 0
             packet = io.BytesIO()
             can = canvas.Canvas(packet, pagesize=A4)
             logo = ImageReader(logo_path)
-            can.drawImage(logo, logo_left_margin_points, 770, width=logo_width_points, height=logo_height_points)
+            # can.drawImage(logo, logo_left_margin_points, 500, width=logo_width_points, height=logo_height_points)
+            can.drawImage(logo, logo_left_margin_points, logo_y_position, width=logo_width_points, height=logo_height_points)
             can.save()
             # Move to the beginning of the StringIO buffer
             packet.seek(0)

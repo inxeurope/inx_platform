@@ -168,6 +168,7 @@ def file_processor(id_of_UploadedFile, user_id):
                 return
         case "pr":
             df = read_this_file(uploaded_file_record, user, import_dictionaries.pr_converters_dict, celery_task_id)
+            # - Filter outdated prices
             if not df.empty:
                 model = Price
                 field_mapping = import_dictionaries.prl_mapping_dict
