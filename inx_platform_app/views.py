@@ -3753,3 +3753,141 @@ class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = [IsMarco]
+
+
+class ColorGroupViewSet(viewsets.ModelViewSet):
+    queryset = ColorGroup.objects.all()
+    serializer_class = ColorGroupSerializer
+    permission_classes = [IsMarco]
+
+
+class ColorViewSet(viewsets.ModelViewSet):
+    queryset = Color.objects.all()
+    serializer_class = ColorSerializer
+    permission_classes = [IsMarco]
+
+
+class MarketSegmentViewSet(viewsets.ModelViewSet):
+    queryset = MarketSegment.objects.all()
+    serializer_class = MarketSegmentSerializer
+    permission_classes = [IsMarco]
+
+
+class DivisionViewSet(viewsets.ModelViewSet):
+    queryset = Division.objects.all()
+    serializer_class = DivisionSerializer
+    permission_classes = [IsMarco]
+
+
+class CurrencyViewSet(viewsets.ModelViewSet):
+    queryset = Currency.objects.all()
+    serializer_class = CurrencySerializer
+    permission_classes = [IsMarco]
+
+
+class CurrencyRateViewSet(viewsets.ModelViewSet):
+    queryset = CurrencyRate.objects.all()
+    serializer_class = CurrencyRateSerializer
+    permission_classes = [IsMarco]
+
+
+class ProductLineViewSet(viewsets.ModelViewSet):
+    queryset = ProductLine.objects.all()
+    serializer_class = ProductLineSerializer
+    permission_classes = [IsMarco]
+
+
+class MajorLabelViewSet(viewsets.ModelViewSet):
+    queryset = MajorLabel.objects.all()
+    serializer_class = MajorLabelSerializer
+    permission_classes = [IsMarco]
+
+
+class InkTechnologyViewSet(viewsets.ModelViewSet):
+    queryset = InkTechnology.objects.all()
+    serializer_class = InkTechnologySerializer
+    permission_classes = [IsMarco]
+
+
+class NSFDivisionViewSet(viewsets.ModelViewSet):
+    queryset = NSFDivision.objects.all()
+    serializer_class = NSFDivisionSerializer
+    permission_classes = [IsMarco]
+
+
+class MaterialGroupViewSet(viewsets.ModelViewSet):
+    queryset = MaterialGroup.objects.all()
+    serializer_class = MaterialGroupSerializer
+    permission_classes = [IsMarco]
+
+
+class UnitOfMeasureViewSet(viewsets.ModelViewSet):
+    queryset = UnitOfMeasure.objects.all()
+    serializer_class = UnitOfMeasureSerializer
+    permission_classes = [IsMarco]
+
+
+class PackagingViewSet(viewsets.ModelViewSet):
+    queryset = Packaging.objects.all()
+    serializer_class = PackagingSerializer
+    permission_classes = [IsMarco]
+
+
+class PackagingRateToLiterViewSet(viewsets.ModelViewSet):
+    queryset = PackagingRateToLiter.objects.all()
+    serializer_class = PackagingRateToLiterSerializer
+    permission_classes = [IsMarco]
+
+
+class ProductStatusViewSet(viewsets.ModelViewSet):
+    queryset = ProductStatus.objects.all()
+    serializer_class = ProductStatusSerializer
+    permission_classes = [IsMarco]
+
+
+class ExchangeRateViewSet(viewsets.ModelViewSet):
+    queryset = ExchangeRate.objects.all()
+    serializer_class = ExchangeRateSerializer
+    permission_classes = [IsMarco]
+
+
+class ScenarioViewSet(viewsets.ModelViewSet):
+    queryset = Scenario.objects.all()
+    serializer_class = ScenarioSerializer
+    permission_classes = [IsMarco]
+
+
+class CountryCodeViewSet(viewsets.ModelViewSet):
+    queryset = CountryCode.objects.all()
+    serializer_class = CountryCodeSerializer
+    permission_classes = [IsMarco]
+
+
+class CustomerTypeViewSet(viewsets.ModelViewSet):
+    queryset = CustomerType.objects.all()
+    serializer_class = CustomerTypeSerializer
+    permission_classes = [IsMarco]
+
+
+class IndustryViewSet(viewsets.ModelViewSet):
+    queryset =Industry.objects.all()
+    serializer_class = IndustrySerializer
+    permission_classes = [IsMarco]
+
+
+class BrandViewSet(viewsets.ModelViewSet):
+    queryset =Brand.objects.all()
+    serializer_class = BrandSerializer
+    permission_classes = [IsMarco]
+
+
+class RateToLTViewSet(viewsets.ModelViewSet):
+    queryset =RateToLT.objects.all()
+    serializer_class =RateToLTSerializer
+    permission_classes = [IsMarco]
+
+
+class CustomerViewSet(viewsets.ModelViewSet):
+    queryset = Customer.objects.all()
+    serializer_class = CustomerSerializer
+    permission_classes = [IsMarco]
