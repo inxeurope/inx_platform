@@ -460,8 +460,16 @@ def forecast_save(request):
             f = ForecastForm(form_data, instance=this_instance)
             old_volume = f['volume'].initial
             new_volume = f['volume'].data
+            new_volume = Decimal(new_volume)
             old_price = f['price'].initial
             new_price = f['price'].data
+            if not isinstance(new_price, Decimal):
+                if isinstance(new_price, str):
+                    new_price = new_price.replace(',', '.')
+                new_price = Decimal(new_price)
+            form_data['price'] = new_price
+            f = ForecastForm(form_data, instance=this_instance)  # Recreate the form with updated data
+            # f.cleaned_data['price'] = new_price
             print(f"volume: old-{old_volume} new-{new_volume}")
             print(f"price: old-{old_price} new-{new_price}")
             f.budforline_id = budforline_id
