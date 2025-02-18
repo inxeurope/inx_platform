@@ -21,13 +21,14 @@ router.register(r'material_groups', views.MaterialGroupViewSet)
 router.register(r'unit_of_measure', views.UnitOfMeasureViewSet)
 router.register(r'packagings', views.PackagingViewSet)
 router.register(r'packaging_rate_to_lts', views.PackagingRateToLiterViewSet)
-router.register(r'product_statuses', views.ProductStatusViewSet)  # New route for ProductStatusViewSet
-router.register(r'exchange_rates', views.ExchangeRateViewSet)  # New route for ExchangeRateViewSet
-router.register(r'scenarios', views.ScenarioViewSet)  # New route for ScenarioViewSet
-router.register(r'country_codes', views.CountryCodeViewSet)  # New route for CountryCodeViewSet
-router.register(r'customer_types', views.CustomerTypeViewSet)  # New route for CustomerTypeViewSet
-router.register(r'industries', views.IndustryViewSet)  # New route for IndustryViewSet
-router.register(r'rate_to_lts', views.RateToLTViewSet)  # New route for RateToLTViewSet
+router.register(r'product_statuses', views.ProductStatusViewSet)
+router.register(r'exchange_rates', views.ExchangeRateViewSet)
+router.register(r'scenarios', views.ScenarioViewSet)
+router.register(r'country_codes', views.CountryCodeViewSet)
+router.register(r'customer_types', views.CustomerTypeViewSet)
+router.register(r'industries', views.IndustryViewSet)
+router.register(r'rate_to_lts', views.RateToLTViewSet)
+router.register(r'users', views.UserViewSet)
 
 urlpatterns = [
     path('api/', include(router.urls)),
