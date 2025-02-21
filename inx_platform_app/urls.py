@@ -29,8 +29,8 @@ router.register(r'customer_types', views.CustomerTypeViewSet)
 router.register(r'industries', views.IndustryViewSet)
 router.register(r'rate_to_lts', views.RateToLTViewSet)
 router.register(r'users', views.UserViewSet)
-router.register(r'ke30', views.KeViewSet)
-router.register(r'zaq', views.UserViewSet)
+router.register(r'ke30', views.Ke30ViewSet)
+router.register(r'zaq', views.ZaqViewSet)
 
 urlpatterns = [
     path('api/', include(router.urls)),
