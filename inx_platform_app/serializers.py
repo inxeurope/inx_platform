@@ -147,3 +147,13 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = '__all__'
+
+class Ke30Serializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ke30Line
+        fields = '__all__'
+
+class ZaqSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ZAQCODMI9_line
+        fields = '__all__'
