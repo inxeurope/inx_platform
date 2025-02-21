@@ -43,6 +43,7 @@ from reportlab.lib.pagesizes import letter, A4
 from reportlab.lib.utils import ImageReader
 from rest_framework import viewsets, permissions
 from .serializers import *
+from .pagination import LargeResultSetPagination
     
 def index(request):
     return render(request, "app_pages/index.html", {})
@@ -3914,3 +3915,4 @@ class ZaqViewSet(viewsets.ModelViewSet):
     queryset = ZAQCODMI9_line.objects.all()
     serializer_class = ZaqSerializer
     permission_classes = [IsMarco]
+    pagination_class = LargeResultSetPagination

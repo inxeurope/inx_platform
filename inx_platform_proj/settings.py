@@ -204,3 +204,8 @@ CSRF_COOKIE_SECURE = True
 
 # This below may be a solution for the login when using https and domain name
 CSRF_TRUSTED_ORIGINS = ['https://platform.inxeurope.dev']
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 1000,
+}
