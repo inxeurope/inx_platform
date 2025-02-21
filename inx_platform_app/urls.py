@@ -29,7 +29,7 @@ router.register(r'customer_types', views.CustomerTypeViewSet)
 router.register(r'industries', views.IndustryViewSet)
 router.register(r'rate_to_lts', views.RateToLTViewSet)
 router.register(r'users', views.UserViewSet)
-router.register(r'ke30', views.UserViewSet)
+router.register(r'ke30', views.KeViewSet)
 router.register(r'zaq', views.UserViewSet)
 
 urlpatterns = [

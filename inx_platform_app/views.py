@@ -3905,12 +3905,12 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     permission_classes = [IsMarco]
 
-class UserViewSet(viewsets.ModelViewSet):
+class Ke30ViewSet(viewsets.ModelViewSet):
     queryset = Ke30Line.objects.all()
     serializer_class = Ke30Serializer
     permission_classes = [IsMarco]
 
-class UserViewSet(viewsets.ModelViewSet):
+class ZaqViewSet(viewsets.ModelViewSet):
     queryset = ZAQCODMI9_line.objects.all()
     serializer_class = ZaqSerializer
     permission_classes = [IsMarco]
