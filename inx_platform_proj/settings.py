@@ -207,5 +207,5 @@ CSRF_TRUSTED_ORIGINS = ['https://platform.inxeurope.dev']
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 500,
+    'PAGE_SIZE': 5000,
 }
