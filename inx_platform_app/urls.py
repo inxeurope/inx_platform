@@ -31,6 +31,8 @@ router.register(r'rate_to_lts', views.RateToLTViewSet)
 router.register(r'users', views.UserViewSet)
 router.register(r'ke30', views.Ke30ViewSet)
 router.register(r'zaq', views.ZaqViewSet)
+router.register(r'budforlines', views.BudForLineViewSet)
+router.register(r'budgetforecastdetail', views.BudgetForecastDetailViewSet)
 
 urlpatterns = [
     path('api/', include(router.urls)),
