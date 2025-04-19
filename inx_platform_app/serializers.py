@@ -157,3 +157,13 @@ class ZaqSerializer(serializers.ModelSerializer):
     class Meta:
         model = ZAQCODMI9_line
         fields = '__all__'
+
+class BudForLineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BudForLine
+        fields = '__all__'
+
+class BudgetForecastDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BudgetForecastDetail
+        fields = '__all__'

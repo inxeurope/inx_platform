@@ -3916,3 +3916,15 @@ class ZaqViewSet(viewsets.ModelViewSet):
     serializer_class = ZaqSerializer
     permission_classes = [IsMarco]
     pagination_class = LargeResultSetPagination
+
+class BudForLineViewSet(viewsets.ModelViewSet):
+    queryset = BudForLine.objects.all()
+    serializer_class = BudForLineSerializer
+    permission_classes = [IsMarco]
+    pagination_class = LargeResultSetPagination
+
+class BudgetForecastDetailViewSet(viewsets.ModelViewSet):
+    queryset = BudgetForecastDetail.objects.all()
+    serializer_class = BudgetForecastDetailSerializer
+    permission_classes = [IsMarco]
+    pagination_class = LargeResultSetPagination
