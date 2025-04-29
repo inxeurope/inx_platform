@@ -3851,6 +3851,14 @@ def download_sds_rtf_file(request, pk):
         response['Content-Disposition'] = f'attachment; filename={new_filename_rtf}'
         return response
 
+@login_required
+def download_cleaned_rtf_file(request, pk):
+    sds_rtf_file = get_object_or_404(SDSRTFFile, pk=pk)
+    file_name = sds_rtf_file.file.name
+    response = HttpResponse(sds_rtf_file.file, content_type="application/rtf")
+    response['Content-Disposition'] = f'attachment; filename={file_name}'
+    print (f"download_cleaned_rtf_file - sds_rtf_file: {sds_rtf_file}")
+    return response
 
 class IsMarco(permissions.BasePermission):
     def has_permission(self, request, view):

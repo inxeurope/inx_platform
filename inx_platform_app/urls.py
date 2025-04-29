@@ -104,6 +104,7 @@ urlpatterns = [
     path("delete_sds_rtf_file/<int:pk>/", views.delete_sds_rtf_file, name="delete-sds-rtf-file"),
     path("upload_sds_rtf_file/<int:product_id>/<int:language_id>/", views.upload_sds_rtf_file, name="upload-sds-rtf-file"),
      path("download_sds_rtf_file/<int:pk>/", views.download_sds_rtf_file, name="download-sds-rtf-file"),
+     path("download_cleaned_rtf_file/<int:pk>/", views.download_cleaned_rtf_file, name="download-cleaned-rtf-file"),
 
     path("get_contact_details/<int:id>", views.get_contact_details, name="get-contact-details"),
 

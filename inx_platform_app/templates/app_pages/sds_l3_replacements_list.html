@@ -66,6 +66,9 @@
       <div class="col d-flex justify-content-between align-items-center">
         <a href="{% url 'download-sds-rtf-file' sds_rtf_file.id %}" class="btn btn-success">Generate Custom SDS File</a>
       </div>
+      <div class="col d-flex justify-content-between align-items-center">
+        <a href="{% url 'download-cleaned-rtf-file' sds_rtf_file.id %}" class="btn btn-secondary">Download Cleaned RTF File</a>
+      </div>
     </div>
     {% else %}
       <form hx-post="{% url 'upload-sds-rtf-file' product.id language.id %}"
