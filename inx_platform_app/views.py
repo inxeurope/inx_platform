@@ -34,6 +34,8 @@ import io
 import time
 import shutil
 import subprocess
+import re
+import codecs
 from datetime import datetime
 from time import perf_counter
 import pprint
@@ -3502,11 +3504,72 @@ def upload_sds_rtf_file(request, product_id, language_id):
         product = get_object_or_404(Product, pk=product_id)
         language = get_object_or_404(Language, pk=language_id)
         file = request.FILES['file']
-        file_content = file.read()
+        # Check if the file is a valid RTF file
+        if not file.name.endswith('.rtf'):
+            print("Invalid file type. Please upload an RTF file.")
+            return redirect('fetch-sds-l3-replacements', product_id=product.id, language_id=language.id)
+        else:
+            # Read and decode the file content
+            file_content_bytes = file.read()
+            try:
+                file_content_str = file_content_bytes.decode('cp1252')
+            except UnicodeDecodeError:
+                 # Fallback or handle error if decoding fails
+                 print("Error decoding file with cp1252. Trying utf-8.")
+                 try:
+                     file_content_str = file_content_bytes.decode('utf-8')
+                 except UnicodeDecodeError:
+                     print("Error decoding file with utf-8 as well.")
+                     # Handle the error appropriately, maybe return an error message
+                     return redirect('fetch-sds-l3-replacements', product_id=product.id, language_id=language.id) # Or render an error page
+
+
+            # Replace consecutive spaces
+            file_content_str = file_content_str.replace(' ' * 5, ' ' * 4)
+            file_content_str = file_content_str.replace(' ' * 4, ' ' * 3)
+            file_content_str = file_content_str.replace(' ' * 3, ' ' * 2)
+            file_content_str = file_content_str.replace(' ' * 2, ' ' * 1)
+            try:
+                modified_content_bytes = file_content_str.encode('cp1252')
+                # Replacing the bytes sequence x0Dx0A with x20, unless the sequence is x7Dx0Dx0A (crnl)
+                def replace_crlf_except_7d(data):
+                    # We will build a new bytes object
+                    result = bytearray()
+                    i = 0
+                    n = len(data)
+                    while i < n:
+                        # If we see 0x7D 0x0D 0x0A, copy as is
+                        if i+2 < n and data[i] == 0x7D and data[i+1] == 0x0D and data[i+2] == 0x0A:
+                            result.extend([0x7D, 0x0D, 0x0A])
+                            i += 3
+                        # Else if we see 0x0D 0x0A, replace with 0x20
+                        elif i+1 < n and data[i] == 0x0D and data[i+1] == 0x0A:
+                            result.append(0x20)
+                            i += 2
+                        else:
+                            result.append(data[i])
+                            i += 1
+                    return bytes(result)
+                modified_content_bytes = replace_crlf_except_7d(modified_content_bytes)
+
+                # Output modified_content_bytes to a file for debugging
+                media_root_path = settings.MEDIA_ROOT
+                output_modified_content_byte_path = os.path.join(media_root_path, 'modified_content_bytes.hex')
+                with open(output_modified_content_byte_path, 'wb') as debug_file:
+                    debug_file.write(modified_content_bytes)
+
+            except UnicodeEncodeError:
+                print("Error encoding modified content with cp1252. Using utf-8.")
+                modified_content_bytes = file_content_str.encode('utf-8')
+            
+        # If file contains
         sds_rtf_file, created = SDSRTFFile.objects.get_or_create(product=product, language=language)
-        if created:
-            sds_rtf_file.file = file
-            sds_rtf_file.save()
+        from django.core.files.base import ContentFile
+        django_file = ContentFile(modified_content_bytes, name=file.name)
+        sds_rtf_file.file = django_file
+        sds_rtf_file.save()
+
+        print(f"Successfully uploaded RTF file for product {product_id} and language {language_id}")
 
         return redirect('fetch-sds-l3-replacements', product_id=product.id, language_id=language.id)
     else:
@@ -3634,6 +3697,16 @@ def remove_logo_from_rtf(list_of_start_strings, end_string, content, cycles=1):
     
     return content, position_of_first_logo_insertion, removed
 
+def decode_rtf_escaped_text(rtf_text):
+    pattern = re.compile(r"\\'([0-9a-fA-F]{2})")
+
+    def decode_match(match):
+        byte = bytes.fromhex(match.group(1))
+        return codecs.decode(byte, 'windows-1252', errors='ignore')
+
+    return pattern.sub(decode_match, rtf_text)
+
+
 @login_required
 def download_sds_rtf_file(request, pk):
     sds_rtf_file = get_object_or_404(SDSRTFFile, pk=pk)
@@ -3650,16 +3723,42 @@ def download_sds_rtf_file(request, pk):
     # Get all Level 3 replacements
     sds_lev3_replacements = SDSReplacement.objects.filter(customer=p.customer, language=l, product=p)
 
+    # Decode the RTF file content
+    file_content = decode_rtf_escaped_text(file_content)
+    # Output the decoded content to a file
+    media_root_path = settings.MEDIA_ROOT
+    output_test_file_path = os.path.join(media_root_path, 'decoded_rtf.rtf')
+    with open(output_test_file_path, 'w', encoding='utf-8') as file:
+        file.write(file_content)
+
     if sds_lev1_replacements:
         for r in sds_lev1_replacements:
+            print (f"Level 1 replacement: {r.search_for} -> {r.replace_with}")
+            # Check if r.search_for is found in file_content
+            if r.search_for in file_content:
+                print(f"Found {r.search_for} in file_content")
+            else:
+                print(f"Did not find {r.search_for} in file_content")
             file_content = file_content.replace(r.search_for, r.replace_with)
         print("Level 1 replacements done")
     if sds_lev2_replacements:
         for r in sds_lev2_replacements:
+            print (f"Level 2 replacement: {r.search_for} -> {r.replace_with}")
+            # Check if r.search_for is found in file_content
+            if r.search_for in file_content:
+                print(f"Found {r.search_for} in file_content")
+            else:
+                print(f"Did not find {r.search_for} in file_content")
             file_content = file_content.replace(r.search_for, r.replace_with)
         print("Level 2 replacements done")
     if sds_lev3_replacements:
         for r in sds_lev3_replacements:
+            print (f"Level 3 replacement: {r.search_for} -> {r.replace_with}")
+            # Check if r.search_for is found in file_content
+            if r.search_for in file_content:
+                print(f"Found {r.search_for} in file_content")
+            else:
+                print(f"Did not find {r.search_for} in file_content")
             file_content = file_content.replace(r.search_for, r.replace_with)
         print("Level 3 replacements done")
 
@@ -3691,9 +3790,9 @@ def download_sds_rtf_file(request, pk):
         print("soffice installed")
         # Write RTF data in a temporary file
         temporary_rtf_file_path = os.path.join(settings.MEDIA_ROOT, new_filename_rtf)
-        with open(temporary_rtf_file_path, 'w', encoding='utf-8') as temporary_rtf_file:
+        with open(temporary_rtf_file_path, 'w', encoding='cp1252') as temporary_rtf_file:
             temporary_rtf_file.write(new_content)
-            print("RTF Write finished")
+            print(f"RTF Write finished, located in {temporary_rtf_file_path}")
         command = [
             "soffice",
             "--headless",
