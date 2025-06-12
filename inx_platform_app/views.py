@@ -3504,8 +3504,14 @@ def upload_sds_rtf_file(request, product_id, language_id):
         product = get_object_or_404(Product, pk=product_id)
         language = get_object_or_404(Language, pk=language_id)
         file = request.FILES['file']
+
+        # Read the first 5 bytes to check if it's an RTF file
+        file.seek(0)  # Ensure we're at the beginning
+        start = file.read(5)  # Read first 5 bytes
+        file.seek(0)  # Reset to beginning for later reading
+        
         # Check if the file is a valid RTF file
-        if not file.name.endswith('.rtf'):
+        if not file.name.lower().endswith('.rtf') and start.startswith(b'{\\rtf'):
             print("Invalid file type. Please upload an RTF file.")
             return redirect('fetch-sds-l3-replacements', product_id=product.id, language_id=language.id)
         else:
@@ -3724,7 +3730,7 @@ def download_sds_rtf_file(request, pk):
     sds_lev3_replacements = SDSReplacement.objects.filter(customer=p.customer, language=l, product=p)
 
     # Decode the RTF file content
-    file_content = decode_rtf_escaped_text(file_content)
+    # file_content = decode_rtf_escaped_text(file_content)
     # Output the decoded content to a file
     media_root_path = settings.MEDIA_ROOT
     output_test_file_path = os.path.join(media_root_path, 'decoded_rtf.rtf')
@@ -3764,7 +3770,11 @@ def download_sds_rtf_file(request, pk):
 
     # Get the logo image from the customer
     c = p.customer
-        
+    
+    output_test_file_path = os.path.join(media_root_path, 'decoded_rtf_w_replaced_text.rtf')
+    with open(output_test_file_path, 'w', encoding='utf-8') as file:
+        file.write(file_content)
+
     # Container tags in the RTF file
     logo_box_tags ='{\shp{\*\shpinst\shpleft-15\shptop-1041\shpright1871\shpbottom-33'
     
