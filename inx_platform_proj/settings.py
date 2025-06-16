@@ -206,6 +206,6 @@ CSRF_COOKIE_SECURE = True
 CSRF_TRUSTED_ORIGINS = ['https://platform.inxeurope.dev']
 
 REST_FRAMEWORK = {
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'DEFAULT_PAGINATION_CLASS': 'inx_platform_app.pagination.LargeResultSetPagination',
     'PAGE_SIZE': 500,
 }
