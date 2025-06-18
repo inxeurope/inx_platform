@@ -43,7 +43,7 @@ from PyPDF2 import PdfReader, PdfWriter
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter, A4
 from reportlab.lib.utils import ImageReader
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, filters
 from .serializers import *
 from .pagination import LargeResultSetPagination
     
@@ -3987,12 +3987,16 @@ class CountryCodeViewSet(viewsets.ModelViewSet):
     queryset = CountryCode.objects.all()
     serializer_class = CountryCodeSerializer
     permission_classes = [IsMarco]
+    ordering_fields = ['alpha_2']
+    ordering = ['-alpha_2']
 
 
 class CustomerTypeViewSet(viewsets.ModelViewSet):
     queryset = CustomerType.objects.all()
     serializer_class = CustomerTypeSerializer
     permission_classes = [IsMarco]
+    ordering_fields = ['id']
+    ordering = ['-id']
 
 
 class IndustryViewSet(viewsets.ModelViewSet):
@@ -4005,6 +4009,8 @@ class BrandViewSet(viewsets.ModelViewSet):
     queryset =Brand.objects.all()
     serializer_class = BrandSerializer
     permission_classes = [IsMarco]
+    ordering_fields = ['id']
+    ordering = ['-id']
 
 
 class RateToLTViewSet(viewsets.ModelViewSet):
@@ -4017,6 +4023,8 @@ class CustomerViewSet(viewsets.ModelViewSet):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
     permission_classes = [IsMarco]
+    ordering_fields = ['id']
+    ordering = ['-id']
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -4027,21 +4035,29 @@ class Ke30ViewSet(viewsets.ModelViewSet):
     queryset = Ke30Line.objects.all()
     serializer_class = Ke30Serializer
     permission_classes = [IsMarco]
+    ordering_fields = ['id']
+    ordering = ['-id']
 
 class ZaqViewSet(viewsets.ModelViewSet):
     queryset = ZAQCODMI9_line.objects.all()
     serializer_class = ZaqSerializer
     permission_classes = [IsMarco]
     pagination_class = LargeResultSetPagination
+    ordering_fields = ['id']
+    ordering = ['-id']
 
 class BudForLineViewSet(viewsets.ModelViewSet):
     queryset = BudForLine.objects.all()
     serializer_class = BudForLineSerializer
     permission_classes = [IsMarco]
     pagination_class = LargeResultSetPagination
+    ordering_fields = ['id']
+    ordering = ['-id']
 
 class BudgetForecastDetailViewSet(viewsets.ModelViewSet):
     queryset = BudgetForecastDetail.objects.all()
     serializer_class = BudgetForecastDetailSerializer
     permission_classes = [IsMarco]
     pagination_class = LargeResultSetPagination
+    ordering_fields = ['id']
+    ordering = ['-id']
