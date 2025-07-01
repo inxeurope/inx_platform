@@ -3911,12 +3911,6 @@ class CurrencyViewSet(viewsets.ModelViewSet):
     permission_classes = [IsMarco]
 
 
-class CurrencyRateViewSet(viewsets.ModelViewSet):
-    queryset = CurrencyRate.objects.all()
-    serializer_class = CurrencyRateSerializer
-    permission_classes = [IsMarco]
-
-
 class ProductLineViewSet(viewsets.ModelViewSet):
     queryset = ProductLine.objects.all()
     serializer_class = ProductLineSerializer
