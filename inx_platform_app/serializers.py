@@ -36,9 +36,9 @@ class CurrencySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class CurrencyRateSerializer(serializers.ModelSerializer):
+class ExchangeRateSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CurrencyRate
+        model = ExchangeRate
         fields = '__all__'
 
 
