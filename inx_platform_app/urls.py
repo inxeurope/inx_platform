@@ -13,7 +13,6 @@ router.register(r'divisions', views.DivisionViewSet)
 router.register(r'currencies', views.CurrencyViewSet)
 # No need to migrate this table as it is not used in the app
 # router.register(r'currency_rates', views.CurrencyRateViewSet)
-router.register(r'exchange_rates', views.ExchangeRateViewSet)
 router.register(r'product_lines', views.ProductLineViewSet)
 router.register(r'major_labels', views.MajorLabelViewSet)
 router.register(r'ink_technologies', views.InkTechnologyViewSet)
