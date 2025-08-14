@@ -595,10 +595,8 @@ def forecast_2(request, customer_id=None):
     else:
         current_year = datetime.now().year
         forecast_year = current_year
-        # budget_year = current_year + 1
         current_month = datetime.now().month
 
-        print("Forecast view - standard request")
         list_of_brands_of_customer = BudForLine.get_customer_brands(customer_id)
 
         # ---------- ZAQ YTD (inclusive current month) using utils.months ----------
@@ -717,29 +715,7 @@ def forecast_2(request, customer_id=None):
             # (Optional) Compute overall column totals if needed (not requested now)
             pprint.pprint("**** zaq_sales_dict (brand/month aggregated)")
             pprint.pprint(zaq_sales_dict)
-
         # ---------- END ZAQ YTD ----------
-
-        # Getting data of ytd and forecast
-        ytd_sales = BudgetForecastDetail_sales.objects.filter(
-            budforline__customer_id = customer_id,
-            year = current_year,
-            month__lte = current_month
-        ).select_related(
-            'budforline',
-            'scenario'
-        ).values(
-            'budforline__brand__name',
-            'year',
-            'month'
-        ).annotate(
-            total_volume=Sum('volume'),
-            total_value=Sum('value')
-        ).order_by('month')
-        logger.info("ytd_sales queryset was extracted")
-        print('\n'* 2 )
-        print("**** YTD")
-        pprint.pprint(ytd_sales)
 
         forecast = BudgetForecastDetail.objects.filter(
             budforline__customer_id = customer_id,
@@ -757,10 +733,7 @@ def forecast_2(request, customer_id=None):
             total_volume=Sum('volume'),
             total_value=Sum('value')
         )
-        print('\n'* 2 )
-        print("FORECAST")
-        pprint.pprint(forecast)
-        logger.info("forecast was extracted")
+        
         
         '''
         Example of the dictionary of dictionaries
@@ -786,63 +759,6 @@ def forecast_2(request, customer_id=None):
 
         }
         '''
-        ytd_sales_data_dict = {}
-        # logger.info("Start filling dictionary of dictionaries YTD sales_data")
-        # logger.info(f"Getting all brands of customer {customer.name}")
-        for the_customer, the_brand in list_of_brands_of_customer:
-            pass
-            # brand_name = the_brand.name
-            # logger.info(f"Working on brand: {brand_name}")
-            # # If brand is not in the dictionary yet, add it and prepare empty buckets
-            # if brand_name not in ytd_sales_data_dict:
-            #     ytd_sales_data_dict[brand_name] = {'ytd': {'brand_total': {'value': 0, 'volume': 0, 'price': 0}}}
-            # # Filter data using the budforline id, it's the triplet customer, brand, colorgroup
-            # # we are filtering and taking only the brand currently in consideration in the loop
-            # ytd_data = [entry for entry in ytd_sales if entry['budforline__brand__name'] == brand_name]
-            # forecast_data = [entry for entry in forecast if entry['budforline__brand__name'] == brand_name]
-
-            # # working on ytd data
-            # for entry in ytd_data:
-            #     month = entry['month']
-            #     volume = entry['total_volume']
-            #     value = entry['total_value']
-            #     price = round(value / volume, 2) if volume != 0 else 0
-            #     # logger.info(f"YTD - {customer.name} - {brand_name} - year {datetime.now().year + 1} month {month} vol {volume} - val {value}")
-            #     ytd_sales_data_dict[brand_name]['ytd'][month] = {
-            #         'volume': volume,
-            #         'price': price,
-            #         'value': value
-            #     }
-            #     #Calculation of brand totals for ytd
-            #     ytd_sales_data_dict[brand_name]['ytd']['brand_total']['volume'] += volume
-            #     ytd_sales_data_dict[brand_name]['ytd']['brand_total']['value'] += value
-            # if ytd_sales_data_dict[brand_name]['ytd']['brand_total']['volume'] == 0:
-            #     ytd_sales_data_dict[brand_name]['ytd']['brand_total']['price'] = 0
-            # else:
-            #     ytd_sales_data_dict[brand_name]['ytd']['brand_total']['price'] = ytd_sales_data_dict[brand_name]['ytd']['brand_total']['value']/ytd_sales_data_dict[brand_name]['ytd']['brand_total']['volume']
-
-            # # working on forecast data
-            # for entry in forecast_data:
-            #     month = entry['month']
-            #     volume = entry['total_volume']
-            #     value = entry['total_value']
-            #     price = round(value / volume, 2) if volume != 0 else 0
-            #     # logger.info(f"FCST - {customer.name} - {brand_name} - year {datetime.now().year + 1} month {month} vol {volume} - val {value}")
-            #     # Months are in the future
-            #     ytd_sales_data_dict[brand_name]['ytd'][month] = {
-            #         'volume': volume,
-            #         'price': price,
-            #         'value': value
-            #     }
-            #     #Calculation of brand totals for ytd
-            #     ytd_sales_data_dict[brand_name]['ytd']['brand_total']['volume'] += volume
-            #     ytd_sales_data_dict[brand_name]['ytd']['brand_total']['value'] += value
-            # if ytd_sales_data_dict[brand_name]['ytd']['brand_total']['volume'] == 0:
-            #     ytd_sales_data_dict[brand_name]['ytd']['brand_total']['price'] = 0
-            # else:
-            #     ytd_sales_data_dict[brand_name]['ytd']['brand_total']['price'] = ytd_sales_data_dict[brand_name]['ytd']['brand_total']['value']/ytd_sales_data_dict[brand_name]['ytd']['brand_total']['volume']
-
-
 
         # ----------------------------------------------------------------------------------
         # Build a second dictionary (ytd_sales_data_dict_new) sourced from zaq_sales_dict
@@ -1005,21 +921,124 @@ def fetch_ytd_sales(request, customer_id=None):
     logger.info(f"Getting all brands of customer {customer.name}")
     list_of_brands_of_customer = BudForLine.get_customer_brands(customer.id)
 
-    ytd_sales = BudgetForecastDetail_sales.objects.filter(
-        budforline__customer_id = customer_id,
-        year = current_year,
-        month__lte = current_month
-    ).select_related(
-        'budforline',
-        'scenario'
-    ).values(
-        'budforline__brand__name',
-        'year',
-        'month'
-    ).annotate(
-        total_volume=Sum('volume'),
-        total_value=Sum('value')
-    ).order_by('month')
+    # ---------- ZAQ YTD (inclusive current month) using utils.months ----------
+    ytd_sales_zaq = {}
+    ytd_sales_zaq_grand_total = {'value': 0, 'volume': 0, 'price': 0}
+    if customer and getattr(customer, 'number', None):
+        sold_to_value = customer.number
+        # Build a flexible filter (string / int / float)
+        sold_to_query = models.Q(sold_to=sold_to_value)
+        try:
+            sold_to_query |= models.Q(sold_to=int(str(sold_to_value)))
+        except ValueError:
+            pass
+        try:
+            sold_to_query |= models.Q(sold_to=float(sold_to_value))
+        except ValueError:
+            pass
+
+        # Annotate each ZAQ line with the related brand name via Product.number == material
+        brand_subquery = Subquery(
+            Product.objects.filter(number=OuterRef('material')).values('brand__name')[:1],
+            output_field=CharField()
+        )
+
+        # Keep material in grouping to satisfy SQL Server (avoid 8120) then aggregate manually.
+        raw_zaq_sales = (
+            ZAQCODMI9_line.objects
+            .filter(
+                sold_to_query,
+                billing_date__year=current_year,
+                billing_date__month__lte=current_month
+            )
+            .annotate(
+                brand_name=brand_subquery,
+                year=ExtractYear('billing_date'),
+                month=ExtractMonth('billing_date')
+            )
+            .values('brand_name', 'year', 'month', 'material')
+            .annotate(
+                material_volume=Coalesce(
+                    Sum('invoice_qty', output_field=IntegerField()),
+                    Value(0)
+                ),
+                material_value=Coalesce(
+                    Sum(
+                        'invoice_sales',
+                        output_field=DecimalField(max_digits=20, decimal_places=2)
+                    ),
+                    Value(Decimal('0.00')),
+                    output_field=DecimalField(max_digits=20, decimal_places=2)
+                )
+            )
+            .order_by('brand_name', 'year', 'month', 'material')
+        )
+
+        # Manual aggregation: brand/year/month -> totals
+        zaq_sales = []  # final list of dicts: brand_name, year, month, volume, value, price
+        agg_index = {}
+        for row in raw_zaq_sales:
+            brand = row['brand_name'] or 'Unknown brand'
+            year = row['year']
+            month = row['month']
+            key = (brand, year, month)
+            vol = row['material_volume'] or 0
+            val = row['material_value'] or Decimal('0.00')
+            if key not in agg_index:
+                agg_index[key] = {'brand_name': brand, 'year': year, 'month': month, 'volume': 0, 'value': Decimal('0.00')}
+            agg_index[key]['volume'] += vol
+            agg_index[key]['value'] += val
+
+        for data in agg_index.values():
+            volume = data['volume']
+            value = data['value']
+            data['price'] = round(value / volume, 2) if volume else 0
+            # If you prefer strings for JSON serialization, cast here.
+            zaq_sales.append(data)
+
+        # Optional: sort final result
+        zaq_sales.sort(key=lambda d: (d['brand_name'], d['year'], d['month']))
+
+        # Build zaq_sales_dict similar to structure at lines ~795-855 (dictionary of dictionaries)
+        # Structure:
+        # {
+        #   'BrandName': {
+        #       'ytd': { 1: {volume: X, value: Y, price: Z}, ..., 'brand_total': {...}}
+        #   }, ...
+        # }
+        zaq_sales_dict = {}
+        for entry in zaq_sales:
+            brand_name = entry['brand_name']
+            month = entry['month']
+            volume = entry['volume']
+            value = entry['value']
+            price = entry['price']
+            # Ensure brand bucket
+            if brand_name not in zaq_sales_dict:
+                zaq_sales_dict[brand_name] = {
+                    'ytd': {
+                        'brand_total': {'volume': 0, 'value': Decimal('0.00'), 'price': 0}
+                    }
+                }
+            # Add / overwrite month metrics
+            zaq_sales_dict[brand_name]['ytd'][month] = {
+                'volume': volume,
+                'value': value,
+                'price': price
+            }
+            # Update brand totals
+            zaq_sales_dict[brand_name]['ytd']['brand_total']['volume'] += volume
+            zaq_sales_dict[brand_name]['ytd']['brand_total']['value'] += value
+        # Compute brand total price
+        for bname, data in zaq_sales_dict.items():
+            bt = data['ytd']['brand_total']
+            bt['price'] = round(bt['value']/bt['volume'], 2) if bt['volume'] else 0
+
+        # (Optional) Compute overall column totals if needed (not requested now)
+        pprint.pprint("**** zaq_sales_dict (brand/month aggregated)")
+        pprint.pprint(zaq_sales_dict)
+    # ---------- END ZAQ YTD ----------
+    
     forecast = BudgetForecastDetail.objects.filter(
             budforline__customer_id = customer_id,
             year = forecast_year,
@@ -1036,46 +1055,35 @@ def fetch_ytd_sales(request, customer_id=None):
             total_volume=Sum('volume'),
             total_value=Sum('value')
         )
-    logger.info("Start filling dictionary of dictionaries YTD sales data and forecast data")
 
-    ytd_sales_data_dict = {}
+
+    ytd_sales_data_dict_new = {}
+    pprint.pprint("Start filling dictionary ytd_sales_data_dict_new from zaq_sales_dict")
     for the_customer, the_brand in list_of_brands_of_customer:
+        pprint.pprint("Working on brand: {}".format(the_brand.name))
         brand_name = the_brand.name
-        logger.info(f"Working on brand: {brand_name}")
-        # If brand is not in the dictionary yet, add it and prepare empty buckets
-        if brand_name not in ytd_sales_data_dict:
-            # logger.info(f"Brand {brand_name} was not in the sales_data dict, adding with last_year and ytd empty dict")
-            ytd_sales_data_dict[brand_name] = {
-                'ytd': {}
-                }
-            logger.info(f"Adding {brand_name} brand_total empty buckets")
-            ytd_sales_data_dict[brand_name]['ytd'] = {'brand_total': {'value': 0, 'volume': 0, 'price': 0}}
-        # Filter data using the budforline id, it's the triplet customer, brand, colorgroup
-        # we are filtering and taking only the brand currently in consideration in the loop
-        ytd_data = [entry for entry in ytd_sales if entry['budforline__brand__name'] == brand_name]
-        forecast_data = [entry for entry in forecast if entry['budforline__brand__name'] == brand_name]
+        if brand_name not in ytd_sales_data_dict_new:
+            ytd_sales_data_dict_new[brand_name] = {'ytd': {'brand_total': {'value': 0, 'volume': 0, 'price': 0}}}
+        # Get the 'ytd' data for this brand from zaq_sales_dict if it exists
+        ytd_data = zaq_sales_dict.get(brand_name, {}).get('ytd', {})
+        forecast_data = [entry for entry in forecast if entry['budforline__brand__name'] == brand_name] 
 
-        # working on ytd data
-        for entry in ytd_data:
-            month = entry['month']
-            volume = entry['total_volume']
-            value = entry['total_value']
-            price = round(value / volume, 2) if volume != 0 else 0
-            # logger.info(f"YTD - {customer.name} - {brand_name} - year {datetime.now().year + 1} month {month} vol {volume} - val {value}")
-            ytd_sales_data_dict[brand_name]['ytd'][month] = {
-                'volume': volume,
-                'price': price,
-                'value': value
+        # Processing ytd sales
+        for month, data in ytd_data.items():
+            ytd_sales_data_dict_new[brand_name]['ytd'][month] = {
+                'volume': data['volume'],
+                'value': data['value'],
+                'price': data['price']
             }
             #Calculation of brand totals for ytd
-            ytd_sales_data_dict[brand_name]['ytd']['brand_total']['volume'] += volume
-            ytd_sales_data_dict[brand_name]['ytd']['brand_total']['value'] += value
-        if ytd_sales_data_dict[brand_name]['ytd']['brand_total']['volume'] == 0:
-            ytd_sales_data_dict[brand_name]['ytd']['brand_total']['price'] = 0
+            ytd_sales_data_dict_new[brand_name]['ytd']['brand_total']['volume'] += volume
+            ytd_sales_data_dict_new[brand_name]['ytd']['brand_total']['value'] += value
+        if ytd_sales_data_dict_new[brand_name]['ytd']['brand_total']['volume'] == 0:
+            ytd_sales_data_dict_new[brand_name]['ytd']['brand_total']['price'] = 0
         else:
-            ytd_sales_data_dict[brand_name]['ytd']['brand_total']['price'] = ytd_sales_data_dict[brand_name]['ytd']['brand_total']['value']/ytd_sales_data_dict[brand_name]['ytd']['brand_total']['volume']
-
-        # working on forecast data
+            ytd_sales_data_dict_new[brand_name]['ytd']['brand_total']['price'] = ytd_sales_data_dict_new[brand_name]['ytd']['brand_total']['value']/ytd_sales_data_dict_new[brand_name]['ytd']['brand_total']['volume']
+        
+        # Processing forecast
         for entry in forecast_data:
             month = entry['month']
             volume = entry['total_volume']
@@ -1083,61 +1091,92 @@ def fetch_ytd_sales(request, customer_id=None):
             price = round(value / volume, 2) if volume != 0 else 0
             # logger.info(f"FCST - {customer.name} - {brand_name} - year {datetime.now().year + 1} month {month} vol {volume} - val {value}")
             # Months are in the future
-            ytd_sales_data_dict[brand_name]['ytd'][month] = {
+            ytd_sales_data_dict_new[brand_name]['ytd'][month] = {
                 'volume': volume,
                 'price': price,
                 'value': value
             }
             #Calculation of brand totals for ytd
-            ytd_sales_data_dict[brand_name]['ytd']['brand_total']['volume'] += volume
-            ytd_sales_data_dict[brand_name]['ytd']['brand_total']['value'] += value
-        if ytd_sales_data_dict[brand_name]['ytd']['brand_total']['volume'] == 0:
-            ytd_sales_data_dict[brand_name]['ytd']['brand_total']['price'] = 0
+            ytd_sales_data_dict_new[brand_name]['ytd']['brand_total']['volume'] += volume
+            ytd_sales_data_dict_new[brand_name]['ytd']['brand_total']['value'] += value
+        if ytd_sales_data_dict_new[brand_name]['ytd']['brand_total']['volume'] == 0:
+            ytd_sales_data_dict_new[brand_name]['ytd']['brand_total']['price'] = 0
         else:
-            ytd_sales_data_dict[brand_name]['ytd']['brand_total']['price'] = ytd_sales_data_dict[brand_name]['ytd']['brand_total']['value']/ytd_sales_data_dict[brand_name]['ytd']['brand_total']['volume']
-    
+            ytd_sales_data_dict_new[brand_name]['ytd']['brand_total']['price'] = ytd_sales_data_dict_new[brand_name]['ytd']['brand_total']['value']/ytd_sales_data_dict_new[brand_name]['ytd']['brand_total']['volume']
+
+    pprint.pprint("ytd_sales_data_dict_new:")
+    pprint.pprint(ytd_sales_data_dict_new)
+
+    ytd_sales_data_dict = ytd_sales_data_dict_new
+
     # Calculating column totals and grand totals of YTD
-        totals = {
-            'ytd': {},
-            'ytd_grand_totals': {'volume':0, 'value': 0, 'price':0}
-            }
-        for month_key in months.keys():
-            # Making sure month is an integer
-            month_key = int(month_key)
+    totals = {
+        'ytd': {},
+        'ytd_grand_totals': {'volume':0, 'value': Decimal('0.00'), 'price':Decimal('0.00')}
+    }
+    two_dp = Decimal('0')
+    for month_key in months.keys():
+        # Making sure month is an integer
+        month_key = int(month_key)
 
-            # Calculating ytd value and volume totals
-            totals['ytd'][month_key] = {
-                'volume': sum(ytd_sales_data_dict[brand]['ytd'].get(month_key, {}).get('volume', 0) for brand in ytd_sales_data_dict),
-                'value': sum(ytd_sales_data_dict[brand]['ytd'].get(month_key, {}).get('value', 0) for brand in ytd_sales_data_dict),
-            }
-            # Calculating ytd price totals of the month (columns)
-            totals['ytd'][month_key]['price'] = totals['ytd'][month_key]['value']/totals['ytd'][month_key]['volume'] if totals['ytd'][month_key]['volume'] != 0 else 0
-            
-            # Taking care of the totals of those months that still have to come
-            if month_key >= datetime.now().month:
-                pass
+        month_volume = sum(
+            ytd_sales_data_dict[brand]['ytd'].get(month_key, {}).get('volume', 0)
+            for brand in ytd_sales_data_dict
+        )
+        month_value = sum(
+            ytd_sales_data_dict[brand]['ytd'].get(month_key, {}).get('value', 0)
+            for brand in ytd_sales_data_dict
+        )
+        if not isinstance(month_value, Decimal):
+            month_value = Decimal(month_value)
+        month_value = month_value.quantize(two_dp)  # Ensure two decimal places
 
-            totals['ytd_grand_totals']['volume'] += totals['ytd'][month_key]['volume']
-            totals['ytd_grand_totals']['value'] += totals['ytd'][month_key]['value']
-        totals['ytd_grand_totals']['price'] = totals['ytd_grand_totals']['value']/totals['ytd_grand_totals']['volume'] if totals['ytd_grand_totals']['volume'] != 0 else 0
+        if month_volume:
+            month_price = (month_value / Decimal(month_volume))
+            month_price = month_price.quantize(two_dp, rounding=ROUND_HALF_UP)  # Ensure two decimal places
+        else:
+            month_price = Decimal('0.00')
+
+        # Calculating ytd value and volume totals
+        totals['ytd'][month_key] = {
+            'volume': month_volume,
+            'value': month_value,
+            'price': month_price
+        }
+        # Calculating ytd price totals of the month (columns)
+        # totals['ytd'][month_key]['price'] = totals['ytd'][month_key]['value']/totals['ytd'][month_key]['volume'] if totals['ytd'][month_key]['volume'] != 0 else 0
         
-        # Removing brands with brand totals that are all zeros
-        brands_to_remove = []
-        for brand, data in ytd_sales_data_dict.items():
-            logger.info(f"Working on totals of {brand}")
-            ytd_brand_total = data['ytd']['brand_total']
-            if ytd_brand_total['volume'] == 0 and ytd_brand_total['value'] == 0:
-                del ytd_sales_data_dict[brand]['ytd']
-                logger.info(f"Removing: {brand}['ytd']")
-            if not data.get('ytd'):
-                brands_to_remove.append(brand)
-                logger.info(f"Brand {brand} listed for further removal")
-        logger.info("Removing brands with no data")
-        for b in brands_to_remove:
-            logger.info(f"Brand to delete: {b}")
-            del ytd_sales_data_dict[b]
-    print("YTD")
+        # Taking care of the totals of those months that still have to come
+        if month_key >= datetime.now().month:
+            pass
+
+        totals['ytd_grand_totals']['volume'] += totals['ytd'][month_key]['volume']
+        totals['ytd_grand_totals']['value'] += totals['ytd'][month_key]['value']
+    totals['ytd_grand_totals']['price'] = totals['ytd_grand_totals']['value']/totals['ytd_grand_totals']['volume'] if totals['ytd_grand_totals']['volume'] != 0 else 0
+    
+    # Removing brands with brand totals that are all zeros
+    brands_to_remove = []
+    for brand, data in ytd_sales_data_dict.items():
+        logger.info(f"Working on totals of {brand}")
+        ytd_brand_total = data['ytd']['brand_total']
+        if ytd_brand_total['volume'] == 0 and ytd_brand_total['value'] == 0:
+            del ytd_sales_data_dict[brand]['ytd']
+            logger.info(f"Removing: {brand}['ytd']")
+        if not data.get('ytd'):
+            brands_to_remove.append(brand)
+            logger.info(f"Brand {brand} listed for further removal")
+    logger.info("Removing brands with no data")
+    for b in brands_to_remove:
+        logger.info(f"Brand to delete: {b}")
+        del ytd_sales_data_dict[b]
+    
+    pprint.pprint('*'* 90)
+    pprint.pprint("YTD SALES DATA DICT")
     pprint.pprint(ytd_sales_data_dict)
+
+    pprint.pprint("*" * 90)
+    pprint.pprint("YTD SALES DATA DICT NEW (from ZAQ)")
+
     context = {
         'customer': customer,
         'brands_of_customer': list_of_brands_of_customer,
