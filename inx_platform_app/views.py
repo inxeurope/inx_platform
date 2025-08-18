@@ -785,13 +785,13 @@ def forecast_2(request, customer_id=None):
                     'value': data['value'],
                     'price': data['price']
                 }
-                #Calculation of brand totals for ytd
-                ytd_sales_data_dict_new[brand_name]['ytd']['brand_total']['volume'] += volume
-                ytd_sales_data_dict_new[brand_name]['ytd']['brand_total']['value'] += value
-            if ytd_sales_data_dict_new[brand_name]['ytd']['brand_total']['volume'] == 0:
-                ytd_sales_data_dict_new[brand_name]['ytd']['brand_total']['price'] = 0
-            else:
-                ytd_sales_data_dict_new[brand_name]['ytd']['brand_total']['price'] = ytd_sales_data_dict_new[brand_name]['ytd']['brand_total']['value']/ytd_sales_data_dict_new[brand_name]['ytd']['brand_total']['volume']
+                # Calculation of brand totals for ytd
+            #     ytd_sales_data_dict_new[brand_name]['ytd']['brand_total']['volume'] += volume
+            #     ytd_sales_data_dict_new[brand_name]['ytd']['brand_total']['value'] += value
+            # if ytd_sales_data_dict_new[brand_name]['ytd']['brand_total']['volume'] == 0:
+            #     ytd_sales_data_dict_new[brand_name]['ytd']['brand_total']['price'] = 0
+            # else:
+            #     ytd_sales_data_dict_new[brand_name]['ytd']['brand_total']['price'] = ytd_sales_data_dict_new[brand_name]['ytd']['brand_total']['value']/ytd_sales_data_dict_new[brand_name]['ytd']['brand_total']['volume']
             
             # Processing forecast
             for entry in forecast_data:
@@ -806,7 +806,7 @@ def forecast_2(request, customer_id=None):
                     'price': price,
                     'value': value
                 }
-                #Calculation of brand totals for ytd
+                # Calculation of brand totals for ytd
                 ytd_sales_data_dict_new[brand_name]['ytd']['brand_total']['volume'] += volume
                 ytd_sales_data_dict_new[brand_name]['ytd']['brand_total']['value'] += value
             if ytd_sales_data_dict_new[brand_name]['ytd']['brand_total']['volume'] == 0:
@@ -888,12 +888,6 @@ def forecast_2(request, customer_id=None):
         pprint.pprint('*'* 90)
         pprint.pprint("YTD SALES DATA DICT")
         pprint.pprint(ytd_sales_data_dict)
-
-    
-        
-
-
-
 
         pprint.pprint("*" * 90)
         pprint.pprint("YTD SALES DATA DICT NEW (from ZAQ)")
@@ -1017,7 +1011,7 @@ def fetch_ytd_sales(request, customer_id=None):
             if brand_name not in zaq_sales_dict:
                 zaq_sales_dict[brand_name] = {
                     'ytd': {
-                        'brand_total': {'volume': 0, 'value': Decimal('0.00'), 'price': 0}
+                        'brand_total': {'volume': 0, 'value': Decimal('0.00'), 'price': Decimal('0.00')}
                     }
                 }
             # Add / overwrite month metrics
@@ -1034,7 +1028,6 @@ def fetch_ytd_sales(request, customer_id=None):
             bt = data['ytd']['brand_total']
             bt['price'] = round(bt['value']/bt['volume'], 2) if bt['volume'] else 0
 
-        # (Optional) Compute overall column totals if needed (not requested now)
         pprint.pprint("**** zaq_sales_dict (brand/month aggregated)")
         pprint.pprint(zaq_sales_dict)
     # ---------- END ZAQ YTD ----------
@@ -1075,13 +1068,13 @@ def fetch_ytd_sales(request, customer_id=None):
                 'value': data['value'],
                 'price': data['price']
             }
-            #Calculation of brand totals for ytd
-            ytd_sales_data_dict_new[brand_name]['ytd']['brand_total']['volume'] += volume
-            ytd_sales_data_dict_new[brand_name]['ytd']['brand_total']['value'] += value
-        if ytd_sales_data_dict_new[brand_name]['ytd']['brand_total']['volume'] == 0:
-            ytd_sales_data_dict_new[brand_name]['ytd']['brand_total']['price'] = 0
-        else:
-            ytd_sales_data_dict_new[brand_name]['ytd']['brand_total']['price'] = ytd_sales_data_dict_new[brand_name]['ytd']['brand_total']['value']/ytd_sales_data_dict_new[brand_name]['ytd']['brand_total']['volume']
+            # Calculation of brand totals for ytd - no need because ytd already has a brand_total
+            # ytd_sales_data_dict_new[brand_name]['ytd']['brand_total']['volume'] += volume
+            # ytd_sales_data_dict_new[brand_name]['ytd']['brand_total']['value'] += value
+        # if ytd_sales_data_dict_new[brand_name]['ytd']['brand_total']['volume'] == 0:
+        #     ytd_sales_data_dict_new[brand_name]['ytd']['brand_total']['price'] = 0
+        # else:
+        #     ytd_sales_data_dict_new[brand_name]['ytd']['brand_total']['price'] = ytd_sales_data_dict_new[brand_name]['ytd']['brand_total']['value']/ytd_sales_data_dict_new[brand_name]['ytd']['brand_total']['volume']
         
         # Processing forecast
         for entry in forecast_data:
