@@ -34,6 +34,7 @@ router.register(r'ke30', views.Ke30ViewSet)
 router.register(r'zaq', views.ZaqViewSet)
 router.register(r'budforlines', views.BudForLineViewSet)
 router.register(r'budgetforecastdetail', views.BudgetForecastDetailViewSet)
+router.register(r'orders', views.OrderViewSet)
 
 urlpatterns = [
     path('api/', include(router.urls)),

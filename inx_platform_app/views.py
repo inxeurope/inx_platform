@@ -4299,3 +4299,11 @@ class BudgetForecastDetailViewSet(viewsets.ModelViewSet):
     pagination_class = LargeResultSetPagination
     ordering_fields = ['id']
     ordering = ['-id']
+
+class OrderViewSet(viewsets.ModelViewSet):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+    permission_classes = [IsMarco]
+    pagination_class = LargeResultSetPagination
+    ordering_fields = ['id']
+    ordering = ['-id']
